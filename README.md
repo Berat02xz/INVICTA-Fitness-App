@@ -1,38 +1,25 @@
-# INFIT-Fitness-App
-An advanced AI-powered fitness app that delivers personalized workout routines, nutrition insights, and progress tracking to help you reach your goals faster.
+![fcse_logo](https://github.com/BeratAhmetaj/Museudonia/blob/main/Gif%20Animations/Logo_FINKI_UKIM_EN/Logo_FINKI_UKIM_EN_00000.png)
 
-> Work in Progress — Expo React Native Fitness App with AI-Powered Coaching
+# INFIT Workout
 
-## Key Features
+AI-powered fitness app (WIP) delivering personalized workouts, nutrition insights, and progress tracking to help you reach your goals faster.
 
-- **AI Coach Chat**  
-  Chat with your AI fitness coach who provides customized workout routines, recipes, and dynamic cards tailored to your progress and preferences.
+## Features ✨
 
-- **Nutrition AI Scanner**  
-  Simply scan your food items to automatically detect calories, fats, and carbs, making food logging quick and effortless.
+- **🤖 AI Coach Chat:** Customized workouts, recipes & dynamic tips.  
+- **📸 Nutrition Scanner:** Scan food for calories, fats & carbs automatically.  
+- **🏋️‍♂️ Adaptive Routines:** Exercise difficulty adjusts to your skill level.  
+- **📊 Progress Tracking:** Monitor BMI and key stats toward your goals.  
+- **🎯 Gamified Challenges:** Stay motivated with engaging activities.
 
-- **Personalized Exercises & Routines**  
-  Adaptive system that adjusts workout difficulty—automatically lowering or increasing exercise intensity based on your performance and skill level.
+## Roadmap 🚀
 
-- **Progress Tracking**  
-  Monitor your BMI and other vital stats until you achieve your fitness goals.
+- 🔐 User Authentication & Authorization  
+- 🏋️‍♀️ Integration with wger Exercises API  
+- 💾 Local Storage for offline data  
+- ☁️ AWS API Gateway with .NET backend
 
-- **Gamified Roadmap & Activities**  
-  Engaging challenges and activities designed to keep you motivated and consistent over time.
-
----
-## Upcoming Milestones
-- Full User Authentication and Authorization 
-- Exercises API from wger
-- LocalStorage store information
-- AWS API Gateway with C# .NET Backend
-
-### Prerequisites
-
-- Expo CLI (`npm install -g expo-cli`)  
-- Yarn or npm 
-- Visual Studio Code or Xcode (for emulators, optional)
-- Turn Public Firewall Off if using Expo Go
+## Setup 🛠️
 
 ```bash
 cd fitness-app-frontend
