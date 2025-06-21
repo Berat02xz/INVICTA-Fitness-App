@@ -1,29 +1,39 @@
-// app/(auth)/onboarding/OnboardingContext.tsx
-import React, { createContext, useContext, useState } from 'react';
-import { useRouter } from 'expo-router';
+import React, { createContext, useContext, useState } from "react";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const OnboardingScreens = [
-  'FitnessGoal',
-  'HowDoYouLookRightNow',
-  'TestScreen',
+  "FitnessGoal",
+  "HowDoYouLookRightNow",
+  "TestScreen",
 ];
 
-type OnboardingContextType = {
+const UserAnswers: { question: string; answer: any }[] = [];
+
+interface OnboardingContextType {
   index: number;
   goForward: () => void;
   goBack: () => void;
   progressNow: () => number;
-};
+  saveSelection: (question: string, answer: string | number) => void;
+}
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+const OnboardingContext = createContext<OnboardingContextType | undefined>(
+  undefined
+);
 
 export const useOnboarding = () => {
   const context = useContext(OnboardingContext);
-  if (!context) throw new Error("useOnboarding must be used inside OnboardingProvider");
+  if (!context)
+    throw new Error("useOnboarding must be used inside OnboardingProvider");
   return context;
 };
 
-export const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
+export const OnboardingProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [index, setIndex] = useState(0);
   const router = useRouter();
 
@@ -40,13 +50,30 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
       const prev = index - 1;
       setIndex(prev);
       router.push(`/Onboarding/${OnboardingScreens[prev]}`);
+    } else {
+      router.push("/");
     }
   };
 
   const progressNow = () => (index + 1) / OnboardingScreens.length;
 
+  const saveSelection = (question: string, answer: string | number) => {
+    const existingIndex = UserAnswers.findIndex(
+      (item) => item.question === question
+    );
+    if (existingIndex !== -1) {
+      UserAnswers[existingIndex].answer = answer;
+    } else {
+      UserAnswers.push({ question, answer });
+    }
+    console.log(`Saved answer for ${question}: ${answer}`);
+    console.log("Current UserAnswers:", UserAnswers);
+  };
+
   return (
-    <OnboardingContext.Provider value={{ index, goForward, goBack, progressNow }}>
+    <OnboardingContext.Provider
+      value={{ index, goForward, goBack, progressNow, saveSelection }}
+    >
       {children}
     </OnboardingContext.Provider>
   );

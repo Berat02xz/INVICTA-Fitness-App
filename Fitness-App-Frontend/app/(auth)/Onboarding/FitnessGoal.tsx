@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
 import GradientBackground from "@/components/ui/GradientBackground";
+import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -13,9 +14,17 @@ const iconmap = {
 const FitnessGoalScreen = () => {
   return (
     <View style={styles.container}>
-      <GradientBackground position="top" />
+      <GradientBackground position="bottom" />
 
       <View style={{ zIndex: 1 }}>
+
+        <QuestionOnboarding
+          question="What is your fitness goal?"
+          undertext="Knowing your goals helps us tailor your experience"
+
+        />
+        <View style={{ marginTop: 30 }}></View>
+
         <ButtonOnboarding
           height={57}
           imageSrc={iconmap.weight_loss}
@@ -24,6 +33,7 @@ const FitnessGoalScreen = () => {
             console.log("Weight Loss selected");
           }}
           oneAnswer
+          forQuestion="fitness_goal"
         />
         <ButtonOnboarding
           height={57}
@@ -33,6 +43,7 @@ const FitnessGoalScreen = () => {
             console.log("Weight Gain selected");
           }}
           oneAnswer
+          forQuestion="fitness_goal"
         />
         <ButtonOnboarding
           height={57}
@@ -42,6 +53,7 @@ const FitnessGoalScreen = () => {
             console.log("Build Strength selected");
           }}
           oneAnswer
+          forQuestion="fitness_goal"
         />
 
         <ButtonOnboarding
@@ -52,6 +64,7 @@ const FitnessGoalScreen = () => {
             console.log("Improve Health selected");
           }}
           oneAnswer
+          forQuestion="fitness_goal"
         />
       </View>
     </View>
@@ -60,9 +73,9 @@ const FitnessGoalScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#032ff0",
     flex: 1,
-    padding: 24,
+    paddingTop: 30,
+    padding: 25,
   },
 });
 
