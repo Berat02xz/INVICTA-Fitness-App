@@ -6,18 +6,22 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 
 ## Features ✨
 
-- **🤖 AI Coach Chat:** Customized workouts, recipes & dynamic tips.  
-- **📸 Nutrition Scanner:** Scan food for calories, fats & carbs automatically.  
-- **🏋️‍♂️ Adaptive Routines:** Exercise difficulty adjusts to your skill level.  
-- **📊 Progress Tracking:** Monitor BMI and key stats toward your goals.  
-- **🎯 Gamified Challenges:** Stay motivated with engaging activities.
+- ** AI Coach Chat:** Customized workouts, recipes & dynamic tips.  
+- ** Nutrition Scanner:** Scan food for calories, fats & carbs automatically.  
+- ** Adaptive Routines:** Exercise difficulty adjusts to your skill level.  
+- ** Progress Tracking:** Monitor BMI and key stats toward your goals.  
+- **Gamified Challenges:** Stay motivated with engaging activities.
 
 ## Roadmap 🚀
 
-- 🔐 User Authentication & Authorization  
-- 🏋️‍♀️ Integration with wger Exercises API  
-- 💾 Local Storage for offline data  
-- ☁️ AWS API Gateway with .NET backend
+- Zustand Refactoring to keep track of user data
+- Full Onboarding
+- Animations
+- User Authentication & Authorization
+- Persistent Database hosting in AWS
+- AWS Gateway API hosting
+- Main App Navigation
+
 
 ## Setup 🛠️
 
