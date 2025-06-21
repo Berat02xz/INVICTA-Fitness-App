@@ -10,9 +10,5 @@ export default function RootLayout() {
     'Inter-Black': require('../assets/fonts/Inter_18pt-Black.ttf'),
   });
 
-  if (!fontsLoaded) {
-    return <View><Text>Loading...</Text></View>;
-  }
-
   return <Slot />;
 }

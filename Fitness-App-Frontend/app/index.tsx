@@ -2,8 +2,10 @@ import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '@/constants/theme';
 import ButtonFit from '@/components/ui/ButtonFit';
 import GradientBackground from '@/components/ui/GradientBackground';
+import { router } from 'expo-router';
 
 export default function HomeScreen() {
+
   return (
     <View style={styles.container}>
     <GradientBackground position="top" />
@@ -20,8 +22,8 @@ export default function HomeScreen() {
 
     <View style={styles.bottom}>
         <Text style={styles.infoText}>You already made yours.</Text>
-        <ButtonFit title="Sign Up: Start The Quiz" backgroundColor={theme.primary} onPress={() => {}} />
-        <ButtonFit title="Log In: I’ve done the quiz" backgroundColor={theme.buttonsolid} hasBorder onPress={() => {}} />
+        <ButtonFit title="Sign Up: Start The Quiz" backgroundColor={theme.primary} onPress={() => { router.push('/(auth)/Onboarding/FitnessGoal') }} />
+        <ButtonFit title="Log In: I’ve done the quiz" backgroundColor={theme.buttonsolid} hasBorder onPress={() => { router.push('/login') }} />
     </View>
     </View>
     </View>
