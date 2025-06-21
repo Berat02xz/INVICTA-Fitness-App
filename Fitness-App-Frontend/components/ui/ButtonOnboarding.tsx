@@ -3,14 +3,18 @@ import { TouchableOpacity, View, Text, Image, StyleSheet } from "react-native";
 import { theme } from "@/constants/theme";
 import { useOnboarding } from '../../app/(auth)/Onboarding/NavigationService';
 
+
 interface ButtonOnboardingProps {
   height?: number;
   imageSrc?: any;
+  
   text: string;
+
   undertext?: string;
   BodyImage?: any;
   onClick?: () => void;
   oneAnswer?: boolean;
+  forQuestion?: string;
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
@@ -21,17 +25,22 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   BodyImage,
   onClick,
   oneAnswer = false,
+  forQuestion = "",
+  
 }) => {
   
   const [selected, setSelected] = useState(false);
-    const { goForward, goBack } = useOnboarding();
+    const { goForward, goBack, saveSelection } = useOnboarding();
 
   const handleClick = () => {
     setSelected(!selected);
     if (onClick) onClick();
 
+
+
     if (oneAnswer) {
         goForward();
+        saveSelection(forQuestion,text);
     }
   };
 
@@ -82,6 +91,7 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
     justifyContent: "center",
+    paddingHorizontal: 10,
   },
   text: {
     color: "#fff",
@@ -94,8 +104,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   bodyIcon: {
-    width: 24,
-    height: 24,
+    width: "50%",
+    height: "100%",
   },
 });
 

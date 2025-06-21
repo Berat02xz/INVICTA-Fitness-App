@@ -4,56 +4,62 @@ import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
 "use client";
 import GradientBackground from '@/components/ui/GradientBackground';
 import { StyleSheet } from 'react-native';
+import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
+
+const bodyImage = {
+  test: require("@/assets/icons/onboarding/BodyTest.png"),
+};
 
 const HowDoYouLookRightNow = () => {
-    return (
-        <View style={styles.container}>
-      <GradientBackground position="top" />
+  return (
+    <View style={styles.container}>
+      <GradientBackground position="bottom" />
 
       <View style={{ zIndex: 1 }}>
-        <ButtonOnboarding
-          height={57}
-          text="Lose Weight"
-          onClick={() => {
-            console.log("Weight Loss selected");
-          }}
-          oneAnswer
+
+        <QuestionOnboarding
+          question="How do you think you look right now?"
         />
-        <ButtonOnboarding
-          height={57}
-          text="Gain Weight"
-          onClick={() => {
-            console.log("Weight Gain selected");
-          }}
-          oneAnswer
-        />
-        <ButtonOnboarding
-          height={57}
-          text="Build Strength"
-          onClick={() => {
-            console.log("Build Strength selected");
-          }}
-          oneAnswer
-        />
+        <View style={{ marginTop: 30 }}></View>
 
         <ButtonOnboarding
-          height={57}
-          text="Improve Health"
+          height={150}
+          text="Average"
           onClick={() => {
-            console.log("Improve Health selected");
+            console.log("Average selected");
           }}
           oneAnswer
+          forQuestion="look_perception"
+          BodyImage={bodyImage.test}
+        />
+        <ButtonOnboarding
+          height={150}
+          text="Heavy"
+          onClick={() => {
+            console.log("Heavy selected");
+          }}
+          oneAnswer
+          forQuestion="look_perception"
+        />
+        <ButtonOnboarding
+          height={150}
+          text="Skinny"
+          onClick={() => {
+            console.log("Skinny selected");
+          }}
+          oneAnswer
+          forQuestion="look_perception"
         />
       </View>
     </View>
-    );
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#032ff0",
     flex: 1,
-    padding: 24,
+    paddingTop: 30,
+    padding: 25,
   },
 });
 
