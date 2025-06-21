@@ -14,8 +14,8 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 
 ## Roadmap 🚀
 
-- Zustand Refactoring to keep track of user data
 - Full Onboarding
+- Graphics
 - Animations
 - User Authentication & Authorization
 - Persistent Database hosting in AWS
