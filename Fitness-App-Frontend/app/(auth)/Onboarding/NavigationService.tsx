@@ -5,7 +5,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const OnboardingScreens = [
   "FitnessGoal",
   "HowDoYouLookRightNow",
-  "TestScreen",
+  "HowDoYouWantToLookLike",
+  "ActivityLevel",
+  "LastTimeHappyBodyImage",
+  "HappyBodyImageResults",
+  "",
 ];
 
 const UserAnswers: { question: string; answer: any }[] = [];

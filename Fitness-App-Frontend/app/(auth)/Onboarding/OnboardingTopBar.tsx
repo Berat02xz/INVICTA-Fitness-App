@@ -1,11 +1,31 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useOnboarding } from './NavigationService';
-import { theme } from '../../../constants/theme';
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useOnboarding } from "./NavigationService";
+import { theme } from "../../../constants/theme";
 
 const TopBar = () => {
-      const { goBack, goForward, progressNow } = useOnboarding();
+  const { goBack, goForward, progressNow } = useOnboarding();
+  const progress = useRef(new Animated.Value(progressNow())).current;
+
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: progressNow(),
+      duration: 800,
+      useNativeDriver: false,
+    }).start();
+  }, [progressNow()]);
+
+  const animatedWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={goBack} style={styles.iconButton}>
@@ -13,7 +33,9 @@ const TopBar = () => {
       </TouchableOpacity>
 
       <View style={styles.progressContainer}>
-        <View style={[styles.progressFill, { width: `${progressNow() * 100}%` }]} />
+        <Animated.View
+          style={[styles.progressFill, { width: animatedWidth }]}
+        />
       </View>
 
       <TouchableOpacity onPress={goForward} style={styles.skipButton}>
@@ -27,10 +49,10 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 25,
     paddingTop: 60,
-    backgroundColor: '#000000',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15, 
+    backgroundColor: "#000000",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
   },
   iconButton: {
     padding: 0,
@@ -39,17 +61,17 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   skip: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
     fontFamily: theme.regular,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   progressContainer: {
     flex: 1,
     height: 4,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 3,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginHorizontal: 12,
   },
   progressFill: {

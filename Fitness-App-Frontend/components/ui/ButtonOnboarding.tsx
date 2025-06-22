@@ -37,10 +37,11 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
     if (onClick) onClick();
 
 
-
     if (oneAnswer) {
+      setTimeout(() => {
+        saveSelection(forQuestion, text);
         goForward();
-        saveSelection(forQuestion,text);
+      }, 150);
     }
   };
 
