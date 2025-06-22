@@ -26,6 +26,7 @@ const TopBar = () => {
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
   });
+  
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={goBack} style={styles.iconButton}>
@@ -47,18 +48,18 @@ const TopBar = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 25,
+    paddingHorizontal: 15,
     paddingTop: 60,
     backgroundColor: "#000000",
     flexDirection: "row",
     alignItems: "center",
-    gap: 15,
+    gap: 5,
   },
   iconButton: {
-    padding: 0,
+    padding: 10,
   },
   skipButton: {
-    padding: 0,
+    padding: 10,
   },
   skip: {
     color: "#FFFFFF",

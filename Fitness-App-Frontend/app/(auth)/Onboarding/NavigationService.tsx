@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const OnboardingScreens = [
   "FitnessGoal",
@@ -9,10 +8,17 @@ export const OnboardingScreens = [
   "ActivityLevel",
   "LastTimeHappyBodyImage",
   "HappyBodyImageResults",
-  "",
+  "PushUps",
+  "DailyWalk",
+  "HowMuchSleep",
+  "HowMuchWater",
+  "HydrationResults",
+  "FeelBetweenMeals",
+  "DietFollow",
+  "DietResults",
 ];
 
-const UserAnswers: { question: string; answer: any }[] = [];
+export const UserAnswers: { question: string; answer: any }[] = [];
 
 interface OnboardingContextType {
   index: number;
