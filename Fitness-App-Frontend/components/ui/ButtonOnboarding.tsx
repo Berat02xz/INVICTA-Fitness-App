@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { TouchableOpacity, View, Text, Image, StyleSheet } from "react-native";
 import { theme } from "@/constants/theme";
 import { useOnboarding } from '../../app/(auth)/Onboarding/NavigationService';
-
+import { ViewStyle } from "react-native";
 
 interface ButtonOnboardingProps {
   height?: number;
@@ -15,6 +15,8 @@ interface ButtonOnboardingProps {
   onClick?: () => void;
   oneAnswer?: boolean;
   forQuestion?: string;
+  style?: ViewStyle; 
+
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
@@ -26,7 +28,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   onClick,
   oneAnswer = false,
   forQuestion = "",
-  
+  style = {}, 
 }) => {
   
   const [selected, setSelected] = useState(false);
@@ -50,6 +52,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
       style={[
         styles.button,
         { height, borderColor: selected ? theme.primary : "#5B5B5B" },
+        style,
       ]}
       onPress={handleClick}
     >

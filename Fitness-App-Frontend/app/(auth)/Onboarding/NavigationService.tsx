@@ -16,6 +16,7 @@ export const OnboardingScreens = [
   "FeelBetweenMeals",
   "DietFollow",
   "DietResults",
+  "MoreAboutYou",
 ];
 
 export const UserAnswers: { question: string; answer: any }[] = [];
