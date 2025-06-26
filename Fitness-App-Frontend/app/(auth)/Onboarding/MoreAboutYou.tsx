@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    height: 40,
+    height: 45,
     borderColor: theme.buttonBorder,
     backgroundColor: theme.buttonsolid,
     borderWidth: 1,

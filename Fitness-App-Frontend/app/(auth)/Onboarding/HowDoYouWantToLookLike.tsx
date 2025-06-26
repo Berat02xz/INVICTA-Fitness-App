@@ -7,7 +7,9 @@ import { StyleSheet } from 'react-native';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
 
 const bodyImage = {
-  test: require("@/assets/icons/onboarding/BodyTest.png"),
+  Slim: require("@/assets/icons/onboarding/Skinny.png"),
+  Cut: require("@/assets/icons/onboarding/Cut.png"),
+  Bulk: require("@/assets/icons/onboarding/Bulk.png"),
 };
 
 const HowDoYouWantToLookLike = () => {
@@ -30,7 +32,7 @@ const HowDoYouWantToLookLike = () => {
           }}
           oneAnswer
           forQuestion="look_goal"
-          BodyImage={bodyImage.test}
+          BodyImage={bodyImage.Slim}
         />
         <ButtonOnboarding
           height={150}
@@ -40,6 +42,7 @@ const HowDoYouWantToLookLike = () => {
           }}
           oneAnswer
           forQuestion="look_goal"
+          BodyImage={bodyImage.Cut}
         />
         <ButtonOnboarding
           height={150}
@@ -49,6 +52,7 @@ const HowDoYouWantToLookLike = () => {
           }}
           oneAnswer
           forQuestion="look_goal"
+          BodyImage={bodyImage.Bulk}
         />
       </View>
     </View>
