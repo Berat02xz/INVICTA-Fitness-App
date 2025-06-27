@@ -6,54 +6,47 @@ import GradientBackground from "@/components/ui/GradientBackground";
 import { StyleSheet } from "react-native";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 
-const activity_level = {
-  home: require("@/assets/icons/onboarding/home_equipment.png"),
-  gym: require("@/assets/icons/onboarding/gym_equipment.png"),
-  full: require("@/assets/icons/onboarding/full_equipment.png"),
-};
 
-const AccessToEquipment = () => {
+const AdditionalChallenge = () => {
   return (
     <View style={styles.container}>
       <GradientBackground position="bottom" />
 
       <View style={{ zIndex: 1 }}>
         <QuestionOnboarding
-          question="Which type of equipment do you have access to?"
+          question="In addition to your goal, what challenge would you like to join?"
         />
         <View style={{ marginTop: 30 }}></View>
 
         <ButtonOnboarding
           height={57}
-          text="No Equipment"
-          imageSrc={activity_level.home}
+          text="Walk It!"
+          undertext="Walk 10K steps for 7 days in a row."
           onClick={() => {
-            console.log("No Equipment selected");
+            console.log("Walk It! selected");
           }}
           oneAnswer
-          forQuestion="equipment_access"
+          forQuestion="challenge"
         />
         <ButtonOnboarding
           height={57}
-          text="Basic Equipment"
-          undertext="Resistance band, dumbbells"
-          imageSrc={activity_level.gym}
+          text="0 Alcohol Intake"
+          undertext="Cut out alcohol from your body."
           onClick={() => {
-            console.log("Basic Equipment selected");
+            console.log("0 Alcohol Intake selected");
           }}
           oneAnswer
-          forQuestion="equipment_access"
+          forQuestion="challenge"
         />
         <ButtonOnboarding
           height={57}
-          text="Full Equipment"
-          undertext="Bands, weights & bars, machines"
-          imageSrc={activity_level.full}
+          text="21 days no sugar"
+          undertext="cut out all the refined sugar for 21 days."
           onClick={() => {
-            console.log("Full Equipment selected");
+            console.log("21 days no sugar selected");
           }}
           oneAnswer
-          forQuestion="equipment_access"
+          forQuestion="challenge"
         />
 
       </View>
@@ -69,4 +62,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AccessToEquipment;
+export default AdditionalChallenge;

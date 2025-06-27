@@ -22,6 +22,8 @@ export const OnboardingScreens = [
   "JourneyStartsNow",
   "ChooseWorkoutPlace",
   "AccessToEquipment",
+  "AdditionalChallenge",
+  "OnboardingComplete",
 ];
 
 export const UserAnswers: { question: string; answer: any }[] = [];
@@ -82,8 +84,9 @@ export const OnboardingProvider = ({
     } else {
       UserAnswers.push({ question, answer });
     }
-    console.log(`Saved answer for ${question}: ${answer}`);
-    console.log("Current UserAnswers:", UserAnswers);
+    // Commented for security reasons, uncomment for debugging
+    // console.log(`Saved answer for ${question}: ${answer}`);
+    // console.log("Current UserAnswers:", UserAnswers);
   };
 
   return (

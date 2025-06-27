@@ -43,7 +43,6 @@ const MoreAboutYou = () => {
     UserAnswers.push({question: "weight", answer: weight});
     UserAnswers.push({question: "height", answer: height});
     UserAnswers.push({question: "unit", answer: unit});
-    console.log("User answers submitted:", UserAnswers);
   }
 
   return (

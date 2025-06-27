@@ -5,30 +5,38 @@ import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import ButtonFit from "@/components/ui/ButtonFit";
 import { useOnboarding } from "./NavigationService";
 import { theme } from "@/constants/theme";
-import UnitSwitch from "@/components/ui/UnitSwitch";
 import { UserAnswers } from "./NavigationService";
 
-const DesiredTargetWeight = () => {
+const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
 
-  const [unit, setUnit] = useState<"metric" | "imperial">(UserAnswers.find(answer => answer.question === "unit")?.answer || "metric");
-  const [targetweight, setTargetWeight] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   function handleSubmit() {
-    UserAnswers.push({ question: "target weight", answer: targetweight });
+    UserAnswers.push({ question: "name", answer: name });
+    UserAnswers.push({ question: "email", answer: email });
+    UserAnswers.push({ question: "password", answer: password });
+    console.log("User completed onboarding");
   }
 
   return (
     <View style={styles.container}>
       <GradientBackground position="bottom" />
       <View style={styles.main}>
-        <View style={{ justifyContent: "center", alignContent: "center", alignItems: "center" }}>
-          <QuestionOnboarding
-            question="Lets set a desired target weight"
-            undertext="This helps us design your workouts to fit your lifestyle"
+        <View
+          style={{
+            justifyContent: "center",
+            alignContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <QuestionOnboarding 
+            question="Your personalized workout plan is ready!"
           />
         </View>
-        <View style={{ marginTop: 20, flexGrow: 1, alignItems: "center" }}>
+        <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
           <View
             style={{
               flexDirection: "column",
@@ -37,24 +45,44 @@ const DesiredTargetWeight = () => {
               flexGrow: 1,
             }}
           >
-            <Text style={styles.infoText}>Target Weight</Text>
+            <Text style={styles.infoText}>What should we call you?</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="default"
+              placeholder="Name"
+              autoComplete="name"
+              placeholderTextColor={theme.buttonBorder}
+              value={name}
+              onChangeText={setName}
+            />
+            <Text style={styles.infoText}>Your Email</Text>
 
             <View
               style={{ flexDirection: "row", gap: 10, justifyContent: "left" }}
             >
               <TextInput
                 style={styles.input}
-                value={targetweight.toString()}
-                onChangeText={setTargetWeight}
-                keyboardType="numeric"
-                placeholder={unit === "metric" ? "Kg" : "Lb"}
+                keyboardType="email-address"
+                placeholder="Email"
                 placeholderTextColor={theme.buttonBorder}
+                autoComplete="email"
+                value={email}
+                onChangeText={setEmail}
               />
-              <UnitSwitch
-                unit={unit}
-                onSelect={setUnit}
-                metricLabel="KG"
-                imperialLabel="LB"
+            </View>
+            <Text style={styles.infoText}>Enter A Password</Text>
+            <View
+              style={{ flexDirection: "row", gap: 10, justifyContent: "left" }}
+            >
+              <TextInput
+                style={styles.input}
+                keyboardType="default"
+                secureTextEntry={true}
+                placeholder="***********"
+                autoComplete="password"
+                placeholderTextColor={theme.buttonBorder}
+                value={password}
+                onChangeText={setPassword}
               />
             </View>
           </View>
@@ -78,8 +106,8 @@ const DesiredTargetWeight = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 30,
-    paddingVertical: 25,
+    paddingTop: 25,
+    padding: 25,
   },
   main: {
     flex: 1,
@@ -105,8 +133,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: theme.regular,
     color: theme.textColor,
-    width: 250,
+    width: 300,
   },
 });
 
-export default DesiredTargetWeight;
+export default OnboardingComplete;
