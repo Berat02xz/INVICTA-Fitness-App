@@ -18,6 +18,10 @@ export const OnboardingScreens = [
   "DietResults",
   "MoreAboutYou",
   "BMIResults",
+  "DesiredTargetWeight",
+  "JourneyStartsNow",
+  "ChooseWorkoutPlace",
+  "AccessToEquipment",
 ];
 
 export const UserAnswers: { question: string; answer: any }[] = [];

@@ -50,12 +50,14 @@ const MoreAboutYou = () => {
     <View style={styles.container}>
       <GradientBackground position="bottom" />
       <View style={styles.main}>
+                <View style={{ marginLeft: 55, justifyContent: "center", alignContent: "center", alignItems: "center" }}>
+        
           <QuestionOnboarding
             question="Tell us more about you.."
             undertext="This helps us design your workouts to fit your lifestyle"
           />
-
-        <View style={{ marginTop: 20, flexGrow: 1, alignItems: "center" }}>
+</View>
+        <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
           <View
             style={{
               flexDirection: "column",
@@ -112,7 +114,7 @@ const MoreAboutYou = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 30,
+    paddingTop: 25,
     padding: 25,
   },
   main: {
