@@ -8,6 +8,11 @@ namespace FitnessAppBackend.Service.Implementations
     {
         protected readonly IGenericRepository<T> _repository;
 
+        public GenericService(IGenericRepository<T> repository)
+        {
+            _repository = repository;
+        }
+
         public async Task AddAsync(T entity)
         {
             await _repository.AddAsync(entity);

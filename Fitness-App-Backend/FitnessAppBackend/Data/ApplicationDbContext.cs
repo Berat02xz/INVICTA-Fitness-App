@@ -22,7 +22,8 @@ namespace FitnessAppBackend.Data
             modelBuilder.Entity<Model.OnboardingAnswers>()
                 .HasOne(o => o.User)
                 .WithMany(u => u.OnboardingAnswers)
-                .HasForeignKey(o => o.UserId);
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
 

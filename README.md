@@ -19,7 +19,7 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ✅ Completed | Full Onboarding              |
 | ✅ Completed | Graphics                    |
 | ✅ Completed | Animations                  |
-| 🔄 Ongoing  | User Authentication & Authorization |
+| 🔄 Ongoing  | User Authentication using JWT |
 | ⏳ Planned  | Persistent Database hosting in AWS |
 | ⏳ Planned  | Main App Navigation          |
 | ⏳ Planned | GPT ChatBot system with custom replies |
