@@ -19,8 +19,8 @@ namespace FitnessAppBackend.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
-        [Authorize]
         [HttpGet("all")]
+        [Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllAsync();

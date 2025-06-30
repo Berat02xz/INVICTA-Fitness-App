@@ -12,6 +12,7 @@ namespace FitnessAppBackend.Service.Implementations
         {
             _config = config;
         }
+      
         public string GenerateToken(Guid userId, string email, string name)
         {
             var Claims = new[]

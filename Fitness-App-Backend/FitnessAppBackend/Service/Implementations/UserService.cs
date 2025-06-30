@@ -8,9 +8,9 @@ namespace FitnessAppBackend.Service.Implementations
     public class UserService : GenericService<User>, IUserService
     {
         private readonly IUserRepository _repository;
-        public UserService(IUserRepository _repository) : base(_repository)
-        {    
-            _repository = _repository;
+        public UserService(IUserRepository repository) : base(repository)
+        {
+            _repository = repository;
         }
 
         public string HashPassword(string password)

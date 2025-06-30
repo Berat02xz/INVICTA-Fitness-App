@@ -68,6 +68,31 @@ builder.Services.AddAuthentication(options =>
 
         ClockSkew = TimeSpan.Zero
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("Token validated!");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+//Cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 builder.Services.AddAuthorization();
@@ -90,8 +115,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+var logger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger("Startup");
+logger.LogInformation($"Issuer: {builder.Configuration["Jwt:Issuer"]}");
+logger.LogInformation($"Audience: {builder.Configuration["Jwt:Audience"]}");
+logger.LogInformation($"Key: {builder.Configuration["Jwt:Key"]}");
+
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
