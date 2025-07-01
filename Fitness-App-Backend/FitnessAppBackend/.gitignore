@@ -66,3 +66,20 @@ Thumbs.db
 # Ignore temporary files
 *.tmp
 *.temp
+
+*.v2
+/Fitness-App-Backend/FitnessAppBackend/.vs
+# Ignore Visual Studio temporary files, build results, and user-specific files
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Ignore Copilot Chat sessions
+**/copilot-chat/
+
+# Optional: Ignore common temp and log files
+*.log
+*.tmp
+*.temp
+*/DocumentLayout.backup.json

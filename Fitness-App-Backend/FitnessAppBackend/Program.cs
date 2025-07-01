@@ -1,5 +1,4 @@
-﻿using FitnessAppBackend;
-using FitnessAppBackend.Data; // Add this using directive for Swagger
+﻿using FitnessAppBackend.Data;
 using FitnessAppBackend.Repository;
 using FitnessAppBackend.Repository.Implementations;
 using FitnessAppBackend.Service;

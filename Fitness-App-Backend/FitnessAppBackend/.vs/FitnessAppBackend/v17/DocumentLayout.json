@@ -3,28 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\endpoint-test.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:endpoint-test.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\repository\\implementations\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:repository\\implementations\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\endpoint-test.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:endpoint-test.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\repository\\implementations\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:repository\\implementations\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\implementations\\jwttokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -43,10 +47,6 @@
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\implementations\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:service\\implementations\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -58,11 +58,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 312,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 1,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\User.cs",
               "RelativeDocumentMoniker": "Model\\User.cs",
@@ -71,20 +71,12 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-30T17:33:10.406Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Endpoint-test.http",
-              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Endpoint-test.http",
-              "RelativeDocumentMoniker": "Endpoint-test.http",
-              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Endpoint-test.http*",
-              "RelativeToolTip": "Endpoint-test.http*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
-              "WhenOpened": "2025-06-30T18:24:50.68Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Bookmark",
@@ -98,14 +90,14 @@
               "RelativeDocumentMoniker": "Properties\\launchSettings.json",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Properties\\launchSettings.json",
               "RelativeToolTip": "Properties\\launchSettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABGAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-06-30T18:22:27.876Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "JwtTokenService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\JwtTokenService.cs",
               "RelativeDocumentMoniker": "Service\\Implementations\\JwtTokenService.cs",
@@ -113,12 +105,11 @@
               "RelativeToolTip": "Service\\Implementations\\JwtTokenService.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAqwA4AAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T17:13:12.058Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T17:13:12.058Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "Controllers\\UserController.cs",
@@ -131,46 +122,59 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-06-30T16:43:54.425Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAGMAAAAAAAAAAAAAAHkAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-30T16:42:17.242Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 4,
+              "Title": "Endpoint-test.http",
+              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Endpoint-test.http",
+              "RelativeDocumentMoniker": "Endpoint-test.http",
+              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Endpoint-test.http",
+              "RelativeToolTip": "Endpoint-test.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAgAQAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2025-06-30T18:24:50.68Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "GenericRepository.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\Implementations\\GenericRepository.cs",
               "RelativeDocumentMoniker": "Repository\\Implementations\\GenericRepository.cs",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\Implementations\\GenericRepository.cs",
               "RelativeToolTip": "Repository\\Implementations\\GenericRepository.cs",
-              "ViewState": "AgIAABsAAAAAAAAAAAAjwCkAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAACAAAAAAAAAAAAAqwCQAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-30T18:04:44.331Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "IGenericService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IGenericService.cs",
               "RelativeDocumentMoniker": "Service\\IGenericService.cs",
@@ -178,12 +182,11 @@
               "RelativeToolTip": "Service\\IGenericService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T18:04:51.378Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T18:04:51.378Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "GenericService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\GenericService.cs",
               "RelativeDocumentMoniker": "Service\\Implementations\\GenericService.cs",
@@ -191,8 +194,7 @@
               "RelativeToolTip": "Service\\Implementations\\GenericService.cs",
               "ViewState": "AgIAAAoAAAAAAAAAAAAqwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T18:04:46.378Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T18:04:46.378Z"
             },
             {
               "$type": "Document",
@@ -208,7 +210,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Data\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "Data\\ApplicationDbContext.cs",

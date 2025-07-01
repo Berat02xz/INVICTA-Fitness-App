@@ -1,6 +1,4 @@
-*.v2
-/Fitness-App-Backend/FitnessAppBackend/.vs
-Fitness-App-Backend/FitnessAppBackend/.vs/FitnessAppBackend/v17/DocumentLayout.backup.json
-Fitness-App-Backend/FitnessAppBackend/.vs/FitnessAppBackend/v17/DocumentLayout.json
-Fitness-App-Backend/FitnessAppBackend/.vs/FitnessAppBackend/v17/DocumentLayout.backup.json
-Fitness-App-Backend/FitnessAppBackend/.vs/FitnessAppBackend/v17/DocumentLayout.backup.json
+/ProjectLauncher/ProjectLauncher/.vs
+.env
+/ProjectLauncher/ProjectLauncher/obj
+/ProjectLauncher/ProjectLauncher/bin
