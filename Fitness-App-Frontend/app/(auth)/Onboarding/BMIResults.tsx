@@ -1,17 +1,12 @@
-import React, { useRef, useState } from "react";
-import { View, Text } from "react-native";
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-import GradientBackground from "@/components/ui/GradientBackground";
-import { StyleSheet } from "react-native";
-import ButtonFit from "@/components/ui/ButtonFit";
-import { theme } from "@/constants/theme";
-import { useOnboarding } from "./NavigationService";
-import { Image } from "expo-image";
 import BMIBar from "@/assets/icons/onboarding/BMIBar.png";
 import BMIIndicator from "@/assets/icons/onboarding/BMIIndicator.png";
-import { Animated } from "react-native";
-import { useEffect } from "react";
-import { UserAnswers } from "./NavigationService";
+import ButtonFit from "@/components/ui/ButtonFit";
+import GradientBackground from "@/components/ui/GradientBackground";
+import { theme } from "@/constants/theme";
+import { Image } from "expo-image";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
+import { useOnboarding, UserAnswers } from "./NavigationService";
 
 function BMIResults() {
   const onboardingContext = useOnboarding();
@@ -194,7 +189,7 @@ const styles = StyleSheet.create({
   },
   main: {
     flex: 1,
-    paddingTop: 120,
+    paddingTop: 90,
     paddingBottom: 80,
     paddingHorizontal: 24,
     justifyContent: "space-between",
@@ -218,7 +213,7 @@ const styles = StyleSheet.create({
   },
   sloganBold: {
     fontSize: 21,
-    fontFamily: theme.medium,
+    fontFamily: theme.bold,
     color: "#FFFFFF",
     textAlign: "center",
   },
@@ -227,7 +222,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.light,
     color: "#D9D9D9",
     textAlign: "center",
-    marginTop: 2,
     width: "65%",
   },
   infoText: {

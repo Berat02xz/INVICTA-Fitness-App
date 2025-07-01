@@ -1,14 +1,12 @@
-import { View, Text, StyleSheet, Animated, Easing } from "react-native";
-import { theme } from "@/constants/theme";
-import ButtonFit from "@/components/ui/ButtonFit";
-import GradientBackground from "@/components/ui/GradientBackground";
-import { router } from "expo-router";
-import { use, useEffect, useState } from "react";
 import {
   useOnboarding,
   UserAnswers,
 } from "@/app/(auth)/Onboarding/NavigationService";
-import { useRef } from "react";
+import ButtonFit from "@/components/ui/ButtonFit";
+import GradientBackground from "@/components/ui/GradientBackground";
+import { theme } from "@/constants/theme";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 
 export default function JourneyStartsNow() {
   const { goForward } = useOnboarding();

@@ -1,14 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonFit from "@/components/ui/ButtonFit";
 import GradientBackground from "@/components/ui/GradientBackground";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
-import ButtonFit from "@/components/ui/ButtonFit";
-import { useOnboarding } from "./NavigationService";
-import { theme } from "@/constants/theme";
 import UnitSwitch from "@/components/ui/UnitSwitch";
-import {UserAnswers} from "./NavigationService";
-import { KeyboardAvoidingView,Platform,ScrollView } from "react-native";
+import { theme } from "@/constants/theme";
+import React, { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useOnboarding, UserAnswers } from "./NavigationService";
 
 const maleIcon = require("@/assets/icons/onboarding/Male.png");
 const femaleIcon = require("@/assets/icons/onboarding/Female.png");
@@ -49,7 +46,7 @@ const MoreAboutYou = () => {
     <View style={styles.container}>
       <GradientBackground position="bottom" />
       <View style={styles.main}>
-                <View style={{ marginLeft: 55, justifyContent: "center", alignContent: "center", alignItems: "center" }}>
+                <View style={{ justifyContent: "center", alignContent: "center", alignItems: "center" }}>
         
           <QuestionOnboarding
             question="Tell us more about you.."
@@ -114,8 +111,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 25,
-    padding: 25,
-  },
+    paddingVertical: 30,},
   main: {
     flex: 1,
     
