@@ -5,7 +5,7 @@
     "displayName": "INFIT",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/AppIcon@2x.png",
+    "icon": "./assets/images/Invictus_icon.png",
     "scheme": "fitfe",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,24 +15,24 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/ic_launcher_foreground.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FF2605"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/icon-192.png"
+      "favicon": "./assets/images/favicon.ico"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/AppIcon@2x.png",
+          "image": "./assets/images/Splash_Screen.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#FF2605"
         }
       ]
     ],

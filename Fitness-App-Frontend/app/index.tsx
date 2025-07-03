@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { theme } from '@/constants/theme';
 import ButtonFit from '@/components/ui/ButtonFit';
 import GradientBackground from '@/components/ui/GradientBackground';
+import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
 
@@ -12,7 +12,7 @@ export default function HomeScreen() {
 
     <View style={styles.main}>
     <View style={styles.top}>
-        <Text style={styles.Logo}>INFIT</Text>
+        <Text style={styles.Logo}>INVICTUS</Text>
     </View>
 
     <View style={styles.middle}>

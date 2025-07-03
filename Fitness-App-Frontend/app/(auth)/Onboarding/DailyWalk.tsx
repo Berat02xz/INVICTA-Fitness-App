@@ -1,11 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
 import GradientBackground from "@/components/ui/GradientBackground";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
-import ButtonFit from "@/components/ui/ButtonFit";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "./NavigationService";
-import { theme } from "@/constants/theme";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
