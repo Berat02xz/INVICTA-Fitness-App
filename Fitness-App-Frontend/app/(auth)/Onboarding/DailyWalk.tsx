@@ -1,6 +1,6 @@
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-import GradientBackground from "@/components/ui/GradientBackground";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "./NavigationService";
@@ -16,15 +16,14 @@ const DailyWalk = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
+      <View style={styles.container}>
         <QuestionOnboarding question="How much do you walk daily?" />
-        <View style={{ marginTop: 30 }}></View>
+        <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
-          height={57}
-          text="Less than 1 hour"
+                    text="Less than 1 hour"
           onClick={() => {
             console.log("Less than 1 hour selected");
           }}
@@ -32,8 +31,7 @@ const DailyWalk = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="1-2 hours 🚶"
+                    text="1-2 hours 🚶"
           onClick={() => {
             console.log("1-2 hours selected");
           }}
@@ -41,25 +39,29 @@ const DailyWalk = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="More than 2 hours 🚶🚶"
+                    text="More than 2 hours 🚶🚶"
           onClick={() => {
             console.log("More than 2 hours selected");
           }}
           forQuestion="DailyWalk"
           oneAnswer
         />
-        
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: "relative",
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1,
+    alignItems: "center",
   },
 });
 

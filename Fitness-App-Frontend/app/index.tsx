@@ -1,30 +1,31 @@
 import ButtonFit from '@/components/ui/ButtonFit';
-import GradientBackground from '@/components/ui/GradientBackground';
 import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-    <GradientBackground position="top" />
 
     <View style={styles.main}>
     <View style={styles.top}>
-        <Text style={styles.Logo}>INVICTUS</Text>
-    </View>
+      <Image
+        source={require('@/assets/icons/branding/Invictus_Logo.png')}
+        style={styles.Logo}
+        resizeMode="contain"
+      />
 
-    <View style={styles.middle}>
-        <Text style={styles.sloganBold}>One decision</Text>
+        <Text style={[styles.sloganBold, {marginTop:10}]}>One decision</Text>
         <Text style={styles.sloganRegular}>That's all it takes.</Text>
     </View>
 
+
+    
+    </View>
     <View style={styles.bottom}>
-        <Text style={styles.infoText}>You already made yours.</Text>
         <ButtonFit title="Sign Up: Start The Quiz" backgroundColor={theme.primary} onPress={() => { router.push('/(auth)/Onboarding/FitnessGoal') }} />
         <ButtonFit title="Log In: I’ve done the quiz" backgroundColor={theme.buttonsolid} hasBorder onPress={() => { router.push('/login') }} />
-    </View>
     </View>
     </View>
   );
@@ -51,6 +52,9 @@ const styles = StyleSheet.create({
   bottom: {
     alignItems: 'center',
     gap: 10,
+    marginBottom: 70,
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   Logo: {
     fontSize: 48,
@@ -59,12 +63,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sloganBold: {
-    fontSize: 25,
+    fontSize: 30,
     fontFamily: theme.bold,
     color: theme.textColor,
   },
   sloganRegular: {
-    fontSize: 25,
+    fontSize: 30,
     fontFamily: theme.regular,
     color: theme.textColor,
   },

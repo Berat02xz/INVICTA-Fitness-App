@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { TouchableOpacity, View, Text, Image, StyleSheet } from "react-native";
 import { theme } from "@/constants/theme";
+import React, { useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
 import { useOnboarding } from '../../app/(auth)/Onboarding/NavigationService';
-import { ViewStyle } from "react-native";
 
 interface ButtonOnboardingProps {
   height?: number;
@@ -20,7 +19,7 @@ interface ButtonOnboardingProps {
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
-  height = 57,
+  height = 80,
   imageSrc,
   text,
   undertext,
@@ -51,7 +50,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
     <TouchableOpacity
       style={[
         styles.button,
-        { height, borderColor: selected ? theme.primary : "#5B5B5B" },
+        { height, borderColor: selected ? theme.primary : "transparent", backgroundColor: selected ? theme.deepPrimary : theme.buttonsolid },
         style,
       ]}
       onPress={handleClick}
@@ -77,16 +76,19 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
 };
 
 const styles = StyleSheet.create({
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 15,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderRadius: 6,
-    backgroundColor: theme.buttonsolid,
-  },
+button: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  paddingHorizontal: 15,
+  marginBottom: 10,
+  borderWidth: 1,
+  borderRadius: 10,
+  backgroundColor: theme.buttonsolid,
+  gap: 14,
+  width: 330,
+  alignSelf: 'center',
+},
   icon: {
     width: 30,
     height: 31,

@@ -1,10 +1,8 @@
-import React from "react";
-import { View, Text } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-("use client");
-import GradientBackground from "@/components/ui/GradientBackground";
-import { StyleSheet } from "react-native";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
 const activity_level = {
   home: require("@/assets/icons/onboarding/home_equipment.png"),
@@ -14,17 +12,15 @@ const activity_level = {
 
 const AccessToEquipment = () => {
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
-        <QuestionOnboarding
-          question="Which type of equipment do you have access to?"
-        />
-        <View style={{ marginTop: 30 }}></View>
+      <View style={styles.container}>
+        <QuestionOnboarding question="Which type of equipment do you have access to?" />
+        
+        <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          height={57}
           text="No Equipment"
           imageSrc={activity_level.home}
           onClick={() => {
@@ -34,7 +30,6 @@ const AccessToEquipment = () => {
           forQuestion="equipment_access"
         />
         <ButtonOnboarding
-          height={57}
           text="Basic Equipment"
           undertext="Resistance band, dumbbells"
           imageSrc={activity_level.gym}
@@ -45,7 +40,6 @@ const AccessToEquipment = () => {
           forQuestion="equipment_access"
         />
         <ButtonOnboarding
-          height={57}
           text="Full Equipment"
           undertext="Bands, weights & bars, machines"
           imageSrc={activity_level.full}
@@ -55,17 +49,22 @@ const AccessToEquipment = () => {
           oneAnswer
           forQuestion="equipment_access"
         />
-
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: 'relative', 
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1, 
+    alignItems: "center",
   },
 });
 

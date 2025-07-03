@@ -1,6 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { theme } from '@/constants/theme';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 interface ButtonFitProps {
     title: string;
@@ -9,10 +8,10 @@ interface ButtonFitProps {
     onPress: () => void;
 }
 
-const ButtonFit: React.FC<ButtonFitProps> = ({ title, backgroundColor, hasBorder = false, onPress }) => {
+const ButtonFit: React.FC<ButtonFitProps> = ({ title, backgroundColor, onPress }) => {
     return (
         <TouchableOpacity
-            style={[styles.button, { backgroundColor: backgroundColor}, hasBorder ? { borderWidth: 1, borderColor: theme.buttonBorder } : {}]}
+            style={[styles.button, { backgroundColor: backgroundColor }]}
             onPress={onPress}
         >
             <Text style={styles.text}>{title}</Text>
@@ -23,8 +22,8 @@ const ButtonFit: React.FC<ButtonFitProps> = ({ title, backgroundColor, hasBorder
 const styles = StyleSheet.create({
     button: {
         width: 337,
-        height: 50,
-        borderRadius: 5,
+        height: 62,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
     },

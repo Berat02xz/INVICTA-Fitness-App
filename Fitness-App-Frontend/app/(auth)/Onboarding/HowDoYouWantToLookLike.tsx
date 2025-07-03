@@ -1,10 +1,9 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
-"use client";
-import GradientBackground from '@/components/ui/GradientBackground';
-import { StyleSheet } from 'react-native';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
+import SolidBackground from '@/components/ui/SolidBackground';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+"use client";
 
 const bodyImage = {
   Slim: require("@/assets/icons/onboarding/Skinny.png"),
@@ -14,22 +13,17 @@ const bodyImage = {
 
 const HowDoYouWantToLookLike = () => {
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
-
-        <QuestionOnboarding
-          question="How do you want to look like?"
-        />
-        <View style={{ marginTop: 30 }}></View>
+      <View style={styles.container}>
+        <QuestionOnboarding question="How do you want to look like?" />
+        <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
           height={150}
           text="Slim"
-          onClick={() => {
-            console.log("Slim selected");
-          }}
+          onClick={() => console.log("Slim selected")}
           oneAnswer
           forQuestion="look_goal"
           BodyImage={bodyImage.Slim}
@@ -37,9 +31,7 @@ const HowDoYouWantToLookLike = () => {
         <ButtonOnboarding
           height={150}
           text="Cut"
-          onClick={() => {
-            console.log("Cut selected");
-          }}
+          onClick={() => console.log("Cut selected")}
           oneAnswer
           forQuestion="look_goal"
           BodyImage={bodyImage.Cut}
@@ -47,9 +39,7 @@ const HowDoYouWantToLookLike = () => {
         <ButtonOnboarding
           height={150}
           text="Bulk"
-          onClick={() => {
-            console.log("Bulk selected");
-          }}
+          onClick={() => console.log("Bulk selected")}
           oneAnswer
           forQuestion="look_goal"
           BodyImage={bodyImage.Bulk}
@@ -60,10 +50,16 @@ const HowDoYouWantToLookLike = () => {
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: 'relative', // Important for absolute background
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1,
+    alignItems: "center",
   },
 });
 

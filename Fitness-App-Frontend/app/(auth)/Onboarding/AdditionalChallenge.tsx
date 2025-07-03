@@ -1,25 +1,23 @@
-import React from "react";
-import { View, Text } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-("use client");
-import GradientBackground from "@/components/ui/GradientBackground";
-import { StyleSheet } from "react-native";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
-
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
 const AdditionalChallenge = () => {
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      {/* Background covers entire screen */}
+      <SolidBackground style={StyleSheet.absoluteFill} />
 
-      <View style={{ zIndex: 1 }}>
-        <QuestionOnboarding
-          question="In addition to your goal, what challenge would you like to join?"
-        />
-        <View style={{ marginTop: 30 }}></View>
+      {/* Content with padding */}
+      <View style={styles.container}>
+        <QuestionOnboarding question="Pick an extra challenge to join:" 
+        undertext="No worries, you can edit this later." />
+
+        <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          height={57}
           text="Walk It!"
           undertext="Walk 10K steps for 7 days in a row."
           onClick={() => {
@@ -29,7 +27,6 @@ const AdditionalChallenge = () => {
           forQuestion="challenge"
         />
         <ButtonOnboarding
-          height={57}
           text="0 Alcohol Intake"
           undertext="Cut out alcohol from your body."
           onClick={() => {
@@ -39,7 +36,6 @@ const AdditionalChallenge = () => {
           forQuestion="challenge"
         />
         <ButtonOnboarding
-          height={57}
           text="21 days no sugar"
           undertext="cut out all the refined sugar for 21 days."
           onClick={() => {
@@ -48,17 +44,22 @@ const AdditionalChallenge = () => {
           oneAnswer
           forQuestion="challenge"
         />
-
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: "relative", // needed for absoluteFill positioning
+  },
   container: {
     flex: 1,
     paddingTop: 30,
-    padding: 25,
+    paddingHorizontal: 25,
+    zIndex: 1,
+    alignItems: "center",
   },
 });
 

@@ -1,11 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-import GradientBackground from "@/components/ui/GradientBackground";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
-import ButtonFit from "@/components/ui/ButtonFit";
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "./NavigationService";
-import { theme } from "@/constants/theme";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -18,15 +16,14 @@ const FeelBetweenMeals = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
+      <View style={styles.container}>
         <QuestionOnboarding question="How do you feel between meals?" />
-        <View style={{ marginTop: 30 }}></View>
+        <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
-          height={57}
-          text="I’m tired after I eat"
+                    text="I’m tired after I eat"
           onClick={() => {
             console.log("I’m tired after I eat selected");
           }}
@@ -34,8 +31,7 @@ const FeelBetweenMeals = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="I get sleepy when I'm hungry"
+                    text="I get sleepy when I'm hungry"
           onClick={() => {
             console.log("I get sleepy when I'm hungry selected");
           }}
@@ -43,8 +39,7 @@ const FeelBetweenMeals = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="I feel irritable when i’m hungry"
+                    text="I feel irritable when i’m hungry"
           onClick={() => {
             console.log("I feel irritable when i’m hungry selected");
           }}
@@ -52,25 +47,29 @@ const FeelBetweenMeals = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="I have enough energy during the day"
+                    text="I have enough energy during the day"
           onClick={() => {
             console.log("I have enough energy during the day selected");
           }}
           forQuestion="FeelBetweenMeals"
           oneAnswer
         />
-        
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: "relative",
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1,
+    alignItems: "center",
   },
 });
 

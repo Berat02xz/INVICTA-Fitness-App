@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import { theme } from "@/constants/theme";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 interface QuestionOnboardingProps {
     question: string;
@@ -18,19 +18,19 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 
 const styles = StyleSheet.create({
   questionText: {
-    fontFamily: theme.medium,
-    fontSize: 21,
+    fontFamily: theme.semibold,
+    fontSize: 25,
     color: "#FFFFFF",
-    textAlign: "left",
-    maxWidth: "90%",
+    textAlign: "center",
+    maxWidth: "100%",
   },
   undertext: {
     marginTop: 10,
     fontFamily: theme.light,
     fontSize: 16,
     color: "#D9D9D9",
-    textAlign: "left",
+    textAlign: "center",
     lineHeight: 25,
-    maxWidth: "90%",
+    maxWidth: "100%",
   },
 });

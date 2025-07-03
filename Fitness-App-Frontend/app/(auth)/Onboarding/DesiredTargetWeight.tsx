@@ -1,17 +1,18 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
-import GradientBackground from "@/components/ui/GradientBackground";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import ButtonFit from "@/components/ui/ButtonFit";
-import { useOnboarding } from "./NavigationService";
-import { theme } from "@/constants/theme";
+import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import SolidBackground from "@/components/ui/SolidBackground";
 import UnitSwitch from "@/components/ui/UnitSwitch";
-import { UserAnswers } from "./NavigationService";
+import { theme } from "@/constants/theme";
+import React, { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useOnboarding, UserAnswers } from "./NavigationService";
 
 const DesiredTargetWeight = () => {
   const { goForward } = useOnboarding();
 
-  const [unit, setUnit] = useState<"metric" | "imperial">(UserAnswers.find(answer => answer.question === "unit")?.answer || "metric");
+  const [unit, setUnit] = useState<"metric" | "imperial">(
+    UserAnswers.find(answer => answer.question === "unit")?.answer || "metric"
+  );
   const [targetweight, setTargetWeight] = useState<string>("");
 
   function handleSubmit() {
@@ -19,13 +20,12 @@ const DesiredTargetWeight = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
-      <View style={styles.main}>
+    <View style={styles.outerContainer}>
+      <SolidBackground />
+      <View style={styles.container}>
         <View style={{ justifyContent: "center", alignContent: "center", alignItems: "center" }}>
           <QuestionOnboarding
             question="Lets set a desired target weight"
-            undertext="This helps us design your workouts to fit your lifestyle"
           />
         </View>
         <View style={{ marginTop: 20, flexGrow: 1, alignItems: "center" }}>
@@ -39,9 +39,7 @@ const DesiredTargetWeight = () => {
           >
             <Text style={styles.infoText}>Target Weight</Text>
 
-            <View
-              style={{ flexDirection: "row", gap: 10, justifyContent: "left" }}
-            >
+            <View style={{ flexDirection: "row", gap: 10, justifyContent: "left" }}>
               <TextInput
                 style={styles.input}
                 value={targetweight.toString()}
@@ -59,8 +57,8 @@ const DesiredTargetWeight = () => {
             </View>
           </View>
         </View>
-
-        <View style={styles.bottom}>
+      </View>
+      <View style={styles.bottom}>
           <ButtonFit
             title="Continue"
             backgroundColor={theme.primary}
@@ -70,23 +68,26 @@ const DesiredTargetWeight = () => {
             }}
           />
         </View>
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: "relative",
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     paddingVertical: 25,
-  },
-  main: {
-    flex: 1,
+    zIndex: 1,
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 50,
+    flex: 1,
+    justifyContent: "flex-end",
   },
   infoText: {
     fontSize: 16,
@@ -97,10 +98,8 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 45,
-    borderColor: theme.buttonBorder,
     backgroundColor: theme.buttonsolid,
-    borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 10,
     paddingHorizontal: 10,
     fontSize: 16,
     fontFamily: theme.regular,

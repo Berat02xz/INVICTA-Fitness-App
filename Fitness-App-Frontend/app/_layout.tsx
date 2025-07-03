@@ -1,6 +1,5 @@
-import { Slot } from 'expo-router';
 import { useFonts } from 'expo-font';
-import { View, Text } from 'react-native';
+import { Slot } from 'expo-router';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -9,7 +8,11 @@ export default function RootLayout() {
     'Inter-Light': require('../assets/fonts/Inter_18pt-Light.ttf'),
     'Inter-Black': require('../assets/fonts/Inter_18pt-Black.ttf'),
     'Inter-Medium': require('../assets/fonts/Inter_18pt-Medium.ttf'),
-  });
+    'Inter-SemiBold': require('../assets/fonts/Inter_18pt-SemiBold.ttf'),
+    'Inter-ExtraBold': require('../assets/fonts/Inter_18pt-ExtraBold.ttf'),
+    'Inter-ExtraLight': require('../assets/fonts/Inter_18pt-ExtraLight.ttf'),
+    'Inter-Thin': require('../assets/fonts/Inter_18pt-Thin.ttf'),
+    });
 
   return <Slot />;
 }

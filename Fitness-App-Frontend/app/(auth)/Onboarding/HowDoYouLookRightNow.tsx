@@ -1,10 +1,9 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
-"use client";
-import GradientBackground from '@/components/ui/GradientBackground';
-import { StyleSheet } from 'react-native';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
+import SolidBackground from '@/components/ui/SolidBackground';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+"use client";
 
 const bodyImage = {
   Average: require("@/assets/icons/onboarding/Average.png"),
@@ -15,14 +14,11 @@ const bodyImage = {
 const HowDoYouLookRightNow = () => {
   return (
     <View style={styles.container}>
-      <GradientBackground position="bottom" />
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
-
-        <QuestionOnboarding
-          question="How do you think you look right now?"
-        />
-        <View style={{ marginTop: 30 }}></View>
+      <View style={styles.content}>
+        <QuestionOnboarding question="How do you think you look right now?" />
+        <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
           height={150}
@@ -62,8 +58,15 @@ const HowDoYouLookRightNow = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
+  },
+  content: {
+    flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1,
+    alignItems: "center", 
+
   },
 });
 

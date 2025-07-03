@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { theme } from "@/constants/theme";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface UnitSwitchProps {
   unit: "metric" | "imperial";
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: "row",
     backgroundColor: "#e0e0e0",
-    borderRadius: 6,
+    borderRadius: 10,
     alignSelf: "center",
     height: 40,
     width: 80,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   toggleOption: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 6,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },

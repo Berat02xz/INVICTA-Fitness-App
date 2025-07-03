@@ -1,14 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
-  View,
+  Animated,
+  Image,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Animated,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useOnboarding } from "./NavigationService";
 import { theme } from "../../../constants/theme";
+import { useOnboarding } from "./NavigationService";
 
 const TopBar = () => {
   const { goBack, goForward, progressNow } = useOnboarding();
@@ -26,34 +27,46 @@ const TopBar = () => {
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
   });
-  
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={goBack} style={styles.iconButton}>
-        <Ionicons name="arrow-back-outline" size={25} color="#FFFFFF" />
-      </TouchableOpacity>
 
+  return (
+    <View style={styles.wrapper}>
+      {/* Top Row: Back - Logo - Skip */}
+      <View style={styles.topRow}>
+        <TouchableOpacity onPress={goBack} style={styles.iconButton}>
+          <Ionicons name="arrow-back-outline" size={25} color="#FFFFFF" />
+        </TouchableOpacity>
+
+        <Image
+          source={require("@/assets/icons/branding/Invictus_Logo.png")} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
+
+        <TouchableOpacity onPress={goForward} style={styles.skipButton}>
+          <Text style={styles.skip}>Skip</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <Animated.View
           style={[styles.progressFill, { width: animatedWidth }]}
         />
       </View>
-
-      <TouchableOpacity onPress={goForward} style={styles.skipButton}>
-        <Text style={styles.skip}>Skip</Text>
-      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 15,
+  wrapper: {
     paddingTop: 60,
-    backgroundColor: "#000000",
+    paddingHorizontal: 15,
+    backgroundColor: "#121212",
+  },
+  topRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    justifyContent: "space-between",
   },
   iconButton: {
     padding: 10,
@@ -67,13 +80,17 @@ const styles = StyleSheet.create({
     fontFamily: theme.regular,
     fontWeight: "500",
   },
+  logo: {
+    height: 25,
+    width: 95,
+  },
   progressContainer: {
-    flex: 1,
+    marginTop: 25,
     height: 4,
     backgroundColor: "#e0e0e0",
     borderRadius: 3,
     overflow: "hidden",
-    marginHorizontal: 12,
+    marginHorizontal: 15,
   },
   progressFill: {
     height: 6,

@@ -1,79 +1,73 @@
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import { theme } from '@/constants/theme';
+import { useOnboarding } from '@/app/(auth)/Onboarding/NavigationService';
 import ButtonFit from '@/components/ui/ButtonFit';
-import GradientBackground from '@/components/ui/GradientBackground';
-import { router } from 'expo-router';
-import { use, useEffect, useState } from 'react';
-import {useOnboarding} from '@/app/(auth)/Onboarding/NavigationService';
-
+import SolidBackground from '@/components/ui/SolidBackground';
+import { theme } from '@/constants/theme';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 
 export default function DietResults() {
-const animatedValue = new Animated.Value(0);
-const [percentage, setPercentage] = useState(0);
-const { goForward } = useOnboarding();
-useEffect(() => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const [percentage, setPercentage] = useState(0);
+  const { goForward } = useOnboarding();
+
+  useEffect(() => {
     Animated.timing(animatedValue, {
-        toValue: 79,
-        duration: 1300,
-        useNativeDriver: false,
+      toValue: 79,
+      duration: 1300,
+      useNativeDriver: false,
     }).start();
 
     const listener = animatedValue.addListener(({ value }) => {
-        setPercentage(Math.floor(value));
+      setPercentage(Math.floor(value));
     });
 
     return () => {
-        animatedValue.removeListener(listener);
+      animatedValue.removeListener(listener);
     };
+  }, [animatedValue]);
 
-}, []);
+  return (
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-return (
-    <View style={styles.container}>
-    <GradientBackground position="bottom" />
+      <View style={styles.container}>
+        <View style={styles.middle}>
+          <Text style={styles.sloganBold}>{percentage}% of your results are about nutrition</Text>
+          <Text style={styles.sloganRegular}>
+            Eat smart, move more, build strength — not starve.
+          </Text>
+        </View>
 
-    <View style={styles.main}>
-
-    <View style={styles.middle}>
-        <Text style={styles.sloganBold}>{percentage}% of your results are about nutrition</Text>
-        <Text style={styles.sloganRegular}>Eat smart, move more, build strength — not starve.</Text>
-    </View>
-
-    <View style={styles.bottom}>
-        <ButtonFit title="Continue" backgroundColor={theme.primary} onPress={() => { goForward() }} />
-    </View>
-    </View>
+        
+      </View>
+        <View style={styles.bottom}>
+          <ButtonFit title="Continue" backgroundColor={theme.primary} onPress={() => goForward()} />
+        </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#000000',
-  },
-  main: {
-    flex: 1,
-    paddingTop: 300,
+    paddingTop: 250,
     paddingBottom: 80,
     paddingHorizontal: 24,
     justifyContent: 'space-between',
-  },
-  top: {
-    alignItems: 'center',
+    zIndex: 1,
   },
   middle: {
     alignItems: 'center',
   },
   bottom: {
     alignItems: 'center',
-    gap: 10,
-  },
-  Logo: {
-    fontSize: 48,
-    fontFamily: theme.black,
-    color: theme.textColor,
-    marginBottom: 20,
+    marginBottom: 50,
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   sloganBold: {
     fontSize: 21,

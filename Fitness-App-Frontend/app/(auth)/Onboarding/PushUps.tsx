@@ -1,11 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-import GradientBackground from "@/components/ui/GradientBackground";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
-import ButtonFit from "@/components/ui/ButtonFit";
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "./NavigationService";
-import { theme } from "@/constants/theme";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -19,47 +17,38 @@ const PushUps = () => {
 
   return (
     <View style={styles.container}>
-      <GradientBackground position="bottom" />
+      <SolidBackground style={StyleSheet.absoluteFill} />
 
-      <View style={{ zIndex: 1 }}>
-        <QuestionOnboarding question="How many push-ups can you do?" />
-        <View style={{ marginTop: 30 }}></View>
-        <ButtonOnboarding
-          height={57}
-          text="I don't know"
-          onClick={() => {
-            console.log("I don't know selected");
-          }}
-          forQuestion="PushUps"
-          oneAnswer
-        />
-        <ButtonOnboarding
-          height={57}
-          text="Less than 12"
-          onClick={() => {
-            console.log("Less than 12 selected");
-          }}
-          forQuestion="PushUps"
-          oneAnswer
-        />
-        <ButtonOnboarding
-          height={57}
-          text="13-20 💪"
-          onClick={() => {
-            console.log("13-20 selected");
-          }}
-          forQuestion="PushUps"
-          oneAnswer
-        />
-        <ButtonOnboarding
-          height={57}
-          text="More than 21 💪💪"
-          onClick={() => {
-            console.log("More than 21 selected");
-          }}
-          forQuestion="PushUps"
-          oneAnswer
-        />
+      <View style={styles.content}>
+        <View style={{ zIndex: 1 }}>
+          <QuestionOnboarding question="How many push-ups can you do?" />
+          <View style={{ marginTop: 30 }} />
+          <ButtonOnboarding
+                        text="Less than 12"
+            onClick={() => {
+              console.log("Less than 12 selected");
+            }}
+            forQuestion="PushUps"
+            oneAnswer
+          />
+          <ButtonOnboarding
+            text="13-20 💪"
+            onClick={() => {
+              console.log("13-20 selected");
+            }}
+            forQuestion="PushUps"
+            oneAnswer
+          />
+          <ButtonOnboarding
+                        text="More than 21 💪💪"
+            onClick={() => {
+              console.log("More than 21 selected");
+            }}
+            forQuestion="PushUps"
+            oneAnswer
+          />
+          
+        </View>
       </View>
     </View>
   );
@@ -68,8 +57,14 @@ const PushUps = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: "relative",
+    alignItems: "center",
+  },
+  content: {
+    flex: 1,
     paddingTop: 30,
-    padding: 25,
+    paddingHorizontal: 25,
+    alignItems: "center",
   },
 });
 

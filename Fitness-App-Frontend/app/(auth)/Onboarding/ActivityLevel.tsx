@@ -1,10 +1,8 @@
-import React from "react";
-import { View, Text } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-("use client");
-import GradientBackground from "@/components/ui/GradientBackground";
-import { StyleSheet } from "react-native";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
 const activity_level = {
   no_level: require("@/assets/icons/onboarding/activity_level_00000.png"),
@@ -15,18 +13,16 @@ const activity_level = {
 
 const ActivityLevel = () => {
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
+      <View style={styles.container}>
         <QuestionOnboarding
           question="What is your activity level?"
-          undertext="This helps us design your workouts to fit your lifestyle"
         />
-        <View style={{ marginTop: 30 }}></View>
+        <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          height={57}
           text="Sedentary"
           undertext="I do almost no exercise"
           imageSrc={activity_level.no_level}
@@ -37,7 +33,6 @@ const ActivityLevel = () => {
           forQuestion="activity_level"
         />
         <ButtonOnboarding
-          height={57}
           text="Slightly Active"
           undertext="I exercise up to 2 hours in a week"
           imageSrc={activity_level.slightly_active}
@@ -48,7 +43,6 @@ const ActivityLevel = () => {
           forQuestion="activity_level"
         />
         <ButtonOnboarding
-          height={57}
           text="Moderately Active"
           undertext="I exercise up to 4 hours in a week"
           imageSrc={activity_level.moderately_active}
@@ -59,7 +53,6 @@ const ActivityLevel = () => {
           forQuestion="activity_level"
         />
         <ButtonOnboarding
-          height={57}
           text="Very Active"
           undertext="I exercise for 4+ hours in a week"
           imageSrc={activity_level.very_active}
@@ -75,10 +68,16 @@ const ActivityLevel = () => {
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1,
+    alignItems: "center",
   },
 });
 

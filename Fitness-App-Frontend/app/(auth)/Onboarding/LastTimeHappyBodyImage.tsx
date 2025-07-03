@@ -1,63 +1,42 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
-"use client";
-import GradientBackground from '@/components/ui/GradientBackground';
-import { StyleSheet } from 'react-native';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
-
-const activity_level = {
-  no_level: require('@/assets/icons/onboarding/activity_level_00000.png'),
-  slightly_active: require('@/assets/icons/onboarding/activity_level_00001.png'),
-  moderately_active: require('@/assets/icons/onboarding/activity_level_00002.png'),
-  very_active: require('@/assets/icons/onboarding/activity_level_00003.png'),
-};
+import SolidBackground from '@/components/ui/SolidBackground';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+"use client";
 
 const LastTimeHappyBodyImage = () => {
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground style={styles.background} />
 
-      <View style={{ zIndex: 1 }}>
-
+      <View style={styles.innerContainer}>
         <QuestionOnboarding
-          question="When was the last time you were happy with your body image?"
+          question="Last time you felt confident in your body?"
         />
-        <View style={{ marginTop: 30 }}></View>
+        <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          height={57}
-          text="Less than a year ago 😕"
-          onClick={() => {
-            console.log("Less than a year ago selected");
-          }}
+                    text="Less than a year ago 😕"
+          onClick={() => console.log("Less than a year ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
         <ButtonOnboarding
-          height={57}
-          text="1 or 2 years ago 😟"
-          onClick={() => {
-            console.log("1 or 2 years ago selected");
-          }}
+                    text="1 or 2 years ago 😟"
+          onClick={() => console.log("1 or 2 years ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
         <ButtonOnboarding
-          height={57}
-          text="More than 3 years ago 🙁"
-          onClick={() => {
-            console.log("More than 3 years ago selected");
-          }}
+                    text="More than 3 years ago 🙁"
+          onClick={() => console.log("More than 3 years ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
         <ButtonOnboarding
-          height={57}
-          text="Never 😞"
-          onClick={() => {
-            console.log("Never selected");
-          }}
+                    text="Never 😞"
+          onClick={() => console.log("Never selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
@@ -67,10 +46,20 @@ const LastTimeHappyBodyImage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
+    flex: 1,
+    position: 'relative', 
+  },
+  background: {
+    ...StyleSheet.absoluteFillObject, 
+    zIndex: 0,
+  },
+  innerContainer: {
     flex: 1,
     paddingTop: 30,
-    padding: 25,
+    paddingHorizontal: 25,
+    zIndex: 1, 
+    alignItems: "center",
   },
 });
 

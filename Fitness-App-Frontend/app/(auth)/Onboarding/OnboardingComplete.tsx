@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
-import GradientBackground from "@/components/ui/GradientBackground";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import ButtonFit from "@/components/ui/ButtonFit";
-import { useOnboarding } from "./NavigationService";
+import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
-import { UserAnswers } from "./NavigationService";
+import React, { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useOnboarding, UserAnswers } from "./NavigationService";
 
 const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
@@ -23,8 +22,11 @@ const OnboardingComplete = () => {
 
   return (
     <View style={styles.container}>
-      <GradientBackground position="bottom" />
-      <View style={styles.main}>
+      {/* Background covers whole container */}
+      <SolidBackground style={StyleSheet.absoluteFill} />
+
+      {/* Content wrapper with padding */}
+      <View style={styles.content}>
         <View
           style={{
             justifyContent: "center",
@@ -32,16 +34,15 @@ const OnboardingComplete = () => {
             alignItems: "center",
           }}
         >
-          <QuestionOnboarding 
-            question="Your personalized workout plan is ready!"
-          />
+          <QuestionOnboarding question="Almost done!" />
         </View>
+
         <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
           <View
             style={{
               flexDirection: "column",
               gap: 12,
-              justifyContent: "left",
+              justifyContent: "flex-start",
               flexGrow: 1,
             }}
           >
@@ -58,7 +59,7 @@ const OnboardingComplete = () => {
             <Text style={styles.infoText}>Your Email</Text>
 
             <View
-              style={{ flexDirection: "row", gap: 10, justifyContent: "left" }}
+              style={{ flexDirection: "row", gap: 10, justifyContent: "flex-start" }}
             >
               <TextInput
                 style={styles.input}
@@ -72,7 +73,7 @@ const OnboardingComplete = () => {
             </View>
             <Text style={styles.infoText}>Enter A Password</Text>
             <View
-              style={{ flexDirection: "row", gap: 10, justifyContent: "left" }}
+              style={{ flexDirection: "row", gap: 10, justifyContent: "flex-start" }}
             >
               <TextInput
                 style={styles.input}
@@ -88,7 +89,9 @@ const OnboardingComplete = () => {
           </View>
         </View>
 
-        <View style={styles.bottom}>
+        
+      </View>
+      <View style={styles.bottom}>
           <ButtonFit
             title="Continue"
             backgroundColor={theme.primary}
@@ -98,7 +101,6 @@ const OnboardingComplete = () => {
             }}
           />
         </View>
-      </View>
     </View>
   );
 };
@@ -106,15 +108,20 @@ const OnboardingComplete = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 25,
-    padding: 25,
+    position: "relative", 
+    alignItems: "center",
   },
-  main: {
+  content: {
     flex: 1,
+    paddingTop: 25,
+    paddingHorizontal: 25,
+    paddingBottom: 25,
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 50,
+    flex: 1,
+    justifyContent: "flex-end",
   },
   infoText: {
     fontSize: 16,
@@ -125,15 +132,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 45,
-    borderColor: theme.buttonBorder,
     backgroundColor: theme.buttonsolid,
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 10,
     paddingHorizontal: 10,
     fontSize: 16,
     fontFamily: theme.regular,
     color: theme.textColor,
-    width: 300,
+    width: 330,
   },
 });
 

@@ -1,11 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
-import GradientBackground from "@/components/ui/GradientBackground";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
-import ButtonFit from "@/components/ui/ButtonFit";
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "./NavigationService";
-import { theme } from "@/constants/theme";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -18,15 +16,14 @@ const DietFollow = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.container}>
-      <GradientBackground position="bottom" />
+    <View style={styles.outerContainer}>
+      <SolidBackground />
 
-      <View style={{ zIndex: 1 }}>
+      <View style={styles.container}>
         <QuestionOnboarding question="Do you follow any of these diets?" />
-        <View style={{ marginTop: 30 }}></View>
+        <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
-          height={57}
-          text="Vegetarian 🍆"
+                    text="Vegetarian 🍆"
           undertext="Excludes meat"
           onClick={() => {
             console.log("Vegetarian selected");
@@ -35,8 +32,7 @@ const DietFollow = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="Vegan 🥕"
+                    text="Vegan 🥕"
           undertext="Excludes all animal products"
           onClick={() => {
             console.log("Vegan selected");
@@ -45,8 +41,7 @@ const DietFollow = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="Keto 🥑"
+                    text="Keto 🥑"
           undertext="Low-carb, high fat"
           onClick={() => {
             console.log("Keto selected");
@@ -55,25 +50,29 @@ const DietFollow = () => {
           oneAnswer
         />
         <ButtonOnboarding
-          height={57}
-          text="No ❌"
+                    text="No ❌"
           onClick={() => {
             console.log("No selected");
           }}
           forQuestion="DietFollow"
           oneAnswer
         />
-        
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    position: "relative",
+  },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
+    zIndex: 1,
+    alignItems: "center",
   },
 });
 
