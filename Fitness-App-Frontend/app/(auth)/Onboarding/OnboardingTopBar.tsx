@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   logo: {
-    height: 25,
+    height: 40,
     width: 95,
   },
   progressContainer: {

@@ -1,66 +1,86 @@
-import ButtonFit from '@/components/ui/ButtonFit';
-import { theme } from '@/constants/theme';
-import { router } from 'expo-router';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import ButtonFit from "@/components/ui/ButtonFit";
+import { theme } from "@/constants/theme";
+import { router } from "expo-router";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
-
   return (
     <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <Image
+          source={require("@/assets/icons/onboarding/FirstScreenBGK2.png")}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+      </View>
+      <View style={styles.main}>
+        <View style={styles.top}>
+          <Image
+            source={require("@/assets/icons/branding/Invictus_Logo.png")}
+            style={styles.Logo}
+            resizeMode="contain"
+          />
 
-    <View style={styles.main}>
-    <View style={styles.top}>
-      <Image
-        source={require('@/assets/icons/branding/Invictus_Logo.png')}
-        style={styles.Logo}
-        resizeMode="contain"
-      />
-
-        <Text style={[styles.sloganBold, {marginTop:10}]}>One decision</Text>
-        <Text style={styles.sloganRegular}>That's all it takes.</Text>
-    </View>
-
-
-    
-    </View>
-    <View style={styles.bottom}>
-        <ButtonFit title="Sign Up: Start The Quiz" backgroundColor={theme.primary} onPress={() => { router.push('/(auth)/Onboarding/FitnessGoal') }} />
-        <ButtonFit title="Log In: I’ve done the quiz" backgroundColor={theme.buttonsolid} hasBorder onPress={() => { router.push('/login') }} />
-    </View>
+          <Text style={[styles.sloganBold, { marginTop: 10 }]}>
+            One decision
+          </Text>
+          <Text style={styles.sloganRegular}>That's all it takes.</Text>
+        </View>
+      </View>
+      <View style={styles.bottom}>
+        <ButtonFit
+          title="Sign Up: Start The Quiz"
+          backgroundColor={theme.primary}
+          onPress={() => {
+            router.push("/(auth)/Onboarding/FitnessGoal");
+          }}
+        />
+        <ButtonFit
+          title="Log In: I’ve done the quiz"
+          backgroundColor={theme.buttonsolid}
+          hasBorder
+          onPress={() => {
+            router.push("/login");
+          }}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
+  flex: 1,
+  backgroundColor: "#101010",
+  position: 'relative',
+},
+
   main: {
     flex: 1,
-    paddingTop: 120,
+    paddingTop: 90,
     paddingBottom: 80,
     paddingHorizontal: 24,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   top: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   middle: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   bottom: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: 10,
-    marginBottom: 70,
+    marginBottom: 80,
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   Logo: {
     fontSize: 48,
     fontFamily: theme.black,
     color: theme.textColor,
-    marginBottom: 20,
+    height: 85,
+    marginBottom: 10,
   },
   sloganBold: {
     fontSize: 30,
@@ -77,5 +97,20 @@ const styles = StyleSheet.create({
     fontFamily: theme.regular,
     color: theme.textColor,
   },
-});
+imageContainer: {
+  position: 'absolute',
+  bottom: 0,
+  width: '100%',
+  alignItems: 'center', // center image horizontally
+  zIndex: -1,
+},
 
+backgroundImage: {
+  width: '100%',    // locked width
+  height: 800,   // locked height
+  resizeMode: 'cover',
+},
+
+
+
+});

@@ -5,7 +5,7 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { useOnboarding, UserAnswers } from "./NavigationService";
 
 function BMIResults() {
@@ -93,16 +93,18 @@ function BMIResults() {
   useEffect(() => {
     Animated.timing(leftAnim, {
       toValue: targetLeft,
-      duration: 1500,
+      duration: 9000,
       useNativeDriver: false,
+      easing: Easing.out(Easing.poly(15))
     }).start();
   }, [targetLeft]);
 
   useEffect(() => {
     Animated.timing(animatedBMI, {
       toValue: bmi,
-      duration: 1500,
+      duration: 9000,
       useNativeDriver: false,
+      easing: Easing.out(Easing.poly(15))
     }).start();
   }, [bmi]);
 

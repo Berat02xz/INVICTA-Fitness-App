@@ -3,7 +3,7 @@ import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 
 export default function HappyBodyImageResults() {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -13,8 +13,9 @@ export default function HappyBodyImageResults() {
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: 37,
-      duration: 1300,
+      duration: 7000,
       useNativeDriver: false,
+      easing: Easing.out(Easing.poly(15)),
     }).start();
 
     const listener = animatedValue.addListener(({ value }) => {

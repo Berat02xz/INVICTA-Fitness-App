@@ -1,9 +1,9 @@
-import { useOnboarding } from '@/app/(auth)/Onboarding/NavigationService';
-import ButtonFit from '@/components/ui/ButtonFit';
-import SolidBackground from '@/components/ui/SolidBackground';
-import { theme } from '@/constants/theme';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
+import ButtonFit from "@/components/ui/ButtonFit";
+import SolidBackground from "@/components/ui/SolidBackground";
+import { theme } from "@/constants/theme";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 
 export default function DietResults() {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -13,7 +13,8 @@ export default function DietResults() {
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: 79,
-      duration: 1300,
+      duration: 7000,
+      easing: Easing.out(Easing.poly(15)),
       useNativeDriver: false,
     }).start();
 
@@ -32,17 +33,21 @@ export default function DietResults() {
 
       <View style={styles.container}>
         <View style={styles.middle}>
-          <Text style={styles.sloganBold}>{percentage}% of your results are about nutrition</Text>
+          <Text style={styles.sloganBold}>
+            {percentage}% of your results are about nutrition
+          </Text>
           <Text style={styles.sloganRegular}>
             Eat smart, move more, build strength — not starve.
           </Text>
         </View>
-
-        
       </View>
-        <View style={styles.bottom}>
-          <ButtonFit title="Continue" backgroundColor={theme.primary} onPress={() => goForward()} />
-        </View>
+      <View style={styles.bottom}>
+        <ButtonFit
+          title="Continue"
+          backgroundColor={theme.primary}
+          onPress={() => goForward()}
+        />
+      </View>
     </View>
   );
 }
@@ -50,38 +55,38 @@ export default function DietResults() {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    position: 'relative',
+    position: "relative",
   },
   container: {
     flex: 1,
     paddingTop: 250,
     paddingBottom: 80,
     paddingHorizontal: 24,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     zIndex: 1,
   },
   middle: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   bottom: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 50,
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   sloganBold: {
     fontSize: 21,
     fontFamily: theme.bold,
     color: theme.primary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   sloganRegular: {
     fontSize: 16,
     fontFamily: theme.light,
-    color: '#D9D9D9',
-    textAlign: 'center',
+    color: "#D9D9D9",
+    textAlign: "center",
     marginTop: 10,
-    width: '65%',
+    width: "65%",
   },
   infoText: {
     fontSize: 15,
