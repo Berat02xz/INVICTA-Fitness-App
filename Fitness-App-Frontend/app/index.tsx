@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   bottom: {
     alignItems: "center",
     gap: 10,
-    marginBottom: 80,
+    marginBottom: 100,
     flex: 1,
     justifyContent: "flex-end",
   },
@@ -83,12 +83,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sloganBold: {
-    fontSize: 30,
+    fontSize: 25,
     fontFamily: theme.bold,
     color: theme.textColor,
   },
   sloganRegular: {
-    fontSize: 30,
+    fontSize: 25,
     fontFamily: theme.regular,
     color: theme.textColor,
   },
@@ -100,13 +100,14 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: "absolute",
     bottom: 0,
-    width: "100%",
     alignItems: "center",
+    width: "100%",
+
   },
 
   backgroundImage: {
-    width: "100%",
-    height: 800,
+    height: 700,
     resizeMode: "contain",
+    width: "100%",
   },
 });
