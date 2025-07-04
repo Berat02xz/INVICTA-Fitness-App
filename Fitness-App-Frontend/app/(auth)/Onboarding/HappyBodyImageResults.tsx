@@ -35,7 +35,7 @@ export default function HappyBodyImageResults() {
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>{percentage}% of users</Text>
             <Text style={styles.sloganRegular}>
-              responded in the same way. InFit will help you to create a habit
+              responded in the same way. Invictus will help you to create a habit
               to work out.
             </Text>
           </View>

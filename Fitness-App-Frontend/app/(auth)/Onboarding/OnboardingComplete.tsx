@@ -133,7 +133,6 @@ const styles = StyleSheet.create({
   input: {
     height: 45,
     backgroundColor: theme.buttonsolid,
-    borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,
     fontSize: 16,

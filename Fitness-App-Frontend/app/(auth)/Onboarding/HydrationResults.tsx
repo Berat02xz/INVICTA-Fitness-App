@@ -50,8 +50,8 @@ export default function HappyBodyImageResults() {
 
             <Text style={styles.sloganRegular}>
               {isLowWater
-                ? "If you're not hydrated, your body can't perform at its highest level. InFit will remind you to drink enough water."
-                : "InFit will remind you to drink enough water."}
+                ? "If you're not hydrated, your body can't perform at its highest level. Invictus will remind you to drink enough water."
+                : "Invictus will remind you to drink enough water."}
             </Text>
           </View>
         </View>

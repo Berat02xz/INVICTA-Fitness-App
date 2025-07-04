@@ -17,7 +17,8 @@
         "foregroundImage": "./assets/images/ic_launcher_foreground.png",
         "backgroundColor": "#FF2605"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.berat02xz.invictus"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +39,19 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "692127bf-5235-4f35-9ed9-536e57a15b5b"
+      }
+    },
+    "owner": "berat02xz",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/692127bf-5235-4f35-9ed9-536e57a15b5b"
     }
   }
 }

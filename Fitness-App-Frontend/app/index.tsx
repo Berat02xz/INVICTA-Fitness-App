@@ -50,10 +50,10 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-  flex: 1,
-  backgroundColor: "#101010",
-  position: 'relative',
-},
+    flex: 1,
+    backgroundColor: "#101010",
+    position: "relative",
+  },
 
   main: {
     flex: 1,
@@ -97,20 +97,16 @@ const styles = StyleSheet.create({
     fontFamily: theme.regular,
     color: theme.textColor,
   },
-imageContainer: {
-  position: 'absolute',
-  bottom: 0,
-  width: '100%',
-  alignItems: 'center', // center image horizontally
-  zIndex: -1,
-},
+  imageContainer: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    alignItems: "center",
+  },
 
-backgroundImage: {
-  width: '100%',    // locked width
-  height: 800,   // locked height
-  resizeMode: 'cover',
-},
-
-
-
+  backgroundImage: {
+    width: "100%",
+    height: 800,
+    resizeMode: "contain",
+  },
 });
