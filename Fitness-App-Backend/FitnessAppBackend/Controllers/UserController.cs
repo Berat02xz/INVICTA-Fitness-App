@@ -25,7 +25,7 @@ namespace FitnessAppBackend.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userService.GetAllAsync();
+            var users = await _userService.GetAllLazy();
             return Ok(users);
         }
 

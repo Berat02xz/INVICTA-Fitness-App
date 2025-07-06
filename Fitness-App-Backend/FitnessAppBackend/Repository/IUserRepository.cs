@@ -4,6 +4,7 @@ namespace FitnessAppBackend.Repository
 {
     public interface IUserRepository : IGenericRepository<User>
     {
-        public Task<User?> GetUserByEmailAsync(string email);
+        Task<ICollection<User?>> GetAllLazy();
+        Task<User?> GetUserByEmailAsync(string email);
     }
 }

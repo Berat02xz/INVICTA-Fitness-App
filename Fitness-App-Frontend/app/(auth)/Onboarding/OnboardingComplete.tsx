@@ -1,3 +1,4 @@
+import { setToken } from "@/api/axiosInstance";
 import { getUserIdFromToken } from "@/api/tokenDecoder";
 import { registerUser, uploadOnboardingData } from "@/api/UserData";
 import ButtonFit from "@/components/ui/ButtonFit";
@@ -6,13 +7,8 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import Toast from 'react-native-toast-message';
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { useOnboarding, UserAnswers } from "./NavigationService";
 
 const OnboardingComplete = () => {
@@ -28,49 +24,35 @@ const OnboardingComplete = () => {
 
       if (!response || !response.token) {
         Toast.show({
-          type: 'error',
-          text1: 'Registration Error',
-          text2: 'Registration failed.',
+          type: "error",
+          text1: "Registration Error",
+          text2: "Registration failed.",
         });
         return;
+      } else {
+       setToken(response.token);
       }
 
       const userId = await getUserIdFromToken();
       if (!userId) {
         Toast.show({
-          type: 'error',
-          text1: 'Token Error',
-          text2: 'Could not extract user ID from token.',
+          type: "error",
+          text1: "Token Error",
+          text2: "Could not extract user ID from token.",
         });
         return;
       }
 
-      const uploadResponse = await uploadOnboardingData({ userId, answers: UserAnswers });
-
-      if (
-        typeof uploadResponse === "object" &&
-        uploadResponse !== null &&
-        "status" in uploadResponse &&
-        typeof (uploadResponse as any).status === "number"
-      ) {
-        if ((uploadResponse as any).status !== 200) {
-          const msg =
-            typeof (uploadResponse as any).data === "string"
-              ? (uploadResponse as any).data
-              : "Failed to upload onboarding data.";
-
-          Toast.show({
-            type: 'error',
-            text1: 'Onboarding Error',
-            text2: msg,
-          });
-          return;
-        }
-      } else {
+      const uploadResponse = await uploadOnboardingData({
+        userId,
+        answers: UserAnswers,
+      });
+      
+      if (!uploadResponse) {
         Toast.show({
-          type: 'error',
-          text1: 'Onboarding Error',
-          text2: 'Unexpected response from server.',
+          type: "error",
+          text1: "Upload Error",
+          text2: "Failed to upload onboarding data.",
         });
         return;
       }
@@ -78,8 +60,7 @@ const OnboardingComplete = () => {
       // Proceed to the next step if any in the future
       goForward();
       // Proceed to home screen of (app)
-      router.push("../../(app)/Home");
-
+      router.push("../../../(app)/Home");
     } catch (error: any) {
       console.error("Submission error:", error);
       const msg =
@@ -87,8 +68,8 @@ const OnboardingComplete = () => {
           ? error.response.data
           : "An unexpected error occurred. Please try again.";
       Toast.show({
-        type: 'error',
-        text1: 'Error',
+        type: "error",
+        text1: "Error",
         text2: msg,
       });
     }
@@ -103,7 +84,14 @@ const OnboardingComplete = () => {
         </View>
 
         <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
-          <View style={{ flexDirection: "column", gap: 12, justifyContent: "flex-start", flexGrow: 1 }}>
+          <View
+            style={{
+              flexDirection: "column",
+              gap: 12,
+              justifyContent: "flex-start",
+              flexGrow: 1,
+            }}
+          >
             <Text style={styles.infoText}>What should we call you?</Text>
             <TextInput
               style={styles.input}

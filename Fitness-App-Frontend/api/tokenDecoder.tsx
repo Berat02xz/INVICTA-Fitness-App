@@ -11,13 +11,15 @@ type DecodedToken = {
 };
 
 export async function getUserIdFromToken(): Promise<string | null> {
-  const token = await AsyncStorage.getItem("userToken");
+  const token = await AsyncStorage.getItem("token");
   if (!token) {
-    router.push("/(auth)/Login");
+    router.push("/(auth)/login");
+    console.log("Token is null, redirecting to Login");
     return null;
   }
   if (token === "null") {
-    router.push("/(auth)/Login");
+    router.push("/(auth)/login");
+    console.log("Token is null, redirecting to Login");
     return null;
   }
   try {
@@ -30,13 +32,15 @@ export async function getUserIdFromToken(): Promise<string | null> {
 }
 
 export async function getEmailFromToken(): Promise<string | null> {
-  const token = await AsyncStorage.getItem("userToken");
+  const token = await AsyncStorage.getItem("token");
   if (!token) {
-    router.push("/(auth)/Login");
+    router.push("/(auth)/login");
+    console.log("Token is null, redirecting to Login");
     return null;
   }
   if (token === "null") {
-    router.push("/(auth)/Login");
+    router.push("/(auth)/login");
+    console.log("Token is null, redirecting to Login");
     return null;
   }
 
@@ -50,13 +54,15 @@ export async function getEmailFromToken(): Promise<string | null> {
 }
 
 export async function getNameFromToken(): Promise<string | null> {
-  const token = await AsyncStorage.getItem("userToken");
+  const token = await AsyncStorage.getItem("token");
   if (!token) {
-    router.push("/(auth)/Login");
+    router.push("/(auth)/login");
+    console.log("Token is null, redirecting to Login");
     return null;
   }
   if (token === "null") {
-    router.push("/(auth)/Login");
+    router.push("/(auth)/login");
+    console.log("Token is null, redirecting to Login");
     return null;
   }
 
@@ -65,6 +71,7 @@ export async function getNameFromToken(): Promise<string | null> {
     return decoded.name || null;
   } catch (error) {
     console.error("Invalid JWT:", error);
+    console.log("Token is invalid, redirecting to Login");
     return null;
   }
 }

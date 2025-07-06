@@ -59,7 +59,7 @@ export const OnboardingProvider = ({
     if (index < OnboardingScreens.length - 1) {
       const next = index + 1;
       setIndex(next);
-      router.push(`/Onboarding/${OnboardingScreens[next]}`);
+      router.push(`/(auth)/Onboarding/${OnboardingScreens[next]}`);
     }
   };
 
@@ -67,7 +67,7 @@ export const OnboardingProvider = ({
     if (index > 0) {
       const prev = index - 1;
       setIndex(prev);
-      router.push(`/Onboarding/${OnboardingScreens[prev]}`);
+      router.push(`/(auth)/Onboarding/${OnboardingScreens[prev]}`);
     } else {
       router.push("/");
     }

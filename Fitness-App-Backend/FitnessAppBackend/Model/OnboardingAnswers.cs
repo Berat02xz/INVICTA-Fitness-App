@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace FitnessAppBackend.Model
 {
@@ -9,6 +10,7 @@ namespace FitnessAppBackend.Model
         public Guid Id { get; set; }
 
         public Guid UserId { get; set; }
+        [JsonIgnore]
         public User User { get; set; }
         
 

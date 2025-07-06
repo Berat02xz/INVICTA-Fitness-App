@@ -2,3 +2,5 @@
 .env
 /ProjectLauncher/ProjectLauncher/obj
 /ProjectLauncher/ProjectLauncher/bin
+/Fitness-App-Backend/FitnessAppBackend.Tests/bin
+/Fitness-App-Backend/FitnessAppBackend.Tests/obj

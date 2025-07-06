@@ -13,6 +13,11 @@ namespace FitnessAppBackend.Service.Implementations
             _repository = repository;
         }
 
+        public Task<ICollection<User?>> GetAllLazy()
+        {
+            return _repository.GetAllLazy();
+        }
+
         public string HashPassword(string password)
         {
             String hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);

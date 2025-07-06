@@ -1,6 +1,7 @@
 import { getUserIdFromToken } from "@/api/tokenDecoder";
 import { fetchOnboardingDataAndStore } from "@/api/UserData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Slot } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
@@ -11,26 +12,41 @@ const App = () => {
   >([]);
 
   useEffect(() => {
-    const initializeOnboarding = async () => {
-      try {
+  const initializeOnboarding = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("Onboarding");
+      if (storedData) {
+        console.log("[Onboarding] Found in AsyncStorage.");
+        const parsedData = JSON.parse(storedData);
+        setOnboardingData(parsedData);
+      } else {
+        console.log("[Onboarding] Not found in AsyncStorage. Fetching from API...");
         const userId = await getUserIdFromToken();
-        await fetchOnboardingDataAndStore(userId || "");
-        const storedData = await AsyncStorage.getItem("Onboarding");
-        if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          setOnboardingData(parsedData);
-        } else {
-          console.warn("No onboarding data found in AsyncStorage.");
-        }
-      } catch (error) {
-        console.error("Error fetching onboarding data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        if (userId) {
+          await fetchOnboardingDataAndStore(userId);
+          console.log("[Onboarding] Fetched and stored for user:", userId);
 
-    initializeOnboarding();
-  }, []);
+          const newData = await AsyncStorage.getItem("Onboarding");
+          if (newData) {
+            const parsed = JSON.parse(newData);
+            setOnboardingData(parsed);
+          } else {
+            console.warn("[Onboarding] Failed to save to AsyncStorage after fetch.");
+          }
+        } else {
+          console.warn("[Onboarding] User ID is null. Cannot fetch.");
+        }
+      }
+    } catch (error) {
+      console.error("Error in initializeOnboarding:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  initializeOnboarding();
+}, []);
+
 
   if (isLoading) {
     return (
@@ -48,6 +64,7 @@ const App = () => {
           <Text>{answer}</Text>
         </View>
       ))}
+      <Slot />
     </View>
   );
 };

@@ -8,11 +8,11 @@ export const registerUser = async (userData: {
   Password: string;
 }) => {
   try {
-    const response = await axios.post('/User/register', userData);
+    const response = await axios.post('/api/User/register', userData);
     const data = response.data as { token: string };
     const token = data.token;
-    await AsyncStorage.setItem('userToken', token);
-    setToken();
+    await AsyncStorage.setItem('token', token);
+    setToken(token);
     return data;
   } catch (error) {
     console.error('Error registering user:', error);
@@ -26,7 +26,7 @@ export const uploadOnboardingData = async (data: {
   answers: { question: string; answer: string | number }[];
 }) => {
   try {
-    const response = await axios.post('/User/UploadOnboarding', data);
+    const response = await axios.post('/api/User/UploadOnboarding', data);
     return response.data;
   } catch (error) {
     console.error('Error uploading onboarding data:', error);
@@ -37,12 +37,62 @@ export const uploadOnboardingData = async (data: {
 //Fetch Onboarding Data
 export const fetchOnboardingDataAndStore = async (userId: string) => {
   try {
-    const response = await axios.get(`/User/GetOnboardingAnswers/${userId}`);
-    // put the list of { question: string, answer: string} into AsyncStorage
-    await AsyncStorage.setItem('Onboarding', JSON.stringify(response.data));
+    console.log("[fetchOnboardingDataAndStore] 🔍 Fetching for user:", userId);
 
+    const response = await axios.get<{ $values?: any[] }>(
+      `/api/User/GetOnboardingAnswers/${userId}`
+    );
+
+    console.log("[fetchOnboardingDataAndStore] 🌐 Raw API response:", response.data);
+
+    const rawValues = response.data?.$values;
+
+    if (!Array.isArray(rawValues)) {
+      console.warn(
+        "[fetchOnboardingDataAndStore] ❗ Unexpected format received from API:",
+        response.data
+      );
+      return;
+    }
+
+    // Clean the data to avoid issues with circular references or non-serializable fields
+    const cleanedValues = rawValues.map((item, i) => {
+      if (item && typeof item === "object") {
+        return {
+          question: item.question ?? `Unknown question ${i}`,
+          answer: item.answer ?? "",
+        };
+      }
+      return { question: `Invalid item ${i}`, answer: "" };
+    });
+
+    console.log(
+      "[fetchOnboardingDataAndStore] ✅ Cleaned values ready for storage:",
+      cleanedValues
+    );
+
+    let jsonString;
+    try {
+      jsonString = JSON.stringify(cleanedValues);
+    } catch (stringifyError) {
+      console.error("[fetchOnboardingDataAndStore] ❌ Failed to stringify values:", stringifyError);
+      return;
+    }
+
+    console.log(
+      `[fetchOnboardingDataAndStore] 💾 Storing JSON (${jsonString.length} chars) in AsyncStorage...`
+    );
+
+    try {
+      await AsyncStorage.setItem("Onboarding", jsonString);
+      console.log("[fetchOnboardingDataAndStore] 🎉 Successfully saved onboarding data.");
+    } catch (storageError) {
+      console.error("[fetchOnboardingDataAndStore] ❌ Failed to save to AsyncStorage:", storageError);
+    }
   } catch (error) {
-    console.error('Error fetching onboarding data:', error);
+    console.error("[fetchOnboardingDataAndStore] ❌ Request failed:", error);
     throw error;
   }
 };
+
+
