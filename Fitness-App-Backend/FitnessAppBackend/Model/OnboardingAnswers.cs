@@ -1,5 +1,9 @@
-﻿namespace FitnessAppBackend.Model
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace FitnessAppBackend.Model
 {
+    [Index(nameof(UserId))] // Indexing UserId for faster queries
+
     public class OnboardingAnswers
     {
         public Guid Id { get; set; }

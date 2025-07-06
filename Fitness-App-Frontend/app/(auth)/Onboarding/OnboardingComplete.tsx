@@ -1,51 +1,109 @@
+import { getUserIdFromToken } from "@/api/tokenDecoder";
+import { registerUser, uploadOnboardingData } from "@/api/UserData";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
+import { router } from "expo-router";
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import Toast from 'react-native-toast-message';
 import { useOnboarding, UserAnswers } from "./NavigationService";
 
 const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
 
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [Name, setName] = useState<string>("");
+  const [Email, setEmail] = useState<string>("");
+  const [Password, setPassword] = useState<string>("");
 
-  function handleSubmit() {
-    UserAnswers.push({ question: "name", answer: name });
-    UserAnswers.push({ question: "email", answer: email });
-    UserAnswers.push({ question: "password", answer: password });
-    console.log("User completed onboarding");
+  async function handleSubmit() {
+    try {
+      const response = await registerUser({ Name, Email, Password });
+
+      if (!response || !response.token) {
+        Toast.show({
+          type: 'error',
+          text1: 'Registration Error',
+          text2: 'Registration failed.',
+        });
+        return;
+      }
+
+      const userId = await getUserIdFromToken();
+      if (!userId) {
+        Toast.show({
+          type: 'error',
+          text1: 'Token Error',
+          text2: 'Could not extract user ID from token.',
+        });
+        return;
+      }
+
+      const uploadResponse = await uploadOnboardingData({ userId, answers: UserAnswers });
+
+      if (
+        typeof uploadResponse === "object" &&
+        uploadResponse !== null &&
+        "status" in uploadResponse &&
+        typeof (uploadResponse as any).status === "number"
+      ) {
+        if ((uploadResponse as any).status !== 200) {
+          const msg =
+            typeof (uploadResponse as any).data === "string"
+              ? (uploadResponse as any).data
+              : "Failed to upload onboarding data.";
+
+          Toast.show({
+            type: 'error',
+            text1: 'Onboarding Error',
+            text2: msg,
+          });
+          return;
+        }
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Onboarding Error',
+          text2: 'Unexpected response from server.',
+        });
+        return;
+      }
+
+      // Proceed to the next step if any in the future
+      goForward();
+      // Proceed to home screen of (app)
+      router.push("../../(app)/Home");
+
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      const msg =
+        error?.response?.data && typeof error.response.data === "string"
+          ? error.response.data
+          : "An unexpected error occurred. Please try again.";
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: msg,
+      });
+    }
   }
 
   return (
     <View style={styles.container}>
-      {/* Background covers whole container */}
       <SolidBackground style={StyleSheet.absoluteFill} />
-
-      {/* Content wrapper with padding */}
       <View style={styles.content}>
-        <View
-          style={{
-            justifyContent: "center",
-            alignContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
           <QuestionOnboarding question="Almost done!" />
         </View>
 
         <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
-          <View
-            style={{
-              flexDirection: "column",
-              gap: 12,
-              justifyContent: "flex-start",
-              flexGrow: 1,
-            }}
-          >
+          <View style={{ flexDirection: "column", gap: 12, justifyContent: "flex-start", flexGrow: 1 }}>
             <Text style={styles.infoText}>What should we call you?</Text>
             <TextInput
               style={styles.input}
@@ -53,28 +111,25 @@ const OnboardingComplete = () => {
               placeholder="Name"
               autoComplete="name"
               placeholderTextColor={theme.buttonBorder}
-              value={name}
+              value={Name}
               onChangeText={setName}
             />
-            <Text style={styles.infoText}>Your Email</Text>
 
-            <View
-              style={{ flexDirection: "row", gap: 10, justifyContent: "flex-start" }}
-            >
+            <Text style={styles.infoText}>Your Email</Text>
+            <View style={{ flexDirection: "row", gap: 10 }}>
               <TextInput
                 style={styles.input}
                 keyboardType="email-address"
                 placeholder="Email"
                 placeholderTextColor={theme.buttonBorder}
                 autoComplete="email"
-                value={email}
+                value={Email}
                 onChangeText={setEmail}
               />
             </View>
+
             <Text style={styles.infoText}>Enter A Password</Text>
-            <View
-              style={{ flexDirection: "row", gap: 10, justifyContent: "flex-start" }}
-            >
+            <View style={{ flexDirection: "row", gap: 10 }}>
               <TextInput
                 style={styles.input}
                 keyboardType="default"
@@ -82,25 +137,21 @@ const OnboardingComplete = () => {
                 placeholder="***********"
                 autoComplete="password"
                 placeholderTextColor={theme.buttonBorder}
-                value={password}
+                value={Password}
                 onChangeText={setPassword}
               />
             </View>
           </View>
         </View>
-
-        
       </View>
+
       <View style={styles.bottom}>
-          <ButtonFit
-            title="Continue"
-            backgroundColor={theme.primary}
-            onPress={() => {
-              handleSubmit();
-              goForward();
-            }}
-          />
-        </View>
+        <ButtonFit
+          title="Continue"
+          backgroundColor={theme.primary}
+          onPress={handleSubmit}
+        />
+      </View>
     </View>
   );
 };
@@ -108,7 +159,7 @@ const OnboardingComplete = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "relative", 
+    position: "relative",
     alignItems: "center",
   },
   content: {

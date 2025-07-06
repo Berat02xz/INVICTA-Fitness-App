@@ -1,4 +1,5 @@
 ﻿using FitnessAppBackend.Model;
+using FitnessAppBackend.Model.DTO;
 using FitnessAppBackend.Repository;
 
 namespace FitnessAppBackend.Service.Implementations
@@ -13,7 +14,13 @@ namespace FitnessAppBackend.Service.Implementations
             _onboardingRepository = onboardingRepository;
         }
 
-        public async Task<List<OnboardingAnswers>> GetOnboardingAnswersByUserIdAsync(Guid userId)
+        public async Task AddRangeAsync(IEnumerable<OnboardingAnswers> answerEntities)
+        {
+            _onboardingRepository.AddRange(answerEntities);
+            await _onboardingRepository.SaveChangesAsync();
+        }
+
+        public async Task<List<OnboardingAnswersDTO>> GetOnboardingAnswersByUserIdAsync(Guid userId)
         {
             return await _onboardingRepository.GetOnboardingAnswersByUserIdAsync(userId);
         }

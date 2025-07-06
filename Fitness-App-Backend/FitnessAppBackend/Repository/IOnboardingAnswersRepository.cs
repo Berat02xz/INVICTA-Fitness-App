@@ -1,9 +1,11 @@
 ﻿using FitnessAppBackend.Model;
+using FitnessAppBackend.Model.DTO;
 
 namespace FitnessAppBackend.Repository
 {
     public interface IOnboardingAnswersRepository : IGenericRepository<OnboardingAnswers>
     {
-        Task<List<OnboardingAnswers>> GetOnboardingAnswersByUserIdAsync(Guid UserId);
+        void AddRange(IEnumerable<OnboardingAnswers> entities);
+        Task<List<OnboardingAnswersDTO>> GetOnboardingAnswersByUserIdAsync(Guid UserId);
     }
 }

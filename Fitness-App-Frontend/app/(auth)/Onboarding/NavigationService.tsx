@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
 import { useRouter } from "expo-router";
+import React, { createContext, useContext, useState } from "react";
 
 export const OnboardingScreens = [
   "FitnessGoal",
@@ -84,9 +84,6 @@ export const OnboardingProvider = ({
     } else {
       UserAnswers.push({ question, answer });
     }
-    // Commented for security reasons, uncomment for debugging
-    // console.log(`Saved answer for ${question}: ${answer}`);
-    // console.log("Current UserAnswers:", UserAnswers);
   };
 
   return (

@@ -42,6 +42,11 @@ namespace FitnessAppBackend.Repository.Implementations
             return await _dbSet.FindAsync(id);
         }
 
+        public Task SaveChangesAsync()
+        {
+            return _context.SaveChangesAsync();
+        }
+
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Attach(entity);
