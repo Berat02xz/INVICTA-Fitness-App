@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from 'expo-router';
 
-const BACKEND_URL = 'https://2aec-92-53-30-239.ngrok-free.app/';
+const BACKEND_URL = 'https://e0b6-92-53-30-239.ngrok-free.app/';
 
 let token: string | null = null;
 
@@ -11,8 +11,7 @@ export async function loadToken() {
   token = await AsyncStorage.getItem('token');
   if(!token || token === 'null') {
     router.push('/(auth)/login');
-  }else{
-    router.push('/(app)/Home');
+    console.log("Token is null or undefined, redirecting to Login");
   }
 }
 
@@ -32,18 +31,21 @@ const axiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Synchronous interceptor reading from memory variable 'token'
 axiosInstance.interceptors.request.use(
   (config) => {
+    config.headers = {
+      ...(config.headers ?? {}),
+      'ngrok-skip-browser-warning': 'true',
+    };
     if (token) {
-      config.headers = {
-        ...(config.headers ?? {}),
-        Authorization: `Bearer ${token}`,
-      };
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("⚠️ No token set in axios interceptor!");
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
+
 
 export default axiosInstance;

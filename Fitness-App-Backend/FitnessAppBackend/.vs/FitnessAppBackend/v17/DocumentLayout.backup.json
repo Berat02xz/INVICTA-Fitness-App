@@ -7,15 +7,15 @@
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A3777A75-6966-42E9-B4EF-20B7A3BDE663}|..\\FitnessAppBackend.Tests\\FitnessAppBackend.Tests.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend.tests\\registrationtest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\onboardinganswers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\onboardinganswers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\repository\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -115,6 +115,10 @@
           "SelectedChildIndex": 4,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 16,
               "Title": "User.cs",
@@ -128,10 +132,6 @@
               "IsPinned": true
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 11,
               "Title": "OnboardingDTO.cs",
@@ -141,8 +141,7 @@
               "RelativeToolTip": "Model\\DTO\\OnboardingDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T08:55:08.267Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T08:55:08.267Z"
             },
             {
               "$type": "Document",
@@ -154,8 +153,7 @@
               "RelativeToolTip": "Repository\\IOnboardingAnswersRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T09:38:42.902Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T09:38:42.902Z"
             },
             {
               "$type": "Document",
@@ -165,20 +163,20 @@
               "RelativeDocumentMoniker": "Controllers\\UserController.cs",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\UserController.cs",
               "RelativeToolTip": "Controllers\\UserController.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAQwB8AAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAFMAAAAAAAAAAAAIwFcAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-30T16:45:44.335Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAAABIAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-30T16:42:17.242Z",
               "EditorCaption": ""
@@ -193,12 +191,11 @@
               "RelativeToolTip": "Repository\\IUserRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T19:40:07.529Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T19:40:07.529Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "OnboardingAnswers.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\OnboardingAnswers.cs",
               "RelativeDocumentMoniker": "Model\\OnboardingAnswers.cs",
@@ -206,12 +203,11 @@
               "RelativeToolTip": "Model\\OnboardingAnswers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-01T16:29:47.435Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-01T16:29:47.435Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "RegistrationTest.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend.Tests\\RegistrationTest.cs",
               "RelativeDocumentMoniker": "..\\FitnessAppBackend.Tests\\RegistrationTest.cs",
@@ -219,8 +215,7 @@
               "RelativeToolTip": "..\\FitnessAppBackend.Tests\\RegistrationTest.cs",
               "ViewState": "AgIAAEcAAAAAAAAAAAAwwDoAAABOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T18:06:33.176Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T18:06:33.176Z"
             },
             {
               "$type": "Document",
@@ -232,8 +227,7 @@
               "RelativeToolTip": "Model\\DTO\\OnboardingAnswersDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T08:57:03.092Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T08:57:03.092Z"
             },
             {
               "$type": "Document",
@@ -245,8 +239,7 @@
               "RelativeToolTip": "Service\\IUserService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T19:34:43.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T19:34:43.85Z"
             },
             {
               "$type": "Document",
@@ -258,8 +251,7 @@
               "RelativeToolTip": "Repository\\Implementations\\UserRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T19:36:11.701Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T19:36:11.701Z"
             },
             {
               "$type": "Document",
@@ -271,8 +263,7 @@
               "RelativeToolTip": "Repository\\IGenericRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T19:40:15.809Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T19:40:15.809Z"
             },
             {
               "$type": "Document",
@@ -284,8 +275,7 @@
               "RelativeToolTip": "Model\\DTO\\UserRegisterDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T09:09:03.803Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T09:09:03.803Z"
             },
             {
               "$type": "Document",
@@ -297,8 +287,7 @@
               "RelativeToolTip": "Service\\IGenericService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T18:04:51.378Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T18:04:51.378Z"
             },
             {
               "$type": "Document",
@@ -310,8 +299,7 @@
               "RelativeToolTip": "Service\\Implementations\\UserService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T16:45:27.561Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T16:45:27.561Z"
             },
             {
               "$type": "Document",
@@ -323,8 +311,7 @@
               "RelativeToolTip": "..\\FitnessAppBackend.Tests\\FixtureClass.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T18:42:17.119Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T18:42:17.119Z"
             },
             {
               "$type": "Document",
@@ -348,8 +335,7 @@
               "RelativeToolTip": "Properties\\launchSettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-06-30T18:22:27.876Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T18:22:27.876Z"
             },
             {
               "$type": "Document",

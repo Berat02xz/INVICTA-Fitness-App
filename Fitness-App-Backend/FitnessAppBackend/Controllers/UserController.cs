@@ -85,7 +85,6 @@ namespace FitnessAppBackend.Controllers
             return Ok("Onboarding answers uploaded successfully.");
         }
 
-
         [Authorize]
         [HttpGet("GetOnboardingAnswers/{userId}")]
         public async Task<IActionResult> GetOnboardingAnswers(Guid userId)
