@@ -21,8 +21,9 @@ namespace FitnessAppBackend.Controllers
             _onboardingAnswersService = onboardingAnswersService;
         }
 
+        //Test purposes
         [HttpGet("all")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllLazy();
@@ -101,6 +102,7 @@ namespace FitnessAppBackend.Controllers
 
         //Test purposes
         //Get All Onboarding
+        [Authorize]
         [HttpGet("GetAllOnboardingAnswers")]
         public async Task<IActionResult> GetAllOnboardingAnswers()
         {
@@ -108,5 +110,20 @@ namespace FitnessAppBackend.Controllers
             return Ok(answers);
 
         }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO request)
+        {
+            var user = await _userService.GetUserByEmailAsync(request.Email);
+
+            if (user == null || !_userService.VerifyPassword(request.Password, user.PasswordHash))
+            {
+                return Unauthorized("Invalid email or password.");
+            }
+
+            var token = _jwtTokenService.GenerateToken(user.Id, user.Email, user.Name);
+            return Ok(new { token });
+        }
+
     }
 }

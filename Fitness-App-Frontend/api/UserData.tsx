@@ -95,4 +95,19 @@ export const fetchOnboardingDataAndStore = async (userId: string) => {
   }
 };
 
+export const Login = async (
+  userData: { email: string; password: string }
+): Promise<{ token: string }> => {
+  try {
+    const response = await axios.post<{ token: string }>('/api/User/Login', userData);
+    const { token } = response.data;
+    return { token };
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    throw error;
+  }
+};
+  
+
+
 

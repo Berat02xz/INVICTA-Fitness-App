@@ -40,7 +40,7 @@ export default function HomeScreen() {
           backgroundColor={theme.buttonsolid}
           hasBorder
           onPress={() => {
-            router.push("/login");
+            router.push("/(auth)/login");
           }}
         />
       </View>

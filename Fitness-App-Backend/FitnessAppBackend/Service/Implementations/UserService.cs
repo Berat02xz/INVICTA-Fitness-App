@@ -24,6 +24,10 @@ namespace FitnessAppBackend.Service.Implementations
             return hashedPassword;
         }
 
+        public bool VerifyPassword(string password, string storedHash)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, storedHash);
+        }
 
         Task<User?> IUserService.GetUserByEmailAsync(string email)
         {

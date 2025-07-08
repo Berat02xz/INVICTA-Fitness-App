@@ -3,7 +3,6 @@ import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding } from "./NavigationService";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -13,7 +12,6 @@ const iconmap = {
 };
 
 const PushUps = () => {
-  const { goForward } = useOnboarding();
 
   return (
     <View style={styles.container}>

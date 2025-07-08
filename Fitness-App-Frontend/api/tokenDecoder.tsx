@@ -13,12 +13,12 @@ type DecodedToken = {
 export async function getUserIdFromToken(): Promise<string | null> {
   const token = await AsyncStorage.getItem("token");
   if (!token) {
-    router.push("/(auth)/login");
+    router.push("/");
     console.log("Token is null, redirecting to Login");
     return null;
   }
   if (token === "null") {
-    router.push("/(auth)/login");
+    router.push("/");
     console.log("Token is null, redirecting to Login");
     return null;
   }
@@ -35,12 +35,12 @@ export async function getUserIdFromToken(): Promise<string | null> {
 export async function getEmailFromToken(): Promise<string | null> {
   const token = await AsyncStorage.getItem("token");
   if (!token) {
-    router.push("/(auth)/login");
+    router.push("/");
     console.log("Token is null, redirecting to Login");
     return null;
   }
   if (token === "null") {
-    router.push("/(auth)/login");
+    router.push("/");
     console.log("Token is null, redirecting to Login");
     return null;
   }

@@ -1,4 +1,3 @@
-import { loadToken } from "@/api/axiosInstance";
 import { getUserIdFromToken } from "@/api/tokenDecoder";
 import { fetchOnboardingDataAndStore } from "@/api/UserData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,7 +14,6 @@ const App = () => {
   useEffect(() => {
   const initializeOnboarding = async () => {
     try {
-      await loadToken(); // Ensure token is loaded before any API calls
       const storedData = await AsyncStorage.getItem("Onboarding");
       if (storedData) {
         console.log("[Onboarding] Found in AsyncStorage.");

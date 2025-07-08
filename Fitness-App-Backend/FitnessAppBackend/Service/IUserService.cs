@@ -9,7 +9,7 @@ namespace FitnessAppBackend.Service
         String HashPassword(string password);
 
         Task<ICollection<User?>> GetAllLazy();
-
+        bool VerifyPassword(string password, string passwordHash);
     }
         
 }

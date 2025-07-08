@@ -7,6 +7,18 @@
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\implementations\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:service\\implementations\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:service\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\dto\\userlogindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\dto\\userlogindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -32,14 +44,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\repository\\implementations\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:repository\\implementations\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\implementations\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:service\\implementations\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:service\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\users\\berat\\onedrive\\documents\\github\\infit-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\igenericservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -112,11 +116,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 312,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\User.cs",
               "RelativeDocumentMoniker": "Model\\User.cs",
@@ -133,44 +137,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "OnboardingDTO.cs",
-              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\OnboardingDTO.cs",
-              "RelativeDocumentMoniker": "Model\\DTO\\OnboardingDTO.cs",
-              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\OnboardingDTO.cs",
-              "RelativeToolTip": "Model\\DTO\\OnboardingDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T08:55:08.267Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IOnboardingAnswersRepository.cs",
-              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\IOnboardingAnswersRepository.cs",
-              "RelativeDocumentMoniker": "Repository\\IOnboardingAnswersRepository.cs",
-              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\IOnboardingAnswersRepository.cs",
-              "RelativeToolTip": "Repository\\IOnboardingAnswersRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T09:38:42.902Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "Controllers\\UserController.cs",
               "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\UserController.cs",
               "RelativeToolTip": "Controllers\\UserController.cs",
-              "ViewState": "AgIAAFMAAAAAAAAAAAAIwFkAAABKAAAAAAAAAA==",
+              "ViewState": "AgIAAGkAAAAAAAAAAAAswH4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-30T16:45:44.335Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -178,12 +158,11 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAG8AAAAAAAAAAAAAABIAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T16:42:17.242Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-30T16:42:17.242Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "IUserRepository.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\IUserRepository.cs",
               "RelativeDocumentMoniker": "Repository\\IUserRepository.cs",
@@ -195,7 +174,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "OnboardingAnswers.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\OnboardingAnswers.cs",
               "RelativeDocumentMoniker": "Model\\OnboardingAnswers.cs",
@@ -207,7 +186,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "RegistrationTest.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend.Tests\\RegistrationTest.cs",
               "RelativeDocumentMoniker": "..\\FitnessAppBackend.Tests\\RegistrationTest.cs",
@@ -219,7 +198,70 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 2,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IUserService.cs",
+              "RelativeDocumentMoniker": "Service\\IUserService.cs",
+              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IUserService.cs",
+              "RelativeToolTip": "Service\\IUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-06T19:34:43.85Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\UserService.cs",
+              "RelativeDocumentMoniker": "Service\\Implementations\\UserService.cs",
+              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\UserService.cs",
+              "RelativeToolTip": "Service\\Implementations\\UserService.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAQwBkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-30T16:45:27.561Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "IOnboardingAnswersRepository.cs",
+              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\IOnboardingAnswersRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\IOnboardingAnswersRepository.cs",
+              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\IOnboardingAnswersRepository.cs",
+              "RelativeToolTip": "Repository\\IOnboardingAnswersRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-06T09:38:42.902Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "OnboardingDTO.cs",
+              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\OnboardingDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\OnboardingDTO.cs",
+              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\OnboardingDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\OnboardingDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-06T08:55:08.267Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UserLoginDTO.cs",
+              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\UserLoginDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\UserLoginDTO.cs",
+              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\UserLoginDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\UserLoginDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-08T10:45:28.747Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
               "Title": "OnboardingAnswersDTO.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\OnboardingAnswersDTO.cs",
               "RelativeDocumentMoniker": "Model\\DTO\\OnboardingAnswersDTO.cs",
@@ -231,19 +273,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "IUserService.cs",
-              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IUserService.cs",
-              "RelativeDocumentMoniker": "Service\\IUserService.cs",
-              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IUserService.cs",
-              "RelativeToolTip": "Service\\IUserService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T19:34:43.85Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "UserRepository.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\Implementations\\UserRepository.cs",
               "RelativeDocumentMoniker": "Repository\\Implementations\\UserRepository.cs",
@@ -255,7 +285,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "IGenericRepository.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\IGenericRepository.cs",
               "RelativeDocumentMoniker": "Repository\\IGenericRepository.cs",
@@ -267,7 +297,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "UserRegisterDTO.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\UserRegisterDTO.cs",
               "RelativeDocumentMoniker": "Model\\DTO\\UserRegisterDTO.cs",
@@ -279,7 +309,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "IGenericService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IGenericService.cs",
               "RelativeDocumentMoniker": "Service\\IGenericService.cs",
@@ -291,19 +321,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\UserService.cs",
-              "RelativeDocumentMoniker": "Service\\Implementations\\UserService.cs",
-              "ToolTip": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\UserService.cs",
-              "RelativeToolTip": "Service\\Implementations\\UserService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-30T16:45:27.561Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "FixtureClass.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend.Tests\\FixtureClass.cs",
               "RelativeDocumentMoniker": "..\\FitnessAppBackend.Tests\\FixtureClass.cs",
@@ -315,7 +333,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -327,7 +345,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "Properties\\launchSettings.json",
@@ -339,7 +357,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "OnboardingAnswersRepository.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\Implementations\\OnboardingAnswersRepository.cs",
               "RelativeDocumentMoniker": "Repository\\Implementations\\OnboardingAnswersRepository.cs",
@@ -351,7 +369,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "GenericRepository.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Repository\\Implementations\\GenericRepository.cs",
               "RelativeDocumentMoniker": "Repository\\Implementations\\GenericRepository.cs",
@@ -363,7 +381,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "IOnboardingAnswersService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IOnboardingAnswersService.cs",
               "RelativeDocumentMoniker": "Service\\IOnboardingAnswersService.cs",
@@ -375,7 +393,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "OnboardingAnswersService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\OnboardingAnswersService.cs",
               "RelativeDocumentMoniker": "Service\\Implementations\\OnboardingAnswersService.cs",
@@ -387,7 +405,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "IJwtTokenService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\IJwtTokenService.cs",
               "RelativeDocumentMoniker": "Service\\IJwtTokenService.cs",
@@ -399,7 +417,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "JwtTokenService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\JwtTokenService.cs",
               "RelativeDocumentMoniker": "Service\\Implementations\\JwtTokenService.cs",
@@ -411,7 +429,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 25,
               "Title": "GenericService.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Service\\Implementations\\GenericService.cs",
               "RelativeDocumentMoniker": "Service\\Implementations\\GenericService.cs",
@@ -423,7 +441,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 26,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "C:\\Users\\berat\\OneDrive\\Documents\\Github\\INFIT-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Data\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "Data\\ApplicationDbContext.cs",

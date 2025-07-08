@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from 'expo-router';
 
-const BACKEND_URL = 'https://e0b6-92-53-30-239.ngrok-free.app/';
+const BACKEND_URL = 'https://bc9ec6567ed5.ngrok-free.app/';
 
 let token: string | null = null;
 
@@ -10,8 +10,10 @@ let token: string | null = null;
 export async function loadToken() {
   token = await AsyncStorage.getItem('token');
   if(!token || token === 'null') {
-    router.push('/(auth)/login');
+    router.push('/');
     console.log("Token is null or undefined, redirecting to Login");
+  }else{
+    router.push('/(app)/Home');
   }
 }
 
