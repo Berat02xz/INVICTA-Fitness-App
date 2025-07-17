@@ -6,12 +6,13 @@ interface ButtonFitProps {
     backgroundColor: string;
     hasBorder?: boolean;
     onPress: () => void;
+    style?: object;
 }
 
-const ButtonFit: React.FC<ButtonFitProps> = ({ title, backgroundColor, onPress }) => {
+const ButtonFit: React.FC<ButtonFitProps> = ({ title, backgroundColor, onPress, style }) => {
     return (
         <TouchableOpacity
-            style={[styles.button, { backgroundColor: backgroundColor }]}
+            style={[styles.button, { backgroundColor: backgroundColor }, style]}
             onPress={onPress}
         >
             <Text style={styles.text}>{title}</Text>
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     button: {
         width: 337,
         height: 62,
-        borderRadius: 10,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },

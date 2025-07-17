@@ -17,25 +17,29 @@ const LastTimeHappyBodyImage = () => {
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-                    text="Less than a year ago 😕"
+          text="<1 year ago"
+          emoji='🤔'
           onClick={() => console.log("Less than a year ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
         <ButtonOnboarding
-                    text="1 or 2 years ago 😟"
-          onClick={() => console.log("1 or 2 years ago selected")}
+          text="1-2 years ago"
+          emoji='😅'
+          onClick={() => console.log("1-2 years ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
         <ButtonOnboarding
-                    text="More than 3 years ago 🙁"
+                    text=">3 years ago"
+          emoji='🙁'
           onClick={() => console.log("More than 3 years ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
         />
         <ButtonOnboarding
-                    text="Never 😞"
+                    text="Never"
+                    emoji='✖️'
           onClick={() => console.log("Never selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"

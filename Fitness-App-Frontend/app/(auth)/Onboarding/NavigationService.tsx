@@ -16,13 +16,13 @@ export const OnboardingScreens = [
   "FeelBetweenMeals",
   "DietFollow",
   "DietResults",
-  "MoreAboutYou",
+  "HeightQuestion",
+  "WeightQuestion",
+  "AgeQuestion",
   "BMIResults",
   "DesiredTargetWeight",
   "JourneyStartsNow",
-  "ChooseWorkoutPlace",
   "AccessToEquipment",
-  "AdditionalChallenge",
   "OnboardingComplete",
 ];
 
@@ -34,6 +34,7 @@ interface OnboardingContextType {
   goBack: () => void;
   progressNow: () => number;
   saveSelection: (question: string, answer: string | number) => void;
+  totalScreens: () => number;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(
@@ -73,7 +74,9 @@ export const OnboardingProvider = ({
     }
   };
 
-  const progressNow = () => (index + 1) / OnboardingScreens.length;
+  const totalScreens = () => OnboardingScreens.length;
+
+  const progressNow = () => (index + 1) / totalScreens();
 
   const saveSelection = (question: string, answer: string | number) => {
     const existingIndex = UserAnswers.findIndex(
@@ -88,7 +91,7 @@ export const OnboardingProvider = ({
 
   return (
     <OnboardingContext.Provider
-      value={{ index, goForward, goBack, progressNow, saveSelection }}
+      value={{ index, goForward, goBack, progressNow, saveSelection, totalScreens }}
     >
       {children}
     </OnboardingContext.Provider>

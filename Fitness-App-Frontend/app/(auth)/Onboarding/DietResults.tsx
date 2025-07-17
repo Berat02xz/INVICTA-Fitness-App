@@ -1,6 +1,7 @@
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
+import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
@@ -12,7 +13,7 @@ export default function DietResults() {
 
   useEffect(() => {
     Animated.timing(animatedValue, {
-      toValue: 79,
+      toValue: 65,
       duration: 7000,
       easing: Easing.out(Easing.poly(15)),
       useNativeDriver: false,
@@ -29,26 +30,32 @@ export default function DietResults() {
 
   return (
     <View style={styles.outerContainer}>
-      <SolidBackground />
+  <SolidBackground />
 
-      <View style={styles.container}>
-        <View style={styles.middle}>
-          <Text style={styles.sloganBold}>
-            {percentage}% of your results are about nutrition
-          </Text>
-          <Text style={styles.sloganRegular}>
-            Eat smart, move more, build strength — not starve.
-          </Text>
-        </View>
-      </View>
-      <View style={styles.bottom}>
-        <ButtonFit
-          title="Continue"
-          backgroundColor={theme.primary}
-          onPress={() => goForward()}
-        />
-      </View>
+  <View style={styles.container}>
+    <View style={styles.middle}>
+      <Text style={styles.sloganBold}>
+        {percentage}% of your results are about nutrition
+      </Text>
+
+      <UndertextCard
+        emoji="🥗"
+        title="Dietary Guidance"
+        titleColor="white"
+        text="Invicta will provide you with personalized dietary recommendations."
+      />
     </View>
+
+    <View style={styles.bottom}>
+      <ButtonFit
+        title="Continue"
+        backgroundColor={theme.primary}
+        onPress={() => goForward()}
+      />
+    </View>
+  </View>
+</View>
+
   );
 }
 
@@ -58,27 +65,28 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   container: {
-    flex: 1,
-    paddingTop: 250,
-    paddingBottom: 80,
-    paddingHorizontal: 24,
-    justifyContent: "space-between",
-    zIndex: 1,
-  },
-  middle: {
-    alignItems: "center",
-  },
-  bottom: {
-    alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
+  flex: 1,
+  justifyContent: "space-between",  
+  paddingHorizontal: 24,
+  paddingBottom: 40,                
+  zIndex: 1,
+},
+middle: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+},
+bottom: {
+  alignItems: "center",
+  marginBottom: 10, 
+},
+
   sloganBold: {
-    fontSize: 21,
+    fontSize: 25,
     fontFamily: theme.bold,
     color: theme.primary,
     textAlign: "center",
+    width: 320,
   },
   sloganRegular: {
     fontSize: 16,

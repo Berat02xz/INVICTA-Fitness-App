@@ -170,14 +170,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    height: 45,
-    backgroundColor: theme.buttonsolid,
-    borderRadius: 10,
-    paddingHorizontal: 10,
     fontSize: 16,
-    fontFamily: theme.regular,
-    color: theme.textColor,
+    padding: 3,
     width: 330,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.buttonBorder,
+    textAlign: "left",
+    color: theme.textColor,
+    fontFamily: theme.regular,
+    marginTop: 5,
   },
 });
 

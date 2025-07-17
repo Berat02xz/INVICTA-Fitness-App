@@ -24,6 +24,7 @@ const FeelBetweenMeals = () => {
         <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
                     text="I’m tired after I eat"
+                    emoji='😴'
           onClick={() => {
             console.log("I’m tired after I eat selected");
           }}
@@ -32,6 +33,7 @@ const FeelBetweenMeals = () => {
         />
         <ButtonOnboarding
                     text="I get sleepy when I'm hungry"
+          emoji='😌'
           onClick={() => {
             console.log("I get sleepy when I'm hungry selected");
           }}
@@ -40,6 +42,7 @@ const FeelBetweenMeals = () => {
         />
         <ButtonOnboarding
                     text="I feel irritable when i’m hungry"
+          emoji='😡'
           onClick={() => {
             console.log("I feel irritable when i’m hungry selected");
           }}
@@ -48,6 +51,7 @@ const FeelBetweenMeals = () => {
         />
         <ButtonOnboarding
                     text="I have enough energy during the day"
+          emoji='💪'
           onClick={() => {
             console.log("I have enough energy during the day selected");
           }}

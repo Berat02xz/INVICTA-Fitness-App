@@ -172,14 +172,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    height: 45,
+    height: 52,
     backgroundColor: theme.buttonsolid,
     borderRadius: 10,
     paddingHorizontal: 10,
     fontSize: 16,
     fontFamily: theme.regular,
     color: theme.textColor,
-    width: 250,
+    width: 230,
   },
 });
 

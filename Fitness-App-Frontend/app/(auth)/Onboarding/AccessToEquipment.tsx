@@ -16,13 +16,14 @@ const AccessToEquipment = () => {
       <SolidBackground />
 
       <View style={styles.container}>
-        <QuestionOnboarding question="Which type of equipment do you have access to?" />
-        
+        <QuestionOnboarding question="Choose your workout environment" />
+
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          text="No Equipment"
+          text="Home"
           imageSrc={activity_level.home}
+          undertext="Home workouts with no equipment"
           onClick={() => {
             console.log("No Equipment selected");
           }}
@@ -31,7 +32,7 @@ const AccessToEquipment = () => {
         />
         <ButtonOnboarding
           text="Basic Equipment"
-          undertext="Resistance band, dumbbells"
+          undertext="Dumbbells, bands, or similar gear at home"
           imageSrc={activity_level.gym}
           onClick={() => {
             console.log("Basic Equipment selected");
@@ -40,15 +41,16 @@ const AccessToEquipment = () => {
           forQuestion="equipment_access"
         />
         <ButtonOnboarding
-          text="Full Equipment"
-          undertext="Bands, weights & bars, machines"
+          text="Gym Access"
+          undertext="You can use full gym machines"
           imageSrc={activity_level.full}
           onClick={() => {
-            console.log("Full Equipment selected");
+            console.log("Gym Access selected");
           }}
           oneAnswer
           forQuestion="equipment_access"
         />
+
       </View>
     </View>
   );
@@ -65,6 +67,12 @@ const styles = StyleSheet.create({
     padding: 25,
     zIndex: 1, 
     alignItems: "center",
+  },
+  bottom: {
+    alignItems: "center",
+    marginBottom: 50,
+    flex: 1,
+    justifyContent: "flex-end",
   },
 });
 

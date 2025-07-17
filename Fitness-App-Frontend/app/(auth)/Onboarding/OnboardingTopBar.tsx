@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,10 +12,13 @@ import {
 import { theme } from "../../../constants/theme";
 import { useOnboarding } from "./NavigationService";
 
-const TopBar = () => {
-  const { goBack, goForward, progressNow } = useOnboarding();
-  const progress = useRef(new Animated.Value(progressNow())).current;
 
+const TopBar = () => {
+  
+  const { goBack, goForward, progressNow, totalScreens } = useOnboarding();
+  const progress = useRef(new Animated.Value(progressNow())).current;
+  const totalScreensCount = totalScreens();
+  const currentScreen = Math.round(Number(progressNow()) * Number(totalScreensCount));
   useEffect(() => {
     Animated.timing(progress, {
       toValue: progressNow(),
@@ -42,9 +46,15 @@ const TopBar = () => {
           resizeMode="contain"
         />
 
-        <TouchableOpacity onPress={goForward} style={styles.skipButton}>
-          <Text style={styles.skip}>Skip</Text>
-        </TouchableOpacity>
+        <View style={styles.numberScreen}>
+  <Text style={styles.skip}>
+  {currentScreen}
+  <Text style={styles.totalDimmed}> / {totalScreensCount}</Text>
+</Text>
+
+</View>
+
+
       </View>
 
       {/* Progress Bar */}
@@ -58,36 +68,50 @@ const TopBar = () => {
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    paddingTop: 60,
-    paddingHorizontal: 15,
-    backgroundColor: "#121212",
-  },
-  topRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
+wrapper: {
+  paddingTop: Platform.OS === "web" ? 20 : 60,
+  paddingHorizontal: 15,
+  backgroundColor: "#121212",
+},
+topRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  position: "relative", // ✅ add this
+},
+
   iconButton: {
     padding: 10,
   },
-  skipButton: {
+  numberScreen: {
     padding: 10,
+    fontFamily: theme.bold,
+    
   },
   skip: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: theme.regular,
+    fontFamily: theme.semibold,
     fontWeight: "500",
   },
-  logo: {
-    height: 40,
-    width: 95,
+  totalDimmed: {
+    color: "#B0B0B0",
+    fontSize: 14,
+    fontFamily: theme.light,
   },
+logo: {
+  height: Platform.OS === "web" ? 40 : 40,
+  width: 95,
+  position: "absolute",
+  left: "50%",
+  transform: [{ translateX: -47.5 }],
+  zIndex: 1,
+},
+
   progressContainer: {
-    marginTop: 25,
+    marginTop: Platform.OS === "web" ? 20 : 25,
     height: 4,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#383838ff",
     borderRadius: 3,
     overflow: "hidden",
     marginHorizontal: 15,

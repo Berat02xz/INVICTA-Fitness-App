@@ -7,6 +7,8 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import ConfettiCannon from 'react-native-confetti-cannon';
+
 
 export default function JourneyStartsNow() {
   const { goForward } = useOnboarding();
@@ -68,6 +70,8 @@ export default function JourneyStartsNow() {
   return (
     <View style={styles.outerContainer}>
       <SolidBackground />
+      <ConfettiCannon count={20} origin={{x: -10, y: -10}} fadeOut fallSpeed={3500} />
+
       <View style={styles.container}>
         <View style={styles.main}>
           <View style={styles.middle}>
@@ -103,34 +107,35 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   container: {
-    flex: 1,
-    zIndex: 1,
-    alignItems: "center",
-  },
-  main: {
-    flex: 1,
-    paddingTop: 250,
-    paddingBottom: 80,
-    paddingHorizontal: 24,
-    justifyContent: "space-between",
-  },
-  middle: {
-    alignItems: "center",
-  },
-  bottom: {
-    alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
+  flex: 1,
+  zIndex: 1,
+  alignItems: "center",
+  justifyContent: "space-between", 
+  paddingHorizontal: 24,
+  paddingVertical: 20,
+},
+main: {
+  flex: 1,
+  justifyContent: "center",   
+  alignItems: "center",       
+},
+middle: {
+  alignItems: "center",
+},
+bottom: {
+  alignItems: "center",
+  marginBottom: 40,
+  
+},
+
   sloganBold: {
-    fontSize: 21,
+    fontSize: 23,
     fontFamily: theme.bold,
     width: 300,
     textAlign: "center",
   },
   sloganRegular: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: theme.light,
     color: "#D9D9D9",
     textAlign: "center",

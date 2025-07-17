@@ -1,21 +1,26 @@
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
-import { useOnboarding } from '../../app/(auth)/Onboarding/NavigationService';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
+import { useOnboarding } from "../../app/(auth)/Onboarding/NavigationService";
 
 interface ButtonOnboardingProps {
   height?: number;
   imageSrc?: any;
-  
   text: string;
-
   undertext?: string;
   BodyImage?: any;
+  emoji?: string;
   onClick?: () => void;
   oneAnswer?: boolean;
   forQuestion?: string;
-  style?: ViewStyle; 
-
+  style?: ViewStyle;
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
@@ -24,19 +29,18 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   text,
   undertext,
   BodyImage,
+  emoji,
   onClick,
   oneAnswer = false,
   forQuestion = "",
-  style = {}, 
+  style = {},
 }) => {
-  
   const [selected, setSelected] = useState(false);
-    const { goForward, goBack, saveSelection } = useOnboarding();
+  const { goForward, goBack, saveSelection } = useOnboarding();
 
   const handleClick = () => {
     setSelected(!selected);
     if (onClick) onClick();
-
 
     if (oneAnswer) {
       setTimeout(() => {
@@ -50,7 +54,11 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
     <TouchableOpacity
       style={[
         styles.button,
-        { height, borderColor: selected ? theme.primary : "transparent", backgroundColor: selected ? theme.deepPrimary : theme.buttonsolid },
+        {
+          height,
+          borderColor: selected ? theme.primary : "transparent",
+          backgroundColor: selected ? theme.primary : theme.buttonsolid,
+        },
         style,
       ]}
       onPress={handleClick}
@@ -64,6 +72,8 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
         {undertext && <Text style={styles.undertext}>{undertext}</Text>}
       </View>
 
+      {emoji && !BodyImage && <Text style={styles.emoji}>{emoji}</Text>}
+
       {BodyImage && (
         <Image
           source={BodyImage}
@@ -76,23 +86,23 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
 };
 
 const styles = StyleSheet.create({
-button: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  paddingHorizontal: 15,
-  marginBottom: 10,
-  borderWidth: 1,
-  borderRadius: 10,
-  backgroundColor: theme.buttonsolid,
-  gap: 14,
-  width: 330,
-  alignSelf: 'center',
-},
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: theme.buttonsolid,
+    gap: 14,
+    width: 330,
+    alignSelf: "center",
+  },
   icon: {
     width: 30,
     height: 31,
-    marginRight: 12,
+    marginLeft: 10,
   },
   textContainer: {
     flex: 1,
@@ -102,7 +112,7 @@ button: {
   text: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: theme.regular,
+    fontFamily: theme.semibold,
   },
   undertext: {
     fontSize: 12,
@@ -112,6 +122,11 @@ button: {
   bodyIcon: {
     width: "50%",
     height: "100%",
+  },
+  emoji: {
+    fontSize: 30,
+    marginLeft: 10,
+    marginRight: 10,
   },
 });
 

@@ -6,7 +6,14 @@ import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import Toast from "react-native-toast-message";
 
 export const LoginScreen = () => {
@@ -43,89 +50,129 @@ export const LoginScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <SolidBackground style={StyleSheet.absoluteFill} />
-      <View style={styles.content}>
-        <Text style={styles.Logo}>INVICTUS</Text>
-        <View style={styles.formContainer}>
-          <Text style={styles.label}>Your Email</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="email-address"
-            placeholder="you@example.com"
-            placeholderTextColor={theme.buttonBorder}
-            autoCapitalize="none"
-            autoComplete="email"
-            value={Email}
-            onChangeText={setEmail}
+    <>
+      <View style={styles.container}>
+        <SolidBackground style={StyleSheet.absoluteFill} />
+        <View style={styles.content}>
+          <Image
+            source={require("@/assets/icons/branding/Invictus_Logo_weight3.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
           />
+          <View style={styles.headingContainer}>
+            <Text style={[styles.heading, styles.headingBold]}>
+              One decision.
+            </Text>
+            <Text style={styles.heading}>That’s all it takes.</Text>
+          </View>
 
-          <Text style={styles.label}>Enter Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              secureTextEntry={!showPassword}
-              placeholder="********"
-              placeholderTextColor={theme.buttonBorder}
-              autoCapitalize="none"
-              autoComplete="password"
-              value={Password}
-              onChangeText={setPassword}
-            />
-            <Pressable onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={22}
-                color={theme.textColor}
-                style={{ marginRight: 10 }}
+          <View style={styles.formContainer}>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor={theme.buttonBorder}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                value={Email}
+                onChangeText={setEmail}
+              />{" "}
+            </View>
+
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                secureTextEntry={!showPassword}
+                placeholder="Pass"
+                placeholderTextColor={theme.buttonBorder}
+                autoCapitalize="none"
+                autoComplete="password"
+                value={Password}
+                onChangeText={setPassword}
               />
-            </Pressable>
+              <Pressable onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={22}
+                  color={theme.textColor}
+                  style={{ marginRight: 10 }}
+                />
+              </Pressable>
+            </View>
+
+            <ButtonFit
+              title="Log In: I’ve done the quiz"
+              backgroundColor={theme.primary}
+              onPress={handleSubmit}
+            />
+
+            <View style={styles.separatorContainer}>
+              <View style={styles.line} />
+              <Text style={styles.separatorText}>OR</Text>
+              <View style={styles.line} />
+            </View>
+
+            <ButtonFit
+              title="Sign Up: Start the quiz"
+              backgroundColor="#331111"
+              style={{ borderColor: theme.primary, borderWidth: 1 }}
+              onPress={() =>
+                router.push("../../../(auth)/Onboarding/FitnessGoal")
+              }
+            />
           </View>
         </View>
-
-        <View style={styles.bottom}>
-          <ButtonFit
-            title="Log In"
-            backgroundColor={theme.primary}
-            onPress={handleSubmit}
-          />
-        </View>
       </View>
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "relative",
     backgroundColor: "transparent",
+  },
+  headingContainer: {
+    alignItems: "center",
   },
   content: {
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 30,
+    alignItems: "center",
+    alignSelf: "center",
+  },
+  logoImage: {
+    width: 120,
+    height: 60,
+    marginBottom: 25,
+  },
+  heading: {
+    fontSize: 30,
+    fontFamily: theme.regular,
+    textAlign: "center",
+    color: theme.textColor,
+  },
+  headingBold: {
+    fontFamily: theme.bold,
   },
   formContainer: {
-    marginTop: 40,
-    width: 330,
-    alignSelf: "center",
+    marginTop: 30,
+    width: "100%",
     gap: 18,
-  },
-  label: {
-    fontSize: 15,
-    fontFamily: theme.medium,
-    color: theme.textColor,
-    marginBottom: 5,
+    alignSelf: "center",
   },
   input: {
-    height: 48,
+    height: 62,
     backgroundColor: theme.buttonsolid,
     borderRadius: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     fontSize: 16,
     fontFamily: theme.regular,
     color: theme.textColor,
+    alignSelf: "center",
+    width: "100%",
   },
   passwordContainer: {
     flexDirection: "row",
@@ -133,17 +180,24 @@ const styles = StyleSheet.create({
     backgroundColor: theme.buttonsolid,
     borderRadius: 10,
   },
-  bottom: {
-    marginTop: 60,
-    alignItems: "center",
+  buttonText: {
+    fontFamily: theme.bold,
+    fontSize: 15,
   },
-    Logo: {
-    fontSize: 48,
-    fontFamily: theme.black,
-    color: theme.textColor,
-    height: 85,
-    marginBottom: 10,
-    alignSelf: "center",
+  separatorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#999",
+  },
+  separatorText: {
+    marginHorizontal: 10,
+    color: "#999",
+    fontFamily: theme.medium,
   },
 });
 

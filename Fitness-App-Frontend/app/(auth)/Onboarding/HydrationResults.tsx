@@ -4,6 +4,7 @@ import {
 } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
+import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
@@ -33,7 +34,7 @@ export default function HappyBodyImageResults() {
     };
   }, [animatedValue]);
 
-  const lowWaterAnswers = ["Less than 2 glasses 💧", "Only coffee or tea ☕"];
+  const lowWaterAnswers = ["Less than 2 glasses", "Only coffee or tea"];
   const isLowWater = lowWaterAnswers.includes(answerMap["Water"] || "");
 
   return (
@@ -44,15 +45,16 @@ export default function HappyBodyImageResults() {
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>
               {isLowWater
-                ? `Drinking water is essential`
+                ? `Drinking water is essential for your progress.`
                 : `You drink more water than ${percentage}% of users`}
             </Text>
 
-            <Text style={styles.sloganRegular}>
-              {isLowWater
-                ? "If you're not hydrated, your body can't perform at its highest level. Invictus will remind you to drink enough water."
-                : "Invictus will remind you to drink enough water."}
-            </Text>
+            <UndertextCard
+              emoji="💧"
+              title="Hydration Reminder"
+              titleColor="white"
+              text="Invicta will remind you to drink enough water."
+            />
           </View>
         </View>
         <View style={styles.bottom}>
@@ -76,35 +78,41 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 1,
     alignItems: "center",
+    alignSelf: "center",
   },
-  main: {
-    flex: 1,
-    paddingTop: 250,
-    paddingBottom: 80,
-    paddingHorizontal: 24,
-    justifyContent: "space-between",
-  },
-  middle: {
-    alignItems: "center",
-  },
-  bottom: {
-    alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
+main: {
+  flex: 1,
+  paddingHorizontal: 24,
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+middle: {
+  alignItems: "center",
+  width: "100%",
+  // Remove height: "100%" — not needed
+  justifyContent: "center",
+},
+
+bottom: {
+  alignItems: "center",
+  marginBottom: 50,
+},
+
   sloganBold: {
-    fontSize: 21,
+    fontSize: 25,
     fontFamily: theme.bold,
     color: theme.primary,
-    width: 300,
+    width: 320,
     textAlign: "center",
+    alignSelf: "center",
   },
   sloganRegular: {
     fontSize: 16,
     fontFamily: theme.light,
     color: "#D9D9D9",
     textAlign: "center",
+    alignSelf: "center",
     marginTop: 10,
     width: 300,
   },

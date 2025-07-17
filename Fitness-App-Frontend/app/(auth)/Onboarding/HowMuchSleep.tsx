@@ -18,6 +18,7 @@ const HowMuchSleep = () => {
 
         <ButtonOnboarding
                     text="Fewer than 6 hours"
+          emoji='😴'
           onClick={() => {
             console.log("Fewer than 6 hours selected");
           }}
@@ -25,7 +26,8 @@ const HowMuchSleep = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="Between 6 and 8 hours 😴"
+                    text="Between 6 and 8 hours"
+          emoji='😌'
           onClick={() => {
             console.log("Between 6 and 8 hours selected");
           }}
@@ -33,7 +35,8 @@ const HowMuchSleep = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="Over 8 hours 😴😴"
+                    text="Over 8 hours"
+                    emoji='💤'
           onClick={() => {
             console.log("Over 8 hours selected");
           }}

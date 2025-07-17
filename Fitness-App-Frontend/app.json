@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Invictus",
-    "slug": "invictus",
-    "displayName": "Invictus",
+    "name": "Invicta",
+    "slug": "Invicta",
+    "displayName": "Invicta",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/Invictus_Icon.png",
+    "icon": "./assets/images/Invicta_Icon.png",
     "scheme": "fitfe",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

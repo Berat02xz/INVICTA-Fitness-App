@@ -17,7 +17,8 @@ const HowMuchWater = () => {
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-                    text="Only coffee or tea ☕"
+                    text="Only coffee or tea"
+          emoji='☕️'
           onClick={() => {
             console.log("Only coffee or tea selected");
           }}
@@ -25,7 +26,8 @@ const HowMuchWater = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="Less than 2 glasses 💧"
+                    text="Less than 2 glasses"
+                    emoji='💧'
           undertext="up to 0,5l / 17oz"
           onClick={() => {
             console.log("Less than 2 glasses selected");
@@ -34,7 +36,8 @@ const HowMuchWater = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="2-6 glasses 💧💧"
+                    text="2-6 glasses"
+          emoji='💦'
           undertext="0,5-1.5l / 17-50 oz"
           onClick={() => {
             console.log("2-6 glasses selected");
@@ -43,7 +46,8 @@ const HowMuchWater = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="7-10 glasses 💧💧💧"
+                    text="7-10 glasses"
+          emoji='🌊'
           undertext="1,5-2,5l / 50-85 oz"
           onClick={() => {
             console.log("7-10 glasses selected");
@@ -52,7 +56,8 @@ const HowMuchWater = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="More than 10 glasses 🐳"
+                    text="More than 10 glasses"
+                    emoji='🐋'
           undertext="1,5-2.5l / 50-85 oz"
           onClick={() => {
             console.log("More than 10 glasses selected");

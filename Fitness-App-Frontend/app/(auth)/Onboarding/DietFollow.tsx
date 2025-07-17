@@ -23,7 +23,8 @@ const DietFollow = () => {
         <QuestionOnboarding question="Do you follow any of these diets?" />
         <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
-                    text="Vegetarian 🍆"
+                    text="Vegetarian"
+          emoji='🥗'
           undertext="Excludes meat"
           onClick={() => {
             console.log("Vegetarian selected");
@@ -32,7 +33,8 @@ const DietFollow = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="Vegan 🥕"
+                    text="Vegan"
+          emoji='🥕'
           undertext="Excludes all animal products"
           onClick={() => {
             console.log("Vegan selected");
@@ -41,7 +43,8 @@ const DietFollow = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="Keto 🥑"
+                    text="Keto"
+          emoji='🥑'
           undertext="Low-carb, high fat"
           onClick={() => {
             console.log("Keto selected");
@@ -50,7 +53,8 @@ const DietFollow = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="No ❌"
+                    text="No"
+          emoji='❌'
           onClick={() => {
             console.log("No selected");
           }}

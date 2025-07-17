@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 "use client";
 
 const bodyImage = {
-  Average: require("@/assets/icons/onboarding/Average.png"),
+  Average: require("@/assets/icons/onboarding/Average2.png"),
   Heavy: require("@/assets/icons/onboarding/Heavy.png"),
   Skinny: require("@/assets/icons/onboarding/Skinny.png"),
 };
@@ -42,9 +42,9 @@ const HowDoYouLookRightNow = () => {
         />
         <ButtonOnboarding
           height={150}
-          text="Skinny"
+          text="Slim"
           onClick={() => {
-            console.log("Skinny selected");
+            console.log("Slim selected");
           }}
           oneAnswer
           forQuestion="look_perception"

@@ -8,33 +8,43 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding, UserAnswers } from "./NavigationService";
 
-const DesiredTargetWeight = () => {
+const HeightQuestion = () => {
   const { goForward } = useOnboarding();
-
-  const [unit, setUnit] = useState<"metric" | "imperial">(
-    UserAnswers.find((answer) => answer.question === "unit")?.answer || "metric"
+const [unit, setUnit] = useState<"metric" | "imperial">(
+    UserAnswers.find(answer => answer.question === "unit")?.answer || "metric"
   );
-  const [targetWeight, setTargetWeight] = useState<string>("");
+  const [height, setHeight] = useState<string>("");
 
-  const handleWeightChange = (value: string) => {
-    setTargetWeight(value.replace(/[^0-9]/g, ""));
+  const handleHeightChange = (value: string) => {
+    if (unit === "imperial") {
+      const cleaned = value.replace(/[^0-9]/g, "");
+      if (cleaned.length === 0) {
+        setHeight("");
+        return;
+      }
+      if (cleaned.length <= 1) {
+        setHeight(`${cleaned}'`);
+      } else {
+        const feet = cleaned.slice(0, 1);
+        const inches = cleaned.slice(1, 3);
+        setHeight(`${feet}'${inches}`);
+      }
+    } else {
+      setHeight(value.replace(/[^0-9]/g, ""));
+    }
   };
 
   const handleSubmit = () => {
-    const existingTarget = UserAnswers.findIndex(
-      (item) => item.question === "target weight"
-    );
-    if (existingTarget > -1) {
-      UserAnswers[existingTarget].answer = targetWeight;
+    const existingIndex = UserAnswers.findIndex((item) => item.question === "height");
+    if (existingIndex > -1) {
+      UserAnswers[existingIndex].answer = height;
     } else {
-      UserAnswers.push({ question: "target weight", answer: targetWeight });
+      UserAnswers.push({ question: "height", answer: height });
     }
 
-    const existingUnit = UserAnswers.findIndex(
-      (item) => item.question === "unit"
-    );
-    if (existingUnit > -1) {
-      UserAnswers[existingUnit].answer = unit;
+    const unitIndex = UserAnswers.findIndex((item) => item.question === "unit");
+    if (unitIndex > -1) {
+      UserAnswers[unitIndex].answer = unit;
     } else {
       UserAnswers.push({ question: "unit", answer: unit });
     }
@@ -46,34 +56,35 @@ const DesiredTargetWeight = () => {
     <View style={styles.container}>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.content}>
-        <QuestionOnboarding question="What is your target weight?" />
-
+        <QuestionOnboarding question="What is your height?" />
         <View style={styles.unitSwitchWrapper}>
           <UnitSwitch
             unit={unit}
             onSelect={setUnit}
-            metricLabel="KG"
-            imperialLabel="LB"
+            metricLabel="CM"
+            imperialLabel="FT"
           />
         </View>
-
         <TextInput
-          key={unit}
+        key={unit}
           style={styles.input}
-          value={targetWeight}
-          onChangeText={handleWeightChange}
+          value={height}
+          onChangeText={handleHeightChange}
           keyboardType="numeric"
-          placeholder={unit === "metric" ? "kg" : "lb"}
+          placeholder={unit === "metric" ? "cm" : "ft in"}
           placeholderTextColor={theme.buttonBorder}
           underlineColorAndroid="transparent"
         />
 
+        
+
         <UndertextCard
-          emoji="🎯"
-          title="Target Weight"
-          titleColor="red"
-          text="Setting a target helps us build a plan to reach your goal efficiently."
+          emoji="📏"
+          title="Height"
+          titleColor="white"
+          text="Calculating your body mass index requires your height."
         />
+
       </View>
 
       <View style={styles.bottom}>
@@ -144,4 +155,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DesiredTargetWeight;
+export default HeightQuestion;

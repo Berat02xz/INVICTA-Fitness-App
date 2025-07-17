@@ -54,16 +54,16 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
 const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: "row",
-    backgroundColor: "#e0e0e0",
-    borderRadius: 10,
+    backgroundColor: "#292929ff",
+    borderRadius: 15,
     alignSelf: "center",
-    height: 40,
-    width: 80,
+    height: 32,
+    width: 120,
   },
   toggleOption: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 14,
-    color: "black",
+    color: "white",
     fontFamily: theme.regular,
   },
   selectedText: {

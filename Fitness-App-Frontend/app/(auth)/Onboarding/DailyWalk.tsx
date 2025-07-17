@@ -24,6 +24,7 @@ const DailyWalk = () => {
         <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
                     text="Less than 1 hour"
+          emoji='👍'
           onClick={() => {
             console.log("Less than 1 hour selected");
           }}
@@ -31,7 +32,8 @@ const DailyWalk = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="1-2 hours 🚶"
+                    text="1-2 hours"
+          emoji='👌'
           onClick={() => {
             console.log("1-2 hours selected");
           }}
@@ -39,7 +41,8 @@ const DailyWalk = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="More than 2 hours 🚶🚶"
+                    text="More than 2 hours"
+          emoji='💪'
           onClick={() => {
             console.log("More than 2 hours selected");
           }}

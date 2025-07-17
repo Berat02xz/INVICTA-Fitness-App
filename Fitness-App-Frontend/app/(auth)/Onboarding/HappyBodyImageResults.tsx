@@ -1,6 +1,7 @@
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
+import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
@@ -34,10 +35,14 @@ export default function HappyBodyImageResults() {
         <View style={styles.main}>
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>{percentage}% of users</Text>
-            <Text style={styles.sloganRegular}>
-              responded in the same way. Invictus will help you to create a habit
-              to work out.
-            </Text>
+            
+            <UndertextCard
+              emoji="🤗"
+              title="Responded the same way"
+              titleColor="white"
+              text="You are not alone in your feelings about your body image."
+            />
+
           </View>
         </View>
         <View style={styles.bottom}>
@@ -64,24 +69,27 @@ const styles = StyleSheet.create({
     zIndex: 1,
     alignItems: "center",
   },
-  main: {
-    flex: 1,
-    paddingTop: 250,
-    paddingBottom: 80,
-    paddingHorizontal: 24,
-    justifyContent: "space-between",
-  },
-  middle: {
-    alignItems: "center",
-  },
-  bottom: {
-    alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
+main: {
+  flex: 1,
+  paddingHorizontal: 24,
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+middle: {
+  alignItems: "center",
+  width: "100%",
+  // Remove height: "100%" — not needed
+  justifyContent: "center",
+},
+
+bottom: {
+  alignItems: "center",
+  marginBottom: 50,
+},
+
   sloganBold: {
-    fontSize: 21,
+    fontSize: 30,
     fontFamily: theme.bold,
     color: theme.primary,
   },

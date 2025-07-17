@@ -8,26 +8,25 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding, UserAnswers } from "./NavigationService";
 
-const DesiredTargetWeight = () => {
+const WeightQuestion = () => {
   const { goForward } = useOnboarding();
-
   const [unit, setUnit] = useState<"metric" | "imperial">(
     UserAnswers.find((answer) => answer.question === "unit")?.answer || "metric"
   );
-  const [targetWeight, setTargetWeight] = useState<string>("");
+  const [weight, setWeight] = useState<string>("");
 
   const handleWeightChange = (value: string) => {
-    setTargetWeight(value.replace(/[^0-9]/g, ""));
+    setWeight(value.replace(/[^0-9]/g, ""));
   };
 
   const handleSubmit = () => {
-    const existingTarget = UserAnswers.findIndex(
-      (item) => item.question === "target weight"
+    const existingWeight = UserAnswers.findIndex(
+      (item) => item.question === "weight"
     );
-    if (existingTarget > -1) {
-      UserAnswers[existingTarget].answer = targetWeight;
+    if (existingWeight > -1) {
+      UserAnswers[existingWeight].answer = weight;
     } else {
-      UserAnswers.push({ question: "target weight", answer: targetWeight });
+      UserAnswers.push({ question: "weight", answer: weight });
     }
 
     const existingUnit = UserAnswers.findIndex(
@@ -46,8 +45,7 @@ const DesiredTargetWeight = () => {
     <View style={styles.container}>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.content}>
-        <QuestionOnboarding question="What is your target weight?" />
-
+        <QuestionOnboarding question="What is your weight?" />
         <View style={styles.unitSwitchWrapper}>
           <UnitSwitch
             unit={unit}
@@ -60,7 +58,7 @@ const DesiredTargetWeight = () => {
         <TextInput
           key={unit}
           style={styles.input}
-          value={targetWeight}
+          value={weight}
           onChangeText={handleWeightChange}
           keyboardType="numeric"
           placeholder={unit === "metric" ? "kg" : "lb"}
@@ -69,10 +67,10 @@ const DesiredTargetWeight = () => {
         />
 
         <UndertextCard
-          emoji="🎯"
-          title="Target Weight"
-          titleColor="red"
-          text="Setting a target helps us build a plan to reach your goal efficiently."
+          emoji="⚖️"
+          title="Weight"
+          titleColor="white"
+          text="Your weight is essential for tailoring your fitness plan."
         />
       </View>
 
@@ -144,4 +142,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DesiredTargetWeight;
+export default WeightQuestion;

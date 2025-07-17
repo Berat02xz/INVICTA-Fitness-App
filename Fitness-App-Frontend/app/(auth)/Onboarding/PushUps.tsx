@@ -5,10 +5,10 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 
 const iconmap = {
-  weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
-  weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
-  build_strength: require("@/assets/icons/onboarding/build_strength.png"),
-  improve_health: require("@/assets/icons/onboarding/improve_health.png"),
+  pushUp1: require("@/assets/icons/onboarding/pushUp1.png"),
+  pushUp2: require("@/assets/icons/onboarding/pushUp2.png"),
+  pushUp3: require("@/assets/icons/onboarding/pushUp3.png"),
+  Gym: require("@/assets/icons/onboarding/Gym.png"),
 };
 
 const PushUps = () => {
@@ -19,28 +19,40 @@ const PushUps = () => {
 
       <View style={styles.content}>
         <View style={{ zIndex: 1 }}>
-          <QuestionOnboarding question="How many push-ups can you do?" />
+          <QuestionOnboarding question="How many push-ups can you do in one round?" />
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
-                        text="Less than 12"
+            text="Less than 10"
+            imageSrc={iconmap.pushUp1}
             onClick={() => {
-              console.log("Less than 12 selected");
+              console.log("Less than 10 selected");
             }}
             forQuestion="PushUps"
             oneAnswer
           />
           <ButtonOnboarding
-            text="13-20 💪"
+            text="10-20"
+            imageSrc={iconmap.pushUp2}
             onClick={() => {
-              console.log("13-20 selected");
+              console.log("10-20 selected");
             }}
             forQuestion="PushUps"
             oneAnswer
           />
           <ButtonOnboarding
-                        text="More than 21 💪💪"
+            text="21-30"
+            imageSrc={iconmap.pushUp3}
             onClick={() => {
-              console.log("More than 21 selected");
+              console.log("21-30 selected");
+            }}
+            forQuestion="PushUps"
+            oneAnswer
+          />
+          <ButtonOnboarding
+            text="More than 30"
+            imageSrc={iconmap.Gym}
+            onClick={() => {
+              console.log("More than 30 selected");
             }}
             forQuestion="PushUps"
             oneAnswer

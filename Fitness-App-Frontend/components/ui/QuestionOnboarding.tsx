@@ -18,7 +18,7 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 
 const styles = StyleSheet.create({
   questionText: {
-    fontFamily: theme.semibold,
+    fontFamily: theme.bold,
     fontSize: 25,
     color: "#FFFFFF",
     textAlign: "center",

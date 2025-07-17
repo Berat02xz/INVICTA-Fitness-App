@@ -1,9 +1,11 @@
+import ButtonFit from "@/components/ui/ButtonFit";
 import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
-import React from "react";
+import { theme } from "@/constants/theme";
+import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-
+import { useOnboarding, UserAnswers } from "./NavigationService";
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
   weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
@@ -12,53 +14,69 @@ const iconmap = {
 };
 
 const FitnessGoalScreen = () => {
+  const { goForward } = useOnboarding();
+  
+  type FitnessGoal = string;
+  const [selectedGoal, setSelectedGoal] = useState<FitnessGoal | null>(null);
+
+  const handleSelectGoal = (goal: FitnessGoal, question: string): void => {
+    setSelectedGoal(goal);
+    UserAnswers.push({ question, answer: goal });
+    console.log(`${goal} selected`);
+  };
+
+
   return (
     <View style={styles.outerContainer}>
       <SolidBackground />
 
       <View style={styles.container}>
-        <QuestionOnboarding
-          question="What is your fitness goal?"
-        />
+        <QuestionOnboarding question="What is your fitness goal?" />
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          imageSrc={iconmap.weight_loss}
           text="Lose Weight"
+          emoji="🏃‍♂️"
           onClick={() => {
-            console.log("Weight Loss selected");
+            handleSelectGoal("Lose Weight","Weight Goal");
           }}
-          oneAnswer
-          forQuestion="fitness_goal"
+          forQuestion="weight_goal"
         />
         <ButtonOnboarding
-          imageSrc={iconmap.weight_gain}
           text="Gain Weight"
+          emoji="🏋️‍♀️"
           onClick={() => {
-            console.log("Weight Gain selected");
+            handleSelectGoal("Gain Weight","Weight Goal");
           }}
-          oneAnswer
-          forQuestion="fitness_goal"
+          forQuestion="weight_goal"
         />
         <ButtonOnboarding
-          imageSrc={iconmap.build_strength}
           text="Build Strength"
+          emoji="💪"
           onClick={() => {
-            console.log("Build Strength selected");
+            handleSelectGoal("Build Strength","Fitness Goal");
           }}
-          oneAnswer
           forQuestion="fitness_goal"
         />
         <ButtonOnboarding
-          imageSrc={iconmap.improve_health}
           text="Improve Health"
+          emoji="❤️"
           onClick={() => {
-            console.log("Improve Health selected");
+            handleSelectGoal("Improve Health","Fitness Goal");
           }}
-          oneAnswer
           forQuestion="fitness_goal"
         />
       </View>
+      {selectedGoal && (
+  <View style={styles.bottom}>
+    <ButtonFit
+      title="Continue"
+      backgroundColor={theme.primary}
+      onPress={goForward}
+    />
+  </View>
+)}
+
     </View>
   );
 };
@@ -67,6 +85,12 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     position: "relative",
+  },
+  bottom: {
+    alignItems: "center",
+    marginBottom: 50,
+    flex: 1,
+    justifyContent: "flex-end",
   },
   container: {
     flex: 1,

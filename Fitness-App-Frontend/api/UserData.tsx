@@ -1,5 +1,6 @@
 import axios, { setToken } from '@/api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 //Register a User
 export const registerUser = async (userData: {
@@ -107,7 +108,13 @@ export const Login = async (
     throw error;
   }
 };
-  
 
-
-
+export const logoutUser = async () => {
+  try {
+    await AsyncStorage.clear();
+    router.push('/');
+    console.log("User logged out successfully.");
+  } catch (error) {
+    console.error("Error logging out user:", error);
+  }
+};
