@@ -100,7 +100,7 @@ topRow: {
     fontFamily: theme.light,
   },
 logo: {
-  height: Platform.OS === "web" ? 40 : 40,
+  height: 40,
   width: 95,
   position: "absolute",
   left: "50%",
