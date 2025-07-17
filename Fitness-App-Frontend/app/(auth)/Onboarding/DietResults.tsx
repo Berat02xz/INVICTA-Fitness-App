@@ -42,7 +42,7 @@ export default function DietResults() {
         emoji="🥗"
         title="Dietary Guidance"
         titleColor="white"
-        text="Invicta will provide you with personalized dietary recommendations."
+        text="We provide you with personalized recommendations."
       />
     </View>
 

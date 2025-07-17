@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   undertext: {
     fontSize: 12,
     color: "#e0e0e0",
-    marginTop: 4,
+    marginTop: 3,
   },
   bodyIcon: {
     width: "50%",

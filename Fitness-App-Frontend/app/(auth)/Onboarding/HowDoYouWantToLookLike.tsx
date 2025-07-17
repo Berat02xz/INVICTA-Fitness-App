@@ -17,7 +17,7 @@ const HowDoYouWantToLookLike = () => {
       <SolidBackground />
 
       <View style={styles.container}>
-        <QuestionOnboarding question="How do you want to look like?" />
+        <QuestionOnboarding question="Choose your body goal" />
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding

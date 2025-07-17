@@ -102,7 +102,7 @@ export const LoginScreen = () => {
             </View>
 
             <ButtonFit
-              title="Log In: I’ve done the quiz"
+              title="Log In"
               backgroundColor={theme.primary}
               onPress={handleSubmit}
             />
@@ -114,13 +114,16 @@ export const LoginScreen = () => {
             </View>
 
             <ButtonFit
-              title="Sign Up: Start the quiz"
+              title="Create an Account"
               backgroundColor="#331111"
               style={{ borderColor: theme.primary, borderWidth: 1 }}
               onPress={() =>
                 router.push("../../../(auth)/Onboarding/FitnessGoal")
               }
             />
+            <Text style={styles.signupHint}>
+  New here? Start by creating your account.
+</Text>
           </View>
         </View>
       </View>
@@ -132,14 +135,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "transparent",
+    overflow: "hidden",
   },
+  signupHint: {
+  textAlign: "center",
+  fontSize: 13,
+  color: "#aaa",
+  marginTop: 4,
+  fontFamily: theme.regular,
+},
+
   headingContainer: {
     alignItems: "center",
   },
   content: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 30,
     alignItems: "center",
     alignSelf: "center",
   },

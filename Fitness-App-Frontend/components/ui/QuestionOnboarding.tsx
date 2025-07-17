@@ -1,6 +1,6 @@
 import { theme } from "@/constants/theme";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 interface QuestionOnboardingProps {
     question: string;
@@ -19,7 +19,7 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 const styles = StyleSheet.create({
   questionText: {
     fontFamily: theme.bold,
-    fontSize: 25,
+    fontSize: Platform.OS === "web" ? 23 : 25,
     color: "#FFFFFF",
     textAlign: "center",
     maxWidth: "100%",

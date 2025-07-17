@@ -44,7 +44,7 @@ const AgeQuestion = () => {
           emoji="☝️"
           title="Your age is important"
           titleColor={theme.textColor}
-          text="This will help us make adjustments to your personal plan."
+          text="Helps us make adjustments to your personal plan."
         />
       </View>
 
@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 25,
     alignItems: "center",
     justifyContent: "center",
   },

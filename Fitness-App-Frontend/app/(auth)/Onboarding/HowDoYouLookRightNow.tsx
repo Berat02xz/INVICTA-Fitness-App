@@ -17,7 +17,7 @@ const HowDoYouLookRightNow = () => {
       <SolidBackground />
 
       <View style={styles.content}>
-        <QuestionOnboarding question="How do you think you look right now?" />
+        <QuestionOnboarding question="Choose your body type" />
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding

@@ -105,14 +105,14 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     position: "relative",
+    overflow: "hidden",
   },
   container: {
   flex: 1,
   zIndex: 1,
   alignItems: "center",
   justifyContent: "space-between", 
-  paddingHorizontal: 24,
-  paddingVertical: 20,
+  paddingHorizontal: 70,
 },
 main: {
   flex: 1,
@@ -140,7 +140,6 @@ bottom: {
     color: "#D9D9D9",
     textAlign: "center",
     marginTop: 10,
-    width: "60%",
   },
   whiteText: {
     color: "white",

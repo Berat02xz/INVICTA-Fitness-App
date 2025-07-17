@@ -45,7 +45,7 @@ export default function HappyBodyImageResults() {
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>
               {isLowWater
-                ? `Drinking water is essential for your progress.`
+                ? `Water is essential for progress.`
                 : `You drink more water than ${percentage}% of users`}
             </Text>
 
@@ -82,7 +82,6 @@ const styles = StyleSheet.create({
   },
 main: {
   flex: 1,
-  paddingHorizontal: 24,
   justifyContent: "center",
   alignItems: "center",
 },
@@ -103,7 +102,7 @@ bottom: {
     fontSize: 25,
     fontFamily: theme.bold,
     color: theme.primary,
-    width: 320,
+    width: 360,
     textAlign: "center",
     alignSelf: "center",
   },
