@@ -30,6 +30,7 @@ const FeelBetweenMeals = () => {
           }}
           forQuestion="FeelBetweenMeals"
           oneAnswer
+          order={0}
         />
         <ButtonOnboarding
                     text="I feel irritable"
@@ -39,6 +40,7 @@ const FeelBetweenMeals = () => {
           }}
           forQuestion="FeelBetweenMeals"
           oneAnswer
+          order={1}
         />
         <ButtonOnboarding
                     text="I have enough energy during the day"
@@ -48,6 +50,7 @@ const FeelBetweenMeals = () => {
           }}
           forQuestion="FeelBetweenMeals"
           oneAnswer
+          order={2}
         />
       </View>
     </View>

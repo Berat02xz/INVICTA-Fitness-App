@@ -41,6 +41,7 @@ const FitnessGoalScreen = () => {
             handleSelectGoal("Lose Weight","Weight Goal");
           }}
           forQuestion="weight_goal"
+          order={0}
         />
         <ButtonOnboarding
           text="Gain Weight"
@@ -49,6 +50,7 @@ const FitnessGoalScreen = () => {
             handleSelectGoal("Gain Weight","Weight Goal");
           }}
           forQuestion="weight_goal"
+          order={1}
         />
         <ButtonOnboarding
           text="Build Strength"
@@ -57,6 +59,7 @@ const FitnessGoalScreen = () => {
             handleSelectGoal("Build Strength","Fitness Goal");
           }}
           forQuestion="fitness_goal"
+          order={2}
         />
         <ButtonOnboarding
           text="Improve Health"
@@ -65,6 +68,7 @@ const FitnessGoalScreen = () => {
             handleSelectGoal("Improve Health","Fitness Goal");
           }}
           forQuestion="fitness_goal"
+          order={3}
         />
       </View>
       {selectedGoal && (

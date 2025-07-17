@@ -30,6 +30,7 @@ const DailyWalk = () => {
           }}
           forQuestion="DailyWalk"
           oneAnswer
+          order={0}
         />
         <ButtonOnboarding
                     text="1-2 hours"
@@ -39,6 +40,7 @@ const DailyWalk = () => {
           }}
           forQuestion="DailyWalk"
           oneAnswer
+          order={1}
         />
         <ButtonOnboarding
                     text="More than 2 hours"
@@ -48,6 +50,7 @@ const DailyWalk = () => {
           }}
           forQuestion="DailyWalk"
           oneAnswer
+          order={2}
         />
       </View>
     </View>

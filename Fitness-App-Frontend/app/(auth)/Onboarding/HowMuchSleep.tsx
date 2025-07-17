@@ -24,6 +24,7 @@ const HowMuchSleep = () => {
           }}
           forQuestion="Sleep"
           oneAnswer
+          order={0}
         />
         <ButtonOnboarding
                     text="Between 6 and 8 hours"
@@ -33,6 +34,7 @@ const HowMuchSleep = () => {
           }}
           forQuestion="Sleep"
           oneAnswer
+          order={1}
         />
         <ButtonOnboarding
                     text="Over 8 hours"
@@ -42,6 +44,7 @@ const HowMuchSleep = () => {
           }}
           forQuestion="Sleep"
           oneAnswer
+          order={2}
         />
       </View>
     </View>

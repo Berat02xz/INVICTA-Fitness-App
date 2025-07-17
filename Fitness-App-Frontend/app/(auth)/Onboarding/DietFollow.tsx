@@ -31,6 +31,7 @@ const DietFollow = () => {
           }}
           forQuestion="DietFollow"
           oneAnswer
+          order={0}
         />
         <ButtonOnboarding
                     text="Vegan"
@@ -41,6 +42,7 @@ const DietFollow = () => {
           }}
           forQuestion="DietFollow"
           oneAnswer
+          order={1}
         />
         <ButtonOnboarding
                     text="Keto"
@@ -51,6 +53,7 @@ const DietFollow = () => {
           }}
           forQuestion="DietFollow"
           oneAnswer
+          order={2}
         />
         <ButtonOnboarding
                     text="No"
@@ -60,6 +63,7 @@ const DietFollow = () => {
           }}
           forQuestion="DietFollow"
           oneAnswer
+          order={3}
         />
       </View>
     </View>

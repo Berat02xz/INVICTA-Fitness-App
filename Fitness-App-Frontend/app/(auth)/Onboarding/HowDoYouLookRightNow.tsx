@@ -29,6 +29,7 @@ const HowDoYouLookRightNow = () => {
           oneAnswer
           forQuestion="look_perception"
           BodyImage={bodyImage.Average}
+          order={0}
         />
         <ButtonOnboarding
           height={150}
@@ -39,6 +40,7 @@ const HowDoYouLookRightNow = () => {
           oneAnswer
           forQuestion="look_perception"
           BodyImage={bodyImage.Heavy}
+          order={1}
         />
         <ButtonOnboarding
           height={150}
@@ -49,6 +51,7 @@ const HowDoYouLookRightNow = () => {
           oneAnswer
           forQuestion="look_perception"
           BodyImage={bodyImage.Skinny}
+          order={2}
         />
       </View>
     </View>

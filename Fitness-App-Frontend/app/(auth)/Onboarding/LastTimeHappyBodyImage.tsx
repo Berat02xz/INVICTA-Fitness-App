@@ -22,6 +22,7 @@ const LastTimeHappyBodyImage = () => {
           onClick={() => console.log("Less than a year ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
+          order={0}
         />
         <ButtonOnboarding
           text="1-2 years ago"
@@ -29,6 +30,7 @@ const LastTimeHappyBodyImage = () => {
           onClick={() => console.log("1-2 years ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
+          order={1}
         />
         <ButtonOnboarding
                     text=">3 years ago"
@@ -36,6 +38,7 @@ const LastTimeHappyBodyImage = () => {
           onClick={() => console.log("More than 3 years ago selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
+          order={2}
         />
         <ButtonOnboarding
                     text="Never"
@@ -43,6 +46,7 @@ const LastTimeHappyBodyImage = () => {
           onClick={() => console.log("Never selected")}
           oneAnswer
           forQuestion="last_time_happy_body_image"
+          order={3}
         />
       </View>
     </View>

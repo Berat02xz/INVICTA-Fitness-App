@@ -31,6 +31,7 @@ const ActivityLevel = () => {
           }}
           oneAnswer
           forQuestion="activity_level"
+          order={0}
         />
         <ButtonOnboarding
           text="Slightly Active"
@@ -41,6 +42,7 @@ const ActivityLevel = () => {
           }}
           oneAnswer
           forQuestion="activity_level"
+          order={1}
         />
         <ButtonOnboarding
           text="Moderately Active"
@@ -51,6 +53,7 @@ const ActivityLevel = () => {
           }}
           oneAnswer
           forQuestion="activity_level"
+          order={2}
         />
         <ButtonOnboarding
           text="Very Active"
@@ -61,6 +64,7 @@ const ActivityLevel = () => {
           }}
           oneAnswer
           forQuestion="activity_level"
+          order={3}
         />
       </View>
     </View>

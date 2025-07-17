@@ -29,6 +29,7 @@ const AccessToEquipment = () => {
           }}
           oneAnswer
           forQuestion="equipment_access"
+          order={0}
         />
         <ButtonOnboarding
           text="Basic Equipment"
@@ -39,6 +40,7 @@ const AccessToEquipment = () => {
           }}
           oneAnswer
           forQuestion="equipment_access"
+          order={1}
         />
         <ButtonOnboarding
           text="Gym Access"
@@ -49,6 +51,7 @@ const AccessToEquipment = () => {
           }}
           oneAnswer
           forQuestion="equipment_access"
+          order={2}
         />
 
       </View>

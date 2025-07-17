@@ -29,6 +29,7 @@ const PushUps = () => {
             }}
             forQuestion="PushUps"
             oneAnswer
+            order={0}
           />
           <ButtonOnboarding
             text="10-20"
@@ -38,6 +39,7 @@ const PushUps = () => {
             }}
             forQuestion="PushUps"
             oneAnswer
+            order={1}
           />
           <ButtonOnboarding
             text="21-30"
@@ -47,6 +49,7 @@ const PushUps = () => {
             }}
             forQuestion="PushUps"
             oneAnswer
+            order={2}
           />
           <ButtonOnboarding
             text="More than 30"
@@ -56,6 +59,7 @@ const PushUps = () => {
             }}
             forQuestion="PushUps"
             oneAnswer
+            order={3}
           />
           
         </View>

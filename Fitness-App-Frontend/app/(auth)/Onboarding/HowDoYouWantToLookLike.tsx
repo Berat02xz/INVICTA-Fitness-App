@@ -27,6 +27,7 @@ const HowDoYouWantToLookLike = () => {
           oneAnswer
           forQuestion="look_goal"
           BodyImage={bodyImage.Slim}
+          order={0}
         />
         <ButtonOnboarding
           height={150}
@@ -35,6 +36,7 @@ const HowDoYouWantToLookLike = () => {
           oneAnswer
           forQuestion="look_goal"
           BodyImage={bodyImage.Cut}
+          order={1}
         />
         <ButtonOnboarding
           height={150}
@@ -43,6 +45,7 @@ const HowDoYouWantToLookLike = () => {
           oneAnswer
           forQuestion="look_goal"
           BodyImage={bodyImage.Bulk}
+          order={2}
         />
       </View>
     </View>

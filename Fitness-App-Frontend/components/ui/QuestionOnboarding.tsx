@@ -1,16 +1,26 @@
 import { theme } from "@/constants/theme";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
 
 interface QuestionOnboardingProps {
-    question: string;
-    undertext?: string;
+  question: string;
+  undertext?: string;
 }
 
+const { width: screenWidth } = Dimensions.get("window");
+
 export default function QuestionOnboarding({ question, undertext }: QuestionOnboardingProps) {
+  // Font size logic
+  let questionFontSize = 25;
+  if (Platform.OS === "web") {
+    questionFontSize = screenWidth > 768 ? 28 : 22; // Desktop web vs mobile web
+  }
+
   return (
     <View>
-      <Text style={styles.questionText}>{question}</Text>
+      <Text style={[styles.questionText, { fontSize: questionFontSize }]}>
+        {question}
+      </Text>
       {undertext && <Text style={styles.undertext}>{undertext}</Text>}
     </View>
   );
@@ -19,7 +29,6 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 const styles = StyleSheet.create({
   questionText: {
     fontFamily: theme.bold,
-    fontSize: Platform.OS === "web" ? 23 : 25,
     color: "#FFFFFF",
     textAlign: "center",
     maxWidth: "100%",

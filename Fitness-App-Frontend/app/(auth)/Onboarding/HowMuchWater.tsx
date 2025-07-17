@@ -24,6 +24,7 @@ const HowMuchWater = () => {
           }}
           forQuestion="Water"
           oneAnswer
+          order={0}
         />
         <ButtonOnboarding
                     text="Less than 2 glasses"
@@ -34,6 +35,7 @@ const HowMuchWater = () => {
           }}
           forQuestion="Water"
           oneAnswer
+          order={1}
         />
         <ButtonOnboarding
                     text="2-6 glasses"
@@ -44,6 +46,7 @@ const HowMuchWater = () => {
           }}
           forQuestion="Water"
           oneAnswer
+          order={2}
         />
         <ButtonOnboarding
                     text="7-10 glasses"
@@ -54,6 +57,7 @@ const HowMuchWater = () => {
           }}
           forQuestion="Water"
           oneAnswer
+          order={3}
         />
         <ButtonOnboarding
                     text="More than 10 glasses"
@@ -64,6 +68,7 @@ const HowMuchWater = () => {
           }}
           forQuestion="Water"
           oneAnswer
+          order={4}
         />
       </View>
     </View>

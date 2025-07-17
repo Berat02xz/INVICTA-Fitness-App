@@ -1,6 +1,7 @@
 import { theme } from "@/constants/theme";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Image,
   StyleSheet,
   Text,
@@ -21,6 +22,8 @@ interface ButtonOnboardingProps {
   oneAnswer?: boolean;
   forQuestion?: string;
   style?: ViewStyle;
+  animated?: boolean;
+  order?: number;
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
@@ -34,9 +37,33 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   oneAnswer = false,
   forQuestion = "",
   style = {},
+  animated = true,
+  order = 0,
 }) => {
   const [selected, setSelected] = useState(false);
   const { goForward, goBack, saveSelection } = useOnboarding();
+
+  const fadeAnim = useRef(new Animated.Value(animated ? 0 : 1)).current;
+  const translateY = useRef(new Animated.Value(animated ? 20 : 0)).current;
+
+  useEffect(() => {
+    if (animated) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 350,
+          delay: order * 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 350,
+          delay: order * 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [animated, order]);
 
   const handleClick = () => {
     setSelected(!selected);
@@ -51,37 +78,44 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        {
-          height,
-          borderColor: selected ? theme.primary : "transparent",
-          backgroundColor: selected ? theme.primary : theme.buttonsolid,
-        },
-        style,
-      ]}
-      onPress={handleClick}
+    <Animated.View
+      style={{
+        opacity: fadeAnim,
+        transform: [{ translateY }],
+      }}
     >
-      {imageSrc && (
-        <Image source={imageSrc} style={styles.icon} resizeMode="contain" />
-      )}
+      <TouchableOpacity
+        style={[
+          styles.button,
+          {
+            height,
+            borderColor: selected ? theme.primary : "transparent",
+            backgroundColor: selected ? theme.primary : theme.buttonsolid,
+          },
+          style,
+        ]}
+        onPress={handleClick}
+      >
+        {imageSrc && (
+          <Image source={imageSrc} style={styles.icon} resizeMode="contain" />
+        )}
 
-      <View style={styles.textContainer}>
-        <Text style={styles.text}>{text}</Text>
-        {undertext && <Text style={styles.undertext}>{undertext}</Text>}
-      </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>{text}</Text>
+          {undertext && <Text style={styles.undertext}>{undertext}</Text>}
+        </View>
 
-      {emoji && !BodyImage && <Text style={styles.emoji}>{emoji}</Text>}
+        {emoji && !BodyImage && <Text style={styles.emoji}>{emoji}</Text>}
 
-      {BodyImage && (
-        <Image
-          source={BodyImage}
-          style={styles.bodyIcon}
-          resizeMode="contain"
-        />
-      )}
-    </TouchableOpacity>
+        {BodyImage && (
+          <Image
+            source={BodyImage}
+            style={styles.bodyIcon}
+            resizeMode="contain"
+          />
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
