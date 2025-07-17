@@ -13,7 +13,7 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
   // Font size logic
   let questionFontSize = 25;
   if (Platform.OS === "web") {
-    questionFontSize = screenWidth > 768 ? 28 : 22; // Desktop web vs mobile web
+    questionFontSize = screenWidth > 768 ? 30 : 22; // Desktop web vs mobile web
   }
 
   return (
