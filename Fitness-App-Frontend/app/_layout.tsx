@@ -4,17 +4,17 @@ import { Slot } from "expo-router";
 import { useEffect } from "react";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    "Inter-Regular": require("../assets/fonts/Inter_18pt-Regular.ttf"),
-    "Inter-Bold": require("../assets/fonts/Inter_18pt-Bold.ttf"),
-    "Inter-Light": require("../assets/fonts/Inter_18pt-Light.ttf"),
-    "Inter-Black": require("../assets/fonts/Inter_18pt-Black.ttf"),
-    "Inter-Medium": require("../assets/fonts/Inter_18pt-Medium.ttf"),
-    "Inter-SemiBold": require("../assets/fonts/Inter_18pt-SemiBold.ttf"),
-    "Inter-ExtraBold": require("../assets/fonts/Inter_18pt-ExtraBold.ttf"),
-    "Inter-ExtraLight": require("../assets/fonts/Inter_18pt-ExtraLight.ttf"),
-    "Inter-Thin": require("../assets/fonts/Inter_18pt-Thin.ttf"),
+    "Regular": require("../assets/fonts/futura-now-headline/FuturaNowHeadline.ttf"),
+    "Bold": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineBold.ttf"),
+    "Light": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineLight.ttf"),
+    "Black": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineBlack.ttf"),
+    "Medium": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineMedium.ttf"),
+    "ExtraBold": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineExtraBold.ttf"),
+    "ExtraLight": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineExtraLight.ttf"),
+    "Thin": require("../assets/fonts/futura-now-headline/FuturaNowHeadlineThin.ttf"),
   });
 
   useEffect(() => {
@@ -22,6 +22,8 @@ export default function RootLayout() {
       await loadToken();
     })();
   }, []);
+
+
 
   return (
     <>

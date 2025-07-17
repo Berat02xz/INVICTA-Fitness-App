@@ -1,3 +1,4 @@
+import { theme } from '@/constants/theme';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
@@ -29,9 +30,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        color: '#fff',
+        color: theme.textColor,
         fontSize: 16,
-        fontFamily: 'Inter-Regular',
+        fontFamily: theme.semibold,
     },
 });
 

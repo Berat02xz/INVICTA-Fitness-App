@@ -66,10 +66,10 @@ const OnboardingComplete = () => {
       const msg =
         error?.response?.data && typeof error.response.data === "string"
           ? error.response.data
-          : "An unexpected error occurred. Please try again.";
+          : "Server error. Please try again later.";
       Toast.show({
         type: "error",
-        text1: "Error",
+        text1: "Submission Error",
         text2: msg,
       });
     }

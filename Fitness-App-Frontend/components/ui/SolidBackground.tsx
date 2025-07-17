@@ -1,3 +1,4 @@
+import { theme } from '@/constants/theme';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface Props {
@@ -12,7 +13,7 @@ export default function SolidBackground({ style }: Props) {
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: '#121212',
+    backgroundColor: theme.backgroundColor,
     position: 'absolute',
     width: '100%',
     height: '100%',

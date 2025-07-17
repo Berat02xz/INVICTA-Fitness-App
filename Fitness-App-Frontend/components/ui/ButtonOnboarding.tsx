@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   text: {
-    color: "#fff",
+    color: theme.textColor,
     fontSize: 16,
     fontFamily: theme.semibold,
   },

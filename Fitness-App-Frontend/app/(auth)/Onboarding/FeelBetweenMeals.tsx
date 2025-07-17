@@ -32,19 +32,10 @@ const FeelBetweenMeals = () => {
           oneAnswer
         />
         <ButtonOnboarding
-                    text="I get sleepy when I'm hungry"
-          emoji='😌'
-          onClick={() => {
-            console.log("I get sleepy when I'm hungry selected");
-          }}
-          forQuestion="FeelBetweenMeals"
-          oneAnswer
-        />
-        <ButtonOnboarding
-                    text="I feel irritable when i’m hungry"
+                    text="I feel irritable"
           emoji='😡'
           onClick={() => {
-            console.log("I feel irritable when i’m hungry selected");
+            console.log("I feel irritable");
           }}
           forQuestion="FeelBetweenMeals"
           oneAnswer
