@@ -9,7 +9,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { useOnboarding, UserAnswers } from "./NavigationService";
 
-
 function BMIResults() {
   const onboardingContext = useOnboarding();
 
@@ -18,7 +17,8 @@ function BMIResults() {
   const height =
     UserAnswers.find((answer) => answer.question === "height")?.answer || "175";
   const unit =
-    UserAnswers.find((answer) => answer.question === "unit")?.answer || "metric";
+    UserAnswers.find((answer) => answer.question === "unit")?.answer ||
+    "metric";
 
   const [bmi, setBmi] = useState<number>(0);
   const [targetLeft, setTargetLeft] = useState<number>(-150);
@@ -28,21 +28,29 @@ function BMIResults() {
   const animatedBMI = useRef(new Animated.Value(0)).current;
 
   function calculateBMI(unit: "metric" | "imperial", weight: string, height: string): number {
-    let bmi;
-    const weightInKg = parseFloat(weight);
+  let bmi = 0;
+  const weightValue = parseFloat(weight);
+
+  if (unit === "metric") {
     const heightInM = parseFloat(height) / 100;
+    bmi = weightValue / (heightInM * heightInM);
+  } else {
+    const [feetStr, inchStr] = height.split("'");
+    const feet = parseInt(feetStr || "0", 10);
+    let inches = parseInt(inchStr || "0", 10);
 
-    if (unit === "metric") {
-      bmi = weightInKg / (heightInM * heightInM);
-    } else {
-      const [feet, inches] = height.split("'").map(Number);
-      const totalInches = feet * 12 + inches;
-      const heightInMImperial = totalInches * 0.0254;
-      bmi = (weightInKg / (heightInMImperial * heightInMImperial)) * 703;
-    }
+    // Sanitize: Cap inches at 11
+    inches = Math.min(inches, 11);
 
-    return Math.round(bmi * 10) / 10;
+    const totalInches = feet * 12 + inches;
+    if (totalInches === 0) return 0;
+
+    bmi = (weightValue / (totalInches * totalInches)) * 703;
   }
+
+  return Math.round(bmi * 10) / 10;
+}
+
 
   const calculateLeftValue = (bmiValue: number): number => {
     const minBMI = 15;
@@ -53,43 +61,46 @@ function BMIResults() {
   };
 
   const getDynamicCardContent = (bmi: number) => {
-  if (bmi < 19) {
+    if (bmi < 19) {
+      return {
+        emoji: "🧃",
+        label: "Underweight",
+        color: "#05C9FF",
+        text: "You’re underweight. We’ll help you gain healthy mass through a balanced plan.",
+      };
+    }
+    if (bmi >= 19 && bmi < 25) {
+      return {
+        emoji: "💪",
+        label: "Normal weight",
+        color: "#2FFF05",
+        text: "Great job! You're in a healthy range. Let’s keep it that way with smart choices.",
+      };
+    }
+    if (bmi >= 25 && bmi < 30) {
+      return {
+        emoji: "🥗",
+        label: "Overweight",
+        color: "#FF7A05",
+        text: "You're slightly overweight. We'll focus on shedding some pounds safely.",
+      };
+    }
     return {
-      emoji: "🧃",
-      label: "Underweight",
-      color: "#05C9FF",
-      text: "You’re underweight. We’ll help you gain healthy mass through a balanced plan.",
+      emoji: "🚨",
+      label: "Obesity",
+      color: "#FF0000",
+      text: "Your BMI is in the obesity range. We’ll help you take the first steps toward better health.",
     };
-  }
-  if (bmi >= 19 && bmi < 25) {
-    return {
-      emoji: "💪",
-      label: "Normal weight",
-      color: "#2FFF05",
-      text: "Great job! You're in a healthy range. Let’s keep it that way with smart choices.",
-    };
-  }
-  if (bmi >= 25 && bmi < 30) {
-    return {
-      emoji: "🥗",
-      label: "Overweight",
-      color: "#FF7A05",
-      text: "You're slightly overweight. We'll focus on shedding some pounds safely.",
-    };
-  }
-  return {
-    emoji: "🚨",
-    label: "Obesity",
-    color: "#FF0000",
-    text: "Your BMI is in the obesity range. We’ll help you take the first steps toward better health.",
   };
-};
-
 
   const dynamicCard = getDynamicCardContent(bmi);
 
   useEffect(() => {
-    const calculatedBMI = calculateBMI(unit as "metric" | "imperial", weight, height);
+    const calculatedBMI = calculateBMI(
+      unit as "metric" | "imperial",
+      weight,
+      height
+    );
     setBmi(calculatedBMI);
     setTargetLeft(calculateLeftValue(calculatedBMI));
   }, []);
@@ -147,15 +158,12 @@ function BMIResults() {
             }}
           />
 
-          {/* Emoji Card */}
           <UndertextCard
-  emoji={dynamicCard.emoji}
-  title={dynamicCard.label}
-  titleColor={dynamicCard.color}
-  text={dynamicCard.text}
-/>
-
-
+            emoji={dynamicCard.emoji}
+            title={dynamicCard.label}
+            titleColor={dynamicCard.color}
+            text={dynamicCard.text}
+          />
         </View>
       </View>
 
@@ -235,11 +243,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   categoryTitle: {
-  fontSize: 16,
-  fontFamily: theme.semibold,
-  marginBottom: 4,
-},
-
+    fontSize: 16,
+    fontFamily: theme.semibold,
+    marginBottom: 4,
+  },
 });
 
 export default BMIResults;
