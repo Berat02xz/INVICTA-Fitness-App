@@ -8,7 +8,7 @@ interface CaloriePlan {
 
 function calculateBMR({
   age,
-  sex,
+  sex = "male",
   height,
   weight,
   unit,
@@ -71,12 +71,12 @@ export function getCaloriePlans({
   const bmr = calculateBMR({ age, sex, height, weight, unit });
 
   // Minimum safe calories (never go below BMR or 1200 kcal)
-  const minSafeCalories = 1200;
+  const minSafeCalories = Math.max(bmr-300, 1200);
 
   const plans: CaloriePlan[] = [
     {
       type: "Maintain weight",
-      rate: "0 kg/week",
+      rate: "",
       caloriesPerDay: tdee,
     },
     {

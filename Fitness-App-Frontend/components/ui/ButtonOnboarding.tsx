@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   badge: {
-    backgroundColor: theme.primary,
+    backgroundColor: "#579d28ff",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
