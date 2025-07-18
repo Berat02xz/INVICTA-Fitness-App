@@ -5,7 +5,7 @@ import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import { useOnboarding, UserAnswers } from "./NavigationService";
+import { useOnboarding, UserAnswers } from "../NavigationService";
 
 const MoreAboutYou = () => {
   const { goForward } = useOnboarding();

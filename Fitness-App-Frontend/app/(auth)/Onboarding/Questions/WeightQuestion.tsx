@@ -6,7 +6,7 @@ import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { useOnboarding, UserAnswers } from "./NavigationService";
+import { useOnboarding, UserAnswers } from "../NavigationService";
 
 const WeightQuestion = () => {
   const { goForward } = useOnboarding();

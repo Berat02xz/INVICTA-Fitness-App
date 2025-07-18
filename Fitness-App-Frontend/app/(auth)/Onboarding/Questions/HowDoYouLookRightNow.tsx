@@ -1,4 +1,4 @@
-import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
+import ButtonOnboarding from '@/components/ui/AnswerOnboarding';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
 import SolidBackground from '@/components/ui/SolidBackground';
 import React from 'react';
@@ -26,7 +26,7 @@ const HowDoYouLookRightNow = () => {
           onClick={() => {
             console.log("Average selected");
           }}
-          oneAnswer
+          onClickContinue
           forQuestion="look_perception"
           BodyImage={bodyImage.Average}
           order={0}
@@ -37,7 +37,7 @@ const HowDoYouLookRightNow = () => {
           onClick={() => {
             console.log("Heavy selected");
           }}
-          oneAnswer
+          onClickContinue
           forQuestion="look_perception"
           BodyImage={bodyImage.Heavy}
           order={1}
@@ -48,7 +48,7 @@ const HowDoYouLookRightNow = () => {
           onClick={() => {
             console.log("Slim selected");
           }}
-          oneAnswer
+          onClickContinue
           forQuestion="look_perception"
           BodyImage={bodyImage.Skinny}
           order={2}

@@ -12,13 +12,13 @@ import {
 import { theme } from "../../../constants/theme";
 import { useOnboarding } from "./NavigationService";
 
-
 const TopBar = () => {
-  
   const { goBack, goForward, progressNow, totalScreens } = useOnboarding();
   const progress = useRef(new Animated.Value(progressNow())).current;
   const totalScreensCount = totalScreens();
-  const currentScreen = Math.round(Number(progressNow()) * Number(totalScreensCount));
+  const currentScreen = Math.round(
+    Number(progressNow()) * Number(totalScreensCount)
+  );
   useEffect(() => {
     Animated.timing(progress, {
       toValue: progressNow(),
@@ -34,30 +34,25 @@ const TopBar = () => {
 
   return (
     <View style={styles.wrapper}>
-      {/* Top Row: Back - Logo - Skip */}
       <View style={styles.topRow}>
         <TouchableOpacity onPress={goBack} style={styles.iconButton}>
           <Ionicons name="arrow-back-outline" size={25} color="#FFFFFF" />
         </TouchableOpacity>
 
         <Image
-          source={require("@/assets/icons/branding/Invictus_Logo.png")} 
+          source={require("@/assets/icons/branding/Invictus_Logo.png")}
           style={styles.logo}
           resizeMode="contain"
         />
 
         <View style={styles.numberScreen}>
-  <Text style={styles.skip}>
-  {currentScreen}
-  <Text style={styles.totalDimmed}> / {totalScreensCount}</Text>
-</Text>
-
-</View>
-
-
+          <Text style={styles.skip}>
+            {currentScreen}
+            <Text style={styles.totalDimmed}> / {totalScreensCount}</Text>
+          </Text>
+        </View>
       </View>
 
-      {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <Animated.View
           style={[styles.progressFill, { width: animatedWidth }]}
@@ -68,17 +63,17 @@ const TopBar = () => {
 };
 
 const styles = StyleSheet.create({
-wrapper: {
-  paddingTop: Platform.OS === "web" ? 20 : 60,
-  paddingHorizontal: 15,
-  backgroundColor: theme.backgroundColor,
-},
-topRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  position: "relative", // ✅ add this
-},
+  wrapper: {
+    paddingTop: Platform.OS === "web" ? 20 : 60,
+    paddingHorizontal: 15,
+    backgroundColor: theme.backgroundColor,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    position: "relative", 
+  },
 
   iconButton: {
     padding: 10,
@@ -86,7 +81,6 @@ topRow: {
   numberScreen: {
     padding: 10,
     fontFamily: theme.bold,
-    
   },
   skip: {
     color: "#FFFFFF",
@@ -99,14 +93,14 @@ topRow: {
     fontSize: 14,
     fontFamily: theme.light,
   },
-logo: {
-  height: 40,
-  width: 95,
-  position: "absolute",
-  left: "50%",
-  transform: [{ translateX: -47.5 }],
-  zIndex: 1,
-},
+  logo: {
+    height: 40,
+    width: 95,
+    position: "absolute",
+    left: "50%",
+    transform: [{ translateX: -47.5 }],
+    zIndex: 1,
+  },
 
   progressContainer: {
     marginTop: Platform.OS === "web" ? 20 : 25,

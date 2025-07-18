@@ -1,9 +1,9 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding } from "./NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const HowMuchWater = () => {
   const { goForward } = useOnboarding();
@@ -23,7 +23,7 @@ const HowMuchWater = () => {
             console.log("Only coffee or tea selected");
           }}
           forQuestion="Water"
-          oneAnswer
+          onClickContinue
           order={0}
         />
         <ButtonOnboarding
@@ -34,7 +34,7 @@ const HowMuchWater = () => {
             console.log("Less than 2 glasses selected");
           }}
           forQuestion="Water"
-          oneAnswer
+          onClickContinue
           order={1}
         />
         <ButtonOnboarding
@@ -45,7 +45,7 @@ const HowMuchWater = () => {
             console.log("2-6 glasses selected");
           }}
           forQuestion="Water"
-          oneAnswer
+          onClickContinue
           order={2}
         />
         <ButtonOnboarding
@@ -56,7 +56,7 @@ const HowMuchWater = () => {
             console.log("7-10 glasses selected");
           }}
           forQuestion="Water"
-          oneAnswer
+          onClickContinue
           order={3}
         />
         <ButtonOnboarding
@@ -67,7 +67,7 @@ const HowMuchWater = () => {
             console.log("More than 10 glasses selected");
           }}
           forQuestion="Water"
-          oneAnswer
+          onClickContinue
           order={4}
         />
       </View>

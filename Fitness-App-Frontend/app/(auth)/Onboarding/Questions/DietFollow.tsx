@@ -1,9 +1,9 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding } from "./NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -30,7 +30,7 @@ const DietFollow = () => {
             console.log("Vegetarian selected");
           }}
           forQuestion="DietFollow"
-          oneAnswer
+          onClickContinue
           order={0}
         />
         <ButtonOnboarding
@@ -41,7 +41,7 @@ const DietFollow = () => {
             console.log("Vegan selected");
           }}
           forQuestion="DietFollow"
-          oneAnswer
+          onClickContinue
           order={1}
         />
         <ButtonOnboarding
@@ -52,7 +52,7 @@ const DietFollow = () => {
             console.log("Keto selected");
           }}
           forQuestion="DietFollow"
-          oneAnswer
+          onClickContinue
           order={2}
         />
         <ButtonOnboarding
@@ -62,7 +62,7 @@ const DietFollow = () => {
             console.log("No selected");
           }}
           forQuestion="DietFollow"
-          oneAnswer
+          onClickContinue
           order={3}
         />
       </View>

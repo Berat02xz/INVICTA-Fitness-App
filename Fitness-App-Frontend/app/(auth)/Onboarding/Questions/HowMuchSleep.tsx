@@ -1,9 +1,9 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding } from "./NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const HowMuchSleep = () => {
   const { goForward } = useOnboarding();
@@ -23,7 +23,7 @@ const HowMuchSleep = () => {
             console.log("Fewer than 6 hours selected");
           }}
           forQuestion="Sleep"
-          oneAnswer
+          onClickContinue
           order={0}
         />
         <ButtonOnboarding
@@ -33,7 +33,7 @@ const HowMuchSleep = () => {
             console.log("Between 6 and 8 hours selected");
           }}
           forQuestion="Sleep"
-          oneAnswer
+          onClickContinue
           order={1}
         />
         <ButtonOnboarding
@@ -43,7 +43,7 @@ const HowMuchSleep = () => {
             console.log("Over 8 hours selected");
           }}
           forQuestion="Sleep"
-          oneAnswer
+          onClickContinue
           order={2}
         />
       </View>

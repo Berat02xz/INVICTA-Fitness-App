@@ -1,11 +1,11 @@
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import ButtonFit from "@/components/ui/ButtonFit";
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding, UserAnswers } from "./NavigationService";
+import { useOnboarding, UserAnswers } from "../NavigationService";
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
   weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
@@ -42,6 +42,7 @@ const FitnessGoalScreen = () => {
           }}
           forQuestion="weight_goal"
           order={0}
+          onClickContinue={false}
         />
         <ButtonOnboarding
           text="Gain Weight"
@@ -51,6 +52,7 @@ const FitnessGoalScreen = () => {
           }}
           forQuestion="weight_goal"
           order={1}
+          onClickContinue={false}
         />
         <ButtonOnboarding
           text="Build Strength"
@@ -60,6 +62,7 @@ const FitnessGoalScreen = () => {
           }}
           forQuestion="fitness_goal"
           order={2}
+          onClickContinue={false}
         />
         <ButtonOnboarding
           text="Improve Health"
@@ -69,6 +72,7 @@ const FitnessGoalScreen = () => {
           }}
           forQuestion="fitness_goal"
           order={3}
+          onClickContinue={false}
         />
       </View>
       {selectedGoal && (

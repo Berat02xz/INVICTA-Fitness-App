@@ -1,4 +1,4 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
@@ -27,7 +27,7 @@ const AccessToEquipment = () => {
           onClick={() => {
             console.log("No Equipment selected");
           }}
-          oneAnswer
+          onClickContinue
           forQuestion="equipment_access"
           order={0}
         />
@@ -38,7 +38,7 @@ const AccessToEquipment = () => {
           onClick={() => {
             console.log("Basic Equipment selected");
           }}
-          oneAnswer
+          onClickContinue
           forQuestion="equipment_access"
           order={1}
         />
@@ -49,7 +49,7 @@ const AccessToEquipment = () => {
           onClick={() => {
             console.log("Gym Access selected");
           }}
-          oneAnswer
+          onClickContinue
           forQuestion="equipment_access"
           order={2}
         />

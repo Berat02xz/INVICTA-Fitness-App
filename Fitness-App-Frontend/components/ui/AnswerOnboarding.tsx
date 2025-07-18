@@ -19,7 +19,7 @@ interface ButtonOnboardingProps {
   BodyImage?: any;
   emoji?: string;
   onClick?: () => void;
-  oneAnswer?: boolean;
+  onClickContinue?: boolean;
   forQuestion?: string;
   style?: ViewStyle;
   animated?: boolean;
@@ -35,7 +35,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   BodyImage,
   emoji,
   onClick,
-  oneAnswer = false,
+  onClickContinue = true,
   forQuestion = "",
   style = {},
   animated = true,
@@ -71,7 +71,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
     setSelected(!selected);
     if (onClick) onClick();
 
-    if (oneAnswer) {
+    if (onClickContinue) {
       setTimeout(() => {
         saveSelection(forQuestion, text);
         goForward();

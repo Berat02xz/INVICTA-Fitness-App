@@ -1,11 +1,11 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { getCaloriePlans } from "@/utils/GetCaloriePlans";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useOnboarding, UserAnswers } from "./NavigationService";
+import { useOnboarding, UserAnswers } from "../NavigationService";
 
 const DesiredTargetWeight = () => {
   const { goForward } = useOnboarding();
@@ -66,7 +66,7 @@ const DesiredTargetWeight = () => {
                 selectedPlan === plan.type ? theme.primary : theme.buttonsolid,
             }}
             forQuestion="calorie_plan"
-            oneAnswer
+            onClickContinue
           />
         ))}
         <View style={{ marginTop: 5 }}>

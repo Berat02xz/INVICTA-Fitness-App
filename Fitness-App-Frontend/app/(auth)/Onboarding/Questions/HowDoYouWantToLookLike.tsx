@@ -1,4 +1,4 @@
-import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
+import ButtonOnboarding from '@/components/ui/AnswerOnboarding';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
 import SolidBackground from '@/components/ui/SolidBackground';
 import React from 'react';
@@ -24,7 +24,7 @@ const HowDoYouWantToLookLike = () => {
           height={150}
           text="Slim"
           onClick={() => console.log("Slim selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="look_goal"
           BodyImage={bodyImage.Slim}
           order={0}
@@ -33,7 +33,7 @@ const HowDoYouWantToLookLike = () => {
           height={150}
           text="Cut"
           onClick={() => console.log("Cut selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="look_goal"
           BodyImage={bodyImage.Cut}
           order={1}
@@ -42,7 +42,7 @@ const HowDoYouWantToLookLike = () => {
           height={150}
           text="Bulk"
           onClick={() => console.log("Bulk selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="look_goal"
           BodyImage={bodyImage.Bulk}
           order={2}

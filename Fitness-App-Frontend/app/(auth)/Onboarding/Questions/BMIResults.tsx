@@ -7,7 +7,7 @@ import { theme } from "@/constants/theme";
 import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
-import { useOnboarding, UserAnswers } from "./NavigationService";
+import { useOnboarding, UserAnswers } from "../NavigationService";
 
 function BMIResults() {
   const onboardingContext = useOnboarding();

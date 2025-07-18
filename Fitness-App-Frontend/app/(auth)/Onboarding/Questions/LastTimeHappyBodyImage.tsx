@@ -1,4 +1,4 @@
-import ButtonOnboarding from '@/components/ui/ButtonOnboarding';
+import ButtonOnboarding from '@/components/ui/AnswerOnboarding';
 import QuestionOnboarding from '@/components/ui/QuestionOnboarding';
 import SolidBackground from '@/components/ui/SolidBackground';
 import React from 'react';
@@ -20,7 +20,7 @@ const LastTimeHappyBodyImage = () => {
           text="<1 year ago"
           emoji='🤔'
           onClick={() => console.log("Less than a year ago selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="last_time_happy_body_image"
           order={0}
         />
@@ -28,7 +28,7 @@ const LastTimeHappyBodyImage = () => {
           text="1-2 years ago"
           emoji='😅'
           onClick={() => console.log("1-2 years ago selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="last_time_happy_body_image"
           order={1}
         />
@@ -36,7 +36,7 @@ const LastTimeHappyBodyImage = () => {
                     text=">3 years ago"
           emoji='🙁'
           onClick={() => console.log("More than 3 years ago selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="last_time_happy_body_image"
           order={2}
         />
@@ -44,7 +44,7 @@ const LastTimeHappyBodyImage = () => {
                     text="Never"
                     emoji='✖️'
           onClick={() => console.log("Never selected")}
-          oneAnswer
+          onClickContinue
           forQuestion="last_time_happy_body_image"
           order={3}
         />

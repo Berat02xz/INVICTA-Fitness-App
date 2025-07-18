@@ -2,53 +2,24 @@ import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
-import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { useOnboarding, UserAnswers } from "./NavigationService";
+import { useOnboarding, UserAnswers } from "../NavigationService";
 
-const HeightQuestion = () => {
+const AgeQuestion = () => {
   const { goForward } = useOnboarding();
-const [unit, setUnit] = useState<"metric" | "imperial">(
-    UserAnswers.find(answer => answer.question === "unit")?.answer || "metric"
-  );
-  const [height, setHeight] = useState<string>("");
-
-  const handleHeightChange = (value: string) => {
-    if (unit === "imperial") {
-      const cleaned = value.replace(/[^0-9]/g, "");
-      if (cleaned.length === 0) {
-        setHeight("");
-        return;
-      }
-      if (cleaned.length <= 1) {
-        setHeight(`${cleaned}'`);
-      } else {
-        const feet = cleaned.slice(0, 1);
-        const inches = cleaned.slice(1, 3);
-        setHeight(`${feet}'${inches}`);
-      }
-    } else {
-      setHeight(value.replace(/[^0-9]/g, ""));
-    }
-  };
+  const [age, setAge] = useState<string>("");
 
   const handleSubmit = () => {
-    const existingIndex = UserAnswers.findIndex((item) => item.question === "height");
+    const existingIndex = UserAnswers.findIndex(
+      (item) => item.question === "age"
+    );
     if (existingIndex > -1) {
-      UserAnswers[existingIndex].answer = height;
+      UserAnswers[existingIndex].answer = age;
     } else {
-      UserAnswers.push({ question: "height", answer: height });
+      UserAnswers.push({ question: "age", answer: age });
     }
-
-    const unitIndex = UserAnswers.findIndex((item) => item.question === "unit");
-    if (unitIndex > -1) {
-      UserAnswers[unitIndex].answer = unit;
-    } else {
-      UserAnswers.push({ question: "unit", answer: unit });
-    }
-
     goForward();
   };
 
@@ -56,35 +27,25 @@ const [unit, setUnit] = useState<"metric" | "imperial">(
     <View style={styles.container}>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.content}>
-        <QuestionOnboarding question="What is your height?" />
-        <View style={styles.unitSwitchWrapper}>
-          <UnitSwitch
-            unit={unit}
-            onSelect={setUnit}
-            metricLabel="CM"
-            imperialLabel="FT"
-          />
-        </View>
+        <QuestionOnboarding question="What is your age?" />
+
         <TextInput
-        key={unit}
           style={styles.input}
-          value={height}
-          onChangeText={handleHeightChange}
+          value={age}
+          onChangeText={setAge}
           keyboardType="numeric"
-          placeholder={unit === "metric" ? "cm" : "ft in"}
+          placeholder="Age"
           placeholderTextColor={theme.buttonBorder}
+          maxLength={3}
           underlineColorAndroid="transparent"
         />
 
-        
-
         <UndertextCard
-          emoji="📏"
-          title="Height"
-          titleColor="white"
-          text="Calculating your body mass index requires your height."
+          emoji="☝️"
+          title="Your age is important"
+          titleColor={theme.textColor}
+          text="Helps us make adjustments to your personal plan."
         />
-
       </View>
 
       <View style={styles.bottom}>
@@ -107,7 +68,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 15,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -120,10 +80,6 @@ const styles = StyleSheet.create({
     color: theme.textColor,
     fontFamily: theme.bold,
     marginTop: 40,
-  },
-  unitSwitchWrapper: {
-    marginTop: 20,
-    alignItems: "center",
   },
   undertextCard: {
     backgroundColor: theme.buttonsolid,
@@ -146,6 +102,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
     lineHeight: 22,
   },
+
   bottom: {
     alignItems: "center",
     marginBottom: 50,
@@ -154,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HeightQuestion;
+export default AgeQuestion;

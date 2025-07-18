@@ -118,7 +118,7 @@ export const LoginScreen = () => {
               backgroundColor="#331111"
               style={{ borderColor: theme.primary, borderWidth: 1 }}
               onPress={() =>
-                router.push("../../../(auth)/Onboarding/FitnessGoal")
+                router.push("../../../(auth)/Onboarding/Questions/FitnessGoal")
               }
             />
             <Text style={styles.signupHint}>

@@ -1,4 +1,4 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
@@ -28,7 +28,7 @@ const PushUps = () => {
               console.log("Less than 10 selected");
             }}
             forQuestion="PushUps"
-            oneAnswer
+            onClickContinue
             order={0}
           />
           <ButtonOnboarding
@@ -38,7 +38,7 @@ const PushUps = () => {
               console.log("10-20 selected");
             }}
             forQuestion="PushUps"
-            oneAnswer
+            onClickContinue
             order={1}
           />
           <ButtonOnboarding
@@ -48,7 +48,7 @@ const PushUps = () => {
               console.log("21-30 selected");
             }}
             forQuestion="PushUps"
-            oneAnswer
+            onClickContinue
             order={2}
           />
           <ButtonOnboarding
@@ -58,7 +58,7 @@ const PushUps = () => {
               console.log("More than 30 selected");
             }}
             forQuestion="PushUps"
-            oneAnswer
+            onClickContinue
             order={3}
           />
           

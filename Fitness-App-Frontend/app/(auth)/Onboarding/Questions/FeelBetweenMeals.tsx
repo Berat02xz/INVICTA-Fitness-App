@@ -1,9 +1,9 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding } from "./NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
@@ -29,7 +29,7 @@ const FeelBetweenMeals = () => {
             console.log("I’m tired after I eat selected");
           }}
           forQuestion="FeelBetweenMeals"
-          oneAnswer
+          onClickContinue
           order={0}
         />
         <ButtonOnboarding
@@ -39,7 +39,7 @@ const FeelBetweenMeals = () => {
             console.log("I feel irritable");
           }}
           forQuestion="FeelBetweenMeals"
-          oneAnswer
+          onClickContinue
           order={1}
         />
         <ButtonOnboarding
@@ -49,7 +49,7 @@ const FeelBetweenMeals = () => {
             console.log("I have enough energy during the day selected");
           }}
           forQuestion="FeelBetweenMeals"
-          oneAnswer
+          onClickContinue
           order={2}
         />
       </View>

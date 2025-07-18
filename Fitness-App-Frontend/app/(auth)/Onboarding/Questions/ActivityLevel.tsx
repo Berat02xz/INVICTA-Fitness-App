@@ -1,4 +1,4 @@
-import ButtonOnboarding from "@/components/ui/ButtonOnboarding";
+import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
@@ -29,7 +29,7 @@ const ActivityLevel = () => {
           onClick={() => {
             console.log("Sedentary selected");
           }}
-          oneAnswer
+          
           forQuestion="activity_level"
           order={0}
         />
@@ -40,7 +40,7 @@ const ActivityLevel = () => {
           onClick={() => {
             console.log("Slightly Active selected");
           }}
-          oneAnswer
+          
           forQuestion="activity_level"
           order={1}
         />
@@ -51,7 +51,7 @@ const ActivityLevel = () => {
           onClick={() => {
             console.log("Moderately Active selected");
           }}
-          oneAnswer
+          
           forQuestion="activity_level"
           order={2}
         />
@@ -62,7 +62,7 @@ const ActivityLevel = () => {
           onClick={() => {
             console.log("Very Active selected");
           }}
-          oneAnswer
+          
           forQuestion="activity_level"
           order={3}
         />
