@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 14,
     color: "white",
-    fontFamily: theme.regular,
+    fontFamily: theme.bold,
   },
   selectedText: {
     fontSize: 14,
     color: "white",
-    fontFamily: theme.regular,
+    fontFamily: theme.bold,
   },
 });
 

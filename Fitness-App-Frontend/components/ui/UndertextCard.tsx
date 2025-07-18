@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: theme.semibold,
     marginBottom: 4,
+    
   },
   text: {
     fontSize: 15,

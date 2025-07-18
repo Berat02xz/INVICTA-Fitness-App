@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
 wrapper: {
   paddingTop: Platform.OS === "web" ? 20 : 60,
   paddingHorizontal: 15,
-  backgroundColor: "#121212",
+  backgroundColor: theme.backgroundColor,
 },
 topRow: {
   flexDirection: "row",

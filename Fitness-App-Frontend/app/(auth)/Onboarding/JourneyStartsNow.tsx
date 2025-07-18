@@ -4,20 +4,23 @@ import {
 } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
+import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
-import ConfettiCannon from 'react-native-confetti-cannon';
-
+import ConfettiCannon from "react-native-confetti-cannon";
 
 export default function JourneyStartsNow() {
   const { goForward } = useOnboarding();
+
+  // Map UserAnswers to a dictionary for easy access
   const answerMap = Object.fromEntries(
     UserAnswers.map((item) => [item.question, item.answer])
   );
 
   const animation = useRef(new Animated.Value(0)).current;
   const [animatedDateString, setAnimatedDateString] = useState("");
+
   const startDate = new Date();
   const endDate = new Date();
   endDate.setMonth(endDate.getMonth() + 3);
@@ -45,7 +48,9 @@ export default function JourneyStartsNow() {
     return () => animation.removeListener(id);
   }, [animation]);
 
-  const [targetDate, setTargetDate] = useState<string>(new Date().toISOString());
+  const [targetDate, setTargetDate] = useState<string>(
+    new Date().toISOString()
+  );
   useEffect(() => {
     const target = new Date();
     target.setMonth(target.getMonth() + 3);
@@ -54,7 +59,9 @@ export default function JourneyStartsNow() {
 
   useEffect(() => {
     if (targetDate) {
-      const exists = UserAnswers.find((entry) => entry.question === "target date");
+      const exists = UserAnswers.find(
+        (entry) => entry.question === "target date"
+      );
       if (!exists) {
         UserAnswers.push({ question: "target date", answer: targetDate });
         console.log("User answers submitted:", UserAnswers);
@@ -62,15 +69,21 @@ export default function JourneyStartsNow() {
     }
   }, [targetDate]);
 
-  const unit = answerMap["unit"] || "metric";
-  const rawTargetWeight = answerMap["target weight"] || "70";
-  const targetWeight =
-    unit === "metric" ? `${rawTargetWeight} kg` : `${rawTargetWeight} lb`;
+  // -------------------- Get calorie plan from UserAnswers --------------------
+  // It should be an object like { type, rate, caloriesPerDay }
+  const caloriesTarget = answerMap["calories_target"] || null;
+
+  const displayedCalories = caloriesTarget || "0";
 
   return (
     <View style={styles.outerContainer}>
       <SolidBackground />
-      <ConfettiCannon count={20} origin={{x: -10, y: -10}} fadeOut fallSpeed={3500} />
+      <ConfettiCannon
+        count={20}
+        origin={{ x: -10, y: -10 }}
+        fadeOut
+        fallSpeed={3500}
+      />
 
       <View style={styles.container}>
         <View style={styles.main}>
@@ -79,23 +92,41 @@ export default function JourneyStartsNow() {
               Your journey starts now.
             </Text>
 
+            <View style={styles.cardsContainer}>
+              <UndertextCard
+                emoji="💪"
+                title="Muscle Progress"
+                titleColor="white"
+                text="In 3 months, expect noticeable gains in strength and tone."
+              />
+              <UndertextCard
+                emoji="🔥"
+                title="Daily Calories"
+                titleColor="white"
+                text={`${displayedCalories} calories per day to stay on track`}
+              />
+              <UndertextCard
+                emoji="📅"
+                title="Target Date"
+                titleColor="white"
+                text={`You’ll crush your goal by ${animatedDateString}`}
+              />
+              
+            </View>
+
             <Text style={styles.sloganRegular}>
-              With our plan, you’ll crush your goal of {targetWeight} 🎉 by
-            </Text>
-
-            <Text style={[styles.sloganBold, styles.animatedDate]}>
-              {animatedDateString}
+             Your only limit is you. Show up every day.
             </Text>
           </View>
+        </View>
 
-          </View>
-          <View style={styles.bottom}>
-            <ButtonFit
-              title="Continue"
-              backgroundColor={theme.primary}
-              onPress={goForward}
-            />
-          </View>
+        <View style={styles.bottom}>
+          <ButtonFit
+            title="Continue"
+            backgroundColor={theme.primary}
+            onPress={goForward}
+          />
+        </View>
       </View>
     </View>
   );
@@ -108,26 +139,28 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   container: {
-  flex: 1,
-  zIndex: 1,
-  alignItems: "center",
-  justifyContent: "space-between", 
-  paddingHorizontal: 70,
-},
-main: {
-  flex: 1,
-  justifyContent: "center",   
-  alignItems: "center",       
-},
-middle: {
-  alignItems: "center",
-},
-bottom: {
-  alignItems: "center",
-  marginBottom: 40,
-  
-},
-
+    flex: 1,
+    zIndex: 1,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 70,
+  },
+  main: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  middle: {
+    alignItems: "center",
+  },
+  cardsContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  bottom: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
   sloganBold: {
     fontSize: 23,
     fontFamily: theme.bold,

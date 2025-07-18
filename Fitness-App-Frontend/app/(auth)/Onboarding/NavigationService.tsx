@@ -20,7 +20,7 @@ export const OnboardingScreens = [
   "WeightQuestion",
   "AgeQuestion",
   "BMIResults",
-  "DesiredTargetWeight",
+  "CaloriePlan",
   "JourneyStartsNow",
   "AccessToEquipment",
   "OnboardingComplete",

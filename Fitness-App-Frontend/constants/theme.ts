@@ -8,7 +8,7 @@ export const theme = {
   semibold: 'Bold',
 
 
-  primary: '#FF2605',
+  primary: '#ff0505ff',
   buttonBorder: '#5B5B5B',
   buttonsolid: '#1C1C1C',
   textColor: '#FFFFFF',

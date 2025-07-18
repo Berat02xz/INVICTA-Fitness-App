@@ -139,7 +139,7 @@ function BMIResults() {
         <View style={styles.middle}>
           <Text style={styles.sloganBold}>Your Body Mass Index</Text>
           <Text style={[styles.sloganRegular, { paddingTop: 60 }]}>
-            {dynamicCard.text.split(" ").slice(0, 2).join(" ")}
+            {dynamicCard.label}
           </Text>
           <Text style={styles.bmiValue}>{displayBmi.toFixed(1)}</Text>
 

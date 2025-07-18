@@ -24,6 +24,7 @@ interface ButtonOnboardingProps {
   style?: ViewStyle;
   animated?: boolean;
   order?: number;
+  badgeText?: string;
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
@@ -39,6 +40,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   style = {},
   animated = true,
   order = 0,
+  badgeText,
 }) => {
   const [selected, setSelected] = useState(false);
   const { goForward, goBack, saveSelection } = useOnboarding();
@@ -106,7 +108,11 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
         </View>
 
         {emoji && !BodyImage && <Text style={styles.emoji}>{emoji}</Text>}
-
+        {badgeText && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{badgeText}</Text>
+          </View>
+        )}
         {BodyImage && (
           <Image
             source={BodyImage}
@@ -133,6 +139,20 @@ const styles = StyleSheet.create({
     width: 330,
     alignSelf: "center",
   },
+  badge: {
+    backgroundColor: theme.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: "center",
+    marginLeft: 10,
+  },
+  badgeText: {
+    fontSize: 12,
+    color: theme.textColor,
+    fontFamily: theme.semibold,
+  },
+
   icon: {
     width: 30,
     height: 31,

@@ -29,7 +29,7 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 const styles = StyleSheet.create({
   questionText: {
     fontFamily: theme.bold,
-    color: "#FFFFFF",
+    color: theme.textColor,
     textAlign: "center",
     maxWidth: "100%",
   },
