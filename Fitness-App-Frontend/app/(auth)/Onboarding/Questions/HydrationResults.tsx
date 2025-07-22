@@ -34,7 +34,7 @@ export default function HappyBodyImageResults() {
     };
   }, [animatedValue]);
 
-  const lowWaterAnswers = ["Less than 2 glasses", "Only coffee or tea"];
+  const lowWaterAnswers = ["2 glasses", "2-6 glasses"];
   const isLowWater = lowWaterAnswers.includes(answerMap["Water"] || "");
 
   return (

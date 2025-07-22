@@ -38,13 +38,11 @@ export const uploadOnboardingData = async (data: {
 //Fetch Onboarding Data
 export const fetchOnboardingDataAndStore = async (userId: string) => {
   try {
-    console.log("[fetchOnboardingDataAndStore] 🔍 Fetching for user:", userId);
 
     const response = await axios.get<{ $values?: any[] }>(
       `/api/User/GetOnboardingAnswers/${userId}`
     );
 
-    console.log("[fetchOnboardingDataAndStore] 🌐 Raw API response:", response.data);
 
     const rawValues = response.data?.$values;
 
@@ -67,10 +65,6 @@ export const fetchOnboardingDataAndStore = async (userId: string) => {
       return { question: `Invalid item ${i}`, answer: "" };
     });
 
-    console.log(
-      "[fetchOnboardingDataAndStore] ✅ Cleaned values ready for storage:",
-      cleanedValues
-    );
 
     let jsonString;
     try {
@@ -79,10 +73,6 @@ export const fetchOnboardingDataAndStore = async (userId: string) => {
       console.error("[fetchOnboardingDataAndStore] ❌ Failed to stringify values:", stringifyError);
       return;
     }
-
-    console.log(
-      `[fetchOnboardingDataAndStore] 💾 Storing JSON (${jsonString.length} chars) in AsyncStorage...`
-    );
 
     try {
       await AsyncStorage.setItem("Onboarding", jsonString);

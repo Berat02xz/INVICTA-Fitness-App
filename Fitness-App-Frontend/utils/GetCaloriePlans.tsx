@@ -71,9 +71,14 @@ export function getCaloriePlans({
   const bmr = calculateBMR({ age, sex, height, weight, unit });
 
   // Minimum safe calories (never go below BMR or 1200 kcal)
-  const minSafeCalories = Math.max(bmr-300, 1200);
+  const minSafeCalories = Math.max(bmr, 1200);
 
   const plans: CaloriePlan[] = [
+    {
+      type: "Slight weight gain",
+      rate: "+0.25 kg/week",
+      caloriesPerDay: Math.round(tdee + 275),
+    },
     {
       type: "Maintain weight",
       rate: "",
@@ -89,11 +94,7 @@ export function getCaloriePlans({
       rate: "-0.5 kg/week",
       caloriesPerDay: Math.round(tdee - 550),
     },
-    {
-      type: "Extreme weight loss",
-      rate: "-1 kg/week",
-      caloriesPerDay: Math.round(tdee - 1100),
-    },
+
   ];
 
   // Filter out plans that fall below the minimum safe calorie threshold

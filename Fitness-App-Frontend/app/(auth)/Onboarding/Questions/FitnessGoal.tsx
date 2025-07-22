@@ -35,22 +35,22 @@ const FitnessGoalScreen = () => {
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-          text="Lose Weight"
+          text="Lose Fat"
           emoji="🏃‍♂️"
           onClick={() => {
-            handleSelectGoal("Lose Weight","Weight Goal");
+            handleSelectGoal("Lose Fat","Weight Goal");
           }}
           forQuestion="weight_goal"
           order={0}
           onClickContinue={false}
         />
         <ButtonOnboarding
-          text="Gain Weight"
+          text="Gain Muscle"
           emoji="🏋️‍♀️"
           onClick={() => {
-            handleSelectGoal("Gain Weight","Weight Goal");
+            handleSelectGoal("Gain Muscle","Weight Goal");
           }}
-          forQuestion="weight_goal"
+          forQuestion="fitness_goal"
           order={1}
           onClickContinue={false}
         />
@@ -65,10 +65,11 @@ const FitnessGoalScreen = () => {
           onClickContinue={false}
         />
         <ButtonOnboarding
-          text="Improve Health"
-          emoji="❤️"
+          text="Hollistic Wellbeing"
+          //Green plant emoji
+          emoji="🤸🏽"
           onClick={() => {
-            handleSelectGoal("Improve Health","Fitness Goal");
+            handleSelectGoal("Holistic Wellbeing","Fitness Goal");
           }}
           forQuestion="fitness_goal"
           order={3}

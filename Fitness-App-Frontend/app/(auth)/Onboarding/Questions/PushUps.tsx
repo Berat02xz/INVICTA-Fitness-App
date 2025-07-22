@@ -19,7 +19,7 @@ const PushUps = () => {
 
       <View style={styles.content}>
         <View style={{ zIndex: 1 }}>
-          <QuestionOnboarding question="How many push-ups can you do in one round?" />
+          <QuestionOnboarding question="How many push-ups can you do in one go?" />
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
             text="Less than 10"

@@ -23,10 +23,10 @@ const FeelBetweenMeals = () => {
         <QuestionOnboarding question="How do you feel between meals?" />
         <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
-                    text="I’m tired after I eat"
+                    text="I feel tired after I eat"
                     emoji='😴'
           onClick={() => {
-            console.log("I’m tired after I eat selected");
+            console.log("I feel tired after I eat selected");
           }}
           forQuestion="FeelBetweenMeals"
           onClickContinue
@@ -36,17 +36,17 @@ const FeelBetweenMeals = () => {
                     text="I feel irritable"
           emoji='😡'
           onClick={() => {
-            console.log("I feel irritable");
+            console.log("I feel irritable selected");
           }}
           forQuestion="FeelBetweenMeals"
           onClickContinue
           order={1}
         />
         <ButtonOnboarding
-                    text="I have enough energy during the day"
+                    text="I feel light and energetic"
           emoji='💪'
           onClick={() => {
-            console.log("I have enough energy during the day selected");
+            console.log("I feel light and energetic selected");
           }}
           forQuestion="FeelBetweenMeals"
           onClickContinue

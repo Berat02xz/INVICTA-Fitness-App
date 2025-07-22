@@ -61,9 +61,9 @@ export const LoginScreen = () => {
           />
           <View style={styles.headingContainer}>
             <Text style={[styles.heading, styles.headingBold]}>
-              One decision.
+              Structured Periodized
             </Text>
-            <Text style={styles.heading}>That’s all it takes.</Text>
+            <Text style={[styles.heading, styles.headingBold]}>Progression</Text>
           </View>
 
           <View style={styles.formContainer}>

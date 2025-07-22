@@ -15,23 +15,12 @@ const HowMuchWater = () => {
       <View style={styles.container}>
         <QuestionOnboarding question="How much water do you drink daily?" />
         <View style={{ marginTop: 30 }} />
-
         <ButtonOnboarding
-                    text="Only coffee or tea"
-          emoji='☕️'
-          onClick={() => {
-            console.log("Only coffee or tea selected");
-          }}
-          forQuestion="Water"
-          onClickContinue
-          order={0}
-        />
-        <ButtonOnboarding
-                    text="Less than 2 glasses"
+                    text="2 glasses"
                     emoji='💧'
-          undertext="up to 0,5l / 17oz"
+          undertext="0,5l / 17oz"
           onClick={() => {
-            console.log("Less than 2 glasses selected");
+            console.log("2 glasses selected");
           }}
           forQuestion="Water"
           onClickContinue

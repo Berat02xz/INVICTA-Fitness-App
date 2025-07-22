@@ -17,10 +17,10 @@ const HowMuchSleep = () => {
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-                    text="Fewer than 6 hours"
+                    text="Less than 6 hours"
           emoji='😴'
           onClick={() => {
-            console.log("Fewer than 6 hours selected");
+            console.log("Less than 6 hours selected");
           }}
           forQuestion="Sleep"
           onClickContinue

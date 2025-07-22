@@ -9,7 +9,6 @@ export const OnboardingScreens = [
   "LastTimeHappyBodyImage",
   "HappyBodyImageResults",
   "PushUps",
-  "DailyWalk",
   "HowMuchSleep",
   "HowMuchWater",
   "HydrationResults",

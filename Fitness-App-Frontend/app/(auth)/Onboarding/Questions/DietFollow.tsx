@@ -20,7 +20,7 @@ const DietFollow = () => {
       <SolidBackground />
 
       <View style={styles.container}>
-        <QuestionOnboarding question="Do you follow any of these diets?" />
+        <QuestionOnboarding question="Have you tried any of these diets?" />
         <View style={{ marginTop: 30 }} />
         <ButtonOnboarding
                     text="Vegetarian"

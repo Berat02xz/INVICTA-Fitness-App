@@ -24,7 +24,7 @@ const ActivityLevel = () => {
 
         <ButtonOnboarding
           text="Sedentary"
-          undertext="I do almost no exercise"
+          undertext="Little to no movement"
           imageSrc={activity_level.no_level}
           onClick={() => {
             console.log("Sedentary selected");
@@ -35,7 +35,7 @@ const ActivityLevel = () => {
         />
         <ButtonOnboarding
           text="Slightly Active"
-          undertext="I exercise up to 2 hours in a week"
+          undertext="Walk or move a bit daily"
           imageSrc={activity_level.slightly_active}
           onClick={() => {
             console.log("Slightly Active selected");
@@ -46,7 +46,7 @@ const ActivityLevel = () => {
         />
         <ButtonOnboarding
           text="Moderately Active"
-          undertext="I exercise up to 4 hours in a week"
+          undertext="Physically demanding job"
           imageSrc={activity_level.moderately_active}
           onClick={() => {
             console.log("Moderately Active selected");
@@ -57,7 +57,7 @@ const ActivityLevel = () => {
         />
         <ButtonOnboarding
           text="Very Active"
-          undertext="I exercise for 4+ hours in a week"
+          undertext="I exercise daily"
           imageSrc={activity_level.very_active}
           onClick={() => {
             console.log("Very Active selected");
