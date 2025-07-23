@@ -1,9 +1,8 @@
-import axios, { setToken } from '@/api/axiosInstance';
+import axios, { removeToken, setToken } from '@/api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
-//Register a User
-export const registerUser = async (userData: {
+export const RegisterUser = async (userData: {
   Name: string;
   Email: string;
   Password: string;
@@ -12,7 +11,6 @@ export const registerUser = async (userData: {
     const response = await axios.post('/api/User/register', userData);
     const data = response.data as { token: string };
     const token = data.token;
-    await AsyncStorage.setItem('token', token);
     setToken(token);
     return data;
   } catch (error) {
@@ -22,7 +20,7 @@ export const registerUser = async (userData: {
 };
 
 //Upload Onboarding Data
-export const uploadOnboardingData = async (data: {
+export const UploadOnboardingData = async (data: {
   userId: string;
   answers: { question: string; answer: string | number }[];
 }) => {
@@ -35,10 +33,8 @@ export const uploadOnboardingData = async (data: {
   }
 };
 
-//Fetch Onboarding Data
-export const fetchOnboardingDataAndStore = async (userId: string) => {
+export const FetchOnboardingDataAndStore = async (userId: string) => {
   try {
-
     const response = await axios.get<{ $values?: any[] }>(
       `/api/User/GetOnboardingAnswers/${userId}`
     );
@@ -48,7 +44,7 @@ export const fetchOnboardingDataAndStore = async (userId: string) => {
 
     if (!Array.isArray(rawValues)) {
       console.warn(
-        "[fetchOnboardingDataAndStore] ❗ Unexpected format received from API:",
+        "[FetchOnboardingDataAndStore] ❗ Unexpected format received from API:",
         response.data
       );
       return;
@@ -70,18 +66,18 @@ export const fetchOnboardingDataAndStore = async (userId: string) => {
     try {
       jsonString = JSON.stringify(cleanedValues);
     } catch (stringifyError) {
-      console.error("[fetchOnboardingDataAndStore] ❌ Failed to stringify values:", stringifyError);
+      console.error("[FetchOnboardingDataAndStore] ❌ Failed to stringify values:", stringifyError);
       return;
     }
 
     try {
       await AsyncStorage.setItem("Onboarding", jsonString);
-      console.log("[fetchOnboardingDataAndStore] 🎉 Successfully saved onboarding data.");
+      console.log("[FetchOnboardingDataAndStore] 🎉 Successfully saved onboarding data.");
     } catch (storageError) {
-      console.error("[fetchOnboardingDataAndStore] ❌ Failed to save to AsyncStorage:", storageError);
+      console.error("[FetchOnboardingDataAndStore] ❌ Failed to save to AsyncStorage:", storageError);
     }
   } catch (error) {
-    console.error("[fetchOnboardingDataAndStore] ❌ Request failed:", error);
+    console.error("[FetchOnboardingDataAndStore] ❌ Request failed:", error);
     throw error;
   }
 };
@@ -99,9 +95,9 @@ export const Login = async (
   }
 };
 
-export const logoutUser = async () => {
+export const LogoutUser = async () => {
   try {
-    await AsyncStorage.clear();
+    await removeToken();
     router.push('/');
     console.log("User logged out successfully.");
   } catch (error) {

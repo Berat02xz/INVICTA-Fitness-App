@@ -33,7 +33,7 @@ const AccessToEquipment = () => {
         />
         <ButtonOnboarding
           text="Basic Equipment"
-          undertext="Dumbbells, bands, or similar gear at home"
+          undertext="Dumbbells or similar gear at home"
           imageSrc={activity_level.gym}
           onClick={() => {
             console.log("Basic Equipment selected");

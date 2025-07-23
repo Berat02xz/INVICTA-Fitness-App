@@ -1,5 +1,5 @@
 import { getUserIdFromToken } from "@/api/tokenDecoder";
-import { fetchOnboardingDataAndStore } from "@/api/UserData";
+import { FetchOnboardingDataAndStore } from "@/api/UserData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Slot } from 'expo-router';
 import React, { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ const App = () => {
         console.log("[Onboarding] Not found in AsyncStorage. Fetching from API...");
         const userId = await getUserIdFromToken();
         if (userId) {
-          await fetchOnboardingDataAndStore(userId);
+          await FetchOnboardingDataAndStore(userId);
           console.log("[Onboarding] Fetched and stored for user:", userId);
 
           const newData = await AsyncStorage.getItem("Onboarding");

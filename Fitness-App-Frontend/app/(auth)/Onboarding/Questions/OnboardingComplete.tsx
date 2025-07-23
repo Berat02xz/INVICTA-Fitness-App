@@ -1,6 +1,6 @@
 import { setToken } from "@/api/axiosInstance";
 import { getUserIdFromToken } from "@/api/tokenDecoder";
-import { registerUser, uploadOnboardingData } from "@/api/UserData";
+import { RegisterUser, UploadOnboardingData } from "@/api/UserData";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
@@ -20,7 +20,7 @@ const OnboardingComplete = () => {
 
   async function handleSubmit() {
     try {
-      const response = await registerUser({ Name, Email, Password });
+      const response = await RegisterUser({ Name, Email, Password });
 
       if (!response || !response.token) {
         Toast.show({
@@ -43,7 +43,7 @@ const OnboardingComplete = () => {
         return;
       }
 
-      const uploadResponse = await uploadOnboardingData({
+      const uploadResponse = await UploadOnboardingData({
         userId,
         answers: UserAnswers,
       });

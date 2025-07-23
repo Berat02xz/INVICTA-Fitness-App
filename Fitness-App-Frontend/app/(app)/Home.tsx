@@ -1,5 +1,5 @@
 import { getNameFromToken } from "@/api/tokenDecoder";
-import { logoutUser } from "@/api/UserData";
+import { LogoutUser } from "@/api/UserData";
 import { theme } from "@/constants/theme";
 import { Button } from "@react-navigation/elements";
 import React, { useEffect, useState } from "react";
@@ -20,7 +20,7 @@ const Home = () => {
     <View style={styles.container}>
       <Text style={styles.welcomeText}>Hello, {userName} 👋</Text>
       <Button onPress={() => {
-        logoutUser();
+        LogoutUser();
         console.log("User logged out");
       }}>LOG OUT</Button>
     </View>

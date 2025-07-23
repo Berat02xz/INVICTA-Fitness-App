@@ -1,29 +1,61 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
 const BACKEND_URL = 'https://bc9ec6567ed5.ngrok-free.app/';
 
 let token: string | null = null;
 
-// Load token from AsyncStorage on app start (call this once)
-export async function loadToken() {
-  token = await AsyncStorage.getItem('token');
-  if(!token || token === 'null') {
-    router.push('/');
+const Storage = {
+  async getItem(key: string) {
+    if (Platform.OS === 'web') {
+      return await AsyncStorage.getItem(key);
+    }
+    return await SecureStore.getItemAsync(key);
+  },
+
+  async setItem(key: string, value: string) {
+    if (Platform.OS === 'web') {
+      return await AsyncStorage.setItem(key, value);
+    }
+    return await SecureStore.setItemAsync(key, value);
+  },
+
+  async removeItem(key: string) {
+    if (Platform.OS === 'web') {
+      return await AsyncStorage.removeItem(key);
+    }
+    return await SecureStore.deleteItemAsync(key);
+  }
+};
+
+// Load token from storage at app start
+export async function CheckToken() {
+  token = await Storage.getItem('token');
+  if (!token || token === 'null') {
     console.log("Token is null or undefined, redirecting to Login");
-  }else{
+    router.push("/(auth)/login");
+  } else {
     router.push('/(app)/Home');
   }
 }
 
+export async function GetToken(): Promise<string | null> {
+  if (!token || token === 'null') {
+    console.log("Token is null or undefined, redirecting to Login");
+    router.push("/(auth)/login");
+    return null;
+  }
+  return token;
+}
+
 // Set token manually after login/register
-export function setToken(newToken: string | null) {
+export async function setToken(newToken: string | null) {
   token = newToken;
   if (newToken) {
-    AsyncStorage.setItem('token', newToken);
-  } else {
-    AsyncStorage.removeItem('token');
+    await Storage.setItem('token', newToken);
   }
 }
 
@@ -48,6 +80,5 @@ axiosInstance.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 
 export default axiosInstance;

@@ -1,4 +1,4 @@
-import { loadToken } from "@/api/axiosInstance";
+import { CheckToken } from "@/api/axiosInstance";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { useEffect } from "react";
@@ -32,7 +32,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     (async () => {
-      await loadToken();
+      await CheckToken();
     })();
   }, []);
 

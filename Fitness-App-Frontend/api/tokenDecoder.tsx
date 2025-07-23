@@ -1,6 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
+import { GetToken } from "./axiosInstance";
 
 type DecodedToken = {
   sub: string; // userId as string
@@ -11,14 +10,8 @@ type DecodedToken = {
 };
 
 export async function getUserIdFromToken(): Promise<string | null> {
-  const token = await AsyncStorage.getItem("token");
+  const token = await GetToken();
   if (!token) {
-    router.push("/");
-    console.log("Token is null, redirecting to Login");
-    return null;
-  }
-  if (token === "null") {
-    router.push("/");
     console.log("Token is null, redirecting to Login");
     return null;
   }
@@ -33,17 +26,12 @@ export async function getUserIdFromToken(): Promise<string | null> {
 }
 
 export async function getEmailFromToken(): Promise<string | null> {
-  const token = await AsyncStorage.getItem("token");
+  const token = await GetToken();
   if (!token) {
-    router.push("/");
     console.log("Token is null, redirecting to Login");
     return null;
   }
-  if (token === "null") {
-    router.push("/");
-    console.log("Token is null, redirecting to Login");
-    return null;
-  }
+
 
   try {
     const decoded: DecodedToken = jwtDecode(token);
@@ -55,18 +43,11 @@ export async function getEmailFromToken(): Promise<string | null> {
 }
 
 export async function getNameFromToken(): Promise<string | null> {
-  const token = await AsyncStorage.getItem("token");
+  const token = await GetToken();
   if (!token) {
-    router.push("/(auth)/login");
     console.log("Token is null, redirecting to Login");
     return null;
   }
-  if (token === "null") {
-    router.push("/(auth)/login");
-    console.log("Token is null, redirecting to Login");
-    return null;
-  }
-
   try {
     const decoded: DecodedToken = jwtDecode(token);
     return decoded.name || null;
