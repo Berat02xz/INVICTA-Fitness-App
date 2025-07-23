@@ -37,13 +37,14 @@ export default function DietResults() {
       <Text style={styles.sloganBold}>
         {percentage}% of your results are about nutrition
       </Text>
+        <View style={styles.undertextCard}>
 
       <UndertextCard
         emoji="🥗"
         title="Dietary Guidance"
         titleColor="white"
         text="We provide you with personalized recommendations."
-      />
+      /></View>
     </View>
 
     <View style={styles.bottom}>
@@ -70,6 +71,9 @@ const styles = StyleSheet.create({
   paddingHorizontal: 24,
   paddingBottom: 40,                
   zIndex: 1,
+},
+undertextCard: {
+  marginTop: 10,
 },
 middle: {
   flex: 1,

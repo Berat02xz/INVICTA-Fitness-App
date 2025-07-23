@@ -59,6 +59,11 @@ export async function setToken(newToken: string | null) {
   }
 }
 
+export async function removeToken() {
+  token = null;
+  await Storage.removeItem('token');
+}
+
 const axiosInstance = axios.create({
   baseURL: BACKEND_URL,
   timeout: 10000,

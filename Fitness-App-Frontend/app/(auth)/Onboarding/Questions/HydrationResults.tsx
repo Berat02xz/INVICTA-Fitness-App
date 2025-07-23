@@ -48,13 +48,14 @@ export default function HappyBodyImageResults() {
                 ? `Water is essential for progress.`
                 : `You drink more water than ${percentage}% of users`}
             </Text>
-
-            <UndertextCard
-              emoji="💧"
-              title="Hydration Reminder"
-              titleColor="white"
-              text="Invicta will remind you to drink enough water."
-            />
+            <View style={styles.undertextCard}>
+              <UndertextCard
+                emoji="💧"
+                title="Hydration Reminder"
+                titleColor="white"
+                text="Invicta will remind you to drink enough water."
+              />
+            </View>
           </View>
         </View>
         <View style={styles.bottom}>
@@ -80,23 +81,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
   },
-main: {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-},
+  undertextCard: {
+    marginTop: 10,
+  },
+  main: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-middle: {
-  alignItems: "center",
-  width: "100%",
-  // Remove height: "100%" — not needed
-  justifyContent: "center",
-},
+  middle: {
+    alignItems: "center",
+    width: "100%",
+    // Remove height: "100%" — not needed
+    justifyContent: "center",
+  },
 
-bottom: {
-  alignItems: "center",
-  marginBottom: 50,
-},
+  bottom: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
 
   sloganBold: {
     fontSize: 25,

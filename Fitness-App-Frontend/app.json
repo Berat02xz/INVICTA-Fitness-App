@@ -49,9 +49,7 @@
       }
     },
     "owner": "berat02xz",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/692127bf-5235-4f35-9ed9-536e57a15b5b"
     }

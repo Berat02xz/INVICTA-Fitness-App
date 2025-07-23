@@ -35,14 +35,14 @@ export default function HappyBodyImageResults() {
         <View style={styles.main}>
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>{percentage}% of users</Text>
-            
+            <View style={styles.undertextCard}>
             <UndertextCard
               emoji="🤗"
               title="Responded the same way"
               titleColor="white"
               text="You are not alone in your feelings about your body image."
             />
-
+</View>
           </View>
         </View>
         <View style={styles.bottom}>
@@ -75,7 +75,9 @@ main: {
   justifyContent: "center",
   alignItems: "center",
 },
-
+undertextCard: {
+  marginTop: 10,
+},
 middle: {
   alignItems: "center",
   width: "100%",

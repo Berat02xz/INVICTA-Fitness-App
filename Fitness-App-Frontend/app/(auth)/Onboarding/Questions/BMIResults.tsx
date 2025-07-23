@@ -27,30 +27,33 @@ function BMIResults() {
   const leftAnim = useRef(new Animated.Value(-150)).current;
   const animatedBMI = useRef(new Animated.Value(0)).current;
 
-  function calculateBMI(unit: "metric" | "imperial", weight: string, height: string): number {
-  let bmi = 0;
-  const weightValue = parseFloat(weight);
+  function calculateBMI(
+    unit: "metric" | "imperial",
+    weight: string,
+    height: string
+  ): number {
+    let bmi = 0;
+    const weightValue = parseFloat(weight);
 
-  if (unit === "metric") {
-    const heightInM = parseFloat(height) / 100;
-    bmi = weightValue / (heightInM * heightInM);
-  } else {
-    const [feetStr, inchStr] = height.split("'");
-    const feet = parseInt(feetStr || "0", 10);
-    let inches = parseInt(inchStr || "0", 10);
+    if (unit === "metric") {
+      const heightInM = parseFloat(height) / 100;
+      bmi = weightValue / (heightInM * heightInM);
+    } else {
+      const [feetStr, inchStr] = height.split("'");
+      const feet = parseInt(feetStr || "0", 10);
+      let inches = parseInt(inchStr || "0", 10);
 
-    // Sanitize: Cap inches at 11
-    inches = Math.min(inches, 11);
+      // Sanitize: Cap inches at 11
+      inches = Math.min(inches, 11);
 
-    const totalInches = feet * 12 + inches;
-    if (totalInches === 0) return 0;
+      const totalInches = feet * 12 + inches;
+      if (totalInches === 0) return 0;
 
-    bmi = (weightValue / (totalInches * totalInches)) * 703;
+      bmi = (weightValue / (totalInches * totalInches)) * 703;
+    }
+
+    return Math.round(bmi * 10) / 10;
   }
-
-  return Math.round(bmi * 10) / 10;
-}
-
 
   const calculateLeftValue = (bmiValue: number): number => {
     const minBMI = 15;
@@ -157,13 +160,14 @@ function BMIResults() {
               height: 16 * scale,
             }}
           />
-
-          <UndertextCard
-            emoji={dynamicCard.emoji}
-            title={dynamicCard.label}
-            titleColor={dynamicCard.color}
-            text={dynamicCard.text}
-          />
+          <View style={styles.undertextCard}>
+            <UndertextCard
+              emoji={dynamicCard.emoji}
+              title={dynamicCard.label}
+              titleColor={dynamicCard.color}
+              text={dynamicCard.text}
+            />
+          </View>
         </View>
       </View>
 
@@ -221,15 +225,7 @@ const styles = StyleSheet.create({
     lineHeight: 60,
   },
   undertextCard: {
-    backgroundColor: theme.buttonsolid,
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 50,
-    maxWidth: 330,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    alignSelf: "center",
+    marginTop: 10,
   },
   emoji: {
     fontSize: 25,

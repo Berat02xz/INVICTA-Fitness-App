@@ -77,6 +77,7 @@ const [unit, setUnit] = useState<"metric" | "imperial">(
         />
 
         
+        <View style={styles.undertextCard}>
 
         <UndertextCard
           emoji="📏"
@@ -84,7 +85,7 @@ const [unit, setUnit] = useState<"metric" | "imperial">(
           titleColor="white"
           text="Calculating your body mass index requires your height."
         />
-
+</View>
       </View>
 
       <View style={styles.bottom}>
@@ -126,14 +127,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   undertextCard: {
-    backgroundColor: theme.buttonsolid,
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
-    maxWidth: 300,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+
+    marginTop: 10,
+
   },
   emoji: {
     fontSize: 25,

@@ -11,7 +11,7 @@ const { width: screenWidth } = Dimensions.get("window");
 
 export default function QuestionOnboarding({ question, undertext }: QuestionOnboardingProps) {
   // Font size logic
-  let questionFontSize = 25;
+  let questionFontSize = 27;
   if (Platform.OS === "web") {
     questionFontSize = screenWidth > 768 ? 30 : 22; // Desktop web vs mobile web
   }

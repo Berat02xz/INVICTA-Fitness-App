@@ -1,6 +1,12 @@
 import axios, { removeToken, setToken } from '@/api/axiosInstance';
+import database from '@/database';
+import { OnboardingModel } from '@/models/OnboardingModel';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+
+interface OnboardingApiResponse {
+  $values?: Array<{ question?: string; answer?: string }>;
+}
 
 export const RegisterUser = async (userData: {
   Name: string;
@@ -33,54 +39,27 @@ export const UploadOnboardingData = async (data: {
   }
 };
 
+// Fetch Onboarding Data and store it in the database
 export const FetchOnboardingDataAndStore = async (userId: string) => {
-  try {
-    const response = await axios.get<{ $values?: any[] }>(
-      `/api/User/GetOnboardingAnswers/${userId}`
-    );
+  const { data } = await axios.get<OnboardingApiResponse>(`/api/User/GetOnboardingAnswers/${userId}`);
+  const values = data.$values ?? [];
 
+  const cleaned = values.map((item: any, i: number) => ({
+    question: item?.question ?? `Q${i}`,
+    answer: item?.answer ?? '',
+  }));
 
-    const rawValues = response.data?.$values;
-
-    if (!Array.isArray(rawValues)) {
-      console.warn(
-        "[FetchOnboardingDataAndStore] ❗ Unexpected format received from API:",
-        response.data
-      );
-      return;
+  await database.write(async () => {
+    const collection = database.get<OnboardingModel>('onboarding_answers');
+    for (const item of cleaned) {
+      await collection.create(entry => {
+        entry.question = item.question;
+        entry.answer = item.answer;
+      });
     }
-
-    // Clean the data to avoid issues with circular references or non-serializable fields
-    const cleanedValues = rawValues.map((item, i) => {
-      if (item && typeof item === "object") {
-        return {
-          question: item.question ?? `Unknown question ${i}`,
-          answer: item.answer ?? "",
-        };
-      }
-      return { question: `Invalid item ${i}`, answer: "" };
-    });
-
-
-    let jsonString;
-    try {
-      jsonString = JSON.stringify(cleanedValues);
-    } catch (stringifyError) {
-      console.error("[FetchOnboardingDataAndStore] ❌ Failed to stringify values:", stringifyError);
-      return;
-    }
-
-    try {
-      await AsyncStorage.setItem("Onboarding", jsonString);
-      console.log("[FetchOnboardingDataAndStore] 🎉 Successfully saved onboarding data.");
-    } catch (storageError) {
-      console.error("[FetchOnboardingDataAndStore] ❌ Failed to save to AsyncStorage:", storageError);
-    }
-  } catch (error) {
-    console.error("[FetchOnboardingDataAndStore] ❌ Request failed:", error);
-    throw error;
-  }
+  });
 };
+
 
 export const Login = async (
   userData: { email: string; password: string }
@@ -97,10 +76,19 @@ export const Login = async (
 
 export const LogoutUser = async () => {
   try {
-    await removeToken();
-    router.push('/');
-    console.log("User logged out successfully.");
+    await database.write(async () => {
+      const collections = Object.values(database.collections);
+      for (const collection of collections) {
+        const allRecords = await collection.query().fetch();
+        for (const record of allRecords) {
+          await record.destroyPermanently();
+        }
+      }
+    });
+    console.log('User logged out successfully.');
   } catch (error) {
-    console.error("Error logging out user:", error);
+    console.error('Error logging out user:', error);
   }
+  await removeToken();
+  router.push('/');
 };

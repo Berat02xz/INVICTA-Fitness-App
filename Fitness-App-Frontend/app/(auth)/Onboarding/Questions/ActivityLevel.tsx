@@ -35,7 +35,7 @@ const ActivityLevel = () => {
         />
         <ButtonOnboarding
           text="Slightly Active"
-          undertext="Walk or move a bit daily"
+          undertext="Light daily movement or walks"
           imageSrc={activity_level.slightly_active}
           onClick={() => {
             console.log("Slightly Active selected");
@@ -46,7 +46,7 @@ const ActivityLevel = () => {
         />
         <ButtonOnboarding
           text="Moderately Active"
-          undertext="Physically demanding job"
+          undertext="physical job"
           imageSrc={activity_level.moderately_active}
           onClick={() => {
             console.log("Moderately Active selected");

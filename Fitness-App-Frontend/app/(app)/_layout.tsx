@@ -1,6 +1,7 @@
 import { getUserIdFromToken } from "@/api/tokenDecoder";
 import { FetchOnboardingDataAndStore } from "@/api/UserData";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import database from "@/database";
+import { OnboardingModel } from "@/models/OnboardingModel";
 import { Slot } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -12,41 +13,43 @@ const App = () => {
   >([]);
 
   useEffect(() => {
-  const initializeOnboarding = async () => {
-    try {
-      const storedData = await AsyncStorage.getItem("Onboarding");
-      if (storedData) {
-        console.log("[Onboarding] Found in AsyncStorage.");
-        const parsedData = JSON.parse(storedData);
-        setOnboardingData(parsedData);
-      } else {
-        console.log("[Onboarding] Not found in AsyncStorage. Fetching from API...");
+    const initializeOnboarding = async () => {
+      try {
         const userId = await getUserIdFromToken();
-        if (userId) {
-          await FetchOnboardingDataAndStore(userId);
-          console.log("[Onboarding] Fetched and stored for user:", userId);
-
-          const newData = await AsyncStorage.getItem("Onboarding");
-          if (newData) {
-            const parsed = JSON.parse(newData);
-            setOnboardingData(parsed);
-          } else {
-            console.warn("[Onboarding] Failed to save to AsyncStorage after fetch.");
-          }
-        } else {
+        if (!userId) {
           console.warn("[Onboarding] User ID is null. Cannot fetch.");
+          setIsLoading(false);
+          return;
         }
+
+        // Query WatermelonDB for existing onboarding answers
+        const collection = database.get<OnboardingModel>("onboarding_answers");
+        let storedData = await collection.query().fetch();
+
+        if (storedData.length === 0) {
+          // No local data, fetch from API and store
+          await FetchOnboardingDataAndStore(userId);
+
+          // Re-fetch from DB after storing
+          storedData = await collection.query().fetch();
+        }
+
+        // Map to simple object array for rendering
+        const simplified = storedData.map(item => ({
+          question: item.question,
+          answer: item.answer,
+        }));
+
+        setOnboardingData(simplified);
+      } catch (error) {
+        console.error("Error in initializeOnboarding:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error in initializeOnboarding:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  initializeOnboarding();
-}, []);
-
+    initializeOnboarding();
+  }, []);
 
   if (isLoading) {
     return (

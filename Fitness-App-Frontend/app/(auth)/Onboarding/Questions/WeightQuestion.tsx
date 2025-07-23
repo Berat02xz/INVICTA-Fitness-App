@@ -65,13 +65,14 @@ const WeightQuestion = () => {
           placeholderTextColor={theme.buttonBorder}
           underlineColorAndroid="transparent"
         />
-
-        <UndertextCard
-          emoji="⚖️"
-          title="Weight"
-          titleColor="white"
-          text="Your weight is essential for tailoring your fitness plan."
-        />
+        <View style={styles.undertextCard}>
+          <UndertextCard
+            emoji="⚖️"
+            title="Weight"
+            titleColor="white"
+            text="Your weight is essential for tailoring your fitness plan."
+          />
+        </View>
       </View>
 
       <View style={styles.bottom}>
@@ -113,14 +114,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   undertextCard: {
-    backgroundColor: theme.buttonsolid,
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
-    maxWidth: 300,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    marginTop: 10,
   },
   emoji: {
     fontSize: 25,

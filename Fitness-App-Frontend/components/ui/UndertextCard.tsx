@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.buttonsolid,
     padding: 15,
     borderRadius: 12,
-    marginTop: 20,
+    marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 15,

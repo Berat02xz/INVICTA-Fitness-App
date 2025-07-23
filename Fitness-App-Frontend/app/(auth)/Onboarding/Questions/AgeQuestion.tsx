@@ -39,13 +39,14 @@ const AgeQuestion = () => {
           maxLength={3}
           underlineColorAndroid="transparent"
         />
-
-        <UndertextCard
-          emoji="☝️"
-          title="Your age is important"
-          titleColor={theme.textColor}
-          text="Helps us make adjustments to your personal plan."
-        />
+        <View style={styles.undertextCard}>
+          <UndertextCard
+            emoji="☝️"
+            title="Your age is important"
+            titleColor={theme.textColor}
+            text="Helps us make adjustments to your personal plan."
+          />
+        </View>
       </View>
 
       <View style={styles.bottom}>
@@ -82,14 +83,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   undertextCard: {
-    backgroundColor: theme.buttonsolid,
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
-    maxWidth: 300,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+marginTop: 10,
   },
   emoji: {
     fontSize: 25,

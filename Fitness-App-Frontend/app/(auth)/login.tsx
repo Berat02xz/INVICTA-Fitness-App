@@ -61,15 +61,14 @@ export const LoginScreen = () => {
           />
           <View style={styles.headingContainer}>
             <Text style={[styles.heading, styles.headingBold]}>
-              Structured Periodized
+              Structured Progression
             </Text>
-            <Text style={[styles.heading, styles.headingBold]}>Progression</Text>
           </View>
 
           <View style={styles.formContainer}>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { flex: 1 }]} // add flex:1 here
                 placeholder="Email"
                 placeholderTextColor={theme.buttonBorder}
                 keyboardType="email-address"
@@ -77,7 +76,7 @@ export const LoginScreen = () => {
                 autoComplete="email"
                 value={Email}
                 onChangeText={setEmail}
-              />{" "}
+              />
             </View>
 
             <View style={styles.passwordContainer}>
@@ -122,8 +121,8 @@ export const LoginScreen = () => {
               }
             />
             <Text style={styles.signupHint}>
-  New here? Start by creating your account.
-</Text>
+              New here? Start by creating your account.
+            </Text>
           </View>
         </View>
       </View>
@@ -138,12 +137,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   signupHint: {
-  textAlign: "center",
-  fontSize: 13,
-  color: "#aaa",
-  marginTop: 4,
-  fontFamily: theme.regular,
-},
+    textAlign: "center",
+    fontSize: 13,
+    color: "#aaa",
+    marginTop: 4,
+    fontFamily: theme.regular,
+  },
 
   headingContainer: {
     alignItems: "center",
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   heading: {
-    fontSize: 30,
+    fontSize: 25,
     fontFamily: theme.regular,
     textAlign: "center",
     color: theme.textColor,
@@ -170,27 +169,28 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     marginTop: 30,
-    width: "100%",
+    width: "88%", // limit width here instead of 100%
     gap: 18,
     alignSelf: "center",
-  },
-  input: {
-    height: 62,
-    backgroundColor: theme.buttonsolid,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    fontFamily: theme.regular,
-    color: theme.textColor,
-    alignSelf: "center",
-    width: "100%",
   },
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: theme.buttonsolid,
     borderRadius: 10,
+    width: "100%", // make sure container takes full width
   },
+input: {
+  height: 62,
+  width: "100%", // fill container exactly
+  backgroundColor: theme.buttonsolid,
+  borderRadius: 10,
+  paddingHorizontal: 16,
+  fontSize: 16,
+  fontFamily: theme.regular,
+  color: theme.textColor,
+},
+
   buttonText: {
     fontFamily: theme.bold,
     fontSize: 15,
