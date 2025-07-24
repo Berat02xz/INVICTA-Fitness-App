@@ -21,12 +21,13 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 |--------------|---------------------------------------------------|
 | ✅ Completed | User Onboarding Flow                              |
 | ✅ Completed | Onboarding Graphics & Design Assets               |
-| 🔄 Ongoing   | Branding                                          |
+| ✅ Completed   | Branding                                          |
 | ✅ Completed    | JWT-Based User Authentication                  |
 | ✅ Completed | Ngrok Setup for Local Expo Access                 |
 | ✅ Completed | Swagger Integration for API Testing               |
 | ❌ Deprecated | In-House Launcher for Easier Development          |
 | ⏳ Planned   | AWS Database Hosting (PostgreSQL)                 |
+| ⏳ Planned   | Offline Future-Proof with no DB/BE                 |
 | 🔄 Ongoing   | Core App Navigation Structure                     |
 | ⏳ Planned   | GPT-Powered ChatBot with Custom Responses         |
 | 🔄 Ongoing    | AI Nutrition Scanner via Camera Input             |
@@ -35,15 +36,10 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ⏳ Planned   | CI/CD for Dev and Prod Builds                     |
 
 ## Setup 🛠️
-Setup might change in the future, working on containerizing a fully working dev build asap.
-
+Setup might change in the future
+App requires Database, Backend and Frontend to be running for it to work (working on an offline version)
 ```bash
 cd fitness-app-frontend
 npm install
-npx expo start
-```
-```bash
-docker run --name FitnessAppPostgresql -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=fitnessappdb -p 5432:5432 -v fitnessapp_pgdata:/var/lib/postgresql/data -d postgres
-
-docker start FitnessAppPostgresql
+npx expo run
 ```
