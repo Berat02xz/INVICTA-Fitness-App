@@ -1,6 +1,6 @@
 import axios, { removeToken, setToken } from '@/api/axiosInstance';
 import database from '@/database';
-import { OnboardingModel } from '@/models/OnboardingModel';
+import { OnboardingModel } from '@/models/user_info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 

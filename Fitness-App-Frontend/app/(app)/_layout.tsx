@@ -1,7 +1,7 @@
 import { getUserIdFromToken } from "@/api/tokenDecoder";
 import { FetchOnboardingDataAndStore } from "@/api/UserData";
 import database from "@/database";
-import { OnboardingModel } from "@/models/OnboardingModel";
+import { OnboardingModel } from "@/models/user_info";
 import { Slot } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";

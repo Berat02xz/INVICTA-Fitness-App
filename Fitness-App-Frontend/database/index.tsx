@@ -1,7 +1,7 @@
 import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
-import { schema } from './schema';
-import { OnboardingModel } from '../models/OnboardingModel';
+import { schema } from '../models/schema';
+import { OnboardingModel } from '../models/user_info';
 
 const adapter = new SQLiteAdapter({
   schema,
