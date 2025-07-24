@@ -26,13 +26,13 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ✅ Completed | Ngrok Setup for Local Expo Access                 |
 | ✅ Completed | Swagger Integration for API Testing               |
 | ❌ Deprecated | In-House Launcher for Easier Development          |
-| ⏳ Planned   | AWS Database Hosting (PostgreSQL)                 |
+| 🔄 Ongoing   | AWS Database Hosting (PostgreSQL)                 |
 | ⏳ Planned   | Offline Future-Proof with no DB/BE                 |
 | 🔄 Ongoing   | Core App Navigation Structure                     |
 | ⏳ Planned   | GPT-Powered ChatBot with Custom Responses         |
-| 🔄 Ongoing    | AI Nutrition Scanner via Camera Input             |
+| 🔄 Ongoing   | AI Nutrition Scanner via Camera Input             |
 | ⏳ Planned   | Exercise & Workout Program Module                 |
-| ⏳ Planned   | API Gateway Deployment on AWS                     |
+| 🔄 Ongoing   | API Gateway Deployment on AWS                     |
 | ⏳ Planned   | CI/CD for Dev and Prod Builds                     |
 
 ## Setup 🛠️
