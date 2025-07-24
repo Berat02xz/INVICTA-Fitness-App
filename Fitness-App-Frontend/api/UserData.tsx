@@ -21,6 +21,7 @@ export const RegisterUser = async (userData: {
     return data;
   } catch (error) {
     console.error('Error registering user:', error);
+    //TODO: Implement Offline Mode, give user a guest token
     throw error;
   }
 };
@@ -40,6 +41,7 @@ export const UploadOnboardingData = async (data: {
 };
 
 // Fetch Onboarding Data and store it in the database
+// TODO: Implement Offline Mode, fetch from Async Storage if offline and put in DB
 export const FetchOnboardingDataAndStore = async (userId: string) => {
   const { data } = await axios.get<OnboardingApiResponse>(`/api/User/GetOnboardingAnswers/${userId}`);
   const values = data.$values ?? [];
@@ -69,7 +71,8 @@ export const Login = async (
     const { token } = response.data;
     return { token };
   } catch (error) {
-    console.error('Error logging in user:', error);
+    console.error('Error logging in user, going offline-mode', error);
+    //Implement offline mode, give user a guest token
     throw error;
   }
 };
