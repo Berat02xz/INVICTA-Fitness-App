@@ -8,7 +8,7 @@ export class User extends Model {
   @field('email') email!: string;
   @field('age') age!: number;
   @field('gender') gender!: string;
-  @field('height') height!: number;
+  @field('height') height!: string;
   @field('weight') weight!: number;
   @field('equipment_access') equipmentAccess!: string;
   @field('activity_level') activityLevel!: string;

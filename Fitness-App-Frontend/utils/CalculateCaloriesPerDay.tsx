@@ -1,4 +1,4 @@
-function calculateCaloriesPerDay({
+export function calculateCaloriesPerDay({
   age,
   sex,
   height,

@@ -7,7 +7,8 @@ namespace FitnessAppBackend.Data
        
         public DbSet<Model.OnboardingAnswers> OnboardingAnswers { get; set; }
         public DbSet<Model.User> Users { get; set; }
-        
+        public DbSet<Model.UserInformation> UserInformation { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -23,6 +24,15 @@ namespace FitnessAppBackend.Data
                 .HasOne(o => o.User)
                 .WithMany(u => u.OnboardingAnswers)
                 .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Model.UserInformation>()
+                .HasKey(ui => ui.Id);
+
+            modelBuilder.Entity<Model.UserInformation>()
+                .HasOne(ui => ui.User)
+                .WithOne(u => u.UserInformation)
+                .HasForeignKey<Model.UserInformation>(ui => ui.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 

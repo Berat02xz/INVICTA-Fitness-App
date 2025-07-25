@@ -13,17 +13,19 @@ namespace FitnessAppBackend.Controllers
         private readonly IUserService _userService;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IOnboardingAnswersService _onboardingAnswersService;
+        private readonly IUserInformationService _userInformationService;
 
-        public UserController(IUserService userService, IJwtTokenService jwtTokenService, IOnboardingAnswersService onboardingAnswersService)
+        public UserController(IUserService userService, IJwtTokenService jwtTokenService, IOnboardingAnswersService onboardingAnswersService, IUserInformationService userInformationService)
         {
             _userService = userService;
             _jwtTokenService = jwtTokenService;
             _onboardingAnswersService = onboardingAnswersService;
+            _userInformationService = userInformationService;
         }
 
-        //Test purposes
+        // Test purposes
+        // Get all users
         [HttpGet("all")]
-        [Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllLazy();
@@ -81,33 +83,64 @@ namespace FitnessAppBackend.Controllers
                 Question = answerDto.Question,
                 Answer = answerDto.Answer ?? string.Empty
             }).ToList();
-
             await _onboardingAnswersService.AddRangeAsync(answerEntities);
+
+            UserInformation userInformation = new UserInformation
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                User = user,
+                Age = int.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id,"age")),
+                Unit = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "unit"),
+                ActivityLevel = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "activity_level"),
+                EquipmentAccess = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "equipment_access"),
+                FitnessLevel = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "PushUps"),
+                Goal = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "fitness_goal"),
+                Height = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "height"),
+                Weight = int.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "weight")),
+                BMI = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "bmi")),
+                BMR = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "bmr")),
+                TDEE = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "tdee")),
+                Gender = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "gender"),
+                CaloricIntake = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "calories_target")),
+                CaloricDeficit= await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "calorie_deficit"),
+            };
+            await _userInformationService.AddAsync(userInformation);
+
+
             return Ok("Onboarding answers uploaded successfully.");
         }
 
         [Authorize]
-        [HttpGet("GetOnboardingAnswers/{userId}")]
-        public async Task<IActionResult> GetOnboardingAnswers(Guid userId)
+        [HttpGet("GetUserInformation/{userId}")]
+        public async Task<IActionResult> GetUserInformation(Guid userId)
         {
             var user = await _userService.GetByIdAsync(userId);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
-            var answers = await _onboardingAnswersService.GetOnboardingAnswersByUserIdAsync(userId);
-            return Ok(answers);
+            var userinformation = await _userInformationService.GetByIdAsync(userId);
+            return Ok(userinformation);
         }
 
 
         //Test purposes
         //Get All Onboarding
-        [Authorize]
         [HttpGet("GetAllOnboardingAnswers")]
         public async Task<IActionResult> GetAllOnboardingAnswers()
         {
             var answers = await _onboardingAnswersService.GetAllAsync();
             return Ok(answers);
+
+        }
+        //Test purposes
+        //Get All User Information
+        [HttpGet("GetAllUserInformation")]
+        public async Task<IActionResult> GetAllUserInformation()
+        {
+            var userinformation = await _userInformationService.GetAllAsync();
+            return Ok(userinformation);
 
         }
 

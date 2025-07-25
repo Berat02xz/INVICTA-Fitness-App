@@ -7,5 +7,6 @@ namespace FitnessAppBackend.Service
     {
         Task AddRangeAsync(IEnumerable<OnboardingAnswers> answerEntities);
         Task<List<OnboardingAnswersDTO>> GetOnboardingAnswersByUserIdAsync(Guid userId);
+        Task<String> GetOnboardingAnswerByUserIdAsync(Guid userId, string question);
     }
 }

@@ -3,11 +3,8 @@ using FitnessAppBackend.Repository;
 using FitnessAppBackend.Repository.Implementations;
 using FitnessAppBackend.Service;
 using FitnessAppBackend.Service.Implementations;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using FitnessAppBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,116 +15,64 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
         options.JsonSerializerOptions.MaxDepth = 64;
     });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "FitnessAppBackend API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "FitnessAppBackend API", Version = "v1" });
 
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
         Description = "Please enter a valid token",
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    }); 
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+    });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
             },
             new string[] {}
         }
     });
-}); 
+});
 
 // Configure PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add JWT Authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+// Add Authentication
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-
-        ClockSkew = TimeSpan.Zero
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine("Token validated!");
-            return Task.CompletedTask;
-        }
-    };
-});
-
-//Cors
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
+// Cors
+builder.Services.AddCorsPolicy();
 
 builder.Services.AddAuthorization();
 
-
-
-
-// Add custom services here
+// Add custom services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IOnboardingAnswersService, OnboardingAnswersService>();
 builder.Services.AddScoped<IOnboardingAnswersRepository, OnboardingAnswersRepository>();
+builder.Services.AddScoped<IUserInformationService, UserInformationService>();
+builder.Services.AddScoped<IUserInformationRepository, UserInformationRepository>();
 
 var app = builder.Build();
 
-// Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-var logger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger("Startup");
-logger.LogInformation($"Issuer: {builder.Configuration["Jwt:Issuer"]}");
-logger.LogInformation($"Audience: {builder.Configuration["Jwt:Audience"]}");
-logger.LogInformation($"Key: {builder.Configuration["Jwt:Key"]}");
-
-
+// Middleware pipeline
+app.UseSwaggerSetup();
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCorsPolicy();
+app.UseJwtAuthentication();
+
 app.MapControllers();
 app.Run();

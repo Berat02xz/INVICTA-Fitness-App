@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppBackend.Repository.Implementations
 {
-    public class UserRepository : GenericRepository<User>, IUserRepository
+    public class UserRepository : GenericService<User>, IUserRepository
     {
         public UserRepository(ApplicationDbContext context) : base(context)
         {

@@ -6,7 +6,7 @@ interface CaloriePlan {
   caloriesPerDay: number;
 }
 
-function calculateBMR({
+export function calculateBMR({
   age,
   sex = "male",
   height,

@@ -20,6 +20,11 @@ namespace FitnessAppBackend.Service.Implementations
             await _onboardingRepository.SaveChangesAsync();
         }
 
+        public async Task<string> GetOnboardingAnswerByUserIdAsync(Guid userId, string question)
+        {
+            return await _onboardingRepository.GetOnboardingAnswerByUserIdAsync(userId, question);
+        }
+
         public async Task<List<OnboardingAnswersDTO>> GetOnboardingAnswersByUserIdAsync(Guid userId)
         {
             return await _onboardingRepository.GetOnboardingAnswersByUserIdAsync(userId);

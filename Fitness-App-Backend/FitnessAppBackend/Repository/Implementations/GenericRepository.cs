@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppBackend.Repository.Implementations
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericService<T> : IGenericRepository<T> where T : class
     {
         //protected so that derived classes can use the same context as :base(context)
         protected readonly ApplicationDbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public GenericRepository(ApplicationDbContext context)
+        public GenericService(ApplicationDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();

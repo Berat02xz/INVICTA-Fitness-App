@@ -22,37 +22,41 @@ const PushUps = () => {
           <QuestionOnboarding question="How many push-ups can you do in one go?" />
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
-            text="Less than 10"
+            text="Beginner"
+            undertext="Less than 10 push-ups"
             imageSrc={iconmap.pushUp1}
             onClick={() => {
-              console.log("Less than 10 selected");
+              console.log("Beginner selected");
             }}
             forQuestion="PushUps"
             onClickContinue
             order={0}
           />
           <ButtonOnboarding
-            text="10-20"
+            text="Intermediate"
+            undertext="10 to 20 push-ups"
             imageSrc={iconmap.pushUp2}
             onClick={() => {
-              console.log("10-20 selected");
+              console.log("Intermediate selected");
             }}
             forQuestion="PushUps"
             onClickContinue
             order={1}
           />
           <ButtonOnboarding
-            text="21-30"
+            text="Advanced"
+            undertext="21 to 30 push-ups"
             imageSrc={iconmap.pushUp3}
             onClick={() => {
-              console.log("21-30 selected");
+              console.log("Advanced selected");
             }}
             forQuestion="PushUps"
             onClickContinue
             order={2}
           />
           <ButtonOnboarding
-            text="More than 30"
+            text="Gym Enthusiast"
+            undertext="More than 30 push-ups"
             imageSrc={iconmap.Gym}
             onClick={() => {
               console.log("More than 30 selected");

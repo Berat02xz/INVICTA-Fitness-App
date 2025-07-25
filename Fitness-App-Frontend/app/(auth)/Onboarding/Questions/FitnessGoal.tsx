@@ -38,9 +38,9 @@ const FitnessGoalScreen = () => {
           text="Lose Fat"
           emoji="🏃‍♂️"
           onClick={() => {
-            handleSelectGoal("Lose Fat","Weight Goal");
+            handleSelectGoal("Lose Fat","fitness_goal");
           }}
-          forQuestion="weight_goal"
+          forQuestion="fitness_goal"
           order={0}
           onClickContinue={false}
         />
@@ -48,7 +48,7 @@ const FitnessGoalScreen = () => {
           text="Gain Muscle"
           emoji="🏋️‍♀️"
           onClick={() => {
-            handleSelectGoal("Gain Muscle","Weight Goal");
+            handleSelectGoal("Gain Muscle","fitness_goal");
           }}
           forQuestion="fitness_goal"
           order={1}
@@ -58,7 +58,7 @@ const FitnessGoalScreen = () => {
           text="Build Strength"
           emoji="💪"
           onClick={() => {
-            handleSelectGoal("Build Strength","Fitness Goal");
+            handleSelectGoal("Build Strength","fitness_goal");
           }}
           forQuestion="fitness_goal"
           order={2}
@@ -69,7 +69,7 @@ const FitnessGoalScreen = () => {
           //Green plant emoji
           emoji="🤸🏽"
           onClick={() => {
-            handleSelectGoal("Holistic Wellbeing","Fitness Goal");
+            handleSelectGoal("Holistic Wellbeing","fitness_goal");
           }}
           forQuestion="fitness_goal"
           order={3}

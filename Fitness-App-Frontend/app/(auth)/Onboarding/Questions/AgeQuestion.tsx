@@ -19,6 +19,7 @@ const AgeQuestion = () => {
       UserAnswers[existingIndex].answer = age;
     } else {
       UserAnswers.push({ question: "age", answer: age });
+      UserAnswers.push({ question: "gender", answer: "Male" });
     }
     goForward();
   };

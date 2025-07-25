@@ -7,10 +7,16 @@ namespace FitnessAppBackend.Service.Implementations
     public class GenericService<T> : IGenericService<T> where T : class
     {
         protected readonly IGenericRepository<T> _repository;
+        private ApplicationDbContext context;
 
         public GenericService(IGenericRepository<T> repository)
         {
             _repository = repository;
+        }
+
+        public GenericService(ApplicationDbContext context)
+        {
+            this.context = context;
         }
 
         public async Task AddAsync(T entity)

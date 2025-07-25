@@ -11,7 +11,7 @@ export const schema = appSchema({
 
         { name: 'age', type: 'number' },
         { name: 'gender', type: 'string' },
-        { name: 'height', type: 'number' },
+        { name: 'height', type: 'string' },
         { name: 'weight', type: 'number' },
 
         { name: 'equipment_access', type: 'string' },

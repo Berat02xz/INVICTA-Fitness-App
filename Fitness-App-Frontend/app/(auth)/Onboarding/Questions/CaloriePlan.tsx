@@ -2,7 +2,8 @@ import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
-import { getCaloriePlans } from "@/utils/GetCaloriePlans";
+import { getCaloriePlans, calculateBMR } from "@/utils/GetCaloriePlans";
+import calculateCaloriesPerDay from "@/utils/CalculateCaloriesPerDay";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding, UserAnswers } from "../NavigationService";
@@ -14,7 +15,7 @@ const DesiredTargetWeight = () => {
   const userData = {
     age: UserAnswers.find((answer) => answer.question === "age")?.answer || 25,
     sex:
-      UserAnswers.find((answer) => answer.question === "sex")?.answer || "male",
+      UserAnswers.find((answer) => answer.question === "gender")?.answer || "male",
     height:
       UserAnswers.find((answer) => answer.question === "height")?.answer ||
       "185",
@@ -29,6 +30,16 @@ const DesiredTargetWeight = () => {
   };
 
   const plans = getCaloriePlans(userData);
+  const bmr = calculateBMR(userData);
+  const caloriesPerDay = calculateCaloriesPerDay(userData);
+  UserAnswers.push({
+    question: "bmr",
+    answer: bmr,
+  });
+  UserAnswers.push({
+    question: "tdee",
+    answer: caloriesPerDay,
+  });
 
   type FitnessGoal = string;
 

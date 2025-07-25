@@ -51,8 +51,9 @@ function BMIResults() {
 
       bmi = (weightValue / (totalInches * totalInches)) * 703;
     }
-
-    return Math.round(bmi * 10) / 10;
+    const bmiResult = Math.round(bmi * 10) / 10;
+    UserAnswers.push({ question: "bmi", answer: bmiResult });
+    return bmiResult;
   }
 
   const calculateLeftValue = (bmiValue: number): number => {
