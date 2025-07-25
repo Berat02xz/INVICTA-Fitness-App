@@ -27,6 +27,7 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ✅ Completed | Swagger Integration for API Testing               |
 | ❌ Deprecated | In-House Launcher for Easier Development          |
 | 🔄 Ongoing   | AWS Database Hosting (PostgreSQL)                 |
+| 🔄 Ongoing   | Change Onboarding from UserAnswers array to useState |
 | ⏳ Planned   | Offline Future-Proof with no DB/BE                 |
 | 🔄 Ongoing   | Core App Navigation Structure                     |
 | ⏳ Planned   | GPT-Powered ChatBot with Custom Responses         |
