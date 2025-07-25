@@ -1,12 +1,6 @@
 import axios, { removeToken, setToken } from '@/api/axiosInstance';
-import database from '@/database';
-import { OnboardingModel } from '@/models/user_info';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import database from '@/database/database';
 import { router } from 'expo-router';
-
-interface OnboardingApiResponse {
-  $values?: Array<{ question?: string; answer?: string }>;
-}
 
 export const RegisterUser = async (userData: {
   Name: string;
@@ -43,23 +37,7 @@ export const UploadOnboardingData = async (data: {
 // Fetch Onboarding Data and store it in the database
 // TODO: Implement Offline Mode, fetch from Async Storage if offline and put in DB
 export const FetchOnboardingDataAndStore = async (userId: string) => {
-  const { data } = await axios.get<OnboardingApiResponse>(`/api/User/GetOnboardingAnswers/${userId}`);
-  const values = data.$values ?? [];
-
-  const cleaned = values.map((item: any, i: number) => ({
-    question: item?.question ?? `Q${i}`,
-    answer: item?.answer ?? '',
-  }));
-
-  await database.write(async () => {
-    const collection = database.get<OnboardingModel>('onboarding_answers');
-    for (const item of cleaned) {
-      await collection.create(entry => {
-        entry.question = item.question;
-        entry.answer = item.answer;
-      });
-    }
-  });
+  console.log('Fetching onboarding data for user:', userId);
 };
 
 

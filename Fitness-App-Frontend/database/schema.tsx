@@ -4,7 +4,7 @@ export const schema = appSchema({
   version: 2,
   tables: [
     tableSchema({
-      name: 'user_info',
+      name: 'user',
       columns: [
         { name: 'name', type: 'string' },
         { name: 'email', type: 'string' },
@@ -14,6 +14,7 @@ export const schema = appSchema({
         { name: 'height', type: 'number' },
         { name: 'weight', type: 'number' },
 
+        { name: 'equipment_access', type: 'string' },
         { name: 'activity_level', type: 'string' },
         { name: 'fitness_level', type: 'string' },
         { name: 'weight_goal', type: 'string' },

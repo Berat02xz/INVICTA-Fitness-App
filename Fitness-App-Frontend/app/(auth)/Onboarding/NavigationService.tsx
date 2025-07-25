@@ -96,3 +96,4 @@ export const OnboardingProvider = ({
     </OnboardingContext.Provider>
   );
 };
+export default OnboardingProvider;
