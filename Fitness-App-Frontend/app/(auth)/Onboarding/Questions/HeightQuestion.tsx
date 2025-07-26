@@ -4,19 +4,28 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const HeightQuestion = () => {
-  const { goForward } = useOnboarding();
-const [unit, setUnit] = useState<"metric" | "imperial">(
-    UserAnswers.find(answer => answer.question === "unit")?.answer || "metric"
+  const { goForward, answers, saveSelection } = useOnboarding();
+
+  // Initialize unit and height from answers or default values
+  const [unit, setUnit] = useState<"metric" | "imperial">(
+    (answers.unit as "metric" | "imperial") || "metric"
   );
-  const [height, setHeight] = useState<string>("");
+
+  const [height, setHeight] = useState<string>(answers.height as string || "");
+
+  // Clear or format height input on unit change
+  useEffect(() => {
+    setHeight(""); // reset height when unit changes to avoid invalid formatting
+  }, [unit]);
 
   const handleHeightChange = (value: string) => {
     if (unit === "imperial") {
+      // Keep only digits
       const cleaned = value.replace(/[^0-9]/g, "");
       if (cleaned.length === 0) {
         setHeight("");
@@ -30,25 +39,13 @@ const [unit, setUnit] = useState<"metric" | "imperial">(
         setHeight(`${feet}'${inches}`);
       }
     } else {
+      // Metric: only digits
       setHeight(value.replace(/[^0-9]/g, ""));
     }
   };
 
   const handleSubmit = () => {
-    const existingIndex = UserAnswers.findIndex((item) => item.question === "height");
-    if (existingIndex > -1) {
-      UserAnswers[existingIndex].answer = height;
-    } else {
-      UserAnswers.push({ question: "height", answer: height });
-    }
-
-    const unitIndex = UserAnswers.findIndex((item) => item.question === "unit");
-    if (unitIndex > -1) {
-      UserAnswers[unitIndex].answer = unit;
-    } else {
-      UserAnswers.push({ question: "unit", answer: unit });
-    }
-
+    saveSelection("height", height);
     goForward();
   };
 
@@ -66,7 +63,7 @@ const [unit, setUnit] = useState<"metric" | "imperial">(
           />
         </View>
         <TextInput
-        key={unit}
+          key={unit} // force rerender to clear input when unit changes
           style={styles.input}
           value={height}
           onChangeText={handleHeightChange}
@@ -76,16 +73,14 @@ const [unit, setUnit] = useState<"metric" | "imperial">(
           underlineColorAndroid="transparent"
         />
 
-        
         <View style={styles.undertextCard}>
-
-        <UndertextCard
-          emoji="📏"
-          title="Height"
-          titleColor="white"
-          text="Calculating your body mass index requires your height."
-        />
-</View>
+          <UndertextCard
+            emoji="📏"
+            title="Height"
+            titleColor="white"
+            text="Calculating your body mass index requires your height."
+          />
+        </View>
       </View>
 
       <View style={styles.bottom}>
@@ -127,20 +122,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   undertextCard: {
-
     marginTop: 10,
-
-  },
-  emoji: {
-    fontSize: 25,
-  },
-  undertext: {
-    flex: 1,
-    fontSize: 15,
-    color: theme.textColor,
-    fontFamily: theme.regular,
-    textAlign: "left",
-    lineHeight: 22,
   },
   bottom: {
     alignItems: "center",

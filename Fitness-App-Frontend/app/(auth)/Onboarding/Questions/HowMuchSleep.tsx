@@ -17,31 +17,22 @@ const HowMuchSleep = () => {
         <View style={{ marginTop: 30 }} />
 
         <ButtonOnboarding
-                    text="Less than 6 hours"
-          emoji='😴'
-          onClick={() => {
-            console.log("Less than 6 hours selected");
-          }}
+          text="Less than 6 hours"
+          emoji="😴"
           forQuestion="Sleep"
           onClickContinue
           order={0}
         />
         <ButtonOnboarding
-                    text="Between 6 and 8 hours"
-          emoji='😌'
-          onClick={() => {
-            console.log("Between 6 and 8 hours selected");
-          }}
+          text="Between 6 and 8 hours"
+          emoji="😌"
           forQuestion="Sleep"
           onClickContinue
           order={1}
         />
         <ButtonOnboarding
-                    text="Over 8 hours"
-                    emoji='💤'
-          onClick={() => {
-            console.log("Over 8 hours selected");
-          }}
+          text="Over 8 hours"
+          emoji="💤"
           forQuestion="Sleep"
           onClickContinue
           order={2}

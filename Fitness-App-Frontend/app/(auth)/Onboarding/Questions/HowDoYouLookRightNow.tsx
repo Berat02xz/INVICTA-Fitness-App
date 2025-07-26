@@ -23,9 +23,6 @@ const HowDoYouLookRightNow = () => {
         <ButtonOnboarding
           height={150}
           text="Average"
-          onClick={() => {
-            console.log("Average selected");
-          }}
           onClickContinue
           forQuestion="look_perception"
           BodyImage={bodyImage.Average}
@@ -34,9 +31,6 @@ const HowDoYouLookRightNow = () => {
         <ButtonOnboarding
           height={150}
           text="Heavy"
-          onClick={() => {
-            console.log("Heavy selected");
-          }}
           onClickContinue
           forQuestion="look_perception"
           BodyImage={bodyImage.Heavy}
@@ -45,9 +39,6 @@ const HowDoYouLookRightNow = () => {
         <ButtonOnboarding
           height={150}
           text="Slim"
-          onClick={() => {
-            console.log("Slim selected");
-          }}
           onClickContinue
           forQuestion="look_perception"
           BodyImage={bodyImage.Skinny}

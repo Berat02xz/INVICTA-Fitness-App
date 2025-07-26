@@ -6,40 +6,28 @@ import { getCaloriePlans, calculateBMR } from "@/utils/GetCaloriePlans";
 import calculateCaloriesPerDay from "@/utils/CalculateCaloriesPerDay";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const DesiredTargetWeight = () => {
-  const { goForward } = useOnboarding();
+  const { goForward, answers, saveSelection } = useOnboarding();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  const userData = {
-    age: UserAnswers.find((answer) => answer.question === "age")?.answer || 25,
-    sex:
-      UserAnswers.find((answer) => answer.question === "gender")?.answer || "male",
-    height:
-      UserAnswers.find((answer) => answer.question === "height")?.answer ||
-      "185",
-    weight:
-      UserAnswers.find((answer) => answer.question === "weight")?.answer || 80,
-    unit:
-      UserAnswers.find((answer) => answer.question === "unit")?.answer ||
-      "metric",
-    activity_level:
-      UserAnswers.find((answer) => answer.question === "activity_level")
-        ?.answer || "Sedentary",
+const userData = {
+    age: Number(answers.age) || 30,
+    sex: String(answers.gender) || "male",
+    height: answers.height || "185",
+    weight: Number(answers.weight) || 80,
+    unit: String(answers.unit) || "metric",
+    activity_level: String(answers.activity_level) || "Sedentary",
   };
+
+
 
   const plans = getCaloriePlans(userData);
   const bmr = calculateBMR(userData);
   const caloriesPerDay = calculateCaloriesPerDay(userData);
-  UserAnswers.push({
-    question: "bmr",
-    answer: bmr,
-  });
-  UserAnswers.push({
-    question: "tdee",
-    answer: caloriesPerDay,
-  });
+  saveSelection("bmr", bmr);
+  saveSelection("tdee", caloriesPerDay);
 
   type FitnessGoal = string;
 
@@ -60,14 +48,8 @@ const DesiredTargetWeight = () => {
             order={index}
             onClick={() => {
               setSelectedPlan(plan.type);
-              UserAnswers.push({
-                question: "calories_target",
-                answer: plan.caloriesPerDay,
-              });
-              UserAnswers.push({
-                question: "calorie_deficit",
-                answer: plan.rate,
-              });
+              saveSelection("calories_target", plan.type);
+              saveSelection("calorie_deficit", plan.rate);
               goForward();
             }}
             style={{

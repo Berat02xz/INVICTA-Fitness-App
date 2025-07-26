@@ -5,7 +5,7 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
   weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
@@ -14,15 +14,14 @@ const iconmap = {
 };
 
 const FitnessGoalScreen = () => {
-  const { goForward } = useOnboarding();
+  const { goForward, saveSelection } = useOnboarding();
   
   type FitnessGoal = string;
   const [selectedGoal, setSelectedGoal] = useState<FitnessGoal | null>(null);
 
   const handleSelectGoal = (goal: FitnessGoal, question: string): void => {
     setSelectedGoal(goal);
-    UserAnswers.push({ question, answer: goal });
-    console.log(`${goal} selected`);
+    saveSelection(question, goal);
   };
 
 
@@ -37,9 +36,6 @@ const FitnessGoalScreen = () => {
         <ButtonOnboarding
           text="Lose Fat"
           emoji="🏃‍♂️"
-          onClick={() => {
-            handleSelectGoal("Lose Fat","fitness_goal");
-          }}
           forQuestion="fitness_goal"
           order={0}
           onClickContinue={false}
@@ -47,9 +43,6 @@ const FitnessGoalScreen = () => {
         <ButtonOnboarding
           text="Gain Muscle"
           emoji="🏋️‍♀️"
-          onClick={() => {
-            handleSelectGoal("Gain Muscle","fitness_goal");
-          }}
           forQuestion="fitness_goal"
           order={1}
           onClickContinue={false}
@@ -57,20 +50,14 @@ const FitnessGoalScreen = () => {
         <ButtonOnboarding
           text="Build Strength"
           emoji="💪"
-          onClick={() => {
-            handleSelectGoal("Build Strength","fitness_goal");
-          }}
           forQuestion="fitness_goal"
           order={2}
           onClickContinue={false}
         />
         <ButtonOnboarding
-          text="Hollistic Wellbeing"
+          text="Holistic Wellbeing"
           //Green plant emoji
           emoji="🤸🏽"
-          onClick={() => {
-            handleSelectGoal("Holistic Wellbeing","fitness_goal");
-          }}
           forQuestion="fitness_goal"
           order={3}
           onClickContinue={false}

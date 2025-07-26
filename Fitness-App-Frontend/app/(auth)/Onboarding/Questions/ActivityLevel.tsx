@@ -26,10 +26,6 @@ const ActivityLevel = () => {
           text="Sedentary"
           undertext="Little to no movement"
           imageSrc={activity_level.no_level}
-          onClick={() => {
-            console.log("Sedentary selected");
-          }}
-          
           forQuestion="activity_level"
           order={0}
         />
@@ -37,10 +33,6 @@ const ActivityLevel = () => {
           text="Slightly Active"
           undertext="Light daily movement or walks"
           imageSrc={activity_level.slightly_active}
-          onClick={() => {
-            console.log("Slightly Active selected");
-          }}
-          
           forQuestion="activity_level"
           order={1}
         />
@@ -48,10 +40,6 @@ const ActivityLevel = () => {
           text="Moderately Active"
           undertext="physical job"
           imageSrc={activity_level.moderately_active}
-          onClick={() => {
-            console.log("Moderately Active selected");
-          }}
-          
           forQuestion="activity_level"
           order={2}
         />
@@ -59,10 +47,6 @@ const ActivityLevel = () => {
           text="Very Active"
           undertext="I exercise daily"
           imageSrc={activity_level.very_active}
-          onClick={() => {
-            console.log("Very Active selected");
-          }}
-          
           forQuestion="activity_level"
           order={3}
         />

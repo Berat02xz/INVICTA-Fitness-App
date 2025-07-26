@@ -1,6 +1,6 @@
 import { setToken } from "@/api/axiosInstance";
 import { getUserIdFromToken } from "@/api/tokenDecoder";
-import { RegisterUser, UploadOnboardingData } from "@/api/UserData";
+import { RegisterUser, UploadUserInformation } from "@/api/UserData";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
@@ -9,7 +9,7 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
@@ -17,7 +17,8 @@ const OnboardingComplete = () => {
   const [Name, setName] = useState<string>("");
   const [Email, setEmail] = useState<string>("");
   const [Password, setPassword] = useState<string>("");
-
+  const { answers } = useOnboarding();
+  
   async function handleSubmit() {
     try {
       const response = await RegisterUser({ Name, Email, Password });
@@ -43,9 +44,9 @@ const OnboardingComplete = () => {
         return;
       }
 
-      const uploadResponse = await UploadOnboardingData({
+      const uploadResponse = await UploadUserInformation({
         userId,
-        answers: UserAnswers,
+        answers,
       });
       
       if (!uploadResponse) {
@@ -59,6 +60,7 @@ const OnboardingComplete = () => {
 
       // Proceed to the next step if any in the future
       goForward();
+      
       // Proceed to home screen of (app)
       router.push("../../../(app)/Home");
     } catch (error: any) {
@@ -183,3 +185,4 @@ const styles = StyleSheet.create({
 });
 
 export default OnboardingComplete;
+

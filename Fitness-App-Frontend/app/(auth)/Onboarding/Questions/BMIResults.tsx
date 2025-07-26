@@ -7,18 +7,16 @@ import { theme } from "@/constants/theme";
 import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
+import calculateBMI from "@/utils/CalculateBMI";
 
 function BMIResults() {
   const onboardingContext = useOnboarding();
+  const { answers, saveSelection } = onboardingContext;
 
-  const weight =
-    UserAnswers.find((answer) => answer.question === "weight")?.answer || "85";
-  const height =
-    UserAnswers.find((answer) => answer.question === "height")?.answer || "175";
-  const unit =
-    UserAnswers.find((answer) => answer.question === "unit")?.answer ||
-    "metric";
+  const weight = answers.weight?.toString() || "85";
+  const height = answers.height?.toString() || "185";
+  const unit = answers.unit || "metric";
 
   const [bmi, setBmi] = useState<number>(0);
   const [targetLeft, setTargetLeft] = useState<number>(-150);
@@ -27,39 +25,22 @@ function BMIResults() {
   const leftAnim = useRef(new Animated.Value(-150)).current;
   const animatedBMI = useRef(new Animated.Value(0)).current;
 
-  function calculateBMI(
-    unit: "metric" | "imperial",
-    weight: string,
-    height: string
-  ): number {
-    let bmi = 0;
-    const weightValue = parseFloat(weight);
-
-    if (unit === "metric") {
-      const heightInM = parseFloat(height) / 100;
-      bmi = weightValue / (heightInM * heightInM);
-    } else {
-      const [feetStr, inchStr] = height.split("'");
-      const feet = parseInt(feetStr || "0", 10);
-      let inches = parseInt(inchStr || "0", 10);
-
-      // Sanitize: Cap inches at 11
-      inches = Math.min(inches, 11);
-
-      const totalInches = feet * 12 + inches;
-      if (totalInches === 0) return 0;
-
-      bmi = (weightValue / (totalInches * totalInches)) * 703;
-    }
-    const bmiResult = Math.round(bmi * 10) / 10;
-    UserAnswers.push({ question: "bmi", answer: bmiResult });
-    return bmiResult;
-  }
+  // --- only save once on init or when inputs change ---
+  useEffect(() => {
+    const calculatedBMI = calculateBMI(
+      unit as "metric" | "imperial",
+      weight,
+      height
+    );
+    setBmi(calculatedBMI);
+    setTargetLeft(calculateLeftValue(calculatedBMI));
+    saveSelection("bmi", calculatedBMI);
+  }, [weight, height, unit]);
 
   const calculateLeftValue = (bmiValue: number): number => {
     const minBMI = 15;
     const maxBMI = 40;
-    const clampedBMI = Math.min(Math.max(bmiValue, minBMI), maxBMI); // <-- clamp to 40
+    const clampedBMI = Math.min(Math.max(bmiValue, minBMI), maxBMI);
     const range = maxBMI - minBMI;
     return ((clampedBMI - minBMI) / range) * 320 - 150;
   };
@@ -98,16 +79,6 @@ function BMIResults() {
   };
 
   const dynamicCard = getDynamicCardContent(bmi);
-
-  useEffect(() => {
-    const calculatedBMI = calculateBMI(
-      unit as "metric" | "imperial",
-      weight,
-      height
-    );
-    setBmi(calculatedBMI);
-    setTargetLeft(calculateLeftValue(calculatedBMI));
-  }, []);
 
   useEffect(() => {
     Animated.timing(leftAnim, {

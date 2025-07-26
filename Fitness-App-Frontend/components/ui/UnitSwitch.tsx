@@ -1,6 +1,9 @@
 import { theme } from "@/constants/theme";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
+
+const { saveSelection } = useOnboarding();
 
 interface UnitSwitchProps {
   unit: "metric" | "imperial";
@@ -22,7 +25,10 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
           styles.toggleOption,
           unit === "metric" && styles.selectedOption,
         ]}
-        onPress={() => onSelect("metric")}
+        onPress={() => {
+          onSelect("metric");
+          saveSelection("unit", "metric");
+        }}
       >
         <Text
           style={[styles.optionText, unit === "metric" && styles.selectedText]}
@@ -36,7 +42,10 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
           styles.toggleOption,
           unit === "imperial" && styles.selectedOption,
         ]}
-        onPress={() => onSelect("imperial")}
+        onPress={() => {
+          onSelect("imperial");
+          saveSelection("unit", "imperial");
+        }}
       >
         <Text
           style={[

@@ -1,7 +1,4 @@
-import {
-  useOnboarding,
-  UserAnswers,
-} from "@/app/(auth)/Onboarding/NavigationService";
+import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import SolidBackground from "@/components/ui/SolidBackground";
@@ -19,12 +16,7 @@ import {
 import ConfettiCannon from "react-native-confetti-cannon";
 
 export default function JourneyStartsNow() {
-  const { goForward } = useOnboarding();
-
-  // Map UserAnswers to a dictionary for easy access
-  const answerMap = Object.fromEntries(
-    UserAnswers.map((item) => [item.question, item.answer])
-  );
+  const { goForward, saveSelection, answers } = useOnboarding();
 
   const animation = useRef(new Animated.Value(0)).current;
   const [animatedDateString, setAnimatedDateString] = useState("");
@@ -62,25 +54,14 @@ export default function JourneyStartsNow() {
   useEffect(() => {
     const target = new Date();
     target.setMonth(target.getMonth() + 3);
-    setTargetDate(target.toISOString().split("T")[0]);
+    const isoDate = target.toISOString().split("T")[0];
+    setTargetDate(isoDate);
+    saveSelection("target date", isoDate); // use isoDate directly
   }, []);
-
-  useEffect(() => {
-    if (targetDate) {
-      const exists = UserAnswers.find(
-        (entry) => entry.question === "target date"
-      );
-      if (!exists) {
-        UserAnswers.push({ question: "target date", answer: targetDate });
-        console.log("User answers submitted:", UserAnswers);
-      }
-    }
-  }, [targetDate]);
 
   // -------------------- Get calorie plan from UserAnswers --------------------
   // It should be an object like { type, rate, caloriesPerDay }
-  const caloriesTarget = answerMap["calories_target"] || null;
-
+  const caloriesTarget = answers.CaloriesTarget || null;
   const displayedCalories = caloriesTarget || "0";
 
   return (

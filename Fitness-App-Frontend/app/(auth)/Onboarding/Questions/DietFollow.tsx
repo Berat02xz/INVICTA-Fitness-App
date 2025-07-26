@@ -26,9 +26,6 @@ const DietFollow = () => {
                     text="Vegetarian"
           emoji='🥗'
           undertext="Excludes meat"
-          onClick={() => {
-            console.log("Vegetarian selected");
-          }}
           forQuestion="DietFollow"
           onClickContinue
           order={0}
@@ -37,9 +34,6 @@ const DietFollow = () => {
                     text="Vegan"
           emoji='🥕'
           undertext="Excludes all animal products"
-          onClick={() => {
-            console.log("Vegan selected");
-          }}
           forQuestion="DietFollow"
           onClickContinue
           order={1}
@@ -48,9 +42,6 @@ const DietFollow = () => {
                     text="Keto"
           emoji='🥑'
           undertext="Low-carb, high fat"
-          onClick={() => {
-            console.log("Keto selected");
-          }}
           forQuestion="DietFollow"
           onClickContinue
           order={2}
@@ -58,9 +49,6 @@ const DietFollow = () => {
         <ButtonOnboarding
                     text="No"
           emoji='❌'
-          onClick={() => {
-            console.log("No selected");
-          }}
           forQuestion="DietFollow"
           onClickContinue
           order={3}

@@ -7,11 +7,11 @@ export function calculateCaloriesPerDay({
   activity_level,
 }: {
   age: number;
-  sex: "male" | "female";
+  sex: string;
   height: number | string;
   weight: number;
-  unit: "metric" | "imperial";
-  activity_level: "Sedentary" | "Slightly Active" | "Moderately Active" | "Very Active";
+  unit: string;
+  activity_level: string;
 }): number {
   let weightKg = weight;
   let heightCm: number;

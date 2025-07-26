@@ -1,9 +1,7 @@
-type Unit = "metric" | "imperial";
-
 export default function CalculateFatLoss(
   targetWeight: number,
   startingWeight: number,
-  unit: Unit
+  unit: string
 ): {
   fatLossAmount: number;
   fatLossText: string;

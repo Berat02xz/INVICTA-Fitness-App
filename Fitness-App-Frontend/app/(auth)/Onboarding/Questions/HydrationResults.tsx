@@ -1,6 +1,5 @@
 import {
   useOnboarding,
-  UserAnswers,
 } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
@@ -12,11 +11,11 @@ import { Animated, StyleSheet, Text, View } from "react-native";
 export default function HappyBodyImageResults() {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const [percentage, setPercentage] = useState(0);
-  const { goForward } = useOnboarding();
+  const { goForward, answers } = useOnboarding();
 
-  const answerMap = Object.fromEntries(
-    UserAnswers.map((item) => [item.question, item.answer])
-  );
+  const WaterAnswer = String(answers.Water) || "2 glasses";
+  const lowWaterAnswers = ["2 glasses", "2-6 glasses"];
+  const isLowWater = lowWaterAnswers.includes(WaterAnswer);
 
   useEffect(() => {
     Animated.timing(animatedValue, {
@@ -34,8 +33,6 @@ export default function HappyBodyImageResults() {
     };
   }, [animatedValue]);
 
-  const lowWaterAnswers = ["2 glasses", "2-6 glasses"];
-  const isLowWater = lowWaterAnswers.includes(answerMap["Water"] || "");
 
   return (
     <View style={styles.outerContainer}>

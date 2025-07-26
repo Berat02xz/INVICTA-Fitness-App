@@ -8,16 +8,16 @@ interface CaloriePlan {
 
 export function calculateBMR({
   age,
-  sex = "male",
+  sex,
   height,
   weight,
   unit,
 }: {
   age: number;
-  sex: "male" | "female";
+  sex: string;
   height: number | string;
   weight: number;
-  unit: "metric" | "imperial";
+  unit: string;
 }): number {
   let weightKg = weight;
   let heightCm: number;
@@ -51,11 +51,11 @@ export function getCaloriePlans({
   activity_level,
 }: {
   age: number;
-  sex: "male" | "female";
+  sex: string;
   height: number | string;
   weight: number;
-  unit: "metric" | "imperial";
-  activity_level: "Sedentary" | "Slightly Active" | "Moderately Active" | "Very Active";
+  unit: string;
+  activity_level: string;
 }): CaloriePlan[] {
   // Calculate TDEE (maintenance)
   const tdee = calculateCaloriesPerDay({

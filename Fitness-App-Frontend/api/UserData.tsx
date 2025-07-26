@@ -20,24 +20,29 @@ export const RegisterUser = async (userData: {
   }
 };
 
-//Upload Onboarding Data
-export const UploadOnboardingData = async (data: {
+
+export const UploadUserInformation = async ({
+  userId,
+  answers,
+}: {
   userId: string;
-  answers: { question: string; answer: string | number }[];
+  answers: { [question: string]: string | number };
 }) => {
   try {
-    const response = await axios.post('/api/User/UploadOnboarding', data);
+    const response = await axios.post("/api/User/UploadUserInformation", {
+      userId,
+      answers,
+    });
     return response.data;
   } catch (error) {
-    console.error('Error uploading onboarding data:', error);
+    console.error("Error uploading user information:", error);
     throw error;
   }
 };
 
-// Fetch Onboarding Data and store it in the database
-// TODO: Implement Offline Mode, fetch from Async Storage if offline and put in DB
-export const FetchOnboardingDataAndStore = async (userId: string) => {
-  console.log('Fetching onboarding data for user:', userId);
+// Fetch User Information and store it in the WatermelonDb
+export const FetchUserInformation = async (userId: string) => {
+  console.log("Fetching user information for userId:", userId);
 };
 
 

@@ -1,5 +1,5 @@
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useRouter } from "expo-router";
-import React, { createContext, useContext, useState } from "react";
 
 export const OnboardingScreens = [
   "FitnessGoal",
@@ -25,16 +25,19 @@ export const OnboardingScreens = [
   "OnboardingComplete",
 ];
 
-export const UserAnswers: { question: string; answer: any }[] = [];
+type OnboardingAnswers = {
+  [question: string]: string | number;
+};
 
-interface OnboardingContextType {
+type OnboardingContextType = {
   index: number;
   goForward: () => void;
   goBack: () => void;
   progressNow: () => number;
-  saveSelection: (question: string, answer: string | number) => void;
   totalScreens: () => number;
-}
+  answers: OnboardingAnswers;
+  saveSelection: (question: string, answer: string | number) => void;
+};
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(
   undefined
@@ -47,12 +50,9 @@ export const useOnboarding = () => {
   return context;
 };
 
-export const OnboardingProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState<OnboardingAnswers>({});
   const router = useRouter();
 
   const goForward = () => {
@@ -78,22 +78,27 @@ export const OnboardingProvider = ({
   const progressNow = () => (index + 1) / totalScreens();
 
   const saveSelection = (question: string, answer: string | number) => {
-    const existingIndex = UserAnswers.findIndex(
-      (item) => item.question === question
-    );
-    if (existingIndex !== -1) {
-      UserAnswers[existingIndex].answer = answer;
-    } else {
-      UserAnswers.push({ question, answer });
-    }
+    setAnswers((prev) => ({
+      ...prev,
+      [question]: answer,
+    }));
   };
 
   return (
     <OnboardingContext.Provider
-      value={{ index, goForward, goBack, progressNow, saveSelection, totalScreens }}
+      value={{
+        index,
+        goForward,
+        goBack,
+        progressNow,
+        totalScreens,
+        answers,
+        saveSelection,
+      }}
     >
       {children}
     </OnboardingContext.Provider>
   );
 };
+
 export default OnboardingProvider;

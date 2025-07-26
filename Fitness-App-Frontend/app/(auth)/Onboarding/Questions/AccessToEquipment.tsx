@@ -24,9 +24,6 @@ const AccessToEquipment = () => {
           text="Home"
           imageSrc={activity_level.home}
           undertext="Home workouts with no equipment"
-          onClick={() => {
-            console.log("No Equipment selected");
-          }}
           onClickContinue
           forQuestion="equipment_access"
           order={0}
@@ -35,9 +32,6 @@ const AccessToEquipment = () => {
           text="Basic Equipment"
           undertext="Dumbbells or similar gear at home"
           imageSrc={activity_level.gym}
-          onClick={() => {
-            console.log("Basic Equipment selected");
-          }}
           onClickContinue
           forQuestion="equipment_access"
           order={1}
@@ -46,9 +40,6 @@ const AccessToEquipment = () => {
           text="Gym Access"
           undertext="You can use full gym machines"
           imageSrc={activity_level.full}
-          onClick={() => {
-            console.log("Gym Access selected");
-          }}
           onClickContinue
           forQuestion="equipment_access"
           order={2}
