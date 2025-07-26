@@ -19,6 +19,6 @@
         public double BMR { get; set; }
         public double TDEE { get; set; }
         public double CaloricIntake { get; set; }
-        public string CaloricDeficit { get; internal set; }
+        public string CaloricDeficit { get; set; }
     }
 }

@@ -14,17 +14,17 @@ namespace FitnessAppBackend.Service.Implementations
             _userInformationRepository = userInformationRepository;
         }
 
-        public UserInformation GetByUserId(Guid userId)
+        public async Task<UserInformation?> GetByUserId(Guid userId)
         {
-            return _userInformationRepository.GetByUserId(userId);
+            return await _userInformationRepository.GetByUserIdAsync(userId);
         }
 
-        public void UpdateUserInformation(UserInformation userInformation)
+        public async Task UpdateUserInformation(UserInformation userInformation)
         {
             if (userInformation == null)
                 throw new ArgumentNullException(nameof(userInformation));
 
-            _userInformationRepository.UpdateUserInformation(userInformation);
+            await _userInformationRepository.UpdateUserInformationAsync(userInformation);
         }
     }
 }

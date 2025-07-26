@@ -4,7 +4,7 @@ namespace FitnessAppBackend.Service
 {
     public interface IUserInformationService : IGenericService<UserInformation>
     {
-        UserInformation GetByUserId(Guid userId);
-        void UpdateUserInformation(UserInformation userInformation);
+        Task<UserInformation?> GetByUserId(Guid userId);
+        Task UpdateUserInformation(UserInformation userInformation);
     }
 }
