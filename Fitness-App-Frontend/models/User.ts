@@ -4,6 +4,7 @@ import { field, text } from '@nozbe/watermelondb/decorators';
 export class User extends Model {
   static table = 'user';
 
+  @field('user_id') userId!: string;
   @field('name') name!: string;
   @field('email') email!: string;
   @field('age') age!: number;
@@ -18,6 +19,7 @@ export class User extends Model {
   @field('BMR') BMR!: number;
   @field('TDEE') TDEE!: number;
   @field('caloric_intake') caloricIntake!: number;
+  @field('calorie_deficit') calorieDeficit!: string;
   @field('unit') unit!: string;
 
 }

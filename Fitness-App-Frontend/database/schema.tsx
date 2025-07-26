@@ -1,11 +1,12 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 2,
+  version: 3,
   tables: [
     tableSchema({
       name: 'user',
       columns: [
+        { name: 'user_id', type: 'string' },
         { name: 'name', type: 'string' },
         { name: 'email', type: 'string' },
 
@@ -23,6 +24,7 @@ export const schema = appSchema({
         { name: 'BMR', type: 'number' },
         { name: 'TDEE', type: 'number' },
         { name: 'caloric_intake', type: 'number' },
+        { name: 'calorie_deficit', type: 'string' },
 
         { name: 'unit', type: 'string' },
       ],

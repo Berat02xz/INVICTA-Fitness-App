@@ -41,7 +41,7 @@ export const UploadUserInformation = async ({
 };
 
 // Fetch User Information and store it in the WatermelonDb
-export const FetchUserInformation = async (userId: string) => {
+export const FetchUserInformationAndStore = async (userId: string) => {
   console.log("Fetching user information for userId:", userId);
 };
 

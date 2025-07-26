@@ -61,8 +61,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IOnboardingAnswersService, OnboardingAnswersService>();
-builder.Services.AddScoped<IOnboardingAnswersRepository, OnboardingAnswersRepository>();
 builder.Services.AddScoped<IUserInformationService, UserInformationService>();
 builder.Services.AddScoped<IUserInformationRepository, UserInformationRepository>();
 

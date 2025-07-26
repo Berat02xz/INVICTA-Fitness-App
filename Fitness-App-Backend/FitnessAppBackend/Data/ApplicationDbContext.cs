@@ -5,7 +5,6 @@ namespace FitnessAppBackend.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options){}
        
-        public DbSet<Model.OnboardingAnswers> OnboardingAnswers { get; set; }
         public DbSet<Model.User> Users { get; set; }
         public DbSet<Model.UserInformation> UserInformation { get; set; }
 
@@ -16,15 +15,6 @@ namespace FitnessAppBackend.Data
 
             modelBuilder.Entity<Model.User>()
                 .HasKey(u => u.Id);
-
-            modelBuilder.Entity<Model.OnboardingAnswers>()
-                .HasKey(o => o.Id);
-
-            modelBuilder.Entity<Model.OnboardingAnswers>()
-                .HasOne(o => o.User)
-                .WithMany(u => u.OnboardingAnswers)
-                .HasForeignKey(o => o.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Model.UserInformation>()
                 .HasKey(ui => ui.Id);

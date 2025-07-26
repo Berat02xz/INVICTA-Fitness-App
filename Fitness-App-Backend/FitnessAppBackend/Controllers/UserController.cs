@@ -12,24 +12,13 @@ namespace FitnessAppBackend.Controllers
     {
         private readonly IUserService _userService;
         private readonly IJwtTokenService _jwtTokenService;
-        private readonly IOnboardingAnswersService _onboardingAnswersService;
         private readonly IUserInformationService _userInformationService;
 
-        public UserController(IUserService userService, IJwtTokenService jwtTokenService, IOnboardingAnswersService onboardingAnswersService, IUserInformationService userInformationService)
+        public UserController(IUserService userService, IJwtTokenService jwtTokenService, IUserInformationService userInformationService)
         {
             _userService = userService;
             _jwtTokenService = jwtTokenService;
-            _onboardingAnswersService = onboardingAnswersService;
             _userInformationService = userInformationService;
-        }
-
-        // Test purposes
-        // Get all users
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = await _userService.GetAllLazy();
-            return Ok(users);
         }
 
         [HttpPost("register")]
@@ -62,51 +51,46 @@ namespace FitnessAppBackend.Controllers
         }
 
         [Authorize]
-        [HttpPost("UploadOnboarding")]
-        public async Task<IActionResult> UploadOnboardingAnswers([FromBody] OnboardingDTO onboardingAnswers)
+        [HttpPost("UploadUserInformation")]
+        public async Task<IActionResult> UploadUserInformation([FromBody] UserInformationDTO dto)
         {
-            if (onboardingAnswers == null || onboardingAnswers.UserId == Guid.Empty)
+            if (dto == null || dto.UserId == Guid.Empty)
             {
                 return BadRequest("Invalid onboarding answers.");
             }
-            var user = await _userService.GetByIdAsync(onboardingAnswers.UserId);
+            var user = await _userService.GetByIdAsync(dto.UserId);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
-
-            var answerEntities = onboardingAnswers.Answers.Select(answerDto => new OnboardingAnswers
+            try
             {
-                Id = Guid.NewGuid(),
-                UserId = onboardingAnswers.UserId,
-                User = user,
-                Question = answerDto.Question,
-                Answer = answerDto.Answer ?? string.Empty
-            }).ToList();
-            await _onboardingAnswersService.AddRangeAsync(answerEntities);
-
-            UserInformation userInformation = new UserInformation
+                UserInformation userInformation = new UserInformation
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    User = user,
+                    Age = int.Parse(dto.Answers["age"]?.ToString() ?? "0"),
+                    Unit = dto.Answers["unit"]?.ToString() ?? string.Empty,
+                    ActivityLevel = dto.Answers["activity_level"]?.ToString() ?? string.Empty,
+                    EquipmentAccess = dto.Answers["equipment_access"]?.ToString() ?? string.Empty,
+                    FitnessLevel = dto.Answers["PushUps"]?.ToString() ?? string.Empty,
+                    Goal = dto.Answers["fitness_goal"]?.ToString() ?? string.Empty,
+                    Height = dto.Answers["height"]?.ToString() ?? string.Empty,
+                    Weight = int.Parse(dto.Answers["weight"]?.ToString() ?? "0"),
+                    BMI = double.Parse(dto.Answers["bmi"]?.ToString() ?? "0"),
+                    BMR = double.Parse(dto.Answers["bmr"]?.ToString() ?? "0"),
+                    TDEE = double.Parse(dto.Answers["tdee"]?.ToString() ?? "0"),
+                    Gender = dto.Answers["gender"]?.ToString() ?? string.Empty,
+                    CaloricIntake = double.Parse(dto.Answers["calories_target"]?.ToString() ?? "0"),
+                    CaloricDeficit = dto.Answers["calorie_deficit"]?.ToString() ?? string.Empty,
+                };
+                await _userInformationService.AddAsync(userInformation);
+            }
+            catch (Exception ex)
             {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                User = user,
-                Age = int.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id,"age")),
-                Unit = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "unit"),
-                ActivityLevel = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "activity_level"),
-                EquipmentAccess = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "equipment_access"),
-                FitnessLevel = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "PushUps"),
-                Goal = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "fitness_goal"),
-                Height = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "height"),
-                Weight = int.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "weight")),
-                BMI = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "bmi")),
-                BMR = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "bmr")),
-                TDEE = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "tdee")),
-                Gender = await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "gender"),
-                CaloricIntake = double.Parse(await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "calories_target")),
-                CaloricDeficit= await _onboardingAnswersService.GetOnboardingAnswerByUserIdAsync(user.Id, "calorie_deficit"),
-            };
-            await _userInformationService.AddAsync(userInformation);
-
+                return BadRequest($"Error uploading user information: {ex.Message}");
+            }
 
             return Ok("Onboarding answers uploaded successfully.");
         }
@@ -120,28 +104,8 @@ namespace FitnessAppBackend.Controllers
             {
                 return NotFound("User not found.");
             }
-            var userinformation = await _userInformationService.GetByIdAsync(userId);
-            return Ok(userinformation);
-        }
-
-
-        //Test purposes
-        //Get All Onboarding
-        [HttpGet("GetAllOnboardingAnswers")]
-        public async Task<IActionResult> GetAllOnboardingAnswers()
-        {
-            var answers = await _onboardingAnswersService.GetAllAsync();
-            return Ok(answers);
-
-        }
-        //Test purposes
-        //Get All User Information
-        [HttpGet("GetAllUserInformation")]
-        public async Task<IActionResult> GetAllUserInformation()
-        {
-            var userinformation = await _userInformationService.GetAllAsync();
-            return Ok(userinformation);
-
+            var userInformation = await _userInformationService.GetByUserId(userId);
+            return Ok(userInformation);
         }
 
         [HttpPost("Login")]

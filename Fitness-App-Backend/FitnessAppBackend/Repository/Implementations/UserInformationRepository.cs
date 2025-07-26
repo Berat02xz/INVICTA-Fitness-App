@@ -1,5 +1,6 @@
 ﻿using FitnessAppBackend.Data;
 using FitnessAppBackend.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppBackend.Repository.Implementations
 {
@@ -9,16 +10,16 @@ namespace FitnessAppBackend.Repository.Implementations
         {
         }
 
-        public UserInformation GetByUserId(Guid userId)
+        public async Task<UserInformation?> GetByUserIdAsync(Guid userId)
         {
-            return _context.UserInformation
-                .FirstOrDefault(ui => ui.UserId == userId);
+            return await _context.UserInformation
+                .FirstOrDefaultAsync(ui => ui.UserId == userId);
         }
 
-        public void UpdateUserInformation(UserInformation userInformation)
+        public async Task UpdateUserInformationAsync(UserInformation userInformation)
         {
-            var existingUserInformation = _context.UserInformation
-                .FirstOrDefault(ui => ui.UserId == userInformation.UserId);
+            var existingUserInformation = await _context.UserInformation
+                .FirstOrDefaultAsync(ui => ui.UserId == userInformation.UserId);
             if (existingUserInformation != null)
             {
                 existingUserInformation.Age = userInformation.Age;
