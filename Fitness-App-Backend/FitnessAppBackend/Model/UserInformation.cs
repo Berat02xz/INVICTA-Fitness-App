@@ -20,5 +20,6 @@
         public double TDEE { get; set; }
         public double CaloricIntake { get; set; }
         public string CaloricDeficit { get; set; }
+        public string AppName { get; set; }
     }
 }

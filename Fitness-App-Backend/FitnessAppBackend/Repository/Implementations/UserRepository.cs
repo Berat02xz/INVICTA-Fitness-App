@@ -13,7 +13,7 @@ namespace FitnessAppBackend.Repository.Implementations
         public async Task<ICollection<User>> GetAllLazy()
         {
             var users = await _context.Users
-                .Include(u => u.OnboardingAnswers)
+                .Include(u => u.UserInformation)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -24,7 +24,7 @@ namespace FitnessAppBackend.Repository.Implementations
         public Task<User?> GetUserByEmailAsync(string email)
         {
             return _context.Users
-                .Include(u => u.OnboardingAnswers)
+                .Include(u => u.UserInformation)
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
     }

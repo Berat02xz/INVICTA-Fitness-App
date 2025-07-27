@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-const BACKEND_URL = 'https://bc9ec6567ed5.ngrok-free.app/';
+const BACKEND_URL = 'https://localhost:7258/';
 
 let token: string | null = null;
 

@@ -23,7 +23,6 @@ const HowDoYouWantToLookLike = () => {
         <ButtonOnboarding
           height={150}
           text="Athletic"
-          onClick={() => console.log("Athletic selected")}
           onClickContinue
           forQuestion="look_goal"
           BodyImage={bodyImage.Slim}
@@ -32,7 +31,6 @@ const HowDoYouWantToLookLike = () => {
         <ButtonOnboarding
           height={150}
           text="Shredded"
-          onClick={() => console.log("Shredded selected")}
           onClickContinue
           forQuestion="look_goal"
           BodyImage={bodyImage.Cut}
@@ -41,7 +39,6 @@ const HowDoYouWantToLookLike = () => {
         <ButtonOnboarding
           height={150}
           text="Strong"
-          onClick={() => console.log("Strong selected")}
           onClickContinue
           forQuestion="look_goal"
           BodyImage={bodyImage.Bulk}

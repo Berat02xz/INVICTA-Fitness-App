@@ -17,7 +17,6 @@ export async function getUserIdFromToken(): Promise<string | null> {
   }
   try {
     const decoded: DecodedToken = jwtDecode(token);
-    console.log("Decoded JWT:", decoded);
     return decoded.sub;
   } catch (error) {
     console.error("Invalid JWT:", error);

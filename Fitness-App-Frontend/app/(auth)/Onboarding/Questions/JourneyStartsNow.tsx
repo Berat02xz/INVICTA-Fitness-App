@@ -61,8 +61,10 @@ export default function JourneyStartsNow() {
 
   // -------------------- Get calorie plan from UserAnswers --------------------
   // It should be an object like { type, rate, caloriesPerDay }
-  const caloriesTarget = answers.CaloriesTarget || null;
-  const displayedCalories = caloriesTarget || "0";
+  const caloric_intake = answers.caloric_intake || null;
+  const caloriesTarget = answers.calories_target || null;
+
+  const displayedCalories = caloric_intake || "0";
 
   return (
     <View style={styles.outerContainer}>
@@ -97,7 +99,7 @@ export default function JourneyStartsNow() {
               <FadeTranslate order={3}>
                 <UndertextCard
                   emoji="🔥"
-                  title="Daily Calories"
+                  title={`${caloriesTarget || "Calorie Target"}`}
                   titleColor="white"
                   text={`${displayedCalories} calories per day to stay on track`}
                 />

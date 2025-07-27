@@ -25,9 +25,6 @@ const PushUps = () => {
             text="Beginner"
             undertext="Less than 10 push-ups"
             imageSrc={iconmap.pushUp1}
-            onClick={() => {
-              console.log("Beginner selected");
-            }}
             forQuestion="PushUps"
             onClickContinue
             order={0}
@@ -36,9 +33,6 @@ const PushUps = () => {
             text="Intermediate"
             undertext="10 to 20 push-ups"
             imageSrc={iconmap.pushUp2}
-            onClick={() => {
-              console.log("Intermediate selected");
-            }}
             forQuestion="PushUps"
             onClickContinue
             order={1}
@@ -47,9 +41,6 @@ const PushUps = () => {
             text="Advanced"
             undertext="21 to 30 push-ups"
             imageSrc={iconmap.pushUp3}
-            onClick={() => {
-              console.log("Advanced selected");
-            }}
             forQuestion="PushUps"
             onClickContinue
             order={2}
@@ -58,9 +49,6 @@ const PushUps = () => {
             text="Gym Enthusiast"
             undertext="More than 30 push-ups"
             imageSrc={iconmap.Gym}
-            onClick={() => {
-              console.log("More than 30 selected");
-            }}
             forQuestion="PushUps"
             onClickContinue
             order={3}

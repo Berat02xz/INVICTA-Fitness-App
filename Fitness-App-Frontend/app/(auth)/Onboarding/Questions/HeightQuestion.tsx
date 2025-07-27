@@ -46,6 +46,7 @@ const HeightQuestion = () => {
 
   const handleSubmit = () => {
     saveSelection("height", height);
+    saveSelection("unit", unit);
     goForward();
   };
 

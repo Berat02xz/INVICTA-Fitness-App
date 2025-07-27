@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitnessAppBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,19 +27,32 @@ namespace FitnessAppBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OnboardingAnswers",
+                name: "UserInformation",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Question = table.Column<string>(type: "text", nullable: false),
-                    Answer = table.Column<string>(type: "text", nullable: false)
+                    Age = table.Column<int>(type: "integer", nullable: false),
+                    Unit = table.Column<string>(type: "text", nullable: false),
+                    Gender = table.Column<string>(type: "text", nullable: false),
+                    Height = table.Column<string>(type: "text", nullable: false),
+                    Weight = table.Column<double>(type: "double precision", nullable: false),
+                    EquipmentAccess = table.Column<string>(type: "text", nullable: false),
+                    ActivityLevel = table.Column<string>(type: "text", nullable: false),
+                    FitnessLevel = table.Column<string>(type: "text", nullable: false),
+                    Goal = table.Column<string>(type: "text", nullable: false),
+                    BMI = table.Column<double>(type: "double precision", nullable: false),
+                    BMR = table.Column<double>(type: "double precision", nullable: false),
+                    TDEE = table.Column<double>(type: "double precision", nullable: false),
+                    CaloricIntake = table.Column<double>(type: "double precision", nullable: false),
+                    CaloricDeficit = table.Column<string>(type: "text", nullable: false),
+                    AppName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OnboardingAnswers", x => x.Id);
+                    table.PrimaryKey("PK_UserInformation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OnboardingAnswers_Users_UserId",
+                        name: "FK_UserInformation_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -47,16 +60,17 @@ namespace FitnessAppBackend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_OnboardingAnswers_UserId",
-                table: "OnboardingAnswers",
-                column: "UserId");
+                name: "IX_UserInformation_UserId",
+                table: "UserInformation",
+                column: "UserId",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OnboardingAnswers");
+                name: "UserInformation");
 
             migrationBuilder.DropTable(
                 name: "Users");

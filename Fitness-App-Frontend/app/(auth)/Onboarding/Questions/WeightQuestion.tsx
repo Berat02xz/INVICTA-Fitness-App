@@ -6,12 +6,12 @@ import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const WeightQuestion = () => {
-  const { goForward } = useOnboarding();
+  const { goForward, answers, saveSelection } = useOnboarding();
   const [unit, setUnit] = useState<"metric" | "imperial">(
-    UserAnswers.find((answer) => answer.question === "unit")?.answer || "metric"
+    (answers.unit as "metric" | "imperial") || "metric"
   );
   const [weight, setWeight] = useState<string>("");
 
@@ -20,24 +20,8 @@ const WeightQuestion = () => {
   };
 
   const handleSubmit = () => {
-    const existingWeight = UserAnswers.findIndex(
-      (item) => item.question === "weight"
-    );
-    if (existingWeight > -1) {
-      UserAnswers[existingWeight].answer = weight;
-    } else {
-      UserAnswers.push({ question: "weight", answer: weight });
-    }
-
-    const existingUnit = UserAnswers.findIndex(
-      (item) => item.question === "unit"
-    );
-    if (existingUnit > -1) {
-      UserAnswers[existingUnit].answer = unit;
-    } else {
-      UserAnswers.push({ question: "unit", answer: unit });
-    }
-
+    saveSelection("weight", weight);
+    saveSelection("unit", unit);
     goForward();
   };
 

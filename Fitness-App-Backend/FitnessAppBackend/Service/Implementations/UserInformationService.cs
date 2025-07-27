@@ -9,7 +9,7 @@ namespace FitnessAppBackend.Service.Implementations
         private readonly IUserInformationRepository _userInformationRepository;
 
         public UserInformationService(ApplicationDbContext context, IUserInformationRepository userInformationRepository) 
-            : base(context)
+            : base(userInformationRepository)
         {
             _userInformationRepository = userInformationRepository;
         }

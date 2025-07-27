@@ -27,6 +27,7 @@ export const schema = appSchema({
         { name: 'calorie_deficit', type: 'string' },
 
         { name: 'unit', type: 'string' },
+        { name: 'app_name', type: 'string' },
       ],
     }),
   ],

@@ -17,9 +17,13 @@ const OnboardingComplete = () => {
   const [Name, setName] = useState<string>("");
   const [Email, setEmail] = useState<string>("");
   const [Password, setPassword] = useState<string>("");
-  const { answers } = useOnboarding();
+  const { answers, saveSelection } = useOnboarding();
   
   async function handleSubmit() {
+    // Hardcode gender and app_name into answers
+    saveSelection("gender", "male");
+    saveSelection("app_name", "Invicta");
+
     try {
       const response = await RegisterUser({ Name, Email, Password });
 
@@ -61,7 +65,7 @@ const OnboardingComplete = () => {
       // Proceed to the next step if any in the future
       goForward();
       
-      // Proceed to home screen of (app)
+      // Proceed to home screen of (app) if no more onboarding steps
       router.push("../../../(app)/Home");
     } catch (error: any) {
       console.error("Submission error:", error);

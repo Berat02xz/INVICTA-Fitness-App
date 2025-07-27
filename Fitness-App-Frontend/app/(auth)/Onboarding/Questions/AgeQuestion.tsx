@@ -3,25 +3,22 @@ import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { useOnboarding, UserAnswers } from "../NavigationService";
+import { useOnboarding } from "../NavigationService";
 
 const AgeQuestion = () => {
-  const { goForward } = useOnboarding();
-  const [age, setAge] = useState<string>("");
+  const { goForward, saveSelection, answers } = useOnboarding();
+
+  const handleChange = (value: string) => {
+    // Save as number if it's a valid numeric string
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed)) saveSelection("age", parsed);
+  };
 
   const handleSubmit = () => {
-    const existingIndex = UserAnswers.findIndex(
-      (item) => item.question === "age"
-    );
-    if (existingIndex > -1) {
-      UserAnswers[existingIndex].answer = age;
-    } else {
-      UserAnswers.push({ question: "age", answer: age });
-      UserAnswers.push({ question: "gender", answer: "Male" });
-    }
-    goForward();
+    saveSelection("app_name", "Invicta");
+    goForward(); 
   };
 
   return (
@@ -32,14 +29,15 @@ const AgeQuestion = () => {
 
         <TextInput
           style={styles.input}
-          value={age}
-          onChangeText={setAge}
+          value={answers.age?.toString() || ""}
+          onChangeText={handleChange}
           keyboardType="numeric"
           placeholder="Age"
           placeholderTextColor={theme.buttonBorder}
           maxLength={3}
           underlineColorAndroid="transparent"
         />
+
         <View style={styles.undertextCard}>
           <UndertextCard
             emoji="☝️"

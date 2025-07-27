@@ -82,8 +82,9 @@ namespace FitnessAppBackend.Controllers
                     BMR = double.Parse(dto.Answers["bmr"]?.ToString() ?? "0"),
                     TDEE = double.Parse(dto.Answers["tdee"]?.ToString() ?? "0"),
                     Gender = dto.Answers["gender"]?.ToString() ?? string.Empty,
-                    CaloricIntake = double.Parse(dto.Answers["calories_target"]?.ToString() ?? "0"),
+                    CaloricIntake = int.Parse(dto.Answers["caloric_intake"]?.ToString() ?? "0"),
                     CaloricDeficit = dto.Answers["calorie_deficit"]?.ToString() ?? string.Empty,
+                    AppName = dto.Answers["app_name"]?.ToString() ?? string.Empty,
                 };
                 await _userInformationService.AddAsync(userInformation);
             }

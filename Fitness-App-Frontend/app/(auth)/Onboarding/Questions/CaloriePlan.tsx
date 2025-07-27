@@ -4,15 +4,17 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { getCaloriePlans, calculateBMR } from "@/utils/GetCaloriePlans";
 import calculateCaloriesPerDay from "@/utils/CalculateCaloriesPerDay";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+
 
 const DesiredTargetWeight = () => {
   const { goForward, answers, saveSelection } = useOnboarding();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-const userData = {
+  // Prepare userData once here (no hooks for now)
+  const userData = {
     age: Number(answers.age) || 30,
     sex: String(answers.gender) || "male",
     height: answers.height || "185",
@@ -21,15 +23,15 @@ const userData = {
     activity_level: String(answers.activity_level) || "Sedentary",
   };
 
-
+  // Calculate once and save once on mount
+  useEffect(() => {
+    const bmr = calculateBMR(userData);
+    const caloriesPerDay = calculateCaloriesPerDay(userData);
+    saveSelection("bmr", bmr);
+    saveSelection("tdee", caloriesPerDay);
+  }, []);  // empty array: runs once on mount
 
   const plans = getCaloriePlans(userData);
-  const bmr = calculateBMR(userData);
-  const caloriesPerDay = calculateCaloriesPerDay(userData);
-  saveSelection("bmr", bmr);
-  saveSelection("tdee", caloriesPerDay);
-
-  type FitnessGoal = string;
 
   return (
     <View style={styles.outerContainer}>
@@ -50,6 +52,7 @@ const userData = {
               setSelectedPlan(plan.type);
               saveSelection("calories_target", plan.type);
               saveSelection("calorie_deficit", plan.rate);
+              saveSelection("caloric_intake", plan.caloriesPerDay);
               goForward();
             }}
             style={{

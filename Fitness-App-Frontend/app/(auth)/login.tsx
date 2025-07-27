@@ -167,12 +167,14 @@ const styles = StyleSheet.create({
   headingBold: {
     fontFamily: theme.bold,
   },
-  formContainer: {
-    marginTop: 30,
-    width: "88%", // limit width here instead of 100%
-    gap: 18,
-    alignSelf: "center",
-  },
+formContainer: {
+  marginTop: 30,
+  width: "100%",
+  maxWidth: 350,  // optional max width so form doesn't get too wide on large screens
+  gap: 18,
+  alignSelf: "center",
+},
+
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",

@@ -39,6 +39,7 @@ const FitnessGoalScreen = () => {
           forQuestion="fitness_goal"
           order={0}
           onClickContinue={false}
+          onClick={() => handleSelectGoal("Lose Fat", "fitness_goal")}
         />
         <ButtonOnboarding
           text="Gain Muscle"
@@ -46,6 +47,7 @@ const FitnessGoalScreen = () => {
           forQuestion="fitness_goal"
           order={1}
           onClickContinue={false}
+          onClick={() => handleSelectGoal("Gain Muscle", "fitness_goal")}
         />
         <ButtonOnboarding
           text="Build Strength"
@@ -53,6 +55,7 @@ const FitnessGoalScreen = () => {
           forQuestion="fitness_goal"
           order={2}
           onClickContinue={false}
+          onClick={() => handleSelectGoal("Build Strength", "fitness_goal")}
         />
         <ButtonOnboarding
           text="Holistic Wellbeing"
@@ -61,6 +64,7 @@ const FitnessGoalScreen = () => {
           forQuestion="fitness_goal"
           order={3}
           onClickContinue={false}
+          onClick={() => handleSelectGoal("Holistic Wellbeing", "fitness_goal")}
         />
       </View>
       {selectedGoal && (
