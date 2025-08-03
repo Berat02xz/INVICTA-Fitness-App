@@ -51,7 +51,11 @@ const DesiredTargetWeight = () => {
             onClick={() => {
               setSelectedPlan(plan.type);
               saveSelection("calories_target", plan.type);
-              saveSelection("calorie_deficit", plan.rate);
+              if (plan.rate === "") {
+                saveSelection("calorie_deficit", "Maintain");
+              } else {
+                saveSelection("calorie_deficit", plan.rate);
+              }
               saveSelection("caloric_intake", plan.caloriesPerDay);
               goForward();
             }}

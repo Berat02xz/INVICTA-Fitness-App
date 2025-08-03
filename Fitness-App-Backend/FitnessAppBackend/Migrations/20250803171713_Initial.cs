@@ -41,9 +41,9 @@ namespace FitnessAppBackend.Migrations
                     ActivityLevel = table.Column<string>(type: "text", nullable: false),
                     FitnessLevel = table.Column<string>(type: "text", nullable: false),
                     Goal = table.Column<string>(type: "text", nullable: false),
-                    BMI = table.Column<double>(type: "double precision", nullable: false),
-                    BMR = table.Column<double>(type: "double precision", nullable: false),
-                    TDEE = table.Column<double>(type: "double precision", nullable: false),
+                    Bmi = table.Column<double>(type: "double precision", nullable: false),
+                    Bmr = table.Column<double>(type: "double precision", nullable: false),
+                    Tdee = table.Column<double>(type: "double precision", nullable: false),
                     CaloricIntake = table.Column<double>(type: "double precision", nullable: false),
                     CaloricDeficit = table.Column<string>(type: "text", nullable: false),
                     AppName = table.Column<string>(type: "text", nullable: false)

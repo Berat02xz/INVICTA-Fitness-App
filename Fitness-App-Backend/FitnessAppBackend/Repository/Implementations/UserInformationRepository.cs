@@ -30,11 +30,14 @@ namespace FitnessAppBackend.Repository.Implementations
                 existingUserInformation.Goal = userInformation.Goal;
                 existingUserInformation.Height = userInformation.Height;
                 existingUserInformation.Weight = userInformation.Weight;
-                existingUserInformation.BMI = userInformation.BMI;
-                existingUserInformation.BMR = userInformation.BMR;
-                existingUserInformation.TDEE = userInformation.TDEE;
+                existingUserInformation.Bmi = userInformation.Bmi;
+                existingUserInformation.Bmr = userInformation.Bmr;
+                existingUserInformation.Tdee = userInformation.Tdee;
                 existingUserInformation.Gender = userInformation.Gender;
                 existingUserInformation.CaloricIntake = userInformation.CaloricIntake;
+                existingUserInformation.CaloricDeficit = userInformation.CaloricDeficit;
+                existingUserInformation.AppName = userInformation.AppName;
+
                 _context.UserInformation.Update(existingUserInformation);
                 _context.SaveChanges();
             }

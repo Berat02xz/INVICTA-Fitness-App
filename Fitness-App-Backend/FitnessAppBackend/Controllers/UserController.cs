@@ -3,6 +3,7 @@ using FitnessAppBackend.Model.DTO;
 using FitnessAppBackend.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace FitnessAppBackend.Controllers
 {
@@ -78,12 +79,12 @@ namespace FitnessAppBackend.Controllers
                     Goal = dto.Answers["fitness_goal"]?.ToString() ?? string.Empty,
                     Height = dto.Answers["height"]?.ToString() ?? string.Empty,
                     Weight = int.Parse(dto.Answers["weight"]?.ToString() ?? "0"),
-                    BMI = double.Parse(dto.Answers["bmi"]?.ToString() ?? "0"),
-                    BMR = double.Parse(dto.Answers["bmr"]?.ToString() ?? "0"),
-                    TDEE = double.Parse(dto.Answers["tdee"]?.ToString() ?? "0"),
+                    Bmi = double.Parse(dto.Answers["bmi"]?.ToString() ?? "0", CultureInfo.InvariantCulture),
+                    Bmr = double.Parse(dto.Answers["bmr"]?.ToString() ?? "0", CultureInfo.InvariantCulture),
+                    Tdee = double.Parse(dto.Answers["tdee"]?.ToString() ?? "0", CultureInfo.InvariantCulture),
                     Gender = dto.Answers["gender"]?.ToString() ?? string.Empty,
                     CaloricIntake = int.Parse(dto.Answers["caloric_intake"]?.ToString() ?? "0"),
-                    CaloricDeficit = dto.Answers["calorie_deficit"]?.ToString() ?? string.Empty,
+                    CaloricDeficit = dto.Answers["calorie_deficit"]?.ToString() ?? "Maintain",
                     AppName = dto.Answers["app_name"]?.ToString() ?? string.Empty,
                 };
                 await _userInformationService.AddAsync(userInformation);
@@ -106,7 +107,28 @@ namespace FitnessAppBackend.Controllers
                 return NotFound("User not found.");
             }
             var userInformation = await _userInformationService.GetByUserId(userId);
-            return Ok(userInformation);
+            var result = new
+            {
+                Age = userInformation.Age,
+                Unit = userInformation.Unit,
+                Gender = userInformation.Gender,
+                Height = userInformation.Height,
+                Weight = userInformation.Weight,
+                EquipmentAccess = userInformation.EquipmentAccess,
+                ActivityLevel = userInformation.ActivityLevel,
+                FitnessLevel = userInformation.FitnessLevel,
+                Goal = userInformation.Goal,
+                Bmi = userInformation.Bmi,
+                Bmr = userInformation.Bmr,
+                Tdee = userInformation.Tdee,
+                CaloricIntake = userInformation.CaloricIntake,
+                CaloricDeficit = userInformation.CaloricDeficit,
+                AppName = userInformation.AppName,
+                Email = user.Email,
+                Name = user.Name
+            };
+
+            return Ok(result);
         }
 
         [HttpPost("Login")]
@@ -122,6 +144,22 @@ namespace FitnessAppBackend.Controllers
             var token = _jwtTokenService.GenerateToken(user.Id, user.Email, user.Name);
             return Ok(new { token });
         }
+
+        [Authorize]
+        [HttpDelete("DeleteUser/{userId}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] Guid userId)
+        {
+            var user = await _userService.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            await _userService.DeleteAsync(userId);
+            return Ok("User deleted successfully.");
+        }
+
+
 
     }
 }

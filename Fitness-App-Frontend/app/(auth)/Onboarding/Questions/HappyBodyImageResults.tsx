@@ -36,13 +36,13 @@ export default function HappyBodyImageResults() {
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>{percentage}% of users</Text>
             <View style={styles.undertextCard}>
-            <UndertextCard
-              emoji="🤗"
-              title="Responded the same way"
-              titleColor="white"
-              text="You are not alone in your feelings about your body image."
-            />
-</View>
+              <UndertextCard
+                emoji="🤗"
+                title="Responded the same way"
+                titleColor="white"
+                text="You are not alone in your feelings about your body image."
+              />
+            </View>
           </View>
         </View>
         <View style={styles.bottom}>
@@ -69,26 +69,26 @@ const styles = StyleSheet.create({
     zIndex: 1,
     alignItems: "center",
   },
-main: {
-  flex: 1,
-  paddingHorizontal: 24,
-  justifyContent: "center",
-  alignItems: "center",
-},
-undertextCard: {
-  marginTop: 10,
-},
-middle: {
-  alignItems: "center",
-  width: "100%",
-  // Remove height: "100%" — not needed
-  justifyContent: "center",
-},
+  main: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  undertextCard: {
+    marginTop: 10,
+  },
+  middle: {
+    alignItems: "center",
+    width: "100%",
+    // Remove height: "100%" — not needed
+    justifyContent: "center",
+  },
 
-bottom: {
-  alignItems: "center",
-  marginBottom: 50,
-},
+  bottom: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
 
   sloganBold: {
     fontSize: 30,

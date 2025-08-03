@@ -35,6 +35,7 @@ function BMIResults() {
     setBmi(calculatedBMI);
     setTargetLeft(calculateLeftValue(calculatedBMI));
     saveSelection("bmi", calculatedBMI);
+    
   }, [weight, height, unit]);
 
   const calculateLeftValue = (bmiValue: number): number => {

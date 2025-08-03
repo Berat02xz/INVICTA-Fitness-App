@@ -1,54 +1,51 @@
 import { getUserIdFromToken } from "@/api/tokenDecoder";
-import { FetchOnboardingDataAndStore } from "@/api/UserData";
+import { FetchUserInformationAndStore } from "@/api/UserData";
 import database from "@/database/database";
-import { OnboardingModel } from "@/models/User";
-import { Slot } from 'expo-router';
+import { User } from "@/models/User";
+import { Slot } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [onboardingData, setOnboardingData] = useState<
-    { question: string; answer: string }[]
-  >([]);
+  const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
-    const initializeOnboarding = async () => {
+    const initializeUser = async () => {
       try {
         const userId = await getUserIdFromToken();
         if (!userId) {
-          console.warn("[Onboarding] User ID is null. Cannot fetch.");
+          console.warn("[User] User ID is null. Cannot fetch.");
           setIsLoading(false);
           return;
         }
 
-        // Query WatermelonDB for existing onboarding answers
-        const collection = database.get<OnboardingModel>("onboarding_answers");
-        let storedData = await collection.query().fetch();
+        // Try to get user from DB
+        let user = await User.getUserDetails(database);
 
-        if (storedData.length === 0) {
-          // No local data, fetch from API and store
-          await FetchOnboardingDataAndStore(userId);
-
-          // Re-fetch from DB after storing
-          storedData = await collection.query().fetch();
+        if (!user) {
+          // Fetch from API and store locally
+          try {
+            await FetchUserInformationAndStore(userId);
+          } catch (error) {
+            console.error("Error fetching user information from BE:", error);
+          }
+          try {
+            user = await User.getUserDetails(database);
+          } catch (error) {
+            console.error("Error fetching user from WatermelonDB:", error);
+          }
         }
 
-        // Map to simple object array for rendering
-        const simplified = storedData.map(item => ({
-          question: item.question,
-          answer: item.answer,
-        }));
-
-        setOnboardingData(simplified);
+        setUserData(user);
       } catch (error) {
-        console.error("Error in initializeOnboarding:", error);
+        console.error("Error initializing user:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    initializeOnboarding();
+    initializeUser();
   }, []);
 
   if (isLoading) {
@@ -59,14 +56,41 @@ const App = () => {
     );
   }
 
+  if (!userData) {
+    console.warn("[User] No user data found.");
+    return (
+      <View>
+        <Text>WatermelonDB is not available. Please Log in</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      {onboardingData.map(({ question, answer }, index) => (
-        <View key={index} style={{ marginBottom: 15 }}>
-          <Text style={{ fontWeight: "bold" }}>{question}</Text>
-          <Text>{answer}</Text>
-        </View>
-      ))}
+    <View>
+      {/* JUST FOR TESTING PURPOSES */}
+      <Text>User ID: {userData.userId}</Text>
+      <Text>Name: {userData.name}</Text>
+      <Text>Email: {userData.email}</Text>
+      <Text>Age: {userData.age}</Text>
+      <Text>Gender: {userData.gender}</Text>
+      <Text>Height: {userData.height}</Text>
+      <Text>Weight: {userData.weight}</Text>
+      <Text>Activity Level: {userData.activityLevel}</Text>
+      <Text>Fitness Level: {userData.fitnessLevel}</Text>
+      <Text>Goal: {userData.goal}</Text>
+      <Text>Unit: {userData.unit}</Text>
+      <Text>App Name: {userData.appName}</Text>
+      <Text>Caloric Deficit: {userData.caloricDeficit}</Text>
+      <Text>BMI: {userData.bmi}</Text>
+      <Text>BMR: {userData.bmr}</Text>
+      <Text>TDEE: {userData.tdee}</Text>
+      <Text>Caloric Intake: {userData.caloricIntake}</Text>
+      <Text>Equipment Access: {userData.equipmentAccess}</Text>
+
+
+
+
+
       <Slot />
     </View>
   );

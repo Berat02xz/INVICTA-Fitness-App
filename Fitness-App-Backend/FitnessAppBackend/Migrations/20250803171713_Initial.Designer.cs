@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessAppBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250727143816_Initial")]
+    [Migration("20250803171713_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -68,10 +68,10 @@ namespace FitnessAppBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("BMI")
+                    b.Property<double>("Bmi")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("BMR")
+                    b.Property<double>("Bmr")
                         .HasColumnType("double precision");
 
                     b.Property<string>("CaloricDeficit")
@@ -101,7 +101,7 @@ namespace FitnessAppBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("TDEE")
+                    b.Property<double>("Tdee")
                         .HasColumnType("double precision");
 
                     b.Property<string>("Unit")

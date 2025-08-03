@@ -15,9 +15,9 @@
         public string ActivityLevel { get; set; }
         public string FitnessLevel { get; set; }
         public string Goal { get; set; }
-        public double BMI { get; set; }
-        public double BMR { get; set; }
-        public double TDEE { get; set; }
+        public double Bmi { get; set; }
+        public double Bmr { get; set; }
+        public double Tdee { get; set; }
         public double CaloricIntake { get; set; }
         public string CaloricDeficit { get; set; }
         public string AppName { get; set; }

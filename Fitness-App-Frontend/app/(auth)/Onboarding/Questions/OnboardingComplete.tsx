@@ -1,15 +1,17 @@
 import { setToken } from "@/api/axiosInstance";
 import { getUserIdFromToken } from "@/api/tokenDecoder";
-import { RegisterUser, UploadUserInformation } from "@/api/UserData";
+import { FetchUserInformationAndStore, RegisterUser, UploadUserInformation, DeleteUser } from "@/api/UserData";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { useOnboarding } from "../NavigationService";
+import database from "@/database/database";
+import { User } from "@/models/User";
 
 const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
@@ -19,67 +21,61 @@ const OnboardingComplete = () => {
   const [Password, setPassword] = useState<string>("");
   const { answers, saveSelection } = useOnboarding();
   
-  async function handleSubmit() {
-    // Hardcode gender and app_name into answers
-    saveSelection("gender", "male");
-    saveSelection("app_name", "Invicta");
-
-    try {
-      const response = await RegisterUser({ Name, Email, Password });
-
-      if (!response || !response.token) {
-        Toast.show({
-          type: "error",
-          text1: "Registration Error",
-          text2: "Registration failed.",
-        });
-        return;
-      } else {
-       setToken(response.token);
+  useEffect(() => {
+    const initializeUser = async () => {
+      try {
+        saveSelection("gender", "male");
+        saveSelection("app_name", "Invicta");
+        console.log("Saving gender and app_name to answers");
+      } catch (error) {
+        console.error("Error initializing user:", error);
       }
+    };
+    initializeUser();
+  }, []);
 
-      const userId = await getUserIdFromToken();
-      if (!userId) {
-        Toast.show({
-          type: "error",
-          text1: "Token Error",
-          text2: "Could not extract user ID from token.",
-        });
-        return;
-      }
+ async function handleSubmit() {
+  
+  let userId: string | null = null;
 
-      const uploadResponse = await UploadUserInformation({
-        userId,
-        answers,
-      });
-      
-      if (!uploadResponse) {
-        Toast.show({
-          type: "error",
-          text1: "Upload Error",
-          text2: "Failed to upload onboarding data.",
-        });
-        return;
-      }
-
-      // Proceed to the next step if any in the future
-      goForward();
-      
-      // Proceed to home screen of (app) if no more onboarding steps
-      router.push("../../../(app)/Home");
-    } catch (error: any) {
-      console.error("Submission error:", error);
-      const msg =
-        error?.response?.data && typeof error.response.data === "string"
-          ? error.response.data
-          : "Server error. Please try again later.";
-      Toast.show({
-        type: "error",
-        text1: "Submission Error",
-        text2: msg,
-      });
+  try {
+    // Step 1: Register
+    const response = await RegisterUser({ Name, Email, Password });
+    if (!response?.token) {
+      throw new Error("Registration failed.");
     }
+    setToken(response.token);
+
+    userId = await getUserIdFromToken();
+    if (!userId) {
+      throw new Error("Could not extract user ID from token.");
+    }
+
+    // Step 2: Upload onboarding data
+    const uploadResponse = await UploadUserInformation({ userId, answers });
+    if (!uploadResponse) {
+      throw new Error("Failed to upload onboarding data.");
+    }
+
+    // Success → move forward
+    goForward();
+    router.push("../../../(app)/Home");
+
+  } catch (error) {
+    console.error("Submission error:", error);
+        if (userId) {
+          await DeleteUser(userId); // Backend must have this endpoint
+          console.log("User deleted due to submission error.");
+        }
+  
+    Toast.show({
+      type: "error",
+      text1: "Submission Error",
+      text2: (error instanceof Error ? error.message : "Server error. Please try again later."),
+    });
   }
+}
+
 
   return (
     <View style={styles.container}>

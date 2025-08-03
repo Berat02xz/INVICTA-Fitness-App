@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 3,
+  version: 5, 
   tables: [
     tableSchema({
       name: 'user',
@@ -20,11 +20,11 @@ export const schema = appSchema({
         { name: 'fitness_level', type: 'string' },
         { name: 'weight_goal', type: 'string' },
 
-        { name: 'BMI', type: 'number' },
-        { name: 'BMR', type: 'number' },
-        { name: 'TDEE', type: 'number' },
+        { name: 'bmi', type: 'number' },
+        { name: 'bmr', type: 'number' },
+        { name: 'tdee', type: 'number' },
         { name: 'caloric_intake', type: 'number' },
-        { name: 'calorie_deficit', type: 'string' },
+        { name: 'caloric_deficit', type: 'string' },
 
         { name: 'unit', type: 'string' },
         { name: 'app_name', type: 'string' },
