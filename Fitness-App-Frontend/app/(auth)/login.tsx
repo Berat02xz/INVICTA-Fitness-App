@@ -33,7 +33,7 @@ export const LoginScreen = () => {
         return;
       } else {
         setToken(response.token);
-        router.push("../../../(app)/Home");
+        router.push("../../../(app)/index");
       }
     } catch (error: any) {
       console.error("Submission error:", error);

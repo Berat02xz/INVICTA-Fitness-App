@@ -38,7 +38,7 @@ export async function CheckToken() {
     console.log("Token is null or undefined, redirecting to Login");
     router.push("/(auth)/login");
   } else {
-    router.push('/(app)/Home');
+    router.push('/(tabs)/workout');
   }
 }
 
