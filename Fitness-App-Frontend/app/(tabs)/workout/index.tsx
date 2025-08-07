@@ -1,10 +1,16 @@
+import { Button } from "@react-navigation/elements";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { LogoutUser } from "@/api/UserData";
 export default function Workout() {
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome to the Workout Screen!</Text>
+      <TouchableOpacity onPress={() => LogoutUser()}>
+        <Text>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 }

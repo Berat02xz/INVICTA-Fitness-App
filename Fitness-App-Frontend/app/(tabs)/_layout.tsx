@@ -11,7 +11,9 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
+import { BlurView } from "expo-blur";
 import { theme } from "@/constants/theme";
+import CustomTabBar from "@/components/ui/CustomTapBar";
 
 export default function Layout() {
   const [isLoading, setIsLoading] = useState(true);
@@ -68,42 +70,13 @@ export default function Layout() {
 
   return (
     <>
-<Tabs
-  screenOptions={{
-    headerShown: false,
-    tabBarShowLabel: false,
-    tabBarActiveTintColor: "#fff",
-    tabBarInactiveTintColor: "#777",
-    tabBarIconStyle: {
-      marginTop: 0,
-      marginBottom: 0,
-      height: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    tabBarStyle: {
-      position: "absolute",
-      bottom: 20,
-      left: 20,
-      right: 100,
-      height: 70,
-      borderRadius: 50,
-      backgroundColor: theme.buttonsolid,
-      elevation: 12,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      paddingBottom: 8,
-      paddingTop: 8,
-      borderTopWidth: 0,
-      zIndex: 10,
-    },
-  }}
->
-
-
-        {/* Chatbot */}
+      <Tabs
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+        }}
+      >
         <Tabs.Screen
           name="chatbot/index"
           options={{
@@ -118,7 +91,6 @@ export default function Layout() {
           }}
         />
 
-        {/* Workout */}
         <Tabs.Screen
           name="workout/index"
           options={{
@@ -133,7 +105,6 @@ export default function Layout() {
           }}
         />
 
-        {/* Nutrition */}
         <Tabs.Screen
           name="nutrition/index"
           options={{
@@ -148,12 +119,13 @@ export default function Layout() {
           }}
         />
 
-      {/* Hide all other pages so they don't show as tabs */}
-      <Tabs.Screen name="nutrition/screens/scan" options={{ tabBarItemStyle: {display: 'none'}}} />
-      
-
+        {/* Hide all other pages so they don't show as tabs */}
+        <Tabs.Screen
+          name="nutrition/screens/scan"
+          options={{ tabBarItemStyle: { display: "none" } }}
+        />
       </Tabs>
-      
+
       {/* Floating Scan Button on the Right */}
       <TouchableOpacity
         style={styles.scanButton}
@@ -173,7 +145,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 30,
     height: 30,
-    tintColor: "#777",
+    tintColor: "#BDB2B8",
   },
   iconFocused: {
     tintColor: "#fff",
@@ -182,8 +154,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "#2e7d32",
-    borderRadius: 35,
+    backgroundColor: "#424242",
+    borderRadius: 18,
     height: 70,
     width: 70,
     justifyContent: "center",
@@ -198,6 +170,15 @@ const styles = StyleSheet.create({
   scanIcon: {
     width: 36,
     height: 36,
-    tintColor: "#fff",
+    tintColor: "#BDB2B8",
+  },
+  tabBarBlur: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 100,
+    height: 70,
+    overflow: "hidden",
+    zIndex: 5,
   },
 });

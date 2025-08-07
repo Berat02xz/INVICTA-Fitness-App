@@ -7,6 +7,7 @@
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string Role { get; set; } = "Free";
         public UserInformation UserInformation { get; set; }
        // public ICollection<Workout> Workouts { get; set; }
        // public ICollection<Meals> MealS { get; set; }

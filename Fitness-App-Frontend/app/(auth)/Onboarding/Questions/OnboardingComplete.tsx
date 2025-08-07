@@ -59,7 +59,7 @@ const OnboardingComplete = () => {
 
     // Success → move forward
     goForward();
-    router.push("../../../(tabs)/workout");
+    router.push("/(tabs)/workout");
 
   } catch (error) {
     console.error("Submission error:", error);

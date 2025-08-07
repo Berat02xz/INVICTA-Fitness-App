@@ -1,11 +1,15 @@
+import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function Chatbot() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome to the Chatbot Screen!</Text>
-    </View>
+    <>
+      <SolidBackground style={StyleSheet.absoluteFill} />
+      <View style={styles.container}>
+        <Text style={styles.text}>Chatbot Feature Coming Soon!</Text>
+      </View>
+    </>
   );
 }
 
@@ -14,10 +18,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   text: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "#FFFFFF",
   },
 });
