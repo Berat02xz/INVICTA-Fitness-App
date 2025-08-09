@@ -7,3 +7,8 @@
 Fitness-App-Backend/FitnessAppBackend/appsettings.json
 Fitness-App-Backend/FitnessAppBackend/appsettings.json
 appsettings.json
+# Ignore all appsettings files
+appsettings.json
+appsettings.*
+Fitness-App-Backend/FitnessAppBackend/appsettings.json
+*.appsettings.json

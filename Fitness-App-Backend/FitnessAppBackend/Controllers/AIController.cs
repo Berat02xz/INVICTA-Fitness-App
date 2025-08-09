@@ -12,19 +12,17 @@ namespace FitnessAppBackend.Controllers
     public class AIController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration _configuration;
 
-        public AIController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public AIController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _configuration = configuration;
         }
 
         [Authorize]
         [HttpPost("UploadMeal")]
         public async Task<IActionResult> UploadMeal([FromBody] UploadMealRequestDTO request)
         {
-            var apiKey = _configuration["OpenAI:ApiKey"];
+            var apiKey = Environment.GetEnvironmentVariable("OpenAI__ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 return StatusCode(500, "OpenAI API key not configured.");

@@ -8,7 +8,6 @@
         public int Age { get; set; }
         public string Unit { get; set; }
         public string Gender { get; set; }
-        //Height is stored as a string to accommodate different formats (e.g., "5'10" if it is imperial)
         public string Height { get; set; }
         public double Weight { get; set; }
         public string EquipmentAccess { get; set; }

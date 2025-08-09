@@ -1,14 +1,14 @@
-﻿using FitnessAppBackend.Model;
+﻿using FitnessAppBackend.Data;
+using FitnessAppBackend.Model;
 using FitnessAppBackend.Repository;
 
 namespace FitnessAppBackend.Service.Implementations
 {
     public class ConsumedMealService : GenericService<ConsumedMeal>, IConsumedMealService
     {
-        private readonly IGenericRepository<ConsumedMeal> _repository;
         private readonly IConsumedMealRepository _consumedMealRepository;
 
-        public ConsumedMealService(IGenericRepository<ConsumedMeal> repository, IConsumedMealRepository consumedMealRepository) : base(repository)
+        public ConsumedMealService(ApplicationDbContext context, IConsumedMealRepository consumedMealRepository) : base(context)
         {
             _consumedMealRepository = consumedMealRepository;
         }

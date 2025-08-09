@@ -5,6 +5,7 @@ using FitnessAppBackend.Service;
 using FitnessAppBackend.Service.Implementations;
 using FitnessAppBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
+DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +45,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Configuration.AddEnvironmentVariables();
 
 // Configure PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
