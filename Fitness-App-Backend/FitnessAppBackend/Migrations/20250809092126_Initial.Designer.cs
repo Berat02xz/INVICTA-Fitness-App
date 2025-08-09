@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessAppBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250803171713_Initial")]
+    [Migration("20250809092126_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -43,6 +43,10 @@ namespace FitnessAppBackend.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 

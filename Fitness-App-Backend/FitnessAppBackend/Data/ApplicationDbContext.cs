@@ -7,11 +7,11 @@ namespace FitnessAppBackend.Data
        
         public DbSet<Model.User> Users { get; set; }
         public DbSet<Model.UserInformation> UserInformation { get; set; }
+        public DbSet<Model.ConsumedMeal> ConsumedMeals { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Additional model configurations can go here
 
             modelBuilder.Entity<Model.User>()
                 .HasKey(u => u.Id);
@@ -25,9 +25,17 @@ namespace FitnessAppBackend.Data
                 .HasForeignKey<Model.UserInformation>(ui => ui.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Model.ConsumedMeal>()
+                .HasKey(m => m.Id);
 
+            modelBuilder.Entity<Model.ConsumedMeal>()
+                .HasIndex(m => m.UserId);
 
-
+            modelBuilder.Entity<Model.ConsumedMeal>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.ConsumedMeals)
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
     

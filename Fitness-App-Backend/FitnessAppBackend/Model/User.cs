@@ -10,7 +10,7 @@
         public string Role { get; set; } = "Free";
         public UserInformation UserInformation { get; set; }
        // public ICollection<Workout> Workouts { get; set; }
-       // public ICollection<Meals> MealS { get; set; }
+       public ICollection<ConsumedMeals> ConsumedMeals { get; set; }
        // public ICollection<Roadmap> Roadmap { get; set; }
 
     }

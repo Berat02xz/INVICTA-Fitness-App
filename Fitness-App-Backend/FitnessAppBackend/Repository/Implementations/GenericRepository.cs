@@ -42,6 +42,13 @@ namespace FitnessAppBackend.Repository.Implementations
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<IEnumerable<T>> GetByUserId(Guid userId)
+        {
+            return await _dbSet
+                .Where(e => EF.Property<Guid>(e, "UserId") == userId)
+                .ToListAsync();
+        }
+
         public Task SaveChangesAsync()
         {
             return _context.SaveChangesAsync();

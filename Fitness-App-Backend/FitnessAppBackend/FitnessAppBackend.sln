@@ -5,8 +5,6 @@ VisualStudioVersion = 17.13.35605.110
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessAppBackend", "FitnessAppBackend.csproj", "{457C9AC1-AA21-4119-8AF0-165D893D35EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessAppBackend.Tests", "..\FitnessAppBackend.Tests\FitnessAppBackend.Tests.csproj", "{A3777A75-6966-42E9-B4EF-20B7A3BDE663}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,18 +27,6 @@ Global
 		{457C9AC1-AA21-4119-8AF0-165D893D35EB}.Release|x64.Build.0 = Release|Any CPU
 		{457C9AC1-AA21-4119-8AF0-165D893D35EB}.Release|x86.ActiveCfg = Release|Any CPU
 		{457C9AC1-AA21-4119-8AF0-165D893D35EB}.Release|x86.Build.0 = Release|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Debug|x64.Build.0 = Debug|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Debug|x86.Build.0 = Debug|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Release|x64.ActiveCfg = Release|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Release|x64.Build.0 = Release|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Release|x86.ActiveCfg = Release|Any CPU
-		{A3777A75-6966-42E9-B4EF-20B7A3BDE663}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

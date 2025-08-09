@@ -15,7 +15,23 @@ import {
 } from "expo-camera";
 import { Feather } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
+import { MotiView } from "moti";
 import SolidBackground from "@/components/ui/SolidBackground";
+
+// Default camera dimensions
+const CAMERA_WIDTH = "90%";
+const CAMERA_HEIGHT = 700;
+const CAMERA_OFFSET_Y = 50;
+
+// Smaller preview size after taking a photo
+const PREVIEW_WIDTH = "90%";
+const PREVIEW_HEIGHT = 550;
+const PREVIEW_OFFSET_Y = 50;
+
+//After confirm sizes
+const FINAL_PREVIEW_WIDTH = "90%";
+const FINAL_PREVIEW_HEIGHT = 500;
+const FINAL_PREVIEW_OFFSET_Y = 50;
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -64,25 +80,44 @@ export default function ScanScreen() {
     <>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <SafeAreaView style={styles.container}>
-        {isFocused && !capturedPhoto && (
-          <View style={styles.cameraWrapper}>
-            <CameraView ref={cameraRef} style={styles.camera} facing="back" />
-          </View>
-        )}
-        {capturedPhoto && (
-          <Image source={{ uri: capturedPhoto.uri }} style={styles.camera} />
-        )}
-        <Pressable
-          onPress={takePhoto}
-          style={[styles.captureButton, isCapturing && { opacity: 0.6 }]}
-          disabled={isCapturing}
+        <MotiView
+          style={styles.cameraWrapper}
+          from={{
+            width: CAMERA_WIDTH,
+            height: CAMERA_HEIGHT,
+            marginTop: CAMERA_OFFSET_Y,
+          }}
+          animate={{
+            width: capturedPhoto ? PREVIEW_WIDTH : CAMERA_WIDTH,
+            height: capturedPhoto ? PREVIEW_HEIGHT : CAMERA_HEIGHT,
+            marginTop: capturedPhoto ? PREVIEW_OFFSET_Y : CAMERA_OFFSET_Y,
+          }}
+          transition={{
+            type: "timing",
+            duration: 500,
+          }}
         >
-          {isCapturing ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Feather name="camera" size={28} color="#fff" />
+          {isFocused && !capturedPhoto && (
+            <CameraView ref={cameraRef} style={styles.camera} facing="back" mute={true} />
           )}
-        </Pressable>
+          {capturedPhoto && (
+            <Image source={{ uri: capturedPhoto.uri }} style={styles.camera} />
+          )}
+        </MotiView>
+
+        {!capturedPhoto && (
+          <Pressable
+            onPress={takePhoto}
+            style={[styles.captureButton, isCapturing && { opacity: 0.6 }]}
+            disabled={isCapturing}
+          >
+            {isCapturing ? (
+              <ActivityIndicator color="#D72207" />
+            ) : (
+              <Feather name="camera" size={28} color="#D72207" />
+            )}
+          </Pressable>
+        )}
       </SafeAreaView>
     </>
   );
@@ -92,21 +127,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+    alignItems: "center",
   },
   cameraWrapper: {
-    height: 700, // ← Change this to your desired height
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 40, // ← Pushes it vertically from top
     borderRadius: 20,
-    overflow: "hidden", // To make borderRadius work
+    overflow: "hidden",
   },
-
   camera: {
     width: "100%",
     height: "100%",
   },
-
   permissionText: {
     color: "white",
     textAlign: "center",
@@ -130,7 +162,7 @@ const styles = StyleSheet.create({
     bottom: 120,
     alignSelf: "center",
     padding: 20,
-    backgroundColor: "#555",
+    backgroundColor: "#361716",
     borderRadius: 100,
   },
 });
