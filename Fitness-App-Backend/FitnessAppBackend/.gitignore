@@ -83,3 +83,6 @@ Thumbs.db
 *.tmp
 *.temp
 */DocumentLayout.backup.json
+appsettings.json
+/appsettings
+/appsettings.*

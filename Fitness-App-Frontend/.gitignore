@@ -66,3 +66,9 @@ expo-env.d.ts
 *.v2
 /Fitness-App-Backend/FitnessAppBackend/.vs
 .env
+appsettings.json
+/appsettings
+/appsettings.*
+# Ignore all appsettings files
+appsettings.json
+appsettings.*
