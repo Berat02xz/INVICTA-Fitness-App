@@ -1,7 +1,7 @@
 import { Button } from "@react-navigation/elements";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { LogoutUser } from "@/api/UserData";
+import { LogoutUser } from "@/api/UserDataEndpoint";
 export default function Workout() {
 
 

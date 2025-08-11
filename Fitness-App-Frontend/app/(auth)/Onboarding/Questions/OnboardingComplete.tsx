@@ -1,6 +1,6 @@
-import { setToken } from "@/api/axiosInstance";
-import { getUserIdFromToken } from "@/api/tokenDecoder";
-import { FetchUserInformationAndStore, RegisterUser, UploadUserInformation, DeleteUser } from "@/api/UserData";
+import { setToken } from "@/api/AxiosInstance";
+import { getUserIdFromToken } from "@/api/TokenDecoder";
+import { FetchUserInformationAndStore, RegisterUser, UploadUserInformation, DeleteUser } from "@/api/UserDataEndpoint";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";

@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 5, 
+  version: 6, 
   tables: [
     tableSchema({
       name: 'user',
@@ -28,6 +28,18 @@ export const schema = appSchema({
 
         { name: 'unit', type: 'string' },
         { name: 'app_name', type: 'string' },
+      ],
+    }),
+    tableSchema({
+      name: 'meals',
+      columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'meal_name', type: 'string' },
+        { name: 'calories', type: 'number' },
+        { name: 'protein', type: 'number' },
+        { name: 'carbohydrates', type: 'number' },
+        { name: 'fats', type: 'number' },
+        { name: 'created_at', type: 'number' },
       ],
     }),
   ],

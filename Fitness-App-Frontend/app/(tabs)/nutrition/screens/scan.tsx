@@ -15,7 +15,7 @@ import {
 } from "expo-camera";
 import { Feather } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
-import { MotiView } from "moti";
+// import { MotiView } from "moti"; // Removed to test tslib issue
 import SolidBackground from "@/components/ui/SolidBackground";
 
 // Default camera dimensions
@@ -28,7 +28,7 @@ const PREVIEW_WIDTH = "90%";
 const PREVIEW_HEIGHT = 550;
 const PREVIEW_OFFSET_Y = 50;
 
-//After confirm sizes
+// After confirm sizes
 const FINAL_PREVIEW_WIDTH = "90%";
 const FINAL_PREVIEW_HEIGHT = 500;
 const FINAL_PREVIEW_OFFSET_Y = 50;
@@ -80,30 +80,29 @@ export default function ScanScreen() {
     <>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <SafeAreaView style={styles.container}>
-        <MotiView
-          style={styles.cameraWrapper}
-          from={{
-            width: CAMERA_WIDTH,
-            height: CAMERA_HEIGHT,
-            marginTop: CAMERA_OFFSET_Y,
-          }}
-          animate={{
-            width: capturedPhoto ? PREVIEW_WIDTH : CAMERA_WIDTH,
-            height: capturedPhoto ? PREVIEW_HEIGHT : CAMERA_HEIGHT,
-            marginTop: capturedPhoto ? PREVIEW_OFFSET_Y : CAMERA_OFFSET_Y,
-          }}
-          transition={{
-            type: "timing",
-            duration: 500,
-          }}
+        {/* Replaced MotiView with View */}
+        <View
+          style={[
+            styles.cameraWrapper,
+            {
+              width: capturedPhoto ? PREVIEW_WIDTH : CAMERA_WIDTH,
+              height: capturedPhoto ? PREVIEW_HEIGHT : CAMERA_HEIGHT,
+              marginTop: capturedPhoto ? PREVIEW_OFFSET_Y : CAMERA_OFFSET_Y,
+            },
+          ]}
         >
           {isFocused && !capturedPhoto && (
-            <CameraView ref={cameraRef} style={styles.camera} facing="back" mute={true} />
+            <CameraView
+              ref={cameraRef}
+              style={styles.camera}
+              facing="back"
+              mute={true}
+            />
           )}
           {capturedPhoto && (
             <Image source={{ uri: capturedPhoto.uri }} style={styles.camera} />
           )}
-        </MotiView>
+        </View>
 
         {!capturedPhoto && (
           <Pressable
@@ -114,7 +113,15 @@ export default function ScanScreen() {
             {isCapturing ? (
               <ActivityIndicator color="#D72207" />
             ) : (
-              <Feather name="camera" size={28} color="#D72207" />
+              <View style={styles.captureContent}>
+                <Feather
+                  name="camera"
+                  size={28}
+                  color="#D72207"
+                  style={styles.captureIcon}
+                />
+                <Text style={styles.captureText}>Scan Breakfast</Text>
+              </View>
             )}
           </Pressable>
         )}
@@ -164,5 +171,18 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#361716",
     borderRadius: 100,
+  },
+  captureContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  captureIcon: {
+    marginRight: 8,
+  },
+  captureText: {
+    color: "#D72207",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

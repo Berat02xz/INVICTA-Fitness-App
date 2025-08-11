@@ -5,7 +5,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false, // optional but recommended here
-
+    "importHelpers": true,
+    "esModuleInterop": true,
     "paths": {
       "@/*": ["./*"]
     }

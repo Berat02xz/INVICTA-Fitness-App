@@ -1,5 +1,5 @@
-import { setToken } from "@/api/axiosInstance";
-import { Login } from "@/api/UserData";
+import { setToken } from "@/api/AxiosInstance";
+import { Login } from "@/api/UserDataEndpoint";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";

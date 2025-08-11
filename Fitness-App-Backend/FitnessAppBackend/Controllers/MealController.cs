@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessAppBackend.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class MealController : ControllerBase
     {
         private readonly IConsumedMealService _mealService;

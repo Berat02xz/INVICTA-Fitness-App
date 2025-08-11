@@ -1,12 +1,12 @@
 import { jwtDecode } from "jwt-decode";
-import { GetToken } from "./axiosInstance";
+import { GetToken } from "./AxiosInstance";
 
 type DecodedToken = {
-  sub: string; // userId as string
-  email?: string; // email as string
-  name?: string; // name as string
-  exp?: number; // expiration time as number
-  iat?: number; // issued at time as number
+  sub: string; 
+  email?: string; 
+  name?: string; 
+  exp?: number; 
+  iat?: number; 
 };
 
 export async function getUserIdFromToken(): Promise<string | null> {
