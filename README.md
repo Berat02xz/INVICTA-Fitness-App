@@ -24,7 +24,7 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ✅ Completed | Ngrok Setup for Local Expo Access                 |
 | ✅ Completed | Swagger Integration for API Testing               |
 | ❌ Deprecated | In-House Launcher for Easier Development          |
-| 🔄 Ongoing   | AWS Backend Database Hosting (PostgreSQL)                 |
+| ✅ Completed   | Supabase Hosting                                 |
 | ✅ Completed  | Implement WatermelonDB for relational db |
 | ⏳ Planned   | Offline Future-Proof with no DB/BE                 |
 | 🔄 Ongoing   | Core App Navigation Structure                     |
