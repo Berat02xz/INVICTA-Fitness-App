@@ -27,12 +27,11 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ✅ Completed   | Supabase Hosting                                 |
 | ✅ Completed  | Implement WatermelonDB for relational db |
 | ⏳ Planned   | Offline Future-Proof with no DB/BE                 |
-| 🔄 Ongoing   | Core App Navigation Structure                     |
+| 🔄 Ongoing   | Core App Navigation Structure                    |
 | ⏳ Planned   | GPT-Powered ChatBot with Custom Responses         |
 | 🔄 Ongoing   | AI Nutrition Scanner via Camera Input             |
 | ⏳ Planned   | Exercise & Workout Program Module                 |
 | 🔄 Ongoing   | API Gateway Deployment on AWS                     |
-| ⏳ Planned   | CI/CD for Dev and Prod Builds                     |
 
 ## Setup 🛠️
 Setup might change in the future
