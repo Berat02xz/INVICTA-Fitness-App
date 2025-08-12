@@ -1,248 +1,137 @@
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  useWindowDimensions,
-} from "react-native";
-import { theme } from "@/constants/theme";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import React, { use, useState } from "react";
+import { View, useWindowDimensions, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-// Import your screens
 import ChatbotScreen from "./chatbot/index";
 import WorkoutScreen from "./workout/index";
 import NutritionScreen from "./nutrition/index";
 import StatisticsScreen from "./statistics/index";
-import ScanScreen from "./nutrition/screens/scan";
+import ScanScreen from "./nutrition/screens/scan"; // your scan screen path
+import { theme } from "@/constants/theme";
 
-const BottomTabs = createBottomTabNavigator();
-const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
 
-export default function Layout() {
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+let setWorkoutBadgeFunction: ((value: any) => void) | null = null;
+let setNutritionBadgeFunction: ((value: any) => void) | null = null;
+
+export const setWorkoutBadge = (value: any) => {
+  if (setWorkoutBadgeFunction) {
+    setWorkoutBadgeFunction(value);
+  }
+};
+
+export const setNutritionBadge = (value: any) => {
+  if (setNutritionBadgeFunction) {
+    setNutritionBadgeFunction(value);
+  }
+};
+
+export default function AppLayout() {
   const { width } = useWindowDimensions();
-  const isLargeScreen = width > 768;
-  const isWeb = Platform.OS === "web";
+  const isLargeScreen = width > 1400;
+  const showLabels = width > 600;
 
-  useEffect(() => {
-    const load = async () => {
-      await new Promise((res) => setTimeout(res, 500));
-      setIsLoading(false);
-    };
-    load();
-  }, []);
+  // Icon size for normal tabs
+  const iconSize = isLargeScreen ? 28 : 30;
+  const scanIconSize = 30;
+  const [nutritionBadge, setNutritionBadgeState] = useState(null);
+  const [workoutBadge, setWorkoutBadgeState] = useState(null);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
-  }
+  setWorkoutBadgeFunction = setWorkoutBadgeState;
+  setNutritionBadgeFunction = setNutritionBadgeState;
 
-  if (isWeb && isLargeScreen) {
-    // Use drawer as vertical sidebar on large web screens
-    return (
-      <Drawer.Navigator
-        screenOptions={{
-          drawerType: "permanent",
-          drawerStyle: styles.sidebar,
-          headerShown: false,
-          drawerActiveTintColor: theme.primary,
-          drawerInactiveTintColor: "#BDB2B8",
-          drawerLabelStyle: { fontSize: 14, fontWeight: "600" },
-        }}
-      >
-        <Drawer.Screen
-          name="chatbot/index"
-          component={ChatbotScreen}
-          options={{
-            drawerLabel: "Chatbot",
-            drawerIcon: ({ focused, color }: { focused: boolean; color: string }) => (
-              <Ionicons
-                name={focused ? "chatbubbles" : "chatbubbles-outline"}
-                size={24}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="workout/index"
-          component={WorkoutScreen}
-          options={{
-            drawerLabel: "Workout",
-            drawerIcon: ({ focused, color }: { focused: boolean; color: string }) => (
-              <MaterialCommunityIcons
-                name={focused ? "dumbbell" : "dumbbell"}
-                size={24}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="nutrition/index"
-          component={NutritionScreen}
-          options={{
-            drawerLabel: "Nutrition",
-            drawerIcon: ({ focused, color }: { focused: boolean; color: string }) => (
-              <MaterialCommunityIcons
-                name={focused ? "food-apple" : "food-apple-outline"}
-                size={24}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="statistics/index"
-          component={StatisticsScreen}
-          options={{
-            drawerLabel: "Stats",
-            drawerIcon: ({ focused, color }: { focused: boolean; color: string }) => (
-              <Ionicons
-                name={focused ? "pie-chart" : "pie-chart-outline"}
-                size={24}
-                color={color}
-              />
-            ),
-          }}
-        />
-      </Drawer.Navigator>
-    );
-  }
-
-  // Bottom tabs for native/small screens
   return (
-    <>
-      <BottomTabs.Navigator
-        screenOptions={{
+    <View style={{ flex: 1, flexDirection: isLargeScreen ? "row" : "column" }}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarShowLabel: true,
           tabBarActiveTintColor: theme.primary,
-          tabBarInactiveTintColor: "#BDB2B8",
-          tabBarLabelStyle: { fontSize: 12 },
-          tabBarStyle: [styles.tabBarBase, styles.bottomBar, { paddingTop: 8 }],
-        }}
-      >
-        <BottomTabs.Screen
-          name="chatbot/index"
-          component={ChatbotScreen}
-          options={{
-            tabBarLabel: "Chatbot",
-            tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name={focused ? "chatbubbles" : "chatbubbles-outline"}
-                size={28}
-                color={focused ? theme.primary : "#BDB2B8"}
-              />
-            ),
-          }}
-        />
-        <BottomTabs.Screen
-          name="workout/index"
-          component={WorkoutScreen}
-          options={{
-            tabBarLabel: "Workout",
-            tabBarIcon: ({ focused }) => (
-              <MaterialCommunityIcons
-                name="dumbbell" // dumbbell icon doesn't have outline variant
-                size={28}
-                color={focused ? theme.primary : "#BDB2B8"}
-              />
-            ),
-          }}
-        />
-        <BottomTabs.Screen
-          name="nutrition/index"
-          component={NutritionScreen}
-          options={{
-            tabBarLabel: "Nutrition",
-            tabBarIcon: ({ focused }) => (
-              <MaterialCommunityIcons
-                name={focused ? "food-apple" : "food-apple-outline"}
-                size={28}
-                color={focused ? theme.primary : "#BDB2B8"}
-              />
-            ),
-          }}
-        />
-        <BottomTabs.Screen
-          name="statistics/index"
-          component={StatisticsScreen}
-          options={{
-            tabBarLabel: "Stats",
-            tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name={focused ? "pie-chart" : "pie-chart-outline"}
-                size={28}
-                color={focused ? theme.primary : "#BDB2B8"}
-              />
-            ),
-          }}
-        />
-      </BottomTabs.Navigator>
+          tabBarInactiveTintColor: "#888",
+          tabBarVariant: isLargeScreen ? "material" : "default",
+          tabBarPosition: isLargeScreen ? "left" : "bottom",
+          tabBarShowLabel: showLabels,
+          tabBarStyle: {
+            backgroundColor: "#1C1C1C",
+            borderTopWidth: 0,
+            width: isLargeScreen ? 120 : undefined,
+            height: isLargeScreen ? "100%" : 70,
+            position: isLargeScreen ? "relative" : "absolute",
+            paddingTop: isLargeScreen ? 40 : 5,
+            borderRadius: isLargeScreen ? 0 : 100,
+            marginHorizontal: isLargeScreen ? 0 : 10,
+            marginBottom: isLargeScreen ? 0 : 20,
+            shadowColor: "#000",
+            shadowOpacity: 0.3,
+            shadowRadius: 10,
+            shadowOffset: { width: 0, height: 4 },
+            elevation: 10,
+          },
+          tabBarLabelPosition: isLargeScreen ? "below-icon" : "beside-icon",
+          tabBarLabelStyle: {
+            color: "#888",
+            fontSize: 14,
+            marginLeft: width > 600 ? 8 : 0,
+            fontWeight: "400",
+          },
+          animation: "shift",
 
-      {!isLargeScreen && (
-        <TouchableOpacity
-          style={styles.scanButton}
-          onPress={() => router.push("/nutrition/screens/scan")}
-        >
-          <Ionicons name="scan-outline" size={36} color="#fff" />
-        </TouchableOpacity>
-      )}
-    </>
+          tabBarIcon: ({ focused, color }) => {
+            let iconName: keyof typeof Ionicons.glyphMap = "ellipse-outline";
+            if (route.name === "Chatbot")
+              iconName = focused ? "chatbubbles" : "chatbubbles-outline";
+            else if (route.name === "Workout")
+              iconName = focused ? "barbell" : "barbell-outline";
+            else if (route.name === "Nutrition")
+              iconName = focused ? "restaurant" : "restaurant-outline";
+            else if (route.name === "Statistics")
+              iconName = focused ? "pie-chart" : "pie-chart-outline";
+
+            return <Ionicons name={iconName} size={iconSize} color={color} />;
+          },
+        })}
+      >
+        <Tab.Screen name="Workout" component={WorkoutScreen} options={{ tabBarLabel: "Workout", tabBarBadge: workoutBadge }} />
+        <Tab.Screen name="Nutrition" component={NutritionScreen} options={{ tabBarLabel: "Nutrition", tabBarBadge: nutritionBadge }} />
+
+        {/* Scan Tab in the Middle with custom tabBarButton */}
+        <Tab.Screen
+          name="Scan"
+          component={ScanScreen}
+          options={{
+            tabBarLabel: () => null, // Hide label
+            tabBarIcon: () => null,  // Hide default icon
+            tabBarButton: (props) => (
+              <TouchableOpacity
+                {...props}
+                style={[styles.scanButton, { bottom: -5 }]}
+              >
+                <Ionicons name="camera" size={scanIconSize} color="white" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+
+        <Tab.Screen name="Chatbot" component={ChatbotScreen} options={{ tabBarLabel: "Chatbot" }}  />
+        <Tab.Screen name="Statistics" component={StatisticsScreen} options={{ tabBarLabel: "Statistics" }} />
+      </Tab.Navigator>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: theme.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tabBarBase: {
-    backgroundColor: theme.backgroundColor,
-    borderTopWidth: 0,
-    elevation: 0,
-  },
-  bottomBar: {
-    height: 70,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  sidebar: {
-    width: 200, // wider sidebar to fit labels
-    backgroundColor: theme.backgroundColor,
-    borderRightWidth: 1,
-    borderRightColor: "#ddd",
-    paddingTop: 20,
-  },
   scanButton: {
-    position: "absolute",
-    bottom: 20,
-    alignSelf: "center",
-    backgroundColor: theme.primary,
-    borderRadius: 40,
-    height: 80,
     width: 80,
+    height: 80,
+    borderRadius: 100,
+    backgroundColor: theme.primary,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 8,
-    elevation: 12,
-    zIndex: 15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 10,
+    position: "absolute",
+    alignSelf: "center",
   },
 });
