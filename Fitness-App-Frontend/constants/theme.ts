@@ -12,6 +12,7 @@ export const theme = {
   buttonBorder: '#5B5B5B',
   buttonsolid: '#1C1C1C',
   textColor: '#FFFFFF',
+  textColorSecondary: '#6c6c6cff',
   deepPrimary: '#481313',
   backgroundColor: '#121212',
 };

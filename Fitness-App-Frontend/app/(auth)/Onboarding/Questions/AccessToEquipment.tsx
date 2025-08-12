@@ -1,5 +1,5 @@
-import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
@@ -16,7 +16,7 @@ const AccessToEquipment = () => {
       <SolidBackground />
 
       <View style={styles.container}>
-        <QuestionOnboarding question="Choose your workout environment" />
+        <QuestionOnboarding question="Choose your workout access" />
 
         <View style={{ marginTop: 30 }} />
 

@@ -3,7 +3,6 @@ import database from '@/database/database';
 import { router } from 'expo-router';
 import { User } from '@/models/User';
 import  UserDTO  from '@/models/DTO/UserDTO';
-// Remove duplicate import and use UserDTO for typing
 
 export const RegisterUser = async (userData: {
   Name: string;

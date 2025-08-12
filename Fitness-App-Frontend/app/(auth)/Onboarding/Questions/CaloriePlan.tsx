@@ -1,5 +1,5 @@
-import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { getCaloriePlans, calculateBMR } from "@/utils/GetCaloriePlans";

@@ -9,7 +9,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { useOnboarding } from "../../app/(auth)/Onboarding/NavigationService";
+import { useOnboarding } from "../../../app/(auth)/Onboarding/NavigationService";
 
 interface ButtonOnboardingProps {
   height?: number;

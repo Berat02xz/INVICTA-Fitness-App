@@ -1,5 +1,5 @@
 import ButtonFit from "@/components/ui/ButtonFit";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import UnitSwitch from "@/components/ui/UnitSwitch";

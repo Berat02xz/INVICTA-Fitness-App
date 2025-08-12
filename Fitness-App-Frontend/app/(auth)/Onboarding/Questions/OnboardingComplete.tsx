@@ -2,7 +2,7 @@ import { setToken } from "@/api/AxiosInstance";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { FetchUserInformationAndStore, RegisterUser, UploadUserInformation, DeleteUser } from "@/api/UserDataEndpoint";
 import ButtonFit from "@/components/ui/ButtonFit";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { router } from "expo-router";

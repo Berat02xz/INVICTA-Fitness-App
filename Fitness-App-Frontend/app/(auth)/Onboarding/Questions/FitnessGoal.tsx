@@ -1,6 +1,6 @@
-import ButtonOnboarding from "@/components/ui/AnswerOnboarding";
+import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
 import ButtonFit from "@/components/ui/ButtonFit";
-import QuestionOnboarding from "@/components/ui/QuestionOnboarding";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
