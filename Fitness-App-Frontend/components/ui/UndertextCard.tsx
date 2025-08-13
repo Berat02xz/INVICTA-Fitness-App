@@ -56,11 +56,11 @@ const styles = StyleSheet.create({
     
   },
   text: {
-    fontSize: 15,
-    color: theme.textColor,
     fontFamily: theme.regular,
     textAlign: "left",
-    lineHeight: 20,
+    color: "#ddd",
+    fontSize: 14,
+    lineHeight: 18,
   },
 });
 

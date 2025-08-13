@@ -16,45 +16,47 @@ const DietFollow = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
-
-      <View style={styles.container}>
-        <QuestionOnboarding question="Have you tried any of these diets?" />
-        <View style={{ marginTop: 30 }} />
-        <ButtonOnboarding
-                    text="Vegetarian"
-          emoji='🥗'
-          undertext="Excludes meat"
-          forQuestion="DietFollow"
-          onClickContinue
-          order={0}
-        />
-        <ButtonOnboarding
-                    text="Vegan"
-          emoji='🥕'
-          undertext="Excludes all animal products"
-          forQuestion="DietFollow"
-          onClickContinue
-          order={1}
-        />
-        <ButtonOnboarding
-                    text="Keto"
-          emoji='🥑'
-          undertext="Low-carb, high fat"
-          forQuestion="DietFollow"
-          onClickContinue
-          order={2}
-        />
-        <ButtonOnboarding
-                    text="No"
-          emoji='❌'
-          forQuestion="DietFollow"
-          onClickContinue
-          order={3}
-        />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="Have you tried any of these diets?" />
+          <View style={{ marginTop: 30 }} />
+          <ButtonOnboarding
+            text="Vegetarian"
+            emoji="🥗"
+            undertext="Excludes meat"
+            forQuestion="DietFollow"
+            onClickContinue
+            order={0}
+          />
+          <ButtonOnboarding
+            text="Vegan"
+            emoji="🥕"
+            undertext="Excludes all animal products"
+            forQuestion="DietFollow"
+            onClickContinue
+            order={1}
+          />
+          <ButtonOnboarding
+            text="Keto"
+            emoji="🥑"
+            undertext="Low-carb, high fat"
+            forQuestion="DietFollow"
+            onClickContinue
+            order={2}
+          />
+          <ButtonOnboarding
+            text="No"
+            emoji="❌"
+            forQuestion="DietFollow"
+            onClickContinue
+            order={3}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 

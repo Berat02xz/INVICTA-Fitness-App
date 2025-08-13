@@ -13,52 +13,52 @@ const activity_level = {
 
 const ActivityLevel = () => {
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="What is your activity level?" />
+          <View style={{ marginTop: 30 }} />
 
-      <View style={styles.container}>
-        <QuestionOnboarding
-          question="What is your activity level?"
-        />
-        <View style={{ marginTop: 30 }} />
-
-        <ButtonOnboarding
-          text="Sedentary"
-          undertext="Little to no movement"
-          imageSrc={activity_level.no_level}
-          forQuestion="activity_level"
-          order={0}
-        />
-        <ButtonOnboarding
-          text="Slightly Active"
-          undertext="Light daily movement or walks"
-          imageSrc={activity_level.slightly_active}
-          forQuestion="activity_level"
-          order={1}
-        />
-        <ButtonOnboarding
-          text="Moderately Active"
-          undertext="physical job"
-          imageSrc={activity_level.moderately_active}
-          forQuestion="activity_level"
-          order={2}
-        />
-        <ButtonOnboarding
-          text="Very Active"
-          undertext="I exercise daily"
-          imageSrc={activity_level.very_active}
-          forQuestion="activity_level"
-          order={3}
-        />
+          <ButtonOnboarding
+            text="Sedentary"
+            undertext="Little to no movement"
+            imageSrc={activity_level.no_level}
+            forQuestion="activity_level"
+            order={0}
+          />
+          <ButtonOnboarding
+            text="Slightly Active"
+            undertext="Light daily movement or walks"
+            imageSrc={activity_level.slightly_active}
+            forQuestion="activity_level"
+            order={1}
+          />
+          <ButtonOnboarding
+            text="Moderately Active"
+            undertext="physical job"
+            imageSrc={activity_level.moderately_active}
+            forQuestion="activity_level"
+            order={2}
+          />
+          <ButtonOnboarding
+            text="Very Active"
+            undertext="I exercise daily"
+            imageSrc={activity_level.very_active}
+            forQuestion="activity_level"
+            order={3}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    position: 'relative',
+    position: "relative",
   },
   container: {
     flex: 1,

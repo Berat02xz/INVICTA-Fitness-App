@@ -35,7 +35,6 @@ function BMIResults() {
     setBmi(calculatedBMI);
     setTargetLeft(calculateLeftValue(calculatedBMI));
     saveSelection("bmi", calculatedBMI);
-    
   }, [weight, height, unit]);
 
   const calculateLeftValue = (bmiValue: number): number => {
@@ -109,49 +108,52 @@ function BMIResults() {
   const scale = 0.9;
 
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground style={StyleSheet.absoluteFill} />
-      <View style={styles.main}>
-        <View style={styles.middle}>
-          <Text style={styles.sloganBold}>Your Body Mass Index</Text>
-          <Text style={[styles.sloganRegular, { paddingTop: 60 }]}>
-            {dynamicCard.label}
-          </Text>
-          <Text style={styles.bmiValue}>{displayBmi.toFixed(1)}</Text>
+      <View style={styles.outerContainer}>
+        <View style={styles.main}>
+          <View style={styles.middle}>
+            <Text style={styles.sloganBold}>Your Body Mass Index</Text>
+            <Text style={[styles.sloganRegular, { paddingTop: 60 }]}>
+              {dynamicCard.label}
+            </Text>
+            <Text style={styles.bmiValue}>{displayBmi.toFixed(1)}</Text>
 
-          <Image
-            source={BMIBar}
-            style={{ width: 355 * scale, height: 27.9 * scale }}
-          />
-          <Animated.Image
-            source={BMIIndicator}
-            style={{
-              position: "relative",
-              top: 10,
-              left: leftAnim,
-              width: 17 * scale,
-              height: 16 * scale,
-            }}
-          />
-          <View style={styles.undertextCard}>
-            <UndertextCard
-              emoji={dynamicCard.emoji}
-              title={dynamicCard.label}
-              titleColor={dynamicCard.color}
-              text={dynamicCard.text}
+            <Image
+              source={BMIBar}
+              style={{ width: 355 * scale, height: 27.9 * scale }}
             />
+            <Animated.Image
+              source={BMIIndicator}
+              style={{
+                position: "relative",
+                top: 10,
+                left: leftAnim,
+                width: 17 * scale,
+                height: 16 * scale,
+              }}
+            />
+            <View style={styles.undertextCard}>
+              <UndertextCard
+                emoji={dynamicCard.emoji}
+                title={dynamicCard.label}
+                titleColor={dynamicCard.color}
+                text={dynamicCard.text}
+              />
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.bottom}>
-        <ButtonFit
-          title="Continue"
-          backgroundColor={theme.primary}
-          onPress={() => onboardingContext.goForward()}
-        />
+        <View style={styles.bottom}>
+          <ButtonFit
+            title="Continue"
+            backgroundColor={theme.primary}
+            onPress={() => onboardingContext.goForward()}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 

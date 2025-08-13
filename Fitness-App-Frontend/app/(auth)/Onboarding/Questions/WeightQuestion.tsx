@@ -26,8 +26,9 @@ const WeightQuestion = () => {
   };
 
   return (
+    <>      <SolidBackground style={StyleSheet.absoluteFill} />
+
     <View style={styles.container}>
-      <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.content}>
         <QuestionOnboarding question="What is your weight?" />
         <View style={styles.unitSwitchWrapper}>
@@ -67,6 +68,7 @@ const WeightQuestion = () => {
         />
       </View>
     </View>
+    </>
   );
 };
 

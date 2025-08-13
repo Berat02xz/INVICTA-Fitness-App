@@ -1,5 +1,6 @@
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
+import RadialBlurBackground from "@/components/ui/RadialBlurBackground";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
@@ -28,9 +29,9 @@ export default function HappyBodyImageResults() {
     };
   }, [animatedValue]);
 
-  return (
+  return (<>
+  <SolidBackground /> 
     <View style={styles.outerContainer}>
-      <SolidBackground />
       <View style={styles.container}>
         <View style={styles.main}>
           <View style={styles.middle}>
@@ -56,6 +57,7 @@ export default function HappyBodyImageResults() {
         </View>
       </View>
     </View>
+    </>
   );
 }
 

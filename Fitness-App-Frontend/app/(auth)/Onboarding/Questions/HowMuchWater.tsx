@@ -9,46 +9,48 @@ const HowMuchWater = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
-
-      <View style={styles.container}>
-        <QuestionOnboarding question="How much water do you drink daily?" />
-        <View style={{ marginTop: 30 }} />
-        <ButtonOnboarding
-          text="2 glasses"
-          emoji="💧"
-          undertext="0,5l / 17oz"
-          forQuestion="Water"
-          onClickContinue
-          order={1}
-        />
-        <ButtonOnboarding
-          text="2-6 glasses"
-          emoji="💦"
-          undertext="0,5-1.5l / 17-50 oz"
-          forQuestion="Water"
-          onClickContinue
-          order={2}
-        />
-        <ButtonOnboarding
-          text="7-10 glasses"
-          emoji="🌊"
-          undertext="1,5-2,5l / 50-85 oz"
-          forQuestion="Water"
-          onClickContinue
-          order={3}
-        />
-        <ButtonOnboarding
-          text="More than 10 glasses"
-          emoji="🐋"
-          undertext="1,5-2.5l / 50-85 oz"
-          forQuestion="Water"
-          onClickContinue
-          order={4}
-        />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="How much water do you drink daily?" />
+          <View style={{ marginTop: 30 }} />
+          <ButtonOnboarding
+            text="2 glasses"
+            emoji="💧"
+            undertext="0,5l / 17oz"
+            forQuestion="Water"
+            onClickContinue
+            order={1}
+          />
+          <ButtonOnboarding
+            text="2-6 glasses"
+            emoji="💦"
+            undertext="0,5-1.5l / 17-50 oz"
+            forQuestion="Water"
+            onClickContinue
+            order={2}
+          />
+          <ButtonOnboarding
+            text="7-10 glasses"
+            emoji="🌊"
+            undertext="1,5-2,5l / 50-85 oz"
+            forQuestion="Water"
+            onClickContinue
+            order={3}
+          />
+          <ButtonOnboarding
+            text="More than 10 glasses"
+            emoji="🐋"
+            undertext="1,5-2.5l / 50-85 oz"
+            forQuestion="Water"
+            onClickContinue
+            order={4}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 

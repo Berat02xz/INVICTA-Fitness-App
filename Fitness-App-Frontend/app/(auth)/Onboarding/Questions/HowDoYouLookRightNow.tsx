@@ -1,9 +1,9 @@
-import ButtonOnboarding from '@/components/ui/Onboarding/AnswerOnboarding';
-import QuestionOnboarding from '@/components/ui/Onboarding/QuestionOnboarding';
-import SolidBackground from '@/components/ui/SolidBackground';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-"use client";
+import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
+import SolidBackground from "@/components/ui/SolidBackground";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+("use client");
 
 const bodyImage = {
   Average: require("@/assets/icons/onboarding/Average2.png"),
@@ -13,39 +13,40 @@ const bodyImage = {
 
 const HowDoYouLookRightNow = () => {
   return (
-    <View style={styles.container}>
+    <>
       <SolidBackground />
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <QuestionOnboarding question="Choose your body type" />
+          <View style={{ marginTop: 30 }} />
 
-      <View style={styles.content}>
-        <QuestionOnboarding question="Choose your body type" />
-        <View style={{ marginTop: 30 }} />
-
-        <ButtonOnboarding
-          height={150}
-          text="Average"
-          onClickContinue
-          forQuestion="look_perception"
-          BodyImage={bodyImage.Average}
-          order={0}
-        />
-        <ButtonOnboarding
-          height={150}
-          text="Heavy"
-          onClickContinue
-          forQuestion="look_perception"
-          BodyImage={bodyImage.Heavy}
-          order={1}
-        />
-        <ButtonOnboarding
-          height={150}
-          text="Slim"
-          onClickContinue
-          forQuestion="look_perception"
-          BodyImage={bodyImage.Skinny}
-          order={2}
-        />
+          <ButtonOnboarding
+            height={150}
+            text="Average"
+            onClickContinue
+            forQuestion="look_perception"
+            BodyImage={bodyImage.Average}
+            order={0}
+          />
+          <ButtonOnboarding
+            height={150}
+            text="Heavy"
+            onClickContinue
+            forQuestion="look_perception"
+            BodyImage={bodyImage.Heavy}
+            order={1}
+          />
+          <ButtonOnboarding
+            height={150}
+            text="Slim"
+            onClickContinue
+            forQuestion="look_perception"
+            BodyImage={bodyImage.Skinny}
+            order={2}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -59,8 +60,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     padding: 25,
     zIndex: 1,
-    alignItems: "center", 
-
+    alignItems: "center",
   },
 });
 

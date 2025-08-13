@@ -7,8 +7,7 @@ export const theme = {
   black: 'Black',
   semibold: 'Bold',
 
-
-  primary: '#ff0505ff',
+  primary: '#fd0e07',
   buttonBorder: '#5B5B5B',
   buttonsolid: '#1C1C1C',
   textColor: '#FFFFFF',

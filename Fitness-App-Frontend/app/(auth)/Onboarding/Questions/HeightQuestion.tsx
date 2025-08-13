@@ -16,7 +16,9 @@ const HeightQuestion = () => {
     (answers.unit as "metric" | "imperial") || "metric"
   );
 
-  const [height, setHeight] = useState<string>(answers.height as string || "");
+  const [height, setHeight] = useState<string>(
+    (answers.height as string) || ""
+  );
 
   // Clear or format height input on unit change
   useEffect(() => {
@@ -51,47 +53,50 @@ const HeightQuestion = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <>
+      {" "}
       <SolidBackground style={StyleSheet.absoluteFill} />
-      <View style={styles.content}>
-        <QuestionOnboarding question="What is your height?" />
-        <View style={styles.unitSwitchWrapper}>
-          <UnitSwitch
-            unit={unit}
-            onSelect={setUnit}
-            metricLabel="CM"
-            imperialLabel="FT"
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <QuestionOnboarding question="What is your height?" />
+          <View style={styles.unitSwitchWrapper}>
+            <UnitSwitch
+              unit={unit}
+              onSelect={setUnit}
+              metricLabel="CM"
+              imperialLabel="FT"
+            />
+          </View>
+          <TextInput
+            key={unit} // force rerender to clear input when unit changes
+            style={styles.input}
+            value={height}
+            onChangeText={handleHeightChange}
+            keyboardType="numeric"
+            placeholder={unit === "metric" ? "cm" : "ft in"}
+            placeholderTextColor={theme.buttonBorder}
+            underlineColorAndroid="transparent"
           />
-        </View>
-        <TextInput
-          key={unit} // force rerender to clear input when unit changes
-          style={styles.input}
-          value={height}
-          onChangeText={handleHeightChange}
-          keyboardType="numeric"
-          placeholder={unit === "metric" ? "cm" : "ft in"}
-          placeholderTextColor={theme.buttonBorder}
-          underlineColorAndroid="transparent"
-        />
 
-        <View style={styles.undertextCard}>
-          <UndertextCard
-            emoji="📏"
-            title="Height"
-            titleColor="white"
-            text="Calculating your body mass index requires your height."
+          <View style={styles.undertextCard}>
+            <UndertextCard
+              emoji="📏"
+              title="Height"
+              titleColor="white"
+              text="Calculating your body mass index requires your height."
+            />
+          </View>
+        </View>
+
+        <View style={styles.bottom}>
+          <ButtonFit
+            title="Continue"
+            backgroundColor={theme.primary}
+            onPress={handleSubmit}
           />
         </View>
       </View>
-
-      <View style={styles.bottom}>
-        <ButtonFit
-          title="Continue"
-          backgroundColor={theme.primary}
-          onPress={handleSubmit}
-        />
-      </View>
-    </View>
+    </>
   );
 };
 

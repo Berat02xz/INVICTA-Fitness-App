@@ -7,6 +7,7 @@ import calculateCaloriesPerDay from "@/utils/CalculateCaloriesPerDay";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 
 const DesiredTargetWeight = () => {
@@ -34,8 +35,8 @@ const DesiredTargetWeight = () => {
   const plans = getCaloriePlans(userData);
 
   return (
-    <View style={styles.outerContainer}>
-      <SolidBackground />
+    <>         <SolidBackground />
+ <View style={styles.outerContainer}>
 
       <View style={styles.container}>
         <QuestionOnboarding question="Choose your calorie plan" />
@@ -69,13 +70,17 @@ const DesiredTargetWeight = () => {
             onClickContinue
           />
         ))}
-        <View style={{ marginTop: 5 }}>
-          <Text style={styles.noteText}>
-            Plans that go below your BMR (your body’s basic energy need) are removed.
-          </Text>
-        </View>
+        <FadeTranslate duration={500}>
+          <View style={{ marginTop: 5 }}>
+            <Text style={styles.noteText}>
+              Plans that go below your BMR (your body’s basic energy need) are removed.
+            </Text>
+          </View>
+        </FadeTranslate>
       </View>
     </View>
+    </>
+
   );
 };
 

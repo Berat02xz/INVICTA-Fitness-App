@@ -162,8 +162,7 @@
               "RelativeToolTip": "Model\\DTO\\AddMealDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-09T14:05:19.016Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-09T14:05:19.016Z"
             },
             {
               "$type": "Document",
@@ -173,7 +172,7 @@
               "RelativeDocumentMoniker": "Model\\ConsumedMeal.cs",
               "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\ConsumedMeal.cs",
               "RelativeToolTip": "Model\\ConsumedMeal.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAkAAAAoAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-25T19:58:58.48Z",
               "EditorCaption": ""
@@ -188,8 +187,7 @@
               "RelativeToolTip": "Model\\DTO\\UploadMealRequestDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-08T16:57:11.804Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-08T16:57:11.804Z"
             },
             {
               "$type": "Document",
@@ -225,8 +223,7 @@
               "RelativeToolTip": "Controllers\\MealController.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAABQAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-09T14:02:41.874Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-09T14:02:41.874Z"
             },
             {
               "$type": "Document",

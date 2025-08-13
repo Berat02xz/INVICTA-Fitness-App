@@ -12,54 +12,55 @@ const activity_level = {
 
 const AccessToEquipment = () => {
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="Choose your workout access" />
 
-      <View style={styles.container}>
-        <QuestionOnboarding question="Choose your workout access" />
+          <View style={{ marginTop: 30 }} />
 
-        <View style={{ marginTop: 30 }} />
-
-        <ButtonOnboarding
-          text="Home"
-          imageSrc={activity_level.home}
-          undertext="Home workouts with no equipment"
-          onClickContinue
-          forQuestion="equipment_access"
-          order={0}
-        />
-        <ButtonOnboarding
-          text="Basic Equipment"
-          undertext="Dumbbells or similar gear at home"
-          imageSrc={activity_level.gym}
-          onClickContinue
-          forQuestion="equipment_access"
-          order={1}
-        />
-        <ButtonOnboarding
-          text="Gym Access"
-          undertext="You can use full gym machines"
-          imageSrc={activity_level.full}
-          onClickContinue
-          forQuestion="equipment_access"
-          order={2}
-        />
-
+          <ButtonOnboarding
+            text="Home Workouts"
+            imageSrc={activity_level.home}
+            undertext="No Equipment"
+            onClickContinue
+            forQuestion="equipment_access"
+            order={0}
+          />
+          <ButtonOnboarding
+            text="Basic Equipment"
+            undertext="Dumbbells or similar gear at home"
+            imageSrc={activity_level.gym}
+            onClickContinue
+            forQuestion="equipment_access"
+            order={1}
+          />
+          <ButtonOnboarding
+            text="Gym Access"
+            undertext="You can use full gym machines"
+            imageSrc={activity_level.full}
+            onClickContinue
+            forQuestion="equipment_access"
+            order={2}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    position: 'relative', 
+    position: "relative",
   },
   container: {
     flex: 1,
     paddingTop: 30,
     padding: 25,
-    zIndex: 1, 
+    zIndex: 1,
     alignItems: "center",
   },
   bottom: {

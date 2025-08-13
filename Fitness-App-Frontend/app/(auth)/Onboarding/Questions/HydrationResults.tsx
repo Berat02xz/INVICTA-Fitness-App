@@ -1,6 +1,4 @@
-import {
-  useOnboarding,
-} from "@/app/(auth)/Onboarding/NavigationService";
+import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
@@ -33,37 +31,39 @@ export default function HappyBodyImageResults() {
     };
   }, [animatedValue]);
 
-
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
-      <View style={styles.container}>
-        <View style={styles.main}>
-          <View style={styles.middle}>
-            <Text style={styles.sloganBold}>
-              {isLowWater
-                ? `Water is essential for progress.`
-                : `You drink more water than ${percentage}% of users`}
-            </Text>
-            <View style={styles.undertextCard}>
-              <UndertextCard
-                emoji="💧"
-                title="Hydration Reminder"
-                titleColor="white"
-                text="Invicta will remind you to drink enough water."
-              />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <View style={styles.main}>
+            <View style={styles.middle}>
+              <Text style={styles.sloganBold}>
+                {isLowWater
+                  ? `Water is essential for progress.`
+                  : `You drink more water than ${percentage}% of users`}
+              </Text>
+              <View style={styles.undertextCard}>
+                <UndertextCard
+                  emoji="💧"
+                  title="Hydration Reminder"
+                  titleColor="white"
+                  text="Invicta will remind you to drink enough water."
+                />
+              </View>
             </View>
           </View>
-        </View>
-        <View style={styles.bottom}>
-          <ButtonFit
-            title="Continue"
-            backgroundColor={theme.primary}
-            onPress={goForward}
-          />
+          <View style={styles.bottom}>
+            <ButtonFit
+              title="Continue"
+              backgroundColor={theme.primary}
+              onPress={goForward}
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </>
   );
 }
 

@@ -1,9 +1,9 @@
-import LoginScreen from "./(auth)/login";
+import WelcomeScreen from "./(auth)/WelcomeScreen";
 
 export default function HomeScreen() {
   return (
     <>
-    <LoginScreen
+    <WelcomeScreen
     />
     </>
   );

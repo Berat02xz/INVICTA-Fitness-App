@@ -26,8 +26,9 @@ const FitnessGoalScreen = () => {
 
 
   return (
+    <>      <SolidBackground />
+
     <View style={styles.outerContainer}>
-      <SolidBackground />
 
       <View style={styles.container}>
         <QuestionOnboarding question="What is your fitness goal?" />
@@ -78,6 +79,7 @@ const FitnessGoalScreen = () => {
 )}
 
     </View>
+    </>
   );
 };
 

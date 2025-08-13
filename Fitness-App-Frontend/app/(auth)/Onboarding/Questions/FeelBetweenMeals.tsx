@@ -16,35 +16,37 @@ const FeelBetweenMeals = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
-
-      <View style={styles.container}>
-        <QuestionOnboarding question="How do you feel between meals?" />
-        <View style={{ marginTop: 30 }} />
-        <ButtonOnboarding
-          text="I feel tired after I eat"
-          emoji="😴"
-          forQuestion="FeelBetweenMeals"
-          onClickContinue
-          order={0}
-        />
-        <ButtonOnboarding
-          text="I feel irritable"
-          emoji="😡"
-          forQuestion="FeelBetweenMeals"
-          onClickContinue
-          order={1}
-        />
-        <ButtonOnboarding
-          text="I feel light and energetic"
-          emoji="💪"
-          forQuestion="FeelBetweenMeals"
-          onClickContinue
-          order={2}
-        />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="How do you feel between meals?" />
+          <View style={{ marginTop: 30 }} />
+          <ButtonOnboarding
+            text="I feel tired after I eat"
+            emoji="😴"
+            forQuestion="FeelBetweenMeals"
+            onClickContinue
+            order={0}
+          />
+          <ButtonOnboarding
+            text="I feel irritable"
+            emoji="😡"
+            forQuestion="FeelBetweenMeals"
+            onClickContinue
+            order={1}
+          />
+          <ButtonOnboarding
+            text="I feel light and energetic"
+            emoji="💪"
+            forQuestion="FeelBetweenMeals"
+            onClickContinue
+            order={2}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 

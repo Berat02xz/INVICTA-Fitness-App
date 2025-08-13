@@ -9,36 +9,38 @@ const HowMuchSleep = () => {
   const { goForward } = useOnboarding();
 
   return (
-    <View style={styles.outerContainer}>
+    <>
+      {" "}
       <SolidBackground />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="How much sleep do you get?" />
+          <View style={{ marginTop: 30 }} />
 
-      <View style={styles.container}>
-        <QuestionOnboarding question="How much sleep do you get?" />
-        <View style={{ marginTop: 30 }} />
-
-        <ButtonOnboarding
-          text="Less than 6 hours"
-          emoji="😴"
-          forQuestion="Sleep"
-          onClickContinue
-          order={0}
-        />
-        <ButtonOnboarding
-          text="Between 6 and 8 hours"
-          emoji="😌"
-          forQuestion="Sleep"
-          onClickContinue
-          order={1}
-        />
-        <ButtonOnboarding
-          text="Over 8 hours"
-          emoji="💤"
-          forQuestion="Sleep"
-          onClickContinue
-          order={2}
-        />
+          <ButtonOnboarding
+            text="Less than 6 hours"
+            emoji="😴"
+            forQuestion="Sleep"
+            onClickContinue
+            order={0}
+          />
+          <ButtonOnboarding
+            text="Between 6 and 8 hours"
+            emoji="😌"
+            forQuestion="Sleep"
+            onClickContinue
+            order={1}
+          />
+          <ButtonOnboarding
+            text="Over 8 hours"
+            emoji="💤"
+            forQuestion="Sleep"
+            onClickContinue
+            order={2}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 

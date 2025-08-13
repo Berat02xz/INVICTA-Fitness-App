@@ -17,44 +17,46 @@ const AgeQuestion = () => {
   };
 
   const handleSubmit = () => {
-    goForward(); 
+    goForward();
   };
 
   return (
-    <View style={styles.container}>
+    <>
       <SolidBackground style={StyleSheet.absoluteFill} />
-      <View style={styles.content}>
-        <QuestionOnboarding question="What is your age?" />
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <QuestionOnboarding question="What is your age?" />
 
-        <TextInput
-          style={styles.input}
-          value={answers.age?.toString() || ""}
-          onChangeText={handleChange}
-          keyboardType="numeric"
-          placeholder="Age"
-          placeholderTextColor={theme.buttonBorder}
-          maxLength={3}
-          underlineColorAndroid="transparent"
-        />
+          <TextInput
+            style={styles.input}
+            value={answers.age?.toString() || ""}
+            onChangeText={handleChange}
+            keyboardType="numeric"
+            placeholder="Age"
+            placeholderTextColor={theme.buttonBorder}
+            maxLength={3}
+            underlineColorAndroid="transparent"
+          />
 
-        <View style={styles.undertextCard}>
-          <UndertextCard
-            emoji="☝️"
-            title="Your age is important"
-            titleColor={theme.textColor}
-            text="Helps us make adjustments to your personal plan."
+          <View style={styles.undertextCard}>
+            <UndertextCard
+              emoji="☝️"
+              title="Your age is important"
+              titleColor={theme.textColor}
+              text="Helps us make adjustments to your personal plan."
+            />
+          </View>
+        </View>
+
+        <View style={styles.bottom}>
+          <ButtonFit
+            title="Continue"
+            backgroundColor={theme.primary}
+            onPress={handleSubmit}
           />
         </View>
       </View>
-
-      <View style={styles.bottom}>
-        <ButtonFit
-          title="Continue"
-          backgroundColor={theme.primary}
-          onPress={handleSubmit}
-        />
-      </View>
-    </View>
+    </>
   );
 };
 
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   undertextCard: {
-marginTop: 10,
+    marginTop: 10,
   },
   emoji: {
     fontSize: 25,

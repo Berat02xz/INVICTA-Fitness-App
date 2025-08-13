@@ -35,8 +35,8 @@ const Storage = {
 export async function CheckToken() {
   token = await Storage.getItem('token');
   if (!token || token === 'null') {
-    console.log("Token is null or undefined, redirecting to Login");
-    router.push("/(auth)/login");
+    console.log("Token is null or undefined, redirecting to Welcome");
+    router.push("/(auth)/WelcomeScreen");
   } else {
     router.push('/(tabs)/workout');
   }
@@ -44,8 +44,8 @@ export async function CheckToken() {
 
 export async function GetToken(): Promise<string | null> {
   if (!token || token === 'null') {
-    console.log("Token is null or undefined, redirecting to Login");
-    router.push("/(auth)/login");
+    console.log("Token is null or undefined, redirecting to Welcome");
+    router.push("/(auth)/WelcomeScreen");
     return null;
   }
   return token;

@@ -1,9 +1,6 @@
-import { View, Platform, LayoutChangeEvent } from "react-native";
+import { View, Platform, LayoutChangeEvent, StyleSheet } from "react-native";
 import { useLinkBuilder, useTheme } from "@react-navigation/native";
-import { Text, PlatformPressable } from "@react-navigation/elements";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
-import { StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TabBarButton from "./TabBarButton";
 import { theme } from "@/constants/theme";
@@ -50,45 +47,45 @@ export function TabBar({
   descriptors,
   navigation,
 }: BottomTabBarButtonProps) {
-  const { colors } = useTheme();
   const { buildHref } = useLinkBuilder();
-
-  const [dimensions, setDimensions] = useState({ width: 100, height: 50 }); // increased height for clarity
+  const [dimensions, setDimensions] = useState({ width: 100, height: 50 });
   const buttonCount = state.routes.length;
+  const buttonWidth = dimensions.width / buttonCount - 4;
+  const circleSize = 70;
 
-  const buttonWidth = dimensions.width / buttonCount;
+  const tabPositionX = useSharedValue(0);
+
   const onTabbarLayout = (e: LayoutChangeEvent) => {
     setDimensions({
       width: e.nativeEvent.layout.width,
       height: e.nativeEvent.layout.height,
     });
   };
-  const highlightWidth = buttonWidth * 0.8;
-  const tabPositionX = useSharedValue(0);
+
   useEffect(() => {
-    const offset = (buttonWidth - highlightWidth) - 2;
+    const offset = (buttonWidth - circleSize) / 2;
     tabPositionX.value = withSpring(buttonWidth * state.index + offset, {
       damping: 15,
       stiffness: 150,
     });
   }, [state.index, buttonWidth]);
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: tabPositionX.value }],
-    };
-  });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: tabPositionX.value }],
+  }));
 
   return (
     <View style={styles.tabBar} onLayout={onTabbarLayout}>
+      {/* Red circle highlight */}
       <Animated.View
         style={[
           {
             position: "absolute",
-            height: dimensions.height - 15,
-            width: highlightWidth,
-            backgroundColor: theme.primary,
-            borderRadius: 35,
-            top: 7,
+            height: circleSize,
+            width: circleSize,
+            backgroundColor: "red",
+            borderRadius: circleSize / 2,
+            top: (dimensions.height - circleSize) / 2,
           },
           animatedStyle,
         ]}
@@ -97,34 +94,24 @@ export function TabBar({
       {state.routes.map((route: any, index: any) => {
         const { options } = descriptors[route.key];
         const label =
-          options.tabBarLabel !== undefined
-            ? options.tabBarLabel
-            : options.title !== undefined
-              ? options.title
-              : route.name;
-
+          options.tabBarLabel ?? options.title ?? route.name;
         const isFocused = state.index === index;
 
         const onPress = () => {
-          tabPositionX.value = withSpring(buttonWidth * index, {
-            duration: 1500,
+          const offset = (buttonWidth - circleSize) / 2;
+          tabPositionX.value = withSpring(buttonWidth * index + offset, {
+            damping: 15,
+            stiffness: 150,
           });
+
           const event = navigation.emit({
             type: "tabPress",
             target: route.key,
             canPreventDefault: true,
           });
-
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name, route.params);
           }
-        };
-
-        const onLongPress = () => {
-          navigation.emit({
-            type: "tabLongPress",
-            target: route.key,
-          });
         };
 
         return (
@@ -134,7 +121,9 @@ export function TabBar({
             label={label}
             isFocused={isFocused}
             onPress={onPress}
-            onLongPress={onLongPress}
+            onLongPress={() =>
+              navigation.emit({ type: "tabLongPress", target: route.key })
+            }
             color={isFocused ? "#FFFFFF" : theme.textColorSecondary}
           />
         );
@@ -152,14 +141,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     alignSelf: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     paddingVertical: 15,
     borderRadius: 35,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,

@@ -12,51 +12,51 @@ const iconmap = {
 };
 
 const PushUps = () => {
-
   return (
-    <View style={styles.container}>
+    <>
+      {" "}
       <SolidBackground style={StyleSheet.absoluteFill} />
-
-      <View style={styles.content}>
-        <View style={{ zIndex: 1 }}>
-          <QuestionOnboarding question="How many push-ups can you do in one go?" />
-          <View style={{ marginTop: 30 }} />
-          <ButtonOnboarding
-            text="Beginner"
-            undertext="Less than 10 push-ups"
-            imageSrc={iconmap.pushUp1}
-            forQuestion="PushUps"
-            onClickContinue
-            order={0}
-          />
-          <ButtonOnboarding
-            text="Intermediate"
-            undertext="10 to 20 push-ups"
-            imageSrc={iconmap.pushUp2}
-            forQuestion="PushUps"
-            onClickContinue
-            order={1}
-          />
-          <ButtonOnboarding
-            text="Advanced"
-            undertext="21 to 30 push-ups"
-            imageSrc={iconmap.pushUp3}
-            forQuestion="PushUps"
-            onClickContinue
-            order={2}
-          />
-          <ButtonOnboarding
-            text="Gym Enthusiast"
-            undertext="More than 30 push-ups"
-            imageSrc={iconmap.Gym}
-            forQuestion="PushUps"
-            onClickContinue
-            order={3}
-          />
-          
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <View style={{ zIndex: 1 }}>
+            <QuestionOnboarding question="How many push-ups can you do in one go?" />
+            <View style={{ marginTop: 30 }} />
+            <ButtonOnboarding
+              text="Beginner"
+              undertext="Less than 10 push-ups"
+              imageSrc={iconmap.pushUp1}
+              forQuestion="PushUps"
+              onClickContinue
+              order={0}
+            />
+            <ButtonOnboarding
+              text="Intermediate"
+              undertext="10 to 20 push-ups"
+              imageSrc={iconmap.pushUp2}
+              forQuestion="PushUps"
+              onClickContinue
+              order={1}
+            />
+            <ButtonOnboarding
+              text="Advanced"
+              undertext="21 to 30 push-ups"
+              imageSrc={iconmap.pushUp3}
+              forQuestion="PushUps"
+              onClickContinue
+              order={2}
+            />
+            <ButtonOnboarding
+              text="Gym Enthusiast"
+              undertext="More than 30 push-ups"
+              imageSrc={iconmap.Gym}
+              forQuestion="PushUps"
+              onClickContinue
+              order={3}
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </>
   );
 };
 

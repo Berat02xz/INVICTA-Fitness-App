@@ -29,8 +29,9 @@ export default function DietResults() {
   }, [animatedValue]);
 
   return (
+    <>  <SolidBackground />
+
     <View style={styles.outerContainer}>
-  <SolidBackground />
 
   <View style={styles.container}>
     <View style={styles.middle}>
@@ -56,7 +57,7 @@ export default function DietResults() {
     </View>
   </View>
 </View>
-
+</>
   );
 }
 

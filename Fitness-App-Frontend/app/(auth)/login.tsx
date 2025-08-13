@@ -61,7 +61,7 @@ export const LoginScreen = () => {
           />
           <View style={styles.headingContainer}>
             <Text style={[styles.heading, styles.headingBold]}>
-              Structured Progression
+              Welcome Back!
             </Text>
           </View>
 
@@ -105,24 +105,6 @@ export const LoginScreen = () => {
               backgroundColor={theme.primary}
               onPress={handleSubmit}
             />
-
-            <View style={styles.separatorContainer}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>OR</Text>
-              <View style={styles.line} />
-            </View>
-
-            <ButtonFit
-              title="Create an Account"
-              backgroundColor="#331111"
-              style={{ borderColor: theme.primary, borderWidth: 1 }}
-              onPress={() =>
-                router.push("../../../(auth)/Onboarding/Questions/FitnessGoal")
-              }
-            />
-            <Text style={styles.signupHint}>
-              New here? Start by creating your account.
-            </Text>
           </View>
         </View>
       </View>
