@@ -33,7 +33,6 @@ export default function HappyBodyImageResults() {
 
   return (
     <>
-      {" "}
       <SolidBackground />
       <View style={styles.outerContainer}>
         <View style={styles.container}>
@@ -90,7 +89,6 @@ const styles = StyleSheet.create({
   middle: {
     alignItems: "center",
     width: "100%",
-    // Remove height: "100%" — not needed
     justifyContent: "center",
   },
 

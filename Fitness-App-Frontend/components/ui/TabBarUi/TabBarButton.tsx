@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 5,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
 });
 

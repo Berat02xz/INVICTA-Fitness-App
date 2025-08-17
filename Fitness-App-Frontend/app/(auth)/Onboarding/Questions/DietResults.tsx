@@ -29,35 +29,34 @@ export default function DietResults() {
   }, [animatedValue]);
 
   return (
-    <>  <SolidBackground />
+    <>
+      <SolidBackground />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <View style={styles.middle}>
+            <Text style={styles.sloganBold}>
+              {percentage}% of your results are about nutrition
+            </Text>
+            <View style={styles.undertextCard}>
+              <UndertextCard
+                emoji="🥗"
+                title="Dietary Guidance"
+                titleColor="white"
+                text="We provide you with personalized recommendations."
+              />
+            </View>
+          </View>
 
-    <View style={styles.outerContainer}>
-
-  <View style={styles.container}>
-    <View style={styles.middle}>
-      <Text style={styles.sloganBold}>
-        {percentage}% of your results are about nutrition
-      </Text>
-        <View style={styles.undertextCard}>
-
-      <UndertextCard
-        emoji="🥗"
-        title="Dietary Guidance"
-        titleColor="white"
-        text="We provide you with personalized recommendations."
-      /></View>
-    </View>
-
-    <View style={styles.bottom}>
-      <ButtonFit
-        title="Continue"
-        backgroundColor={theme.primary}
-        onPress={() => goForward()}
-      />
-    </View>
-  </View>
-</View>
-</>
+          <View style={styles.bottom}>
+            <ButtonFit
+              title="Continue"
+              backgroundColor={theme.primary}
+              onPress={() => goForward()}
+            />
+          </View>
+        </View>
+      </View>
+    </>
   );
 }
 
@@ -67,24 +66,24 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   container: {
-  flex: 1,
-  justifyContent: "space-between",  
-  paddingHorizontal: 24,
-  paddingBottom: 40,                
-  zIndex: 1,
-},
-undertextCard: {
-  marginTop: 10,
-},
-middle: {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-},
-bottom: {
-  alignItems: "center",
-  marginBottom: 10, 
-},
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    zIndex: 1,
+  },
+  undertextCard: {
+    marginTop: 10,
+  },
+  middle: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bottom: {
+    alignItems: "center",
+    marginBottom: 10,
+  },
 
   sloganBold: {
     fontSize: 25,

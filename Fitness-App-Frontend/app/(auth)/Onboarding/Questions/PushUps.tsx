@@ -14,7 +14,6 @@ const iconmap = {
 const PushUps = () => {
   return (
     <>
-      {" "}
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.content}>

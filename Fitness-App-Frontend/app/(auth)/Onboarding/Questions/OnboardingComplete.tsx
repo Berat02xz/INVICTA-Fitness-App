@@ -84,7 +84,6 @@ const OnboardingComplete = () => {
 
   return (
     <>
-      {" "}
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.content}>

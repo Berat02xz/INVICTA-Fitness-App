@@ -50,7 +50,7 @@ export function TabBar({
   const { buildHref } = useLinkBuilder();
   const [dimensions, setDimensions] = useState({ width: 100, height: 50 });
   const buttonCount = state.routes.length;
-  const buttonWidth = dimensions.width / buttonCount - 4;
+  const buttonWidth = dimensions.width / buttonCount;
   const circleSize = 70;
 
   const tabPositionX = useSharedValue(0);
@@ -66,7 +66,7 @@ export function TabBar({
     const offset = (buttonWidth - circleSize) / 2;
     tabPositionX.value = withSpring(buttonWidth * state.index + offset, {
       damping: 15,
-      stiffness: 150,
+      stiffness: 15,
     });
   }, [state.index, buttonWidth]);
 
@@ -84,8 +84,8 @@ export function TabBar({
             height: circleSize,
             width: circleSize,
             backgroundColor: "red",
-            borderRadius: circleSize / 2,
-            top: (dimensions.height - circleSize) / 2,
+            borderRadius: circleSize / 2.3,
+            top: (dimensions.height - circleSize) / 2.2,
           },
           animatedStyle,
         ]}
@@ -136,18 +136,19 @@ const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
     flexDirection: "row",
-    bottom: 50,
+    bottom: 25,
     justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "white",
     alignSelf: "center",
-    paddingHorizontal: 5,
     paddingVertical: 15,
-    borderRadius: 35,
+    
+    borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
+    width: 330,
   },
 });

@@ -9,7 +9,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 
-
 const DesiredTargetWeight = () => {
   const { goForward, answers, saveSelection } = useOnboarding();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -30,57 +29,60 @@ const DesiredTargetWeight = () => {
     const caloriesPerDay = calculateCaloriesPerDay(userData);
     saveSelection("bmr", bmr);
     saveSelection("tdee", caloriesPerDay);
-  }, []);  // empty array: runs once on mount
+  }, []); // empty array: runs once on mount
 
   const plans = getCaloriePlans(userData);
 
   return (
-    <>         <SolidBackground />
- <View style={styles.outerContainer}>
+    <>
+      {" "}
+      <SolidBackground />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="Choose your calorie plan" />
+          <View style={{ marginTop: 30 }} />
 
-      <View style={styles.container}>
-        <QuestionOnboarding question="Choose your calorie plan" />
-        <View style={{ marginTop: 30 }} />
-
-        {plans.map((plan, index) => (
-          <ButtonOnboarding
-            key={index}
-            text={plan.type}
-            undertext={`${plan.caloriesPerDay} kcal/day`}
-            badgeText={plan.rate}
-            order={index}
-            onClick={() => {
-              setSelectedPlan(plan.type);
-              saveSelection("calories_target", plan.type);
-              if (plan.rate === "") {
-                saveSelection("calorie_deficit", "Maintain");
-              } else {
-                saveSelection("calorie_deficit", plan.rate);
-              }
-              saveSelection("caloric_intake", plan.caloriesPerDay);
-              goForward();
-            }}
-            style={{
-              borderColor:
-                selectedPlan === plan.type ? theme.primary : "transparent",
-              backgroundColor:
-                selectedPlan === plan.type ? theme.primary : theme.buttonsolid,
-            }}
-            forQuestion="calorie_plan"
-            onClickContinue
-          />
-        ))}
-        <FadeTranslate duration={500}>
-          <View style={{ marginTop: 5 }}>
-            <Text style={styles.noteText}>
-              Plans that go below your BMR (your body’s basic energy need) are removed.
-            </Text>
-          </View>
-        </FadeTranslate>
+          {plans.map((plan, index) => (
+            <ButtonOnboarding
+              key={index}
+              text={plan.type}
+              undertext={`${plan.caloriesPerDay} kcal/day`}
+              badgeText={plan.rate}
+              order={index}
+              onClick={() => {
+                setSelectedPlan(plan.type);
+                saveSelection("calories_target", plan.type);
+                if (plan.rate === "") {
+                  saveSelection("calorie_deficit", "Maintain");
+                } else {
+                  saveSelection("calorie_deficit", plan.rate);
+                }
+                saveSelection("caloric_intake", plan.caloriesPerDay);
+                goForward();
+              }}
+              style={{
+                borderColor:
+                  selectedPlan === plan.type ? theme.primary : "transparent",
+                backgroundColor:
+                  selectedPlan === plan.type
+                    ? theme.primary
+                    : theme.buttonsolid,
+              }}
+              forQuestion="calorie_plan"
+              onClickContinue
+            />
+          ))}
+          <FadeTranslate duration={500}>
+            <View style={{ marginTop: 5 }}>
+              <Text style={styles.noteText}>
+                Plans that go below your BMR (your body’s basic energy need) are
+                removed.
+              </Text>
+            </View>
+          </FadeTranslate>
+        </View>
       </View>
-    </View>
     </>
-
   );
 };
 

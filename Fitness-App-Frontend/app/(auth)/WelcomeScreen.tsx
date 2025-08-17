@@ -13,6 +13,7 @@ import { router } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
+  runOnJS,
 } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
@@ -34,17 +35,16 @@ export default function WelcomeScreen() {
     onScroll: (event) => {
       scrollX.value = event.contentOffset.x;
       const index = Math.round(event.contentOffset.x / width);
-      setActiveIndex(index);
+      runOnJS(setActiveIndex)(index); // ✅ safe
     },
   });
 
-  // Auto-scroll every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % images.length;
       scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
-      setActiveIndex(nextIndex);
-    }, 1500);
+      runOnJS(setActiveIndex)(nextIndex); // ✅ safe
+    }, 2500);
 
     return () => clearInterval(interval);
   }, [activeIndex]);

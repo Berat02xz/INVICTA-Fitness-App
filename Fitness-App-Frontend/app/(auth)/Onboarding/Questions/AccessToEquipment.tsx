@@ -13,7 +13,6 @@ const activity_level = {
 const AccessToEquipment = () => {
   return (
     <>
-      {" "}
       <SolidBackground />
       <View style={styles.outerContainer}>
         <View style={styles.container}>

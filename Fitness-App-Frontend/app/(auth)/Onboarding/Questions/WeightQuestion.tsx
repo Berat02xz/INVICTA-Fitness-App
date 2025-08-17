@@ -26,48 +26,48 @@ const WeightQuestion = () => {
   };
 
   return (
-    <>      <SolidBackground style={StyleSheet.absoluteFill} />
+    <>
+      <SolidBackground style={StyleSheet.absoluteFill} />
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <QuestionOnboarding question="What is your weight?" />
+          <View style={styles.unitSwitchWrapper}>
+            <UnitSwitch
+              unit={unit}
+              onSelect={setUnit}
+              metricLabel="KG"
+              imperialLabel="LB"
+            />
+          </View>
 
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <QuestionOnboarding question="What is your weight?" />
-        <View style={styles.unitSwitchWrapper}>
-          <UnitSwitch
-            unit={unit}
-            onSelect={setUnit}
-            metricLabel="KG"
-            imperialLabel="LB"
+          <TextInput
+            key={unit}
+            style={styles.input}
+            value={weight}
+            onChangeText={handleWeightChange}
+            keyboardType="numeric"
+            placeholder={unit === "metric" ? "kg" : "lb"}
+            placeholderTextColor={theme.buttonBorder}
+            underlineColorAndroid="transparent"
           />
+          <View style={styles.undertextCard}>
+            <UndertextCard
+              emoji="⚖️"
+              title="Weight"
+              titleColor="white"
+              text="Your weight is essential for tailoring your fitness plan."
+            />
+          </View>
         </View>
 
-        <TextInput
-          key={unit}
-          style={styles.input}
-          value={weight}
-          onChangeText={handleWeightChange}
-          keyboardType="numeric"
-          placeholder={unit === "metric" ? "kg" : "lb"}
-          placeholderTextColor={theme.buttonBorder}
-          underlineColorAndroid="transparent"
-        />
-        <View style={styles.undertextCard}>
-          <UndertextCard
-            emoji="⚖️"
-            title="Weight"
-            titleColor="white"
-            text="Your weight is essential for tailoring your fitness plan."
+        <View style={styles.bottom}>
+          <ButtonFit
+            title="Continue"
+            backgroundColor={theme.primary}
+            onPress={handleSubmit}
           />
         </View>
       </View>
-
-      <View style={styles.bottom}>
-        <ButtonFit
-          title="Continue"
-          backgroundColor={theme.primary}
-          onPress={handleSubmit}
-        />
-      </View>
-    </View>
     </>
   );
 };

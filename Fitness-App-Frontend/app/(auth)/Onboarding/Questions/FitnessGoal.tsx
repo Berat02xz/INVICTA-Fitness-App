@@ -15,7 +15,7 @@ const iconmap = {
 
 const FitnessGoalScreen = () => {
   const { goForward, saveSelection } = useOnboarding();
-  
+
   type FitnessGoal = string;
   const [selectedGoal, setSelectedGoal] = useState<FitnessGoal | null>(null);
 
@@ -24,61 +24,61 @@ const FitnessGoalScreen = () => {
     saveSelection(question, goal);
   };
 
-
   return (
-    <>      <SolidBackground />
+    <>
+      {" "}
+      <SolidBackground />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <QuestionOnboarding question="What is your fitness goal?" />
+          <View style={{ marginTop: 30 }} />
 
-    <View style={styles.outerContainer}>
-
-      <View style={styles.container}>
-        <QuestionOnboarding question="What is your fitness goal?" />
-        <View style={{ marginTop: 30 }} />
-
-        <ButtonOnboarding
-          text="Lose Fat"
-          emoji="🏃‍♂️"
-          forQuestion="fitness_goal"
-          order={0}
-          onClickContinue={false}
-          onClick={() => handleSelectGoal("Lose Fat", "fitness_goal")}
-        />
-        <ButtonOnboarding
-          text="Gain Muscle"
-          emoji="🏋️‍♀️"
-          forQuestion="fitness_goal"
-          order={1}
-          onClickContinue={false}
-          onClick={() => handleSelectGoal("Gain Muscle", "fitness_goal")}
-        />
-        <ButtonOnboarding
-          text="Build Strength"
-          emoji="💪"
-          forQuestion="fitness_goal"
-          order={2}
-          onClickContinue={false}
-          onClick={() => handleSelectGoal("Build Strength", "fitness_goal")}
-        />
-        <ButtonOnboarding
-          text="Holistic Wellbeing"
-          //Green plant emoji
-          emoji="🤸🏽"
-          forQuestion="fitness_goal"
-          order={3}
-          onClickContinue={false}
-          onClick={() => handleSelectGoal("Holistic Wellbeing", "fitness_goal")}
-        />
+          <ButtonOnboarding
+            text="Lose Fat"
+            emoji="🏃‍♂️"
+            forQuestion="fitness_goal"
+            order={0}
+            onClickContinue={false}
+            onClick={() => handleSelectGoal("Lose Fat", "fitness_goal")}
+          />
+          <ButtonOnboarding
+            text="Gain Muscle"
+            emoji="🏋️‍♀️"
+            forQuestion="fitness_goal"
+            order={1}
+            onClickContinue={false}
+            onClick={() => handleSelectGoal("Gain Muscle", "fitness_goal")}
+          />
+          <ButtonOnboarding
+            text="Build Strength"
+            emoji="💪"
+            forQuestion="fitness_goal"
+            order={2}
+            onClickContinue={false}
+            onClick={() => handleSelectGoal("Build Strength", "fitness_goal")}
+          />
+          <ButtonOnboarding
+            text="Holistic Wellbeing"
+            //Green plant emoji
+            emoji="🤸🏽"
+            forQuestion="fitness_goal"
+            order={3}
+            onClickContinue={false}
+            onClick={() =>
+              handleSelectGoal("Holistic Wellbeing", "fitness_goal")
+            }
+          />
+        </View>
+        {selectedGoal && (
+          <View style={styles.bottom}>
+            <ButtonFit
+              title="Continue"
+              backgroundColor={theme.primary}
+              onPress={goForward}
+            />
+          </View>
+        )}
       </View>
-      {selectedGoal && (
-  <View style={styles.bottom}>
-    <ButtonFit
-      title="Continue"
-      backgroundColor={theme.primary}
-      onPress={goForward}
-    />
-  </View>
-)}
-
-    </View>
     </>
   );
 };

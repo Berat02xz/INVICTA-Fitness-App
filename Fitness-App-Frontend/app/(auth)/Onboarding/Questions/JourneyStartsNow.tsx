@@ -15,7 +15,7 @@ import {
   View,
 } from "react-native";
 import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
-import ConfettiCannon from 'react-native-confetti-cannon';
+import ConfettiCannon from "react-native-confetti-cannon";
 
 export default function JourneyStartsNow() {
   const { goForward, saveSelection, answers } = useOnboarding();
@@ -137,10 +137,9 @@ export default function JourneyStartsNow() {
   return (
     <>
       <SolidBackground />
-  <ConfettiCannon count={20} origin={{x: -10, y: 0}} />
+      <ConfettiCannon count={20} origin={{ x: -10, y: 0 }} />
 
       <View style={styles.outerContainer}>
-
         <View style={styles.container}>
           <View style={styles.main}>
             <View style={styles.middle}>

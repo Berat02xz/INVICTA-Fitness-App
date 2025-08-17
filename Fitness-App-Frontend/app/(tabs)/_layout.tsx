@@ -28,7 +28,7 @@ export default function AppLayout() {
         tabBar={(props) => <TabBar children={undefined} {...props} />}
         screenOptions={{
           headerShown: false,
-          animation: "shift", // if supported by your navigator version
+          animation: "shift",
         }}
       >
         <Tab.Screen

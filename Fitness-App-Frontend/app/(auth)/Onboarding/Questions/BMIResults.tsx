@@ -109,7 +109,6 @@ function BMIResults() {
 
   return (
     <>
-      {" "}
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.outerContainer}>
         <View style={styles.main}>
