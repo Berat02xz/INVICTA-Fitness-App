@@ -38,8 +38,9 @@ export default function ScanScreen() {
     try {
       setIsCapturing(true);
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 1,
-        skipProcessing: true,
+        quality: 0,
+        skipProcessing: false,
+        base64: false,
       });
       setCapturedPhoto(photo);
 
@@ -125,6 +126,21 @@ export default function ScanScreen() {
                       <View>
                         <Text style={styles.infoText}>Calories: 250 kcal</Text>
                         <Text style={styles.infoText}>Fats: 10g</Text>
+                        <View style={styles.cardButtons}>
+          <Pressable style={styles.cardButton} onPress={() => {/* TODO: log action */}}>
+            <Text style={styles.cardButtonText}>Log</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.cardButton, { backgroundColor: "#aaa" }]}
+            onPress={() => {
+              setCapturedPhoto(null);
+              setShowInfoCard(false);
+              setLoadingInfo(false);
+            }}
+          >
+            <Text style={styles.cardButtonText}>Retry</Text>
+          </Pressable>
+        </View>
                       </View>
                     )}
                   </Animated.View>
@@ -132,8 +148,9 @@ export default function ScanScreen() {
               </View>
 
               {/* Bottom Footer */}
+              {!capturedPhoto && (
               <View style={styles.footer}>
-                <View style={{ height: 60, justifyContent: "center" }}>
+                <View style={{ height: 40, justifyContent: "center" }}>
                   <HorizontalPicker
                     data={categories}
                     itemWidth={120}
@@ -145,7 +162,7 @@ export default function ScanScreen() {
                   />
                 </View>
 
-                {!capturedPhoto && (
+                
                   <Pressable
                     onPress={takePhoto}
                     style={[styles.shutterButton, isCapturing && { opacity: 0.6 }]}
@@ -153,8 +170,9 @@ export default function ScanScreen() {
                   >
                     {isCapturing ? <ActivityIndicator color="#fff" /> : <View style={styles.shutterInner} />}
                   </Pressable>
-                )}
+                
               </View>
+              )}
             </>
           )}
 
@@ -195,4 +213,8 @@ const styles = StyleSheet.create({
   categoryItem: { justifyContent: "center", alignItems: "center" },
   categoryText: { fontSize: 16, color: "#888" },
   selectedText: { color: "#fff", fontWeight: "bold" },
+  cardButtons: {flexDirection: "row",justifyContent: "space-between",marginTop: 12,},
+  cardButton: {flex: 1,backgroundColor: "#D72207",paddingVertical: 10,borderRadius: 8,marginHorizontal: 5,alignItems: "center",},
+  cardButtonText: {color: "#fff",fontWeight: "bold",fontSize: 16,},
+
 });
