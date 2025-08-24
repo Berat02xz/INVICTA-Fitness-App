@@ -11,7 +11,7 @@ import ChatbotScreen from "./chatbot/index";
 import WorkoutScreen from "./workout/index";
 import NutritionScreen from "./nutrition/index";
 import StatisticsScreen from "./statistics/index";
-import ScanScreen from "./nutrition/screens/scan";
+import ScanScreen from "../(screens)/ScanMeal";
 import { theme } from "@/constants/theme";
 import { router } from "expo-router";
 import { TabBar } from "@/components/ui/TabBarUi/TabBar";

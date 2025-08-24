@@ -45,6 +45,8 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+builder.Services.AddHttpClient();
 builder.Configuration.AddEnvironmentVariables();
 
 // Configure PostgreSQL
