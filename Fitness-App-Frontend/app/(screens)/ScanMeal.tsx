@@ -19,9 +19,9 @@ import SolidBackground from "@/components/ui/SolidBackground";
 import Constants from "expo-constants";
 import HorizontalPicker from "@vseslav/react-native-horizontal-picker";
 import { AIEndpoint } from "@/api/AIEndpoint";
-import { get } from "axios";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import MealInfo from "@/components/ui/Nutrition/MealInfo";
+import * as ImageManipulator from "expo-image-manipulator";
 
 // Meal response
 export type MealInfoResponse = {
@@ -31,7 +31,7 @@ export type MealInfoResponse = {
   Protein: number;
   Carbs: number;
   Fat: number;
-  Label: "HighFat" | "BalancedMeal" | "MacroRich" | "ConsiderLighterOption" | "DairyRich";
+  MealQuality: string;
 };
 
 // Menu response
@@ -54,14 +54,19 @@ export type FridgeInfoResponse = {
 };
 
 // Union type
-export type AIResponse = MealInfoResponse | MenuInfoResponse | FridgeInfoResponse;
+export type AIResponse =
+  | MealInfoResponse
+  | MenuInfoResponse
+  | FridgeInfoResponse;
 
 function isMealResponse(resp: AIResponse): resp is MealInfoResponse {
   return "isMeal" in resp;
 }
 
 function isMenuResponse(resp: AIResponse): resp is MenuInfoResponse {
-  return "Meals" in resp && resp.Meals.length > 0 && "MenuName" in resp.Meals[0];
+  return (
+    "Meals" in resp && resp.Meals.length > 0 && "MenuName" in resp.Meals[0]
+  );
 }
 
 function isFridgeResponse(resp: AIResponse): resp is FridgeInfoResponse {
@@ -72,8 +77,9 @@ export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const isFocused = useIsFocused();
-  const [capturedPhoto, setCapturedPhoto] =
-    useState<CameraCapturedPicture | null>(null);
+const [capturedPhoto, setCapturedPhoto] = useState<CameraCapturedPicture | null>(null);
+const [resizedPhoto, setResizedPhoto] = useState<ImageManipulator.ImageResult | null>(null);
+
   const [isCapturing, setIsCapturing] = useState(false);
   const [mode, setMode] = useState<"photo" | "search">("photo");
   const [showInfoCard, setShowInfoCard] = useState(false);
@@ -86,50 +92,62 @@ export default function ScanScreen() {
   const [selectedCategory, setSelectedCategory] = useState(1); // default: Meal
 
   const takePhoto = async () => {
-    if (!cameraRef.current) return;
-    try {
-      setIsCapturing(true);
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.2,
-        skipProcessing: false,
-        base64: false,
-      });
-      setCapturedPhoto(photo);
+  if (!cameraRef.current) return;
+  try {
+    setIsCapturing(true);
+    const photo = await cameraRef.current.takePictureAsync({
+      quality: 0.8, // keep higher for UI display
+      skipProcessing: false,
+      base64: false,
+    });
 
-      setLoadingInfo(true);
-      setShowInfoCard(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+    // show full-res on screen
+    setCapturedPhoto(photo);
 
-      const mealImageFile = {
-        uri: photo.uri,
-        name: `photo_${Date.now()}.jpg`,
-        type: "image/jpeg",
-      };
+    // 🔹 create smaller version for AI
+    const smallPhoto = await ImageManipulator.manipulateAsync(
+      photo.uri,
+      [{ resize: { width: 512 } }], // keep aspect ratio, max width 512
+      { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG }
+    );
 
-      const userId = await getUserIdFromToken();
-      if (!userId) {
-        console.warn("Failed to get user ID");
-        return;
-      }
-      const aiMealResponse = await AIEndpoint.uploadMeal(
-        userId,
-        mealImageFile,
-        categories[selectedCategory]
-      );
-      console.warn("AI Meal Response:", aiMealResponse);
+    setResizedPhoto(smallPhoto);
 
-      setAiResponse(aiMealResponse as AIResponse);
-      setLoadingInfo(false);
-    } catch (e) {
-      console.warn("CATCH: Failed to take photo", e);
-    } finally {
-      setIsCapturing(false);
+    setLoadingInfo(true);
+    setShowInfoCard(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+
+    const mealImageFile = {
+      uri: smallPhoto.uri, // send low-res!
+      name: `photo_${Date.now()}.jpg`,
+      type: "image/jpeg",
+    };
+
+    const userId = await getUserIdFromToken();
+    if (!userId) {
+      console.warn("Failed to get user ID");
+      return;
     }
-  };
+
+    const aiMealResponse = await AIEndpoint.uploadMeal(
+      userId,
+      mealImageFile,
+      categories[selectedCategory]
+    );
+    console.warn("AI Meal Response:", aiMealResponse);
+
+    setAiResponse(aiMealResponse as AIResponse);
+    setLoadingInfo(false);
+  } catch (e) {
+    console.warn("CATCH: Failed to take photo", e);
+  } finally {
+    setIsCapturing(false);
+  }
+};
 
   if (!permission?.granted) {
     return (
@@ -219,43 +237,69 @@ export default function ScanScreen() {
                   />
                 )}
 
-                {categories[selectedCategory] === "Meal" && aiResponse && isMealResponse(aiResponse) && (
-  <MealInfo>
-    <Text style={styles.infoText}>{aiResponse.ShortMealName}</Text>
-    <Text style={styles.infoText}>Calories: {aiResponse.CaloriesAmount} kcal</Text>
-    <Text style={styles.infoText}>Protein: {aiResponse.Protein} g</Text>
-    <Text style={styles.infoText}>Carbs: {aiResponse.Carbs} g</Text>
-    <Text style={styles.infoText}>Fat: {aiResponse.Fat} g</Text>
-    <Text style={styles.infoText}>Label: {aiResponse.Label}</Text>
-  </MealInfo>
-)}
+                {categories[selectedCategory] === "Meal" &&
+                  aiResponse &&
+                  isMealResponse(aiResponse) && (
+                    <MealInfo>
+                      <Text style={styles.infoText}>
+                        {aiResponse.ShortMealName}
+                      </Text>
+                      <Text style={styles.infoText}>
+                        Calories: {aiResponse.CaloriesAmount} kcal
+                      </Text>
+                      <Text style={styles.infoText}>
+                        Protein: {aiResponse.Protein} g
+                      </Text>
+                      <Text style={styles.infoText}>
+                        Carbs: {aiResponse.Carbs} g
+                      </Text>
+                      <Text style={styles.infoText}>
+                        Fat: {aiResponse.Fat} g
+                      </Text>
+                      <Text style={styles.infoText}>
+                        Label: {aiResponse.MealQuality}
+                      </Text>
+                    </MealInfo>
+                  )}
 
-{categories[selectedCategory] === "Menu" && aiResponse && isMenuResponse(aiResponse) && (
-  <MealInfo>
-    <Text style={styles.infoText}>Menu:</Text>
-    {aiResponse.Meals.map((meal, idx) => (
-      <View key={idx} style={{ marginTop: 6 }}>
-        <Text style={styles.infoText}>{meal.MenuName} — {meal.Calories} kcal</Text>
-        <Text style={styles.infoText}>Ingredients: {meal.Ingredients.join(", ")}</Text>
-      </View>
-    ))}
-  </MealInfo>
-)}
+                {categories[selectedCategory] === "Menu" &&
+                  aiResponse &&
+                  isMenuResponse(aiResponse) && (
+                    <MealInfo>
+                      <Text style={styles.infoText}>Menu:</Text>
+                      {aiResponse.Meals.map((meal, idx) => (
+                        <View key={idx} style={{ marginTop: 6 }}>
+                          <Text style={styles.infoText}>
+                            {meal.MenuName} — {meal.Calories} kcal
+                          </Text>
+                          <Text style={styles.infoText}>
+                            Ingredients: {meal.Ingredients.join(", ")}
+                          </Text>
+                        </View>
+                      ))}
+                    </MealInfo>
+                  )}
 
-{categories[selectedCategory] === "Fridge" && aiResponse && isFridgeResponse(aiResponse) && (
-  <MealInfo>
-    <Text style={styles.infoText}>Fridge Suggestions:</Text>
-    {aiResponse.Meals.map((meal, idx) => (
-      <View key={idx} style={{ marginTop: 6 }}>
-        <Text style={styles.infoText}>{meal.Meal} — {meal.Calories} kcal</Text>
-        <Text style={styles.infoText}>Ingredients: {meal.Ingredients.join(", ")}</Text>
-        <Text style={styles.infoText}>Time to Make: {meal.TimeToMake}</Text>
-      </View>
-    ))}
-  </MealInfo>
-)}
-
-
+                {categories[selectedCategory] === "Fridge" &&
+                  aiResponse &&
+                  isFridgeResponse(aiResponse) && (
+                    <MealInfo>
+                      <Text style={styles.infoText}>Fridge Suggestions:</Text>
+                      {aiResponse.Meals.map((meal, idx) => (
+                        <View key={idx} style={{ marginTop: 6 }}>
+                          <Text style={styles.infoText}>
+                            {meal.Meal} — {meal.Calories} kcal
+                          </Text>
+                          <Text style={styles.infoText}>
+                            Ingredients: {meal.Ingredients.join(", ")}
+                          </Text>
+                          <Text style={styles.infoText}>
+                            Time to Make: {meal.TimeToMake}
+                          </Text>
+                        </View>
+                      ))}
+                    </MealInfo>
+                  )}
               </View>
 
               {/* Bottom Footer */}

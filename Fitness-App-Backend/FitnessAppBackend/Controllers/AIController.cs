@@ -61,9 +61,9 @@ namespace FitnessAppBackend.Controllers
             //Text Prompt based on upload type
             string textDependingOnCategory = TypeOfUpload switch
             {
-                "Meal" => "Estimate Meal Details",
-                "Menu" => "Analyze this menu image and provide healthiest meals",
-                "Fridge" => "Analyze this fridge image and suggest meals i can make.",
+                "Meal" => "Estimate Meal Details and return JSON",
+                "Menu" => "Analyze this menu image and provide healthiest meals in JSON",
+                "Fridge" => "Analyze this fridge image and suggest meals i can make and return JSON.",
                 _ => throw new ArgumentException("Invalid TypeOfUpload")
             };
 
@@ -83,13 +83,13 @@ namespace FitnessAppBackend.Controllers
                         Protein = new { type = "integer" },
                         Carbs = new { type = "integer" },
                         Fat = new { type = "integer" },
-                        Label = new
+                        MealQuality = new
                         {
                             type = "string",
-                            @enum = new[] { "HighFat", "BalancedMeal", "MacroRich", "ConsiderLighterOption", "DairyRich" }
+                            @enum = new[] { "Macro Rich", "Balanced Meal", "High Fat", "Consider Lighter Option", "Dairy Rich" }
                         }
                     },
-                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "Label" },
+                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality" },
                     additionalProperties = false
 
                 };
@@ -184,10 +184,6 @@ namespace FitnessAppBackend.Controllers
                 }
             };
 
-
-
-
-
             var json = JsonSerializer.Serialize(requestBody);
 
             using var httpClient = new HttpClient();
@@ -214,49 +210,43 @@ namespace FitnessAppBackend.Controllers
             {
                 _logger.LogError("No output messages from AI for user {UserId}", UserId);
                 return StatusCode(500, "No output from AI");
-            } else
-            {
-              _logger.LogDebug("Output messages count: {Count} for user {UserId}", outputArray.Count, UserId);
             }
 
-            // Find the assistant message (usually last)
             var assistantMessage = outputArray.LastOrDefault(msg => msg["role"]?.ToString() == "assistant");
             if (assistantMessage == null)
             {
                 _logger.LogError("No assistant message found in AI response for user {UserId}", UserId);
                 return StatusCode(500, "No assistant message found");
             }
-            else
+
+            var contentArray = assistantMessage["content"]?.AsArray();
+            if (contentArray == null || contentArray.Count == 0)
             {
-             _logger.LogDebug("Found assistant message for user {UserId}", UserId);
+                _logger.LogError("No content in assistant message for user {UserId}", UserId);
+                return StatusCode(500, "No content in assistant message");
             }
-                // Get text content
-                var textContent = assistantMessage["content"]?.AsArray()?.FirstOrDefault()?["text"]?.ToString();
+
+            var textContent = contentArray
+            .FirstOrDefault(c => c?["type"]?.ToString() == "output_text")?["text"]?.ToString();
+
             if (string.IsNullOrEmpty(textContent))
             {
-                _logger.LogError("No text content in assistant message for user {UserId}", UserId);
-                return StatusCode(500, "No text in assistant message");
+                _logger.LogError("No usable text in assistant message for user {UserId}", UserId);
+                return StatusCode(500, "No usable AI response");
             }
-            else
-            {
-             _logger.LogDebug("Text content length: {Length} for user {UserId}", textContent.Length, UserId);
-            }
-                // Parse the JSON schema returned by AI
-                JsonNode outputJson;
+
             try
             {
-                outputJson = JsonNode.Parse(textContent);
+                //return the validated JSON
+                _logger.LogInformation("Returning raw JSON: {Json}", textContent);
+                var jsonDocument = JsonDocument.Parse(textContent);
+                return Content(textContent, "application/json");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to parse AI JSON output for user {UserId}", UserId);
                 return StatusCode(500, "Invalid JSON from AI");
             }
-
-            _logger.LogInformation("AI response for user {UserId}: {OutputJson}", UserId, outputJson);
-            return Ok(outputJson);
-
-
         }
     }
 }
