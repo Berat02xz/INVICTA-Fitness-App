@@ -1,4 +1,6 @@
-﻿using FitnessAppBackend.Model.DTO;
+﻿using FitnessAppBackend.Model;
+using FitnessAppBackend.Model.DTO;
+using FitnessAppBackend.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
@@ -14,10 +16,12 @@ namespace FitnessAppBackend.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<AIController> _logger;
-        public AIController(IHttpClientFactory httpClientFactory, ILogger<AIController> logger)
+        private readonly IConsumedMealService _mealService;
+        public AIController(IHttpClientFactory httpClientFactory, ILogger<AIController> logger, IConsumedMealService mealService)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _mealService = mealService;
         }
 
         [Authorize]
@@ -235,6 +239,37 @@ namespace FitnessAppBackend.Controllers
                 return StatusCode(500, "No usable AI response");
             }
 
+            // Save meal to database if TypeOfUpload is "Meal"
+            if (TypeOfUpload == "Meal")
+            {
+                try
+                {
+                    var mealResponse = JsonSerializer.Deserialize<MealResponse>(textContent);
+                    if (mealResponse == null)
+                    {
+                        _logger.LogError("Deserialized mealResponse is null");
+                    }
+                    var meal = new ConsumedMeal
+                    {
+                        UserId = Guid.Parse(UserId),
+                        Name = mealResponse.ShortMealName,
+                        Calories = mealResponse.CaloriesAmount,
+                        Protein = mealResponse.Protein,
+                        Carbohydrates = mealResponse.Carbs,
+                        Fats = mealResponse.Fat,
+                        MealQuality = mealResponse.MealQuality,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await _mealService.AddAsync(meal);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to deserialize and save meal for user {UserId}", UserId);
+                }
+            }
+
+            // Return the raw JSON response from AI to display on frontend
             try
             {
                 //return the validated JSON

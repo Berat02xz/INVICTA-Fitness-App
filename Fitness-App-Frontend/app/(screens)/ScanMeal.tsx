@@ -104,11 +104,11 @@ const [resizedPhoto, setResizedPhoto] = useState<ImageManipulator.ImageResult | 
     // show full-res on screen
     setCapturedPhoto(photo);
 
-    // 🔹 create smaller version for AI
+    //create smaller version for AI
     const smallPhoto = await ImageManipulator.manipulateAsync(
       photo.uri,
-      [{ resize: { width: 512 } }], // keep aspect ratio, max width 512
-      { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG }
+      [{ resize: { width: 256 } }], // keep aspect ratio, max width 256
+      { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
     );
 
     setResizedPhoto(smallPhoto);

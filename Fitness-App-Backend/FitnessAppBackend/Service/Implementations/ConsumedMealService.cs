@@ -8,7 +8,7 @@ namespace FitnessAppBackend.Service.Implementations
     {
         private readonly IConsumedMealRepository _consumedMealRepository;
 
-        public ConsumedMealService(ApplicationDbContext context, IConsumedMealRepository consumedMealRepository) : base(context)
+        public ConsumedMealService(ApplicationDbContext context, IConsumedMealRepository consumedMealRepository) : base(consumedMealRepository)
         {
             _consumedMealRepository = consumedMealRepository;
         }

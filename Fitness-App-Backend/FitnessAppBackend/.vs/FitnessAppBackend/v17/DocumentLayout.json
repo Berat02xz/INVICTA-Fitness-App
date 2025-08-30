@@ -3,8 +3,20 @@
   "WorkspaceRootPath": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\controllers\\mealcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\mealcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\controllers\\aicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\aicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\dto\\addmealdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\dto\\addmealdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\consumedmeal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\consumedmeal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\dto\\mealresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -37,18 +49,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\dto\\uploadmealrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\dto\\uploadmealrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\consumedmeal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\consumedmeal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\model\\dto\\addmealdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:model\\dto\\addmealdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\controllers\\mealcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|solutionrelative:controllers\\mealcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{457C9AC1-AA21-4119-8AF0-165D893D35EB}|FitnessAppBackend.csproj|c:\\github\\invicta-fitness-app\\fitness-app-backend\\fitnessappbackend\\service\\implementations\\consumedmealservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -154,7 +154,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 312,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -162,43 +162,32 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "FridgeResponse.cs",
-              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\FridgeResponse.cs",
-              "RelativeDocumentMoniker": "Model\\DTO\\FridgeResponse.cs",
-              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\FridgeResponse.cs",
-              "RelativeToolTip": "Model\\DTO\\FridgeResponse.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T19:29:38.93Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MenuResponse.cs",
-              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\MenuResponse.cs",
-              "RelativeDocumentMoniker": "Model\\DTO\\MenuResponse.cs",
-              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\MenuResponse.cs",
-              "RelativeToolTip": "Model\\DTO\\MenuResponse.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T19:29:17.778Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AIController.cs",
+              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\AIController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AIController.cs",
+              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\AIController.cs",
+              "RelativeToolTip": "Controllers\\AIController.cs",
+              "ViewState": "AgIAAPAAAAAAAAAAAAAmwA0BAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-08T16:54:58.778Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "MealResponse.cs",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\MealResponse.cs",
               "RelativeDocumentMoniker": "Model\\DTO\\MealResponse.cs",
               "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\MealResponse.cs",
               "RelativeToolTip": "Model\\DTO\\MealResponse.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-21T19:25:36.232Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\appsettings.Development.json",
               "RelativeDocumentMoniker": "appsettings.Development.json",
@@ -210,7 +199,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": ".env",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\.env",
               "RelativeDocumentMoniker": ".env",
@@ -222,7 +211,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -234,32 +223,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AIController.cs",
-              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\AIController.cs",
-              "RelativeDocumentMoniker": "Controllers\\AIController.cs",
-              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\AIController.cs",
-              "RelativeToolTip": "Controllers\\AIController.cs",
-              "ViewState": "AgIAAN4AAAAAAAAAAAAAAO8AAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-08T16:54:58.778Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 3,
               "Title": "ConsumedMeal.cs",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\ConsumedMeal.cs",
               "RelativeDocumentMoniker": "Model\\ConsumedMeal.cs",
               "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\ConsumedMeal.cs",
               "RelativeToolTip": "Model\\ConsumedMeal.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-25T19:58:58.48Z"
+              "WhenOpened": "2025-07-25T19:58:58.48Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -271,19 +248,57 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 2,
               "Title": "AddMealDTO.cs",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\AddMealDTO.cs",
               "RelativeDocumentMoniker": "Model\\DTO\\AddMealDTO.cs",
               "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\AddMealDTO.cs",
               "RelativeToolTip": "Model\\DTO\\AddMealDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-09T14:05:19.016Z"
+              "WhenOpened": "2025-08-09T14:05:19.016Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 0,
+              "Title": "MealController.cs",
+              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\MealController.cs",
+              "RelativeDocumentMoniker": "Controllers\\MealController.cs",
+              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\MealController.cs",
+              "RelativeToolTip": "Controllers\\MealController.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAowDwAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-09T14:02:41.874Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MenuResponse.cs",
+              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\MenuResponse.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\MenuResponse.cs",
+              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\MenuResponse.cs",
+              "RelativeToolTip": "Model\\DTO\\MenuResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-21T19:29:17.778Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FridgeResponse.cs",
+              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\FridgeResponse.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\FridgeResponse.cs",
+              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\FridgeResponse.cs",
+              "RelativeToolTip": "Model\\DTO\\FridgeResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-21T19:29:38.93Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "UploadMealRequestDTO.cs",
               "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Model\\DTO\\UploadMealRequestDTO.cs",
               "RelativeDocumentMoniker": "Model\\DTO\\UploadMealRequestDTO.cs",
@@ -292,18 +307,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-08T16:57:11.804Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "MealController.cs",
-              "DocumentMoniker": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\MealController.cs",
-              "RelativeDocumentMoniker": "Controllers\\MealController.cs",
-              "ToolTip": "C:\\Github\\INVICTA-Fitness-App\\Fitness-App-Backend\\FitnessAppBackend\\Controllers\\MealController.cs",
-              "RelativeToolTip": "Controllers\\MealController.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAABQAAABGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-09T14:02:41.874Z"
             },
             {
               "$type": "Document",
