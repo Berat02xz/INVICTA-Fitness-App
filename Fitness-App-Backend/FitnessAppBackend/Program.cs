@@ -70,6 +70,7 @@ builder.Services.AddScoped<IUserInformationRepository, UserInformationRepository
 builder.Services.AddScoped<IConsumedMealService, ConsumedMealService>();
 builder.Services.AddScoped<IConsumedMealRepository, ConsumedMealRepository>();
 
+
 var app = builder.Build();
 
 // Middleware pipeline

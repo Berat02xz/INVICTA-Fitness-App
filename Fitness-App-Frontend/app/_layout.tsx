@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { ActivityIndicator, View } from "react-native";
 import { theme } from "@/constants/theme";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -47,8 +48,10 @@ export default function RootLayout() {
 
   return (
     <>
-      <Slot />
-      <Toast />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Slot />
+        <Toast />
+      </GestureHandlerRootView>
     </>
   );
 }
