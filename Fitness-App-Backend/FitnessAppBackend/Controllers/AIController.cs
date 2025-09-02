@@ -66,7 +66,7 @@ namespace FitnessAppBackend.Controllers
             string textDependingOnCategory = TypeOfUpload switch
             {
                 "Meal" => "Estimate Meal Details and return JSON",
-                "Menu" => "Analyze this menu image and provide healthiest meals in JSON",
+                "Menu" => "Analyze text of a menu and provide healthiest options from it in JSON",
                 "Fridge" => "Analyze this fridge image and suggest meals i can make and return JSON.",
                 _ => throw new ArgumentException("Invalid TypeOfUpload")
             };
@@ -118,7 +118,8 @@ namespace FitnessAppBackend.Controllers
                                     Calories = new { type = "integer" },
                                     Ingredients = new { type = "array", items = new { type = "string" } }
                                 },
-                                required = new[] { "MenuName", "Calories", "Ingredients" }
+                                required = new[] { "MenuName", "Calories", "Ingredients" },
+                                additionalProperties = false
                             }
                         }
                     },
@@ -136,7 +137,7 @@ namespace FitnessAppBackend.Controllers
                         Meals = new
                         {
                             type = "array",
-                            maxItems = 5,
+                            maxItems = 4,
                             items = new
                             {
                                 type = "object",
@@ -152,7 +153,9 @@ namespace FitnessAppBackend.Controllers
                             }
                         }
                     },
-                    required = new[] { "Meals" }
+                    required = new[] { "Meals" },
+                    additionalProperties = false
+
                 };
             }
             else

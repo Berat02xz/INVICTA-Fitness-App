@@ -11,6 +11,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@expo/vector-icons": "^14.1.0",
     "@gorhom/bottom-sheet": "^5.2.4",
     "@nozbe/watermelondb": "^0.28.0",
@@ -53,6 +54,7 @@
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-draggable-flatlist": "^4.0.3",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-pager-view": "^6.9.1",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.4.0",
@@ -63,6 +65,7 @@
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "react-native-wgpu": "^0.2.1",
+    "react-native-worklets": "^0.5.0",
     "tslib": "^2.8.1",
     "typegpu-confetti": "^0.1.0"
   },
