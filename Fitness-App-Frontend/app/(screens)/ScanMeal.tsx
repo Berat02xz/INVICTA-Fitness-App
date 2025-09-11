@@ -24,6 +24,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "@/constants/theme";
 
 // Meal/AI types
 export type MealInfoResponse = {
@@ -77,13 +78,11 @@ export default function ScanScreen() {
   const [selectedCategory, setSelectedCategory] = useState("Meal");
   const [flash, setFlash] = useState(false);
 
-  // Snap points for AI bottom sheet
+  // might not need memo, react compiler update
   const aiSnapPoints = useMemo(() => ['50%', '75%'], []);
-
-  // Snap points for menu bottom sheet (minimal height for always visible)
   const menuSnapPoints = useMemo(() => ['10%', '50%', '75%'], []);
 
-  // Ensure AI bottom sheet starts closed
+  // bottom sheet starts closed on init
   useEffect(() => {
     bottomSheetRef.current?.close();
     console.log("AI bottom sheet initialized as closed");
@@ -93,7 +92,6 @@ export default function ScanScreen() {
   const handleSheetChanges = useCallback((index: number) => {
     console.log("AI Bottom Sheet Changed:", index);
   }, []);
-
   const handleMenuSheetChanges = useCallback((index: number) => {
     console.log("Menu Bottom Sheet Changed:", index);
   }, []);
@@ -133,7 +131,8 @@ export default function ScanScreen() {
       setCapturedPhoto(photo);
       const smallPhoto = await ImageManipulator.manipulateAsync(
         photo.uri,
-        [{ resize: { width: 256 } }],
+        //if sending meal send it lowQ, if sending fridge or menu send it HQ
+        [{ resize: { width: selectedCategory == "Meal" ? 256 : 512 } }], 
         { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
       );
       setResizedPhoto(smallPhoto);
@@ -193,7 +192,7 @@ export default function ScanScreen() {
   };
 
   const handleCloseMenu = () => {
-    menuBottomSheetRef.current?.snapToIndex(0); // Return to minimal height instead of closing
+    menuBottomSheetRef.current?.snapToIndex(0);
   };
 
   if (!permission?.granted) {
@@ -497,9 +496,9 @@ const styles = StyleSheet.create({
 
   permissionContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   permissionText: { color: "white", textAlign: "center", marginBottom: 12, fontSize: 16 },
-  permissionButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: "#1e90ff", borderRadius: 8 },
-  permissionButtonText: { color: "white", fontWeight: "bold", fontSize: 16 },
-
+  permissionButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: theme.primary, borderRadius: 12 },
+  permissionButtonText: { color: "black", fontWeight: "bold", fontSize: 16 },
+  
   bottomSheetBackground: { backgroundColor: "#1a1a1a", opacity: 0.95 },
   handleIndicator: { backgroundColor: "#fff", width: 40, height: 4 },
   bottomSheetContent: { flex: 1, padding: 16 },
