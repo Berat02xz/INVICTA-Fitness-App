@@ -3,20 +3,20 @@ import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
 const AgeQuestion = () => {
   const { goForward, saveSelection, answers } = useOnboarding();
+  const [age, setAge] = useState("");
 
   const handleChange = (value: string) => {
-    // Save as number if it's a valid numeric string
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed)) saveSelection("age", parsed);
+    setAge(value);
   };
 
   const handleSubmit = () => {
+    saveSelection("age", age);
     goForward();
   };
 

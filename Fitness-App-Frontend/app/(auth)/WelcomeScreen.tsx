@@ -6,25 +6,38 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
+  Platform,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { theme } from "@/constants/theme";
+import { theme } from "@/constants/theme"; // Ensure theme is defined or provide fallback
 import { router } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
   runOnJS,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+  Extrapolation,
 } from "react-native-reanimated";
+import { Ionicons } from '@expo/vector-icons';
 
+// Use Dimensions for responsive layout
 const { width, height } = Dimensions.get("window");
 
-const images = [
-  require("@/assets/icons/onboarding/Welcome1.png"),
-  require("@/assets/icons/onboarding/Welcome1.png"),
-  require("@/assets/icons/onboarding/Welcome1.png"),
-  require("@/assets/icons/onboarding/Welcome1.png"),
-  require("@/assets/icons/onboarding/Welcome1.png"),
-];
+// Import images for both mobile and web
+// Replace these with actual image assets in your project
+// Example: Place images in src/assets/icons/onboarding/
+import Welcome1 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
+import Welcome2 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
+import Welcome3 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
+import Welcome4 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
+
+const images = [Welcome1, Welcome2, Welcome3, Welcome4];
+
+// Fallback image URL in case imports fail
+const FALLBACK_IMAGE = 'https://via.placeholder.com/375x200?text=Fallback+Image';
+
+const titles = ['Body', 'Metabolism', 'Mind', 'Progress'];
 
 export default function WelcomeScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -35,7 +48,7 @@ export default function WelcomeScreen() {
     onScroll: (event) => {
       scrollX.value = event.contentOffset.x;
       const index = Math.round(event.contentOffset.x / width);
-      runOnJS(setActiveIndex)(index); // ✅ safe
+      runOnJS(setActiveIndex)(index);
     },
   });
 
@@ -43,63 +56,112 @@ export default function WelcomeScreen() {
     const interval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % images.length;
       scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
-      runOnJS(setActiveIndex)(nextIndex); // ✅ safe
+      runOnJS(setActiveIndex)(nextIndex);
     }, 2500);
 
     return () => clearInterval(interval);
   }, [activeIndex]);
 
+  const goPrev = () => {
+    const prevIndex = (activeIndex - 1 + images.length) % images.length;
+    scrollRef.current?.scrollTo({ x: prevIndex * width, animated: true });
+    setActiveIndex(prevIndex);
+  };
+
+  const goNext = () => {
+    const nextIndex = (activeIndex + 1) % images.length;
+    scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
+    setActiveIndex(nextIndex);
+  };
+
   return (
     <View style={styles.container}>
-      {/* Full-screen gradient */}  
-      <LinearGradient
-        colors={[theme.deepPrimary, "#ff0000ff"]}
-        style={StyleSheet.absoluteFill}
-      />
-
-      {/* Top 2/3 images */}
-      <Animated.ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        style={{ height: height * 0.66 }}
-      >
-        {images.map((img, index) => (
-          <View key={index} style={styles.imageWrapper}>
-            <Image
-              source={img}
-              style={styles.image}
-              resizeMode="contain"
-            />
-          </View>
-        ))}
-      </Animated.ScrollView>
-
-      {/* Bottom card */}
-      <View style={styles.bottomCard}>
-        <Text style={styles.title}>Level up</Text>
-        <Text style={styles.subtitle}>
-          Stay consistent, rise through levels, and see real results
-        </Text>
-
-        {/* Dots */}
-        <View style={styles.dotsContainer}>
-          {images.map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.dot,
-                { backgroundColor: i === activeIndex ? theme.primary : "#666" },
-                i === activeIndex && { width: 20 },
-              ]}
-            />
-          ))}
+      {/* Title and Controls */}
+      <View style={styles.titleContainer}>
+        <Text style={styles.titleStatic}>Master Your</Text>
+        <View style={styles.dynamicContainer}>
+          {titles.map((title, index) => {
+            const animatedStyle = useAnimatedStyle(() => {
+              const inputRange = [
+                (index - 1) * width,
+                index * width,
+                (index + 1) * width,
+              ];
+              const opacity = interpolate(
+                scrollX.value,
+                inputRange,
+                [0, 1, 0],
+                Extrapolation.CLAMP
+              );
+              return { opacity };
+            });
+            return (
+              <Animated.Text
+                key={index}
+                style={[styles.titleDynamic, animatedStyle]}
+              >
+                {title}
+              </Animated.Text>
+            );
+          })}
         </View>
+        {/* Controls: Arrows and Dots */}
+        <View style={styles.controlsContainer}>
+          <TouchableOpacity onPress={goPrev} style={styles.arrowButton}>
+            <Ionicons name="chevron-back" size={32} color="white" />
+          </TouchableOpacity>
+          <View style={styles.dotsContainer}>
+            {images.map((_, i) => {
+              const animatedStyle = useAnimatedStyle(() => ({
+                backgroundColor: i === activeIndex ? theme.primary : 'rgba(255, 255, 255, 0.5)',
+                width: withTiming(i === activeIndex ? 20 : 8),
+                transform: [{ scale: withTiming(i === activeIndex ? 1.2 : 1) }],
+              }));
+              return (
+                <Animated.View
+                  key={i}
+                  style={[styles.dot, animatedStyle]}
+                />
+              );
+            })}
+          </View>
+          <TouchableOpacity onPress={goNext} style={styles.arrowButton}>
+            <Ionicons name="chevron-forward" size={32} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-        {/* Button */}
+      {/* Carousel */}
+      <View style={styles.carouselContainer}>
+        <Animated.ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          style={styles.carousel}
+          snapToInterval={width}
+          decelerationRate="fast"
+          contentContainerStyle={styles.carouselContent}
+        >
+          {images.map((img, index) => (
+            <View key={index} style={styles.imageWrapper}>
+              <Image
+                source={img}
+                style={styles.image}
+                resizeMode="contain"
+                defaultSource={{ uri: FALLBACK_IMAGE }}
+                onError={(e) => console.log(`Image ${index} load error:`, e.nativeEvent.error)}
+                onLoad={() => console.log(`Image ${index} loaded successfully`)}
+              />
+            </View>
+          ))}
+        </Animated.ScrollView>
+      </View>
+
+      {/* Bottom section */}
+      <View style={styles.bottomSection}>
         <TouchableOpacity
           style={styles.startButton}
           onPress={() =>
@@ -109,7 +171,6 @@ export default function WelcomeScreen() {
           <Text style={styles.startButtonText}>Let's start</Text>
         </TouchableOpacity>
 
-        {/* Link to login */}
         <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
           <Text style={styles.loginText}>You already have an account?</Text>
         </TouchableOpacity>
@@ -119,75 +180,139 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "black" },
-  imageWrapper: {
-    width,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    height: height * 0.66,
+  container: {
+    flex: 1,
+    backgroundColor: theme?.backgroundColor || '#1a1a1a',
   },
-  image: {
-    width: "100%",
-    height: "100%",
+  titleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 70,
+    marginBottom: 20,
   },
-  bottomCard: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    backgroundColor: theme.backgroundColor,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 70,
-    alignItems: "center",
+  titleStatic: {
+    fontSize: 32,
+    fontFamily: theme?.bold || 'Arial',
+    color: 'white',
+    textAlign: 'center',
   },
-  title: {
-    fontSize: 30,
-    fontFamily: theme.bold,
-    color: "white",
-    marginTop: 10,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#ccc",
-    textAlign: "center",
-    marginTop: 10,
-    marginBottom: 15,
-    fontFamily: theme.regular,
+  dynamicContainer: {
+    position: 'relative',
     width: 200,
-    lineHeight: 15,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
+    marginBottom: 20,
+  },
+  titleDynamic: {
+    fontSize: 32,
+    fontFamily: theme?.bold || 'Arial',
+    color: 'white',
+    textShadowColor: 'rgba(255, 255, 255, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    textAlign: 'center',
+    ...Platform.select({
+      web: {
+        transitionProperty: 'opacity',
+        transitionDuration: '200ms',
+        transitionTimingFunction: 'ease-in-out',
+      },
+    }),
+  },
+  controlsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    width: '60%',
+  },
+  arrowButton: {
+    padding: 10,
   },
   dotsContainer: {
-    flexDirection: "row",
-    marginBottom: 30,
-    marginTop: 25,
+    flexDirection: 'row',
   },
   dot: {
     height: 8,
-    width: 8,
     borderRadius: 4,
     marginHorizontal: 4,
+    ...Platform.select({
+      web: {
+        transitionProperty: 'all',
+        transitionDuration: '200ms',
+        transitionTimingFunction: 'ease-in-out',
+      },
+    }),
+  },
+  carouselContainer: {
+    position: 'relative',
+    height: height * 0.5,
+    alignItems: 'center',
+    overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        backgroundColor: 'transparent', // Add contrast to verify image visibility
+      },
+    }),
+  },
+  carousel: {
+    height: height * 0.5,
+    width,
+  },
+  carouselContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  imageWrapper: {
+    width,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    height: height * 0.5,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    maxHeight: 200,
+    ...Platform.select({
+      web: {
+        objectFit: 'contain', // Ensure web images scale correctly
+      },
+    }),
+  },
+  bottomSection: {
+    position: 'absolute',
+    bottom: 0,
+    width: width - 32,
+    padding: 20,
+    paddingBottom: 20,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
   startButton: {
-    backgroundColor: theme.primary,
-    paddingVertical: 14,
-    width: "90%",
+    backgroundColor: theme?.primary || '#3b82f6',
+    width: 333,
     height: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 25,
-    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    marginBottom: 12,
   },
   startButtonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontFamily: theme.bold,
+    fontFamily: theme?.bold || 'Arial',
   },
   loginText: {
-    color: "#ccc",
+    color: 'white',
     fontSize: 14,
-    fontFamily: theme.medium,
-    textDecorationLine: "underline",
+    fontFamily: theme?.medium || 'Arial',
+    textDecorationLine: 'underline',
   },
 });

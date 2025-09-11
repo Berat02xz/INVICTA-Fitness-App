@@ -21,7 +21,9 @@ export const OnboardingScreens = [
   "BMIResults",
   "CaloriePlan",
   "JourneyStartsNow",
+  "Reviews",
   "AccessToEquipment",
+  "WhatYouGet",
   "OnboardingComplete",
 ];
 

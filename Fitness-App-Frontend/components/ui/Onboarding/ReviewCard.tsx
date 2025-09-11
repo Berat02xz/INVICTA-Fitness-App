@@ -1,6 +1,7 @@
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { theme } from "@/constants/theme";
 
 interface ReviewCardProps {
   name: string;
@@ -21,18 +22,20 @@ export default function ReviewCard({
     <View style={styles.card}>
       <Image source={avatar} style={styles.avatar} />
       <View style={styles.content}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.username}>@{username}</Text>
-        <View style={styles.stars}>
-          {[...Array(5)].map((_, i) => (
-            <Ionicons
-              key={i}
-              name={i < rating ? "star" : "star-outline"}
-              size={16}
-              color="#FFD700"
-            />
-          ))}
+        <View style={styles.header}>
+          <Text style={styles.username}>@{username}</Text>
+          <View style={styles.stars}>
+            {[...Array(5)].map((_, i) => (
+              <Ionicons
+                key={i}
+                name={i < rating ? "star" : "star-outline"}
+                size={16}
+                color={theme.primary}
+              />
+            ))}
+          </View>
         </View>
+        <Text style={styles.name}>{name}</Text>
         <Text style={styles.comment}>{comment}</Text>
       </View>
     </View>
@@ -45,29 +48,35 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.08)",
     padding: 12,
     borderRadius: 12,
-    marginBottom: 10,
+    marginBottom: 12,
+    marginHorizontal: 6,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     marginRight: 12,
   },
   content: {
     flex: 1,
   },
-  name: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 14,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
   username: {
     color: "#aaa",
     fontSize: 12,
-    marginBottom: 4,
   },
   stars: {
     flexDirection: "row",
+  },
+  name: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
     marginBottom: 4,
   },
   comment: {

@@ -1,20 +1,20 @@
 import { setToken } from "@/api/AxiosInstance";
 import { Login } from "@/api/UserDataEndpoint";
-import ButtonFit from "@/components/ui/ButtonFit";
-import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
-  Pressable,
-  StyleSheet,
+  View,
   Text,
   TextInput,
-  View,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
 } from "react-native";
 import Toast from "react-native-toast-message";
+
+const { width } = Dimensions.get("window");
 
 export const LoginScreen = () => {
   const [Email, setEmail] = useState<string>("");
@@ -50,149 +50,157 @@ export const LoginScreen = () => {
   }
 
   return (
-    <>
-      <View style={styles.container}>
-        <SolidBackground style={StyleSheet.absoluteFill} />
-        <View style={styles.content}>
-          <Image
-            source={require("@/assets/icons/branding/Invictus_Logo_weight3.png")}
-            style={styles.logoImage}
-            resizeMode="contain"
+    <View style={styles.container}>
+      {/* Title */}
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Welcome Back!</Text>
+      </View>
+
+      {/* Form */}
+      <View style={styles.formContainer}>
+        <View style={styles.inputContainer}>
+          <Ionicons
+            name="mail-outline"
+            size={24}
+            color={theme.textColor}
+            style={styles.inputIcon}
           />
-          <View style={styles.headingContainer}>
-            <Text style={[styles.heading, styles.headingBold]}>
-              Welcome Back!
-            </Text>
-          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={theme.buttonBorder}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            value={Email}
+            onChangeText={setEmail}
+          />
+        </View>
 
-          <View style={styles.formContainer}>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, { flex: 1 }]} // add flex:1 here
-                placeholder="Email"
-                placeholderTextColor={theme.buttonBorder}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                value={Email}
-                onChangeText={setEmail}
-              />
-            </View>
-
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, { flex: 1 }]}
-                secureTextEntry={!showPassword}
-                placeholder="Pass"
-                placeholderTextColor={theme.buttonBorder}
-                autoCapitalize="none"
-                autoComplete="password"
-                value={Password}
-                onChangeText={setPassword}
-              />
-              <Pressable onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons
-                  name={showPassword ? "eye-off" : "eye"}
-                  size={22}
-                  color={theme.textColor}
-                  style={{ marginRight: 10 }}
-                />
-              </Pressable>
-            </View>
-
-            <ButtonFit
-              title="Log In"
-              backgroundColor={theme.primary}
-              onPress={handleSubmit}
+        <View style={styles.inputContainer}>
+          <Ionicons
+            name="lock-closed-outline"
+            size={24}
+            color={theme.textColor}
+            style={styles.inputIcon}
+          />
+          <TextInput
+            style={styles.input}
+            secureTextEntry={!showPassword}
+            placeholder="Password"
+            placeholderTextColor={theme.buttonBorder}
+            autoCapitalize="none"
+            autoComplete="password"
+            value={Password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={styles.eyeIcon}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color={theme.textColor}
             />
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
-    </>
+
+      {/* Bottom Section */}
+      <View style={styles.bottomSection}>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={handleSubmit}
+        >
+          <Text style={styles.loginButtonText}>Log In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")}>
+          <Text style={styles.signupText}>You don't have an account?</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "transparent",
-    overflow: "hidden",
+    backgroundColor: theme.backgroundColor,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  signupHint: {
-    textAlign: "center",
-    fontSize: 13,
-    color: "#aaa",
-    marginTop: 4,
-    fontFamily: theme.regular,
+  titleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 40,
   },
-
-  headingContainer: {
-    alignItems: "center",
+  title: {
+    fontSize: 32,
+    fontFamily: theme.bold,
+    color: "white",
+    textAlign: 'center',
   },
-  content: {
+  formContainer: {
+    width: width - 32,
+    maxWidth: 350,
+    gap: 20,
+    marginBottom: 40,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.buttonsolid,
+    borderRadius: 12,
+    width: '100%',
+  },
+  inputIcon: {
+    marginLeft: 12,
+    marginRight: 5,
+    opacity: 0.6,
+  },
+  input: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-  },
-  logoImage: {
-    width: 120,
     height: 60,
-    marginBottom: 25,
-  },
-  heading: {
-    fontSize: 25,
+    paddingHorizontal: 12,
+    fontSize: 18,
     fontFamily: theme.regular,
-    textAlign: "center",
     color: theme.textColor,
   },
-  headingBold: {
+  eyeIcon: {
+    padding: 10,
+  },
+  bottomSection: {
+    position: 'absolute',
+    bottom: 0,
+    width: width - 32,
+    padding: 20,
+    paddingBottom: 40,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  loginButton: {
+    backgroundColor: theme.primary,
+    paddingVertical: 14,
+    width: 333,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 25,
+    marginBottom: 15,
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 16,
     fontFamily: theme.bold,
   },
-formContainer: {
-  marginTop: 30,
-  width: "100%",
-  maxWidth: 350,  // optional max width so form doesn't get too wide on large screens
-  gap: 18,
-  alignSelf: "center",
-},
-
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.buttonsolid,
-    borderRadius: 10,
-    width: "100%", // make sure container takes full width
-  },
-input: {
-  height: 62,
-  width: "100%", // fill container exactly
-  backgroundColor: theme.buttonsolid,
-  borderRadius: 10,
-  paddingHorizontal: 16,
-  fontSize: 16,
-  fontFamily: theme.regular,
-  color: theme.textColor,
-},
-
-  buttonText: {
-    fontFamily: theme.bold,
-    fontSize: 15,
-  },
-  separatorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 8,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#999",
-  },
-  separatorText: {
-    marginHorizontal: 10,
-    color: "#999",
+  signupText: {
+    color: '#ccc',
+    fontSize: 14,
     fontFamily: theme.medium,
+    textDecorationLine: 'underline',
   },
 });
 
