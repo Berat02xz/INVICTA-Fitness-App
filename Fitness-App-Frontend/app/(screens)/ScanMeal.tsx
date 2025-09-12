@@ -7,6 +7,7 @@ import {
   Image,
   ActivityIndicator,
   Animated,
+  Platform,
 } from "react-native";
 import {
   CameraView,
@@ -21,6 +22,7 @@ import { getUserIdFromToken } from "@/api/TokenDecoder";
 import MealInfo from "@/components/ui/Nutrition/MealInfo";
 import * as ImageManipulator from "expo-image-manipulator";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
@@ -55,6 +57,22 @@ function isFridgeResponse(resp: AIResponse): resp is FridgeInfoResponse {
   return "Meals" in resp && resp.Meals.length > 0 && "Meal" in resp.Meals[0];
 }
 
+// Create a helper component for conditional blur
+const ConditionalBlurView = ({ children, style, intensity = 60, tint = "dark" }) => {
+  if (Platform.OS === 'android') {
+    return (
+      <View style={[style, { backgroundColor: 'rgba(20, 20, 20, 0.95)' }]}>
+        {children}
+      </View>
+    );
+  }
+  return (
+    <BlurView intensity={intensity} tint={tint} style={style}>
+      {children}
+    </BlurView>
+  );
+};
+
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
@@ -78,6 +96,8 @@ export default function ScanScreen() {
 
   const [selectedCategory, setSelectedCategory] = useState("Meal");
   const [flash, setFlash] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const scanningAnim = useRef(new Animated.Value(0)).current;
 
   // might not need memo, react compiler update
   const aiSnapPoints = useMemo(() => ['50%', '75%'], []);
@@ -91,7 +111,12 @@ export default function ScanScreen() {
 
   // Log bottom sheet state changes
   const handleSheetChanges = useCallback((index: number) => {
-    console.log("AI Bottom Sheet Changed:", index);
+    if (index === -1) {
+      setAiResponse(null);
+      setCapturedPhoto(null);
+      setResizedPhoto(null);
+      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+    }
   }, []);
   const handleMenuSheetChanges = useCallback((index: number) => {
     console.log("Menu Bottom Sheet Changed:", index);
@@ -115,14 +140,53 @@ export default function ScanScreen() {
     ).start();
   }, []);
 
+  // Scanning animation
+  useEffect(() => {
+    if (isScanning) {
+      // Fade in first
+      Animated.timing(scanningAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start(() => {
+        // Then start the pulsing loop
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(scanningAnim, {
+              toValue: 0.4,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(scanningAnim, {
+              toValue: 1,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      });
+    } else {
+      // Fade out when stopping
+      Animated.timing(scanningAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isScanning]);
+
   const takePhoto = async () => {
+    console.log("takePhoto function called");
     if (!cameraRef.current) {
       console.warn("Camera ref is not available");
       return;
     }
     try {
+      console.log("Starting photo capture...");
       setIsCapturing(true);
       setIsLoading(true);
+      setIsScanning(true); // Start scanning animation
+      
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
         skipProcessing: false,
@@ -176,6 +240,7 @@ export default function ScanScreen() {
     } finally {
       setIsCapturing(false);
       setIsLoading(false);
+      setIsScanning(false); // Stop scanning animation
     }
   };
 
@@ -215,7 +280,7 @@ export default function ScanScreen() {
           </BlurView>
         </View>
         {/* Permission Card */}
-        <BlurView intensity={60} tint="dark" style={styles.permissionCard}>
+        <ConditionalBlurView intensity={60} tint="dark" style={styles.permissionCard}>
           <MaterialCommunityIcons name="camera-off" size={64} color={theme.primary} style={{ marginBottom: 16 }} />
           <Text style={styles.permissionTitle}>Camera Permission Needed</Text>
           <Text style={styles.permissionText}>
@@ -225,33 +290,7 @@ export default function ScanScreen() {
           <Pressable onPress={requestPermission} style={styles.permissionButton}>
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </Pressable>
-        </BlurView>
-        {/* Bottom Sheet for Menu (Today's Scanned Meals) */}
-        <BottomSheet
-          ref={menuBottomSheetRef}
-          snapPoints={menuSnapPoints}
-          index={0}
-          onChange={handleMenuSheetChanges}
-          enablePanDownToClose={false}
-          backgroundStyle={{ backgroundColor: "transparent" }}
-          handleIndicatorStyle={styles.handleIndicator}
-          containerStyle={styles.menuBottomSheetContainer}
-        >
-          <BlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-            <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
-              <View style={styles.menuSheetContent}>
-                <Text style={[styles.infoTitle, styles.menuTitle]}>📅 Today's Scanned Meals</Text>
-                <Text style={styles.infoText}>No meals scanned yet today.</Text>
-                {[1, 2, 3].map((item) => (
-                  <View key={item} style={styles.placeholderCard}>
-                    <Text style={styles.placeholderText}>Meal {item}</Text>
-                    <Text style={styles.placeholderSubText}>Placeholder for scanned meal</Text>
-                  </View>
-                ))}
-              </View>
-            </BottomSheetView>
-          </BlurView>
-        </BottomSheet>
+        </ConditionalBlurView>
       </GestureHandlerRootView>
     );
   }
@@ -289,15 +328,16 @@ export default function ScanScreen() {
 
           {/* Focus Guidelines */}
           <View style={styles.focusGuideline}>
-            {["topLeft", "topRight", "bottomLeft", "bottomRight"].map((corner) => (
-              <View key={corner} style={[styles.corner, styles[corner]]} />
-            ))}
+            <View style={[styles.corner, styles.topLeft]} />
+            <View style={[styles.corner, styles.topRight]} />
+            <View style={[styles.corner, styles.bottomLeft]} />
+            <View style={[styles.corner, styles.bottomRight]} />
           </View>
 
           {/* Bottom Controls */}
           <View style={styles.bottomControls}>
             {/* Category Picker */}
-            <BlurView intensity={40} tint="default" style={styles.categoryPill}>
+            <View style={styles.categoryPill}>
               {categories.map((cat) => (
                 <Pressable
                   key={cat.key}
@@ -312,15 +352,21 @@ export default function ScanScreen() {
                   {selectedCategory === cat.key && <Text style={styles.categoryText}>{cat.key}</Text>}
                 </Pressable>
               ))}
-            </BlurView>
+            </View>
 
             {/* Flash and Snap Row */}
             <View style={styles.controlRow}>
-              <Pressable style={styles.flashButton} onPress={() => setFlash(!flash)}>
+              <Pressable style={styles.flashButton} onPress={() => {
+                console.log("Flash button pressed, current flash:", flash);
+                setFlash(!flash);
+              }}>
                 <MaterialCommunityIcons name={flash ? "flash" : "flash-off"} size={28} color="#fff" />
               </Pressable>
               <Pressable
-                onPress={takePhoto}
+                onPress={() => {
+                  console.log("Snap button pressed");
+                  takePhoto();
+                }}
                 style={[styles.snapButton, isCapturing && { opacity: 0.6 }]}
                 disabled={isCapturing}
               >
@@ -340,7 +386,115 @@ export default function ScanScreen() {
         </View>
       </View>
 
-      {/* Bottom Sheet for Menu (Today's Scanned Meals) */}
+      {/* Bottom Sheet for AI Response (Calorie Card) */}
+      {aiResponse && (
+        <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={aiSnapPoints}
+          index={0} // Show at first snap point when response exists
+          onChange={handleSheetChanges}
+          enablePanDownToClose={true}
+          backgroundStyle={{ backgroundColor: "transparent" }}
+          handleIndicatorStyle={styles.handleIndicator}
+          containerStyle={styles.aiBottomSheetContainer}
+        >
+          <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
+            <BottomSheetView style={styles.bottomSheetContent}>
+              <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
+                {isLoading ? (
+                  <View>
+                    <Animated.View style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 24, marginBottom: 12 }]} />
+                    {[1, 2, 3, 4, 5].map((_, idx) => (
+                      <Animated.View
+                        key={idx}
+                        style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 18, marginBottom: 6 }]}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  aiResponse && (
+                    <MealInfo>
+                      {selectedCategory === "Meal" && isMealResponse(aiResponse) && (
+                        <View style={styles.mealCard}>
+                          <View style={styles.mealHeader}>
+                            <View style={styles.caloriesBadge}>
+                              <Text style={styles.caloriesText}>{aiResponse.CaloriesAmount} kcal</Text>
+                            </View>
+                          </View>
+                          <Text style={styles.infoTitle}>🍽️ {aiResponse.ShortMealName}</Text>
+                          <View style={styles.nutritionGrid}>
+                            <View style={styles.nutritionItem}>
+                              <Text style={styles.nutritionIcon}>💪</Text>
+                              <Text style={styles.nutritionLabel}>Protein</Text>
+                              <Text style={styles.nutritionValue}>{aiResponse.Protein}g</Text>
+                            </View>
+                            <View style={styles.nutritionItem}>
+                              <Text style={styles.nutritionIcon}>🍞</Text>
+                              <Text style={styles.nutritionLabel}>Carbs</Text>
+                              <Text style={styles.nutritionValue}>{aiResponse.Carbs}g</Text>
+                            </View>
+                            <View style={styles.nutritionItem}>
+                              <Text style={styles.nutritionIcon}>🧈</Text>
+                              <Text style={styles.nutritionLabel}>Fat</Text>
+                              <Text style={styles.nutritionValue}>{aiResponse.Fat}g</Text>
+                            </View>
+                          </View>
+                          <View style={styles.qualityContainer}>
+                            <Text style={styles.qualityLabel}>Quality Rating:</Text>
+                            <Text style={styles.qualityValue}>{aiResponse.MealQuality}</Text>
+                          </View>
+                        </View>
+                      )}
+                      {selectedCategory === "Menu" && isMenuResponse(aiResponse) && (
+                        <View style={styles.menuCard}>
+                          <Text style={styles.infoTitle}>📋 Menu Items</Text>
+                          {aiResponse.Meals.map((meal, idx) => (
+                            <View key={idx} style={styles.menuItem}>
+                              <View style={styles.menuItemHeader}>
+                                <Text style={styles.menuItemName}>{meal.MenuName}</Text>
+                                <View style={styles.caloriesBadgeSmall}>
+                                  <Text style={styles.caloriesTextSmall}>{meal.Calories} kcal</Text>
+                                </View>
+                              </View>
+                              <Text style={styles.ingredientsText}>
+                                🥦 {meal.Ingredients.join(" • ")}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                      {selectedCategory === "Fridge" && isFridgeResponse(aiResponse) && (
+                        <View style={styles.fridgeCard}>
+                          <Text style={styles.infoTitle}>🧊 Fridge Suggestions</Text>
+                          {aiResponse.Meals.map((meal, idx) => (
+                            <View key={idx} style={styles.fridgeItem}>
+                              <View style={styles.fridgeItemHeader}>
+                                <Text style={styles.fridgeItemName}>{meal.Meal}</Text>
+                                <View style={styles.caloriesBadgeSmall}>
+                                  <Text style={styles.caloriesTextSmall}>{meal.Calories} kcal</Text>
+                                </View>
+                              </View>
+                              <Text style={styles.ingredientsText}>
+                                🥦 {meal.Ingredients.join(" • ")}
+                              </Text>
+                              <View style={styles.timeContainer}>
+                                <Text style={styles.timeIcon}>⏱️</Text>
+                                <Text style={styles.timeText}>{meal.TimeToMake}</Text>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </MealInfo>
+                  )
+                )}
+              </Animated.View>
+            </BottomSheetView>
+          </ConditionalBlurView>
+        </BottomSheet>
+      )}
+
+      {/* Unified Menu Bottom Sheet for Today's Scanned Meals - appears on both permission and camera screens */}
       <BottomSheet
         ref={menuBottomSheetRef}
         snapPoints={menuSnapPoints}
@@ -349,106 +503,88 @@ export default function ScanScreen() {
         enablePanDownToClose={false} // Prevent full closing
         backgroundStyle={{ backgroundColor: "transparent" }}
         handleIndicatorStyle={styles.handleIndicator}
-        containerStyle={styles.menuBottomSheetContainer} // Lower zIndex
+        containerStyle={styles.menuBottomSheetContainer} // Lower zIndex than AI response
       >
-        <BlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
+        <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
           <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
             <View style={styles.menuSheetContent}>
               <Text style={[styles.infoTitle, styles.menuTitle]}>📅 Today's Scanned Meals</Text>
-              <Text style={styles.infoText}>No meals scanned yet today.</Text>
-              {[1, 2, 3].map((item) => (
-                <View key={item} style={styles.placeholderCard}>
-                  <Text style={styles.placeholderText}>Meal {item}</Text>
-                  <Text style={styles.placeholderSubText}>Placeholder for scanned meal</Text>
+              
+              {/* Realistic meal cards with detailed nutrition data */}
+              <View style={styles.todayMealCard}>
+                <View style={styles.todayMealHeader}>
+                  <Text style={styles.todayMealName}>Grilled Chicken Salad</Text>
+                  <View style={styles.caloriesBadgeSmall}>
+                    <Text style={styles.caloriesTextSmall}>420 kcal</Text>
+                  </View>
                 </View>
-              ))}
+                <View style={styles.todayNutritionRow}>
+                  <View style={styles.todayProteinPill}>
+                    <Text style={styles.todayProteinText}>35g</Text>
+                  </View>
+                  <View style={styles.todayCarbsPill}>
+                    <Text style={styles.todayCarbsText}>12g</Text>
+                  </View>
+                  <View style={styles.todayFatPill}>
+                    <Text style={styles.todayFatText}>18g</Text>
+                  </View>
+                </View>
+                <View style={styles.todayTimeContainer}>
+                  <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
+                  <Text style={styles.todayTimeText}>2 hours ago</Text>
+                </View>
+              </View>
+
+              <View style={styles.todayMealCard}>
+                <View style={styles.todayMealHeader}>
+                  <Text style={styles.todayMealName}>Quinoa Bowl</Text>
+                  <View style={styles.caloriesBadgeSmall}>
+                    <Text style={styles.caloriesTextSmall}>380 kcal</Text>
+                  </View>
+                </View>
+                <View style={styles.todayNutritionRow}>
+                  <View style={styles.todayProteinPill}>
+                    <Text style={styles.todayProteinText}>15g</Text>
+                  </View>
+                  <View style={styles.todayCarbsPill}>
+                    <Text style={styles.todayCarbsText}>45g</Text>
+                  </View>
+                  <View style={styles.todayFatPill}>
+                    <Text style={styles.todayFatText}>12g</Text>
+                  </View>
+                </View>
+                <View style={styles.todayTimeContainer}>
+                  <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
+                  <Text style={styles.todayTimeText}>5 hours ago</Text>
+                </View>
+              </View>
+
+              <View style={styles.todayMealCard}>
+                <View style={styles.todayMealHeader}>
+                  <Text style={styles.todayMealName}>Avocado Toast</Text>
+                  <View style={styles.caloriesBadgeSmall}>
+                    <Text style={styles.caloriesTextSmall}>290 kcal</Text>
+                  </View>
+                </View>
+                <View style={styles.todayNutritionRow}>
+                  <View style={styles.todayProteinPill}>
+                    <Text style={styles.todayProteinText}>8g</Text>
+                  </View>
+                  <View style={styles.todayCarbsPill}>
+                    <Text style={styles.todayCarbsText}>22g</Text>
+                  </View>
+                  <View style={styles.todayFatPill}>
+                    <Text style={styles.todayFatText}>18g</Text>
+                  </View>
+                </View>
+                <View style={styles.todayTimeContainer}>
+                  <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
+                  <Text style={styles.todayTimeText}>8 hours ago</Text>
+                </View>
+              </View>
             </View>
           </BottomSheetView>
-        </BlurView>
-      </BottomSheet>
-
-      {/* Bottom Sheet for AI Response (Calorie Card) */}
-      <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={aiSnapPoints}
-        index={-1} // Closed initially
-        onChange={handleSheetChanges}
-        enablePanDownToClose={true}
-        backgroundStyle={{ backgroundColor: "transparent" }}
-        handleIndicatorStyle={styles.handleIndicator}
-        containerStyle={styles.aiBottomSheetContainer} // Higher zIndex
-      >
-        <BlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-          <BottomSheetView style={styles.bottomSheetContent}>
-            <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
-              {isLoading ? (
-                <View>
-                  <Animated.View style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 24, marginBottom: 12 }]} />
-                  {[1, 2, 3, 4, 5].map((_, idx) => (
-                    <Animated.View
-                      key={idx}
-                      style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 18, marginBottom: 6 }]}
-                    />
-                  ))}
-                </View>
-              ) : (
-                aiResponse && (
-                  <MealInfo>
-                    {selectedCategory === "Meal" && isMealResponse(aiResponse) && (
-                      <>
-                        <Text style={styles.infoTitle}>🍽️ {aiResponse.ShortMealName}</Text>
-                        <Text style={styles.infoText}>
-                          🔥 Calories: <Text style={styles.bold}>{aiResponse.CaloriesAmount} kcal</Text>
-                        </Text>
-                        <Text style={styles.infoText}>
-                          💪 Protein: <Text style={styles.bold}>{aiResponse.Protein} g</Text>
-                        </Text>
-                        <Text style={styles.infoText}>
-                          🍞 Carbs: <Text style={styles.bold}>{aiResponse.Carbs} g</Text>
-                        </Text>
-                        <Text style={styles.infoText}>
-                          🧈 Fat: <Text style={styles.bold}>{aiResponse.Fat} g</Text>
-                        </Text>
-                        <Text style={styles.infoText}>
-                          🏷️ Label: <Text style={styles.bold}>{aiResponse.MealQuality}</Text>
-                        </Text>
-                      </>
-                    )}
-                    {selectedCategory === "Menu" && isMenuResponse(aiResponse) && (
-                      <>
-                        <Text style={styles.infoTitle}>📋 Menu Items</Text>
-                        {aiResponse.Meals.map((meal, idx) => (
-                          <View key={idx} style={styles.mealItem}>
-                            <Text style={styles.infoSubtitle}>
-                              🍲 {meal.MenuName} — <Text style={styles.bold}>{meal.Calories} kcal</Text>
-                            </Text>
-                            <Text style={styles.infoText}>🥦 Ingredients: {meal.Ingredients.join(", ")}</Text>
-                          </View>
-                        ))}
-                      </>
-                    )}
-                    {selectedCategory === "Fridge" && isFridgeResponse(aiResponse) && (
-                      <>
-                        <Text style={styles.infoTitle}>🧊 Fridge Suggestions</Text>
-                        {aiResponse.Meals.map((meal, idx) => (
-                          <View key={idx} style={styles.mealItem}>
-                            <Text style={styles.infoSubtitle}>
-                              🍴 {meal.Meal} — <Text style={styles.bold}>{meal.Calories} kcal</Text>
-                            </Text>
-                            <Text style={styles.infoText}>🥦 Ingredients: {meal.Ingredients.join(", ")}</Text>
-                            <Text style={styles.infoText}>
-                              ⏱️ Time to Make: <Text style={styles.bold}>{meal.TimeToMake}</Text>
-                            </Text>
-                          </View>
-                        ))}
-                      </>
-                    )}
-                  </MealInfo>
-                )
-              )}
-            </Animated.View>
-          </BottomSheetView>
-        </BlurView>
+        </ConditionalBlurView>
       </BottomSheet>
     </GestureHandlerRootView>
   );
@@ -459,7 +595,7 @@ const styles = StyleSheet.create({
   cameraWrapper: { flex: 1 },
   topBar: {
     position: "absolute",
-    top: Constants.statusBarHeight + 10,
+    top: Constants.statusBarHeight + 25,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
@@ -494,8 +630,9 @@ const styles = StyleSheet.create({
     left: "15%",
     width: "70%",
     height: "30%",
+    opacity: 0.2,
   },
-  corner: { width: 30, height: 50, borderColor: "#fff", borderWidth: 3, borderRadius: 3, position: "absolute" },
+  corner: { width: 20, height: 50, borderColor: "#fff", borderWidth: 3, borderRadius: 3, position: "absolute" },
   topLeft: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
   topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
@@ -503,16 +640,19 @@ const styles = StyleSheet.create({
 
   bottomControls: {
     position: "absolute",
-    bottom: 100, // Moved higher to avoid overlap with menu bottom sheet
+    bottom: 110, // Moved higher to avoid overlap with menu bottom sheet
     width: "100%",
     alignItems: "center",
+    zIndex: 15, // Below bottom sheets but above background elements
   },
   categoryPill: {
     flexDirection: "row",
-    borderRadius: 30, // Keep rounded shape for pill
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: 30, // Large enough for pill shape
+    backgroundColor: "rgba(255, 255, 255, 0.08)", // Add a subtle background for pill look
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     marginBottom: 20,
+    alignSelf: "center",
   },
   categoryItem: {
     paddingHorizontal: 12,
@@ -522,7 +662,9 @@ const styles = StyleSheet.create({
   },
   selectedCategory: {
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: 30,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   categoryText: {
     marginLeft: 8,
@@ -545,9 +687,16 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.1)", // Add background for visibility
   },
   snapInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: "#fff" },
-  flashButton: { width: 50, height: 50, justifyContent: "center", alignItems: "center" },
+  flashButton: { 
+    width: 50, 
+    height: 50, 
+    justifyContent: "center", 
+    alignItems: "center",
+
+  },
   placeholderButton: { width: 50, height: 50, justifyContent: "center", alignItems: "center" },
 
   permissionContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -606,8 +755,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: "hidden",
   },
-  handleIndicator: { backgroundColor: "#fff", width: 40, height:  4 },
-  bottomSheetContent: { flex: 1, padding: 30 },
+  handleIndicator: { 
+    backgroundColor: "#fff", 
+    width: 40, 
+    height: 4,
+    borderRadius: 2,
+    top: 25,
+   },
+  bottomSheetContent: { flex: 1, padding: 15 }, // Reduced from 30 to 20
   menuBottomSheetContent: {
     marginHorizontal: 16, // Reduce width by adding horizontal margins
   },
@@ -625,7 +780,7 @@ const styles = StyleSheet.create({
   },
 
   menuSheetContent: {
-    padding: 8, // Reduced padding to bring content closer to top
+    padding: 20,
   },
   placeholderCard: {
     backgroundColor: "rgba(255,255,255,0.1)",
@@ -636,15 +791,270 @@ const styles = StyleSheet.create({
   placeholderText: { color: "#fff", fontSize: 16, fontWeight: "600" },
   placeholderSubText: { color: "#ddd", fontSize: 14, opacity: 0.8 },
 
-  aiBottomSheetContainer: { zIndex: 20 }, // Higher zIndex to appear above menu bottom sheet
-  menuBottomSheetContainer: { zIndex: 10 }, // Lower zIndex
+  aiBottomSheetContainer: { zIndex: 30 }, // Highest zIndex - appears above everything
+  menuBottomSheetContainer: { zIndex: 25 }, // High zIndex - appears above buttons but below AI sheet
 
   gradientShadow: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60, // Taller to ensure visibility under the bottom sheet
-    zIndex: 9, // Below the menu bottom sheet (zIndex: 10)
+    height: 200, // Taller to ensure visibility under the bottom sheet
+    zIndex: 5, // Lower than everything else
+  },
+  // New card styles
+  mealCard: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  menuCard: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  fridgeCard: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  mealHeader: {
+    flexDirection: "row",
+    justifyContent: "center", // Center the calorie badge
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  caloriesBadge: {
+    backgroundColor: theme.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  caloriesText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  caloriesBadgeSmall: {
+    backgroundColor: theme.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  caloriesTextSmall: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  nutritionGrid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 16,
+  },
+  nutritionItem: {
+    alignItems: "center",
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 4,
+  },
+  nutritionIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  nutritionLabel: {
+    color: "#aaa",
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  nutritionValue: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  qualityContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 8,
+    padding: 12,
+  },
+  qualityLabel: {
+    color: "#aaa",
+    fontSize: 14,
+  },
+  qualityValue: {
+    color: theme.primary,
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  menuItem: {
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.primary,
+  },
+  menuItemHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  menuItemName: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    flex: 1,
+    marginRight: 8,
+  },
+  fridgeItem: {
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: "#00d4aa",
+  },
+  fridgeItemHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  fridgeItemName: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    flex: 1,
+    marginRight: 8,
+  },
+  ingredientsText: {
+    color: "#ccc",
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  timeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 6,
+    padding: 8,
+    alignSelf: "flex-start",
+  },
+  timeIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  timeText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 12,
+  },
+  // Today's meal styles
+  todayMealCard: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  todayMealHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  todayMealName: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 18, // Increased from 16
+    flex: 1,
+    marginRight: 8,
+  },
+  todayNutritionRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start", // Align badges to left instead of stretching
+    marginBottom: 12,
+    gap: 8, // Increase gap between small badges
+    flexWrap: "wrap", // Allow wrapping if needed
+  },
+  // Protein pill - Blue theme (smaller badge style)
+  todayProteinPill: {
+    backgroundColor: "rgba(66, 165, 245, 0.15)", // Light blue background
+    borderRadius: 12, // Smaller radius for badge look
+    paddingHorizontal: 8, // Reduced padding
+    paddingVertical: 4, // Reduced padding
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(66, 165, 245, 0.3)",
+    alignSelf: "flex-start", // Don't stretch
+  },
+  todayProteinText: {
+    color: "#42A5F5", // Blue text
+    fontSize: 9, // Smaller font for compact badges
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  // Carbs pill - Orange theme (smaller badge style)
+  todayCarbsPill: {
+    backgroundColor: "rgba(255, 167, 38, 0.15)", // Light orange background
+    borderRadius: 12, // Smaller radius for badge look
+    paddingHorizontal: 8, // Reduced padding
+    paddingVertical: 4, // Reduced padding
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 167, 38, 0.3)",
+    alignSelf: "flex-start", // Don't stretch
+  },
+  todayCarbsText: {
+    color: "#FFA726", // Orange text
+    fontSize: 9, // Smaller font for compact badges
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  // Fat pill - Green theme (smaller badge style)
+  todayFatPill: {
+    backgroundColor: "rgba(102, 187, 106, 0.15)", // Light green background
+    borderRadius: 12, // Smaller radius for badge look
+    paddingHorizontal: 8, // Reduced padding
+    paddingVertical: 4, // Reduced padding
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(102, 187, 106, 0.3)",
+    alignSelf: "flex-start", // Don't stretch
+  },
+  todayFatText: {
+    color: "#66BB6A", // Green text
+    fontSize: 9, // Smaller font for compact badges
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  todayTimeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    opacity: 0.6, // Lower opacity to de-emphasize
+  },
+  todayTimeIcon: {
+    marginRight: 6,
+  },
+  todayTimeText: {
+    color: "#aaa",
+    fontSize: 12,
+    fontStyle: "italic",
   },
 });
