@@ -25,6 +25,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "@/constants/theme";
+import { BlurView } from "expo-blur";
 
 // Meal/AI types
 export type MealInfoResponse = {
@@ -199,12 +200,58 @@ export default function ScanScreen() {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SolidBackground style={StyleSheet.absoluteFill} />
-        <View style={styles.permissionContainer}>
-          <Text style={styles.permissionText}>We need your permission to use the camera</Text>
+        {/* Top Bar: Back & Menu Buttons */}
+        <View style={styles.topBar}>
+          <BlurView intensity={40} tint="dark" style={styles.glassButton}>
+            <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+              <MaterialCommunityIcons name="arrow-left" size={28} color="#fff" />
+            </Pressable>
+          </BlurView>
+          <Text style={styles.title}>Scanner</Text>
+          <BlurView intensity={40} tint="dark" style={styles.glassButton}>
+            <Pressable style={styles.menuButton} onPress={handleOpenMenu}>
+              <MaterialCommunityIcons name="menu" size={28} color="#fff" />
+            </Pressable>
+          </BlurView>
+        </View>
+        {/* Permission Card */}
+        <BlurView intensity={60} tint="dark" style={styles.permissionCard}>
+          <MaterialCommunityIcons name="camera-off" size={64} color={theme.primary} style={{ marginBottom: 16 }} />
+          <Text style={styles.permissionTitle}>Camera Permission Needed</Text>
+          <Text style={styles.permissionText}>
+            To scan your meals, we need access to your camera. Please grant permission to continue.
+          </Text>
+          {/* Grant Permission Button (no blur) */}
           <Pressable onPress={requestPermission} style={styles.permissionButton}>
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </Pressable>
-        </View>
+        </BlurView>
+        {/* Bottom Sheet for Menu (Today's Scanned Meals) */}
+        <BottomSheet
+          ref={menuBottomSheetRef}
+          snapPoints={menuSnapPoints}
+          index={0}
+          onChange={handleMenuSheetChanges}
+          enablePanDownToClose={false}
+          backgroundStyle={{ backgroundColor: "transparent" }}
+          handleIndicatorStyle={styles.handleIndicator}
+          containerStyle={styles.menuBottomSheetContainer}
+        >
+          <BlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
+            <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
+              <View style={styles.menuSheetContent}>
+                <Text style={[styles.infoTitle, styles.menuTitle]}>📅 Today's Scanned Meals</Text>
+                <Text style={styles.infoText}>No meals scanned yet today.</Text>
+                {[1, 2, 3].map((item) => (
+                  <View key={item} style={styles.placeholderCard}>
+                    <Text style={styles.placeholderText}>Meal {item}</Text>
+                    <Text style={styles.placeholderSubText}>Placeholder for scanned meal</Text>
+                  </View>
+                ))}
+              </View>
+            </BottomSheetView>
+          </BlurView>
+        </BottomSheet>
       </GestureHandlerRootView>
     );
   }
@@ -227,13 +274,17 @@ export default function ScanScreen() {
 
           {/* Top Bar */}
           <View style={styles.topBar}>
-            <Pressable style={[styles.backButton, styles.glassButton]} onPress={() => navigation.goBack()}>
-              <MaterialCommunityIcons name="arrow-left" size={28} color="#fff" />
-            </Pressable>
+            <BlurView intensity={40} tint="dark" style={styles.glassButton}>
+              <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+                <MaterialCommunityIcons name="arrow-left" size={28} color="#fff" />
+              </Pressable>
+            </BlurView>
             <Text style={styles.title}>Scanner</Text>
-            <Pressable style={[styles.menuButton, styles.glassButton]} onPress={handleOpenMenu}>
-              <MaterialCommunityIcons name="menu" size={28} color="#fff" />
-            </Pressable>
+            <BlurView intensity={40} tint="dark" style={styles.glassButton}>
+              <Pressable style={styles.menuButton} onPress={handleOpenMenu}>
+                <MaterialCommunityIcons name="menu" size={28} color="#fff" />
+              </Pressable>
+            </BlurView>
           </View>
 
           {/* Focus Guidelines */}
@@ -246,7 +297,7 @@ export default function ScanScreen() {
           {/* Bottom Controls */}
           <View style={styles.bottomControls}>
             {/* Category Picker */}
-            <View style={[styles.categoryPill, styles.glassButton]}>
+            <BlurView intensity={40} tint="default" style={styles.categoryPill}>
               {categories.map((cat) => (
                 <Pressable
                   key={cat.key}
@@ -261,7 +312,7 @@ export default function ScanScreen() {
                   {selectedCategory === cat.key && <Text style={styles.categoryText}>{cat.key}</Text>}
                 </Pressable>
               ))}
-            </View>
+            </BlurView>
 
             {/* Flash and Snap Row */}
             <View style={styles.controlRow}>
@@ -296,22 +347,24 @@ export default function ScanScreen() {
         index={0} // Start at minimal height (10%)
         onChange={handleMenuSheetChanges}
         enablePanDownToClose={false} // Prevent full closing
-        backgroundStyle={styles.bottomSheetBackground}
+        backgroundStyle={{ backgroundColor: "transparent" }}
         handleIndicatorStyle={styles.handleIndicator}
         containerStyle={styles.menuBottomSheetContainer} // Lower zIndex
       >
-        <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
-          <View style={styles.menuSheetContent}>
-            <Text style={[styles.infoTitle, styles.menuTitle]}>📅 Today's Scanned Meals</Text>
-            <Text style={styles.infoText}>No meals scanned yet today.</Text>
-            {[1, 2, 3].map((item) => (
-              <View key={item} style={styles.placeholderCard}>
-                <Text style={styles.placeholderText}>Meal {item}</Text>
-                <Text style={styles.placeholderSubText}>Placeholder for scanned meal</Text>
-              </View>
-            ))}
-          </View>
-        </BottomSheetView>
+        <BlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
+          <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
+            <View style={styles.menuSheetContent}>
+              <Text style={[styles.infoTitle, styles.menuTitle]}>📅 Today's Scanned Meals</Text>
+              <Text style={styles.infoText}>No meals scanned yet today.</Text>
+              {[1, 2, 3].map((item) => (
+                <View key={item} style={styles.placeholderCard}>
+                  <Text style={styles.placeholderText}>Meal {item}</Text>
+                  <Text style={styles.placeholderSubText}>Placeholder for scanned meal</Text>
+                </View>
+              ))}
+            </View>
+          </BottomSheetView>
+        </BlurView>
       </BottomSheet>
 
       {/* Bottom Sheet for AI Response (Calorie Card) */}
@@ -321,79 +374,81 @@ export default function ScanScreen() {
         index={-1} // Closed initially
         onChange={handleSheetChanges}
         enablePanDownToClose={true}
-        backgroundStyle={styles.bottomSheetBackground}
+        backgroundStyle={{ backgroundColor: "transparent" }}
         handleIndicatorStyle={styles.handleIndicator}
         containerStyle={styles.aiBottomSheetContainer} // Higher zIndex
       >
-        <BottomSheetView style={styles.bottomSheetContent}>
-          <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
-            {isLoading ? (
-              <View>
-                <Animated.View style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 24, marginBottom: 12 }]} />
-                {[1, 2, 3, 4, 5].map((_, idx) => (
-                  <Animated.View
-                    key={idx}
-                    style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 18, marginBottom: 6 }]}
-                  />
-                ))}
-              </View>
-            ) : (
-              aiResponse && (
-                <MealInfo>
-                  {selectedCategory === "Meal" && isMealResponse(aiResponse) && (
-                    <>
-                      <Text style={styles.infoTitle}>🍽️ {aiResponse.ShortMealName}</Text>
-                      <Text style={styles.infoText}>
-                        🔥 Calories: <Text style={styles.bold}>{aiResponse.CaloriesAmount} kcal</Text>
-                      </Text>
-                      <Text style={styles.infoText}>
-                        💪 Protein: <Text style={styles.bold}>{aiResponse.Protein} g</Text>
-                      </Text>
-                      <Text style={styles.infoText}>
-                        🍞 Carbs: <Text style={styles.bold}>{aiResponse.Carbs} g</Text>
-                      </Text>
-                      <Text style={styles.infoText}>
-                        🧈 Fat: <Text style={styles.bold}>{aiResponse.Fat} g</Text>
-                      </Text>
-                      <Text style={styles.infoText}>
-                        🏷️ Label: <Text style={styles.bold}>{aiResponse.MealQuality}</Text>
-                      </Text>
-                    </>
-                  )}
-                  {selectedCategory === "Menu" && isMenuResponse(aiResponse) && (
-                    <>
-                      <Text style={styles.infoTitle}>📋 Menu Items</Text>
-                      {aiResponse.Meals.map((meal, idx) => (
-                        <View key={idx} style={styles.mealItem}>
-                          <Text style={styles.infoSubtitle}>
-                            🍲 {meal.MenuName} — <Text style={styles.bold}>{meal.Calories} kcal</Text>
-                          </Text>
-                          <Text style={styles.infoText}>🥦 Ingredients: {meal.Ingredients.join(", ")}</Text>
-                        </View>
-                      ))}
-                    </>
-                  )}
-                  {selectedCategory === "Fridge" && isFridgeResponse(aiResponse) && (
-                    <>
-                      <Text style={styles.infoTitle}>🧊 Fridge Suggestions</Text>
-                      {aiResponse.Meals.map((meal, idx) => (
-                        <View key={idx} style={styles.mealItem}>
-                          <Text style={styles.infoSubtitle}>
-                            🍴 {meal.Meal} — <Text style={styles.bold}>{meal.Calories} kcal</Text>
-                          </Text>
-                          <Text style={styles.infoText}>🥦 Ingredients: {meal.Ingredients.join(", ")}</Text>
-                          <Text style={styles.infoText}>
-                            ⏱️ Time to Make: <Text style={styles.bold}>{meal.TimeToMake}</Text>
-                          </Text>
-                        </View>
-                      ))}
-                    </>
-                  )}
-                </MealInfo>
-              )
-            )}
-          </Animated.View>
-        </BottomSheetView>
+        <BlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
+          <BottomSheetView style={styles.bottomSheetContent}>
+            <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
+              {isLoading ? (
+                <View>
+                  <Animated.View style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 24, marginBottom: 12 }]} />
+                  {[1, 2, 3, 4, 5].map((_, idx) => (
+                    <Animated.View
+                      key={idx}
+                      style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 18, marginBottom: 6 }]}
+                    />
+                  ))}
+                </View>
+              ) : (
+                aiResponse && (
+                  <MealInfo>
+                    {selectedCategory === "Meal" && isMealResponse(aiResponse) && (
+                      <>
+                        <Text style={styles.infoTitle}>🍽️ {aiResponse.ShortMealName}</Text>
+                        <Text style={styles.infoText}>
+                          🔥 Calories: <Text style={styles.bold}>{aiResponse.CaloriesAmount} kcal</Text>
+                        </Text>
+                        <Text style={styles.infoText}>
+                          💪 Protein: <Text style={styles.bold}>{aiResponse.Protein} g</Text>
+                        </Text>
+                        <Text style={styles.infoText}>
+                          🍞 Carbs: <Text style={styles.bold}>{aiResponse.Carbs} g</Text>
+                        </Text>
+                        <Text style={styles.infoText}>
+                          🧈 Fat: <Text style={styles.bold}>{aiResponse.Fat} g</Text>
+                        </Text>
+                        <Text style={styles.infoText}>
+                          🏷️ Label: <Text style={styles.bold}>{aiResponse.MealQuality}</Text>
+                        </Text>
+                      </>
+                    )}
+                    {selectedCategory === "Menu" && isMenuResponse(aiResponse) && (
+                      <>
+                        <Text style={styles.infoTitle}>📋 Menu Items</Text>
+                        {aiResponse.Meals.map((meal, idx) => (
+                          <View key={idx} style={styles.mealItem}>
+                            <Text style={styles.infoSubtitle}>
+                              🍲 {meal.MenuName} — <Text style={styles.bold}>{meal.Calories} kcal</Text>
+                            </Text>
+                            <Text style={styles.infoText}>🥦 Ingredients: {meal.Ingredients.join(", ")}</Text>
+                          </View>
+                        ))}
+                      </>
+                    )}
+                    {selectedCategory === "Fridge" && isFridgeResponse(aiResponse) && (
+                      <>
+                        <Text style={styles.infoTitle}>🧊 Fridge Suggestions</Text>
+                        {aiResponse.Meals.map((meal, idx) => (
+                          <View key={idx} style={styles.mealItem}>
+                            <Text style={styles.infoSubtitle}>
+                              🍴 {meal.Meal} — <Text style={styles.bold}>{meal.Calories} kcal</Text>
+                            </Text>
+                            <Text style={styles.infoText}>🥦 Ingredients: {meal.Ingredients.join(", ")}</Text>
+                            <Text style={styles.infoText}>
+                              ⏱️ Time to Make: <Text style={styles.bold}>{meal.TimeToMake}</Text>
+                            </Text>
+                          </View>
+                        ))}
+                      </>
+                    )}
+                  </MealInfo>
+                )
+              )}
+            </Animated.View>
+          </BottomSheetView>
+        </BlurView>
       </BottomSheet>
     </GestureHandlerRootView>
   );
@@ -426,10 +481,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   glassButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)", // Low-opacity white for glass effect
-    borderRadius: 25, // Circular shape for buttons, rounded for category pill
+    borderRadius: 25,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)", // Subtle border for definition
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    overflow: "hidden",
+    marginHorizontal: 2,
   },
 
   focusGuideline: {
@@ -495,13 +551,63 @@ const styles = StyleSheet.create({
   placeholderButton: { width: 50, height: 50, justifyContent: "center", alignItems: "center" },
 
   permissionContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  permissionText: { color: "white", textAlign: "center", marginBottom: 12, fontSize: 16 },
-  permissionButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: theme.primary, borderRadius: 12 },
-  permissionButtonText: { color: "black", fontWeight: "bold", fontSize: 16 },
-  
-  bottomSheetBackground: { backgroundColor: "#1a1a1a", opacity: 0.95 },
-  handleIndicator: { backgroundColor: "#fff", width: 40, height: 4 },
-  bottomSheetContent: { flex: 1, padding: 16 },
+  permissionCard: {
+    position: "absolute",
+    top: "30%",
+    alignSelf: "center",
+    width: 340,
+    borderRadius: 24,
+    padding: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 6,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.18)",
+    overflow: "hidden",
+  },
+  permissionTitle: {
+    color: theme.primary,
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  permissionText: {
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 18,
+    fontSize: 16,
+    opacity: 0.85,
+  },
+  permissionButton: {
+    paddingHorizontal: 28,
+    paddingVertical: 12,
+    backgroundColor: theme.primary,
+    borderRadius: 16,
+    marginTop: 8,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 2,
+    alignItems: "center",
+  },
+  permissionButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 0.5,
+  },
+  bottomSheetBackground: {
+    flex: 1,
+    borderRadius: 24,
+    overflow: "hidden",
+  },
+  handleIndicator: { backgroundColor: "#fff", width: 40, height:  4 },
+  bottomSheetContent: { flex: 1, padding: 30 },
   menuBottomSheetContent: {
     marginHorizontal: 16, // Reduce width by adding horizontal margins
   },
