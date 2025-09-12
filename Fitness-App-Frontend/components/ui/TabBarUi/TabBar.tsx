@@ -1,5 +1,4 @@
-import { View, Platform, LayoutChangeEvent, StyleSheet } from "react-native";
-import { useLinkBuilder, useTheme } from "@react-navigation/native";
+import { View, LayoutChangeEvent, StyleSheet } from "react-native";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TabBarButton from "./TabBarButton";
@@ -10,34 +9,40 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { TouchableOpacity } from "react-native";
+import { BlurView } from "expo-blur";
+
+const ACTIVE_CIRCLE = theme.primary;
+const ICON_COLOR_SELECTED = "#FFFFFF";
+const ICON_COLOR_UNSELECTED = "#A0A0A0";
 
 export const icon = {
   Workout: (props: any) => (
     <Ionicons
       name={props.focused ? "barbell" : "barbell-outline"}
-      size={24}
-      color={props.focused ? "#FFFFFF" : theme.textColorSecondary}
+      size={25}
+      color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
   Nutrition: (props: any) => (
     <Ionicons
       name={props.focused ? "restaurant" : "restaurant-outline"}
-      size={24}
-      color={props.focused ? "#FFFFFF" : theme.textColorSecondary}
+      size={25}
+      color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
   Chatbot: (props: any) => (
     <Ionicons
       name={props.focused ? "chatbubbles" : "chatbubbles-outline"}
-      size={24}
-      color={props.focused ? "#FFFFFF" : theme.textColorSecondary}
+      size={25}
+      color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
-  Statistics: (props: any) => (
+  Profile: (props: any) => (
     <Ionicons
-      name={props.focused ? "pie-chart" : "pie-chart-outline"}
-      size={24}
-      color={props.focused ? "#FFFFFF" : theme.textColorSecondary}
+      name={props.focused ? "person" : "person-outline"}
+      size={25}
+      color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
 };
@@ -47,11 +52,10 @@ export function TabBar({
   descriptors,
   navigation,
 }: BottomTabBarButtonProps) {
-  const { buildHref } = useLinkBuilder();
-  const [dimensions, setDimensions] = useState({ width: 100, height: 50 });
+  const [dimensions, setDimensions] = useState({ width: 400, height: 75 });
   const buttonCount = state.routes.length;
   const buttonWidth = dimensions.width / buttonCount;
-  const circleSize = 70;
+  const circleSize = 64;
 
   const tabPositionX = useSharedValue(0);
 
@@ -75,80 +79,111 @@ export function TabBar({
   }));
 
   return (
-    <View style={styles.tabBar} onLayout={onTabbarLayout}>
-      {/* Red circle highlight */}
-      <Animated.View
-        style={[
-          {
-            position: "absolute",
-            height: circleSize,
-            width: circleSize,
-            backgroundColor: "red",
-            borderRadius: circleSize / 2.3,
-            top: (dimensions.height - circleSize) / 2.2,
-          },
-          animatedStyle,
-        ]}
-      />
+    <View style={styles.tabBarWrapper} onLayout={onTabbarLayout}>
+      <BlurView
+        intensity={50}
+        tint="dark"
+        style={styles.tabBar}
+      >
+        {/* Glass effect border */}
+        <View style={styles.glassBorder} pointerEvents="none" />
 
-      {state.routes.map((route: any, index: any) => {
-        const { options } = descriptors[route.key];
-        const label =
-          options.tabBarLabel ?? options.title ?? route.name;
-        const isFocused = state.index === index;
+        {/* Colored circle highlight for active tab */}
+        <Animated.View
+          style={[
+            styles.circle,
+            {
+              top: (dimensions.height - circleSize) / 2,
+              backgroundColor: ACTIVE_CIRCLE,
+              width: circleSize,
+              height: circleSize,
+              borderRadius: circleSize / 2,
+            },
+            animatedStyle,
+          ]}
+        />
+        {state.routes.map((route: any, index: any) => {
+          const { options } = descriptors[route.key];
+          const label =
+            options.tabBarLabel ?? options.title ?? route.name;
+          const isFocused = state.index === index;
 
-        const onPress = () => {
-          const offset = (buttonWidth - circleSize) / 2;
-          tabPositionX.value = withSpring(buttonWidth * index + offset, {
-            damping: 15,
-            stiffness: 150,
-          });
+          const onPress = () => {
+            const offset = (buttonWidth - circleSize) / 2;
+            tabPositionX.value = withSpring(buttonWidth * index + offset, {
+              damping: 15,
+              stiffness: 150,
+            });
 
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
-          });
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
-
-        return (
-          <TabBarButton
-            key={route.key}
-            routeName={route.name}
-            label={label}
-            isFocused={isFocused}
-            onPress={onPress}
-            onLongPress={() =>
-              navigation.emit({ type: "tabLongPress", target: route.key })
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name, route.params);
             }
-            color={isFocused ? "#FFFFFF" : theme.textColorSecondary}
-          />
-        );
-      })}
+          };
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              testID={options.tabBarTestID}
+              onPress={onPress}
+              style={{
+                width: buttonWidth,
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: isFocused ? 2 : 1,
+              }}
+              activeOpacity={0.7}
+            >
+              {icon[route.name as keyof typeof icon]?.({ focused: isFocused })}
+            </TouchableOpacity>
+          );
+        })}
+      </BlurView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
+  tabBarWrapper: {
     position: "absolute",
-    flexDirection: "row",
     bottom: 25,
+    alignSelf: "center",
+    width: 333,
+    height: 75,
+    zIndex: 10,
+  },
+  tabBar: {
+    flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "white",
-    alignSelf: "center",
-    paddingVertical: 15,
-    
-    borderRadius: 30,
+    backgroundColor: "rgba(20,20,20,0.7)", // frosted dark
+    paddingVertical: 14,
+    borderRadius: 100,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-    width: 330,
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 3,
+    width: 333,
+    height: 75,
+    overflow: "hidden",
+  },
+  glassBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: "rgba(145, 145, 145, 0.18)", // glassy white border
+    zIndex: 2,
+  },
+  circle: {
+    position: "absolute",
+    zIndex: 1,
   },
 });

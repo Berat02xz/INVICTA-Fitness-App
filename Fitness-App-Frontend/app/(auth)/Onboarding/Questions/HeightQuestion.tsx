@@ -8,6 +8,9 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
+const DEFAULT_HEIGHT_METRIC = "170";
+const DEFAULT_HEIGHT_IMPERIAL = "5'7";
+
 const HeightQuestion = () => {
   const { goForward, answers, saveSelection } = useOnboarding();
 
@@ -47,7 +50,11 @@ const HeightQuestion = () => {
   };
 
   const handleSubmit = () => {
-    saveSelection("height", height);
+    let heightToSave = height;
+    if (height === "") {
+      heightToSave = unit === "metric" ? DEFAULT_HEIGHT_METRIC : DEFAULT_HEIGHT_IMPERIAL;
+    }
+    saveSelection("height", heightToSave);
     saveSelection("unit", unit);
     goForward();
   };

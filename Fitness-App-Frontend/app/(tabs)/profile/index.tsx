@@ -1,59 +1,38 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet, ImageBackground } from "react-native";
 
-interface PersonComponentProps {
-    name: string;
-    email: string;
-    avatar?: string;
+export default function Profile() {
+  return (
+    <ImageBackground
+      source={{
+        uri: "https://images.unsplash.com/photo-1542785291-fe3faea39066?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGlnaHR8ZW58MHx8MHx8fDA%3D",
+      }}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.text}>Profile Feature Coming Soon!</Text>
+      </View>
+    </ImageBackground>
+  );
 }
 
-const ProfileScreen : React.FC<PersonComponentProps> = ({ name, email, avatar }) => {
-    return (
-        <View style={styles.container}>
-            <Image 
-                source={{ uri: avatar || 'https://via.placeholder.com/100' }}
-                style={styles.avatar}
-            />
-            <View style={styles.info}>
-                <Text style={styles.name}>{name}</Text>
-                <Text style={styles.email}>{email}</Text>
-            </View>
-        </View>
-    );
-};
-
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        marginVertical: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    avatar: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginRight: 16,
-    },
-    info: {
-        flex: 1,
-    },
-    name: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    email: {
-        fontSize: 14,
-        color: '#666',
-    },
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
 });
-
-export default ProfileScreen;

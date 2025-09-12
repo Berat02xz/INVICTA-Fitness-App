@@ -8,6 +8,9 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
+const DEFAULT_WEIGHT_METRIC = "70";
+const DEFAULT_WEIGHT_IMPERIAL = "154";
+
 const WeightQuestion = () => {
   const { goForward, answers, saveSelection } = useOnboarding();
   const [unit, setUnit] = useState<"metric" | "imperial">(
@@ -20,7 +23,11 @@ const WeightQuestion = () => {
   };
 
   const handleSubmit = () => {
-    saveSelection("weight", weight);
+    let weightToSave = weight;
+    if (weight === "") {
+      weightToSave = unit === "metric" ? DEFAULT_WEIGHT_METRIC : DEFAULT_WEIGHT_IMPERIAL;
+    }
+    saveSelection("weight", weightToSave);
     saveSelection("unit", unit);
     goForward();
   };

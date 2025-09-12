@@ -106,6 +106,14 @@ export default function JourneyStartsNow() {
                     text={`You’ll crush your goal by ${animatedDateString}`}
                   />
                 </FadeTranslate>
+                <FadeTranslate order={5}>
+                  <UndertextCard
+                    emoji="🍽️"
+                    title="Workout & Diet"
+                    titleColor="white"
+                    text="Initial Daily Caloric Intake based on your goals"
+                  />
+                </FadeTranslate>
               </View>
 
               <FadeTranslate order={5}>

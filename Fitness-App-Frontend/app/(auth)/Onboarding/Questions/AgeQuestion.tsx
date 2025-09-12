@@ -3,20 +3,31 @@ import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
+const DEFAULT_AGE = "25"; // You can change this default as needed
+
 const AgeQuestion = () => {
   const { goForward, saveSelection, answers } = useOnboarding();
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState<string>(() => answers?.age?.toString() ?? "");
+
+  // If answers.age arrives later, initialize only when local age is empty
+  useEffect(() => {
+    if (answers?.age != null && age === "") {
+      setAge(String(answers.age));
+    }
+  }, [answers?.age]);
 
   const handleChange = (value: string) => {
-    setAge(value);
+    const digitsOnly = value.replace(/[^0-9]/g, "");
+    setAge(digitsOnly);
   };
 
   const handleSubmit = () => {
-    saveSelection("age", age);
+    const ageToSave = age === "" ? DEFAULT_AGE : age;
+    saveSelection("age", ageToSave);
     goForward();
   };
 
@@ -29,7 +40,7 @@ const AgeQuestion = () => {
 
           <TextInput
             style={styles.input}
-            value={answers.age?.toString() || ""}
+            value={age}
             onChangeText={handleChange}
             keyboardType="numeric"
             placeholder="Age"
