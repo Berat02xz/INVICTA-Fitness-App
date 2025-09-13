@@ -1,180 +1,340 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
-  Image,
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { theme } from "@/constants/theme"; // Ensure theme is defined or provide fallback
+import { theme } from "@/constants/theme";
 import { router } from "expo-router";
 import Animated, {
   useSharedValue,
-  useAnimatedScrollHandler,
-  runOnJS,
   useAnimatedStyle,
   withTiming,
+  withRepeat,
+  withSequence,
   interpolate,
-  Extrapolation,
+  useDerivedValue,
+  Easing,
 } from "react-native-reanimated";
-import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
-// Use Dimensions for responsive layout
 const { width, height } = Dimensions.get("window");
-
-// Import images for both mobile and web
-// Replace these with actual image assets in your project
-// Example: Place images in src/assets/icons/onboarding/
-import Welcome1 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
-import Welcome2 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
-import Welcome3 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
-import Welcome4 from "@/assets/icons/onboarding/Welcome1.png"; // Replace with actual image
-
-const images = [Welcome1, Welcome2, Welcome3, Welcome4];
-
-// Fallback image URL in case imports fail
-const FALLBACK_IMAGE = 'https://via.placeholder.com/375x200?text=Fallback+Image';
 
 const titles = ['Body', 'Metabolism', 'Mind', 'Progress'];
 
+// Circle colors - primarily red-ish
+const circleColors = [
+  '#b80b0bff', // Light red
+  '#FF5252', // Red
+  '#E57373', // Light red
+  '#F44336', // Material red
+  '#D32F2F', // Dark red
+  '#B71C1C', // Deep red
+  '#981306ff', // Light red accent
+  '#FF1744', // Red accent
+];
+
 export default function WelcomeScreen() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const scrollX = useSharedValue(0);
-  const scrollRef = useRef<Animated.ScrollView>(null);
+  const [activeTitleIndex, setActiveTitleIndex] = useState(0);
+  
+  // Simple shared values for circle positions
+  const circle1X = useSharedValue(width * 0.2);
+  const circle1Y = useSharedValue(height * 0.3);
+  const circle2X = useSharedValue(width * 0.7);
+  const circle2Y = useSharedValue(height * 0.2);
+  const circle3X = useSharedValue(width * 0.3);
+  const circle3Y = useSharedValue(height * 0.7);
+  const circle4X = useSharedValue(width * 0.8);
+  const circle4Y = useSharedValue(height * 0.6);
+  const circle5X = useSharedValue(width * 0.5);
+  const circle5Y = useSharedValue(height * 0.4);
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollX.value = event.contentOffset.x;
-      const index = Math.round(event.contentOffset.x / width);
-      runOnJS(setActiveIndex)(index);
-    },
-  });
+  // Title animation
+  const titleOpacity = useSharedValue(1);
 
+  // Simple random movement for each circle - web compatible
+  useEffect(() => {
+    // Initialize positions immediately
+    circle1X.value = width * 0.2;
+    circle1Y.value = height * 0.3;
+    circle2X.value = width * 0.7;
+    circle2Y.value = height * 0.2;
+    circle3X.value = width * 0.3;
+    circle3Y.value = height * 0.7;
+    circle4X.value = width * 0.8;
+    circle4Y.value = height * 0.6;
+    circle5X.value = width * 0.5;
+    circle5Y.value = height * 0.4;
+
+    // Start animations with slight delay for web compatibility
+    const startAnimations = () => {
+      const moveRange = 80;
+      
+      // Circle 1
+      circle1X.value = withRepeat(
+        withSequence(
+          withTiming(width * 0.2 + moveRange, { duration: 3000, easing: Easing.inOut(Easing.quad) }),
+          withTiming(width * 0.2 - moveRange, { duration: 3000, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+      
+      circle1Y.value = withRepeat(
+        withSequence(
+          withTiming(height * 0.3 + moveRange * 0.8, { duration: 3500, easing: Easing.inOut(Easing.quad) }),
+          withTiming(height * 0.3 - moveRange * 0.8, { duration: 3500, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+
+      // Circle 2
+      circle2X.value = withRepeat(
+        withSequence(
+          withTiming(width * 0.7 - moveRange, { duration: 2500, easing: Easing.inOut(Easing.quad) }),
+          withTiming(width * 0.7 + moveRange, { duration: 2500, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+      
+      circle2Y.value = withRepeat(
+        withSequence(
+          withTiming(height * 0.2 + moveRange * 0.6, { duration: 4000, easing: Easing.inOut(Easing.quad) }),
+          withTiming(height * 0.2 - moveRange * 0.6, { duration: 4000, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+
+      // Circle 3
+      circle3X.value = withRepeat(
+        withSequence(
+          withTiming(width * 0.3 + moveRange * 0.7, { duration: 3200, easing: Easing.inOut(Easing.quad) }),
+          withTiming(width * 0.3 - moveRange * 0.7, { duration: 3200, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+      
+      circle3Y.value = withRepeat(
+        withSequence(
+          withTiming(height * 0.7 - moveRange, { duration: 2800, easing: Easing.inOut(Easing.quad) }),
+          withTiming(height * 0.7 + moveRange, { duration: 2800, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+
+      // Circle 4
+      circle4X.value = withRepeat(
+        withSequence(
+          withTiming(width * 0.8 - moveRange * 0.9, { duration: 3800, easing: Easing.inOut(Easing.quad) }),
+          withTiming(width * 0.8 + moveRange * 0.9, { duration: 3800, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+      
+      circle4Y.value = withRepeat(
+        withSequence(
+          withTiming(height * 0.6 + moveRange * 0.5, { duration: 3600, easing: Easing.inOut(Easing.quad) }),
+          withTiming(height * 0.6 - moveRange * 0.5, { duration: 3600, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+
+      // Circle 5
+      circle5X.value = withRepeat(
+        withSequence(
+          withTiming(width * 0.5 + moveRange * 0.6, { duration: 2700, easing: Easing.inOut(Easing.quad) }),
+          withTiming(width * 0.5 - moveRange * 0.6, { duration: 2700, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+      
+      circle5Y.value = withRepeat(
+        withSequence(
+          withTiming(height * 0.4 - moveRange * 0.7, { duration: 4200, easing: Easing.inOut(Easing.quad) }),
+          withTiming(height * 0.4 + moveRange * 0.7, { duration: 4200, easing: Easing.inOut(Easing.quad) })
+        ),
+        -1,
+        false
+      );
+    };
+
+    // Start animations immediately for web, with small delay for others
+    if (Platform.OS === 'web') {
+      startAnimations();
+    } else {
+      setTimeout(startAnimations, 100);
+    }
+  }, []);
+
+  // Title shuffling effect
   useEffect(() => {
     const interval = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % images.length;
-      scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
-      runOnJS(setActiveIndex)(nextIndex);
-    }, 2500);
+      titleOpacity.value = withSequence(
+        withTiming(0, { duration: 200 }),
+        withTiming(1, { duration: 200 })
+      );
+      
+      setTimeout(() => {
+        setActiveTitleIndex((prev) => (prev + 1) % titles.length);
+      }, 200);
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [activeIndex]);
+  }, []);
 
-  const goPrev = () => {
-    const prevIndex = (activeIndex - 1 + images.length) % images.length;
-    scrollRef.current?.scrollTo({ x: prevIndex * width, animated: true });
-    setActiveIndex(prevIndex);
-  };
+  // Simple animated styles with explicit positioning
+  const circle1Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: circle1X.value - width * 0.2 },
+      { translateY: circle1Y.value - height * 0.3 }
+    ],
+  }));
 
-  const goNext = () => {
-    const nextIndex = (activeIndex + 1) % images.length;
-    scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
-    setActiveIndex(nextIndex);
-  };
+  const circle2Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: circle2X.value - width * 0.7 },
+      { translateY: circle2Y.value - height * 0.2 }
+    ],
+  }));
+
+  const circle3Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: circle3X.value - width * 0.3 },
+      { translateY: circle3Y.value - height * 0.7 }
+    ],
+  }));
+
+  const circle4Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: circle4X.value - width * 0.8 },
+      { translateY: circle4Y.value - height * 0.6 }
+    ],
+  }));
+
+  const circle5Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: circle5X.value - width * 0.5 },
+      { translateY: circle5Y.value - height * 0.4 }
+    ],
+  }));
+
+  // Title animation style with web fallback
+  const titleAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+  }));
 
   return (
     <View style={styles.container}>
-      {/* Title and Controls */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.titleStatic}>Master Your</Text>
-        <View style={styles.dynamicContainer}>
-          {titles.map((title, index) => {
-            const animatedStyle = useAnimatedStyle(() => {
-              const inputRange = [
-                (index - 1) * width,
-                index * width,
-                (index + 1) * width,
-              ];
-              const opacity = interpolate(
-                scrollX.value,
-                inputRange,
-                [0, 1, 0],
-                Extrapolation.CLAMP
-              );
-              return { opacity };
-            });
-            return (
-              <Animated.Text
-                key={index}
-                style={[styles.titleDynamic, animatedStyle]}
-              >
-                {title}
-              </Animated.Text>
-            );
-          })}
-        </View>
-        {/* Controls: Arrows and Dots */}
-        <View style={styles.controlsContainer}>
-          <TouchableOpacity onPress={goPrev} style={styles.arrowButton}>
-            <Ionicons name="chevron-back" size={32} color="white" />
-          </TouchableOpacity>
-          <View style={styles.dotsContainer}>
-            {images.map((_, i) => {
-              const animatedStyle = useAnimatedStyle(() => ({
-                backgroundColor: i === activeIndex ? theme.primary : 'rgba(255, 255, 255, 0.5)',
-                width: withTiming(i === activeIndex ? 20 : 8),
-                transform: [{ scale: withTiming(i === activeIndex ? 1.2 : 1) }],
-              }));
-              return (
-                <Animated.View
-                  key={i}
-                  style={[styles.dot, animatedStyle]}
-                />
-              );
-            })}
+      {/* Animated Circles Background */}
+      <View style={styles.circlesContainer}>
+        <Animated.View style={[
+          styles.circle, 
+          { 
+            backgroundColor: circleColors[0],
+            left: width * 0.2 - 250,
+            top: height * 0.3 - 250,
+          }, 
+          circle1Style
+        ]} />
+        <Animated.View style={[
+          styles.circle, 
+          { 
+            backgroundColor: circleColors[1], 
+            width: 120, 
+            height: 120,
+            left: width * 0.7 - 60,
+            top: height * 0.2 - 60,
+          }, 
+          circle2Style
+        ]} />
+        <Animated.View style={[
+          styles.circle, 
+          { 
+            backgroundColor: circleColors[2], 
+            width: 80, 
+            height: 80,
+            left: width * 0.3 - 40,
+            top: height * 0.7 - 40,
+          }, 
+          circle3Style
+        ]} />
+        <Animated.View style={[
+          styles.circle, 
+          { 
+            backgroundColor: circleColors[3], 
+            width: 150, 
+            height: 150,
+            left: width * 0.8 - 75,
+            top: height * 0.6 - 75,
+          }, 
+          circle4Style
+        ]} />
+        <Animated.View style={[
+          styles.circle, 
+          { 
+            backgroundColor: circleColors[4], 
+            width: 90, 
+            height: 90,
+            left: width * 0.5 - 45,
+            top: height * 0.4 - 45,
+          }, 
+          circle5Style
+        ]} />
+      </View>
+
+
+      <BlurView 
+        intensity={Platform.OS === 'android' ? 150 : 20}
+        blurReductionFactor={Platform.OS === 'android' ? 2 : undefined}
+        tint="dark"
+        style={styles.blurContainer}
+        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
+      >
+        {/* Content */}
+        <View style={styles.contentContainer}>
+          {/* Title Section */}
+          <View style={styles.titleSection}>
+            <FadeTranslate order={1}>
+              <Text style={styles.masterText}>Master your</Text>
+             </FadeTranslate> 
+             <FadeTranslate order={2}>
+               <Animated.Text style={[styles.dynamicTitle, titleAnimatedStyle]}>
+                 {titles[activeTitleIndex]}
+               </Animated.Text>
+             </FadeTranslate>
           </View>
-          <TouchableOpacity onPress={goNext} style={styles.arrowButton}>
-            <Ionicons name="chevron-forward" size={32} color="white" />
-          </TouchableOpacity>
+              
+          <FadeTranslate order={3}>
+          {/* Bottom Section */}
+          <View style={styles.bottomSection}>
+            <TouchableOpacity
+              style={styles.beginButton}
+              onPress={() => router.push("../../../(auth)/Onboarding/Questions/FitnessGoal")}
+            >
+                <Text style={styles.beginButtonText}>Begin</Text>
+            </TouchableOpacity>
+
+          <FadeTranslate order={4}>
+            <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+              <Text style={styles.loginText}>You already have an account?</Text>
+            </TouchableOpacity>
+          </FadeTranslate>
+          </View>              
+          </FadeTranslate>
         </View>
-      </View>
-
-      {/* Carousel */}
-      <View style={styles.carouselContainer}>
-        <Animated.ScrollView
-          ref={scrollRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          style={styles.carousel}
-          snapToInterval={width}
-          decelerationRate="fast"
-          contentContainerStyle={styles.carouselContent}
-        >
-          {images.map((img, index) => (
-            <View key={index} style={styles.imageWrapper}>
-              <Image
-                source={img}
-                style={styles.image}
-                resizeMode="contain"
-                defaultSource={{ uri: FALLBACK_IMAGE }}
-                onError={(e) => console.log(`Image ${index} load error:`, e.nativeEvent.error)}
-                onLoad={() => console.log(`Image ${index} loaded successfully`)}
-              />
-            </View>
-          ))}
-        </Animated.ScrollView>
-      </View>
-
-      {/* Bottom section */}
-      <View style={styles.bottomSection}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={() =>
-            router.push("../../../(auth)/Onboarding/Questions/FitnessGoal")
-          }
-        >
-          <Text style={styles.startButtonText}>Let's start</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-          <Text style={styles.loginText}>You already have an account?</Text>
-        </TouchableOpacity>
-      </View>
+      </BlurView>
     </View>
   );
 }
@@ -182,137 +342,77 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme?.backgroundColor || '#1a1a1a',
+    backgroundColor: "#000000",
   },
-  titleContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 70,
-    marginBottom: 20,
-  },
-  titleStatic: {
-    fontSize: 32,
-    fontFamily: theme?.bold || 'Arial',
-    color: 'white',
-    textAlign: 'center',
-  },
-  dynamicContainer: {
-    position: 'relative',
-    width: 200,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 5,
-    marginBottom: 20,
-  },
-  titleDynamic: {
-    fontSize: 32,
-    fontFamily: theme?.bold || 'Arial',
-    color: 'white',
-    textShadowColor: 'rgba(255, 255, 255, 0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+  circlesContainer: {
     position: 'absolute',
     top: 0,
-    width: '100%',
-    textAlign: 'center',
-    ...Platform.select({
-      web: {
-        transitionProperty: 'opacity',
-        transitionDuration: '200ms',
-        transitionTimingFunction: 'ease-in-out',
-      },
-    }),
+    left: 0,
+    right: 0,
+    bottom: 0,
+    filter: Platform.OS === 'web' ? 'blur(120px)' : undefined,
   },
-  controlsContainer: {
-    flexDirection: 'row',
+  circle: {
+    position: 'absolute',
+    width: 500,
+    height: 500,
+    borderRadius: 50,
+    opacity: 0.7,
+  },
+  blurContainer: {
+    flex: 1,
     justifyContent: 'space-between',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  titleSection: {
     alignItems: 'center',
-    paddingHorizontal: 10,
-    width: '60%',
-  },
-  arrowButton: {
-    padding: 10,
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-  },
-  dot: {
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
-    ...Platform.select({
-      web: {
-        transitionProperty: 'all',
-        transitionDuration: '200ms',
-        transitionTimingFunction: 'ease-in-out',
-      },
-    }),
-  },
-  carouselContainer: {
-    position: 'relative',
-    height: height * 0.5,
-    alignItems: 'center',
-    overflow: 'hidden',
-    ...Platform.select({
-      web: {
-        backgroundColor: 'transparent', // Add contrast to verify image visibility
-      },
-    }),
-  },
-  carousel: {
-    height: height * 0.5,
-    width,
-  },
-  carouselContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  imageWrapper: {
-    width,
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    height: height * 0.5,
   },
-  image: {
-    width: '100%',
-    height: '100%',
-    maxHeight: 200,
-    ...Platform.select({
-      web: {
-        objectFit: 'contain', // Ensure web images scale correctly
-      },
-    }),
+  masterText: {
+    fontSize: 32,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: theme.regular,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  dynamicTitle: {
+    fontSize: 48,
+    color: 'white',
+    fontFamily: theme.bold,
+    textAlign: 'center',
   },
   bottomSection: {
-    position: 'absolute',
-    bottom: 0,
-    width: width - 32,
-    padding: 20,
-    paddingBottom: 20,
     alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 16,
+    paddingBottom: Platform.OS === "ios" ? 50 : 30,
   },
-  startButton: {
-    backgroundColor: theme?.primary || '#3b82f6',
-    width: 333,
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    marginBottom: 12,
+  beginButton: {
+    backgroundColor: 'white',
+    borderRadius: 30,
+    paddingVertical: 16,
+    paddingHorizontal: 60,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  startButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: theme?.bold || 'Arial',
+  beginButtonText: {
+    color: '#000000',
+    fontSize: 18,
+    fontFamily: theme.bold,
+    textAlign: 'center',
   },
   loginText: {
-    color: 'white',
+    color: 'rgba(255, 255, 255, 0.7)',
     fontSize: 14,
-    fontFamily: theme?.medium || 'Arial',
-    textDecorationLine: 'underline',
+    textAlign: 'center',
+    fontFamily: theme.regular,
   },
 });
