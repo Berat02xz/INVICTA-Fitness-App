@@ -7,6 +7,7 @@ import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const DEFAULT_WEIGHT_METRIC = "70";
 const DEFAULT_WEIGHT_IMPERIAL = "154";
@@ -37,7 +38,10 @@ const WeightQuestion = () => {
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.content}>
+          <FadeTranslate order={1}>
           <QuestionOnboarding question="What is your weight?" />
+          </FadeTranslate>
+          <FadeTranslate order={2}>
           <View style={styles.unitSwitchWrapper}>
             <UnitSwitch
               unit={unit}
@@ -46,7 +50,8 @@ const WeightQuestion = () => {
               imperialLabel="LB"
             />
           </View>
-
+          </FadeTranslate>
+          <FadeTranslate order={3}>
           <TextInput
             key={unit}
             style={styles.input}
@@ -57,6 +62,8 @@ const WeightQuestion = () => {
             placeholderTextColor={theme.buttonBorder}
             underlineColorAndroid="transparent"
           />
+          </FadeTranslate>
+          <FadeTranslate order={4}>
           <View style={styles.undertextCard}>
             <UndertextCard
               emoji="⚖️"
@@ -65,6 +72,7 @@ const WeightQuestion = () => {
               text="Your weight is essential for tailoring your fitness plan."
             />
           </View>
+          </FadeTranslate>
         </View>
 
         <View style={styles.bottom}>

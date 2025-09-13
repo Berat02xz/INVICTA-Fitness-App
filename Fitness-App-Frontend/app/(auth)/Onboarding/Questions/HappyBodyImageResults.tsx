@@ -1,5 +1,6 @@
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 import RadialBlurBackground from "@/components/ui/RadialBlurBackground";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
@@ -35,7 +36,10 @@ export default function HappyBodyImageResults() {
       <View style={styles.container}>
         <View style={styles.main}>
           <View style={styles.middle}>
+            <FadeTranslate order={1}>
             <Text style={styles.sloganBold}>{percentage}% of users</Text>
+            </FadeTranslate>
+            <FadeTranslate order={2}>
             <View style={styles.undertextCard}>
               <UndertextCard
                 emoji="🤗"
@@ -44,8 +48,10 @@ export default function HappyBodyImageResults() {
                 text="You are not alone in your feelings about your body image."
               />
             </View>
+            </FadeTranslate>
           </View>
         </View>
+        <FadeTranslate order={3}>
         <View style={styles.bottom}>
           <ButtonFit
             title="Continue"
@@ -55,6 +61,7 @@ export default function HappyBodyImageResults() {
             }}
           />
         </View>
+        </FadeTranslate>
       </View>
     </View>
     </>

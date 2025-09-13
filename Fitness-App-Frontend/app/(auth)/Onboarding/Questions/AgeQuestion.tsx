@@ -6,6 +6,7 @@ import { theme } from "@/constants/theme";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const DEFAULT_AGE = "25"; // You can change this default as needed
 
@@ -36,8 +37,10 @@ const AgeQuestion = () => {
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.content}>
+          <FadeTranslate order={1}>
           <QuestionOnboarding question="What is your age?" />
-
+          </FadeTranslate>
+          <FadeTranslate order={2}>
           <TextInput
             style={styles.input}
             value={age}
@@ -48,7 +51,8 @@ const AgeQuestion = () => {
             maxLength={3}
             underlineColorAndroid="transparent"
           />
-
+          </FadeTranslate>
+          <FadeTranslate order={3}>
           <View style={styles.undertextCard}>
             <UndertextCard
               emoji="☝️"
@@ -57,6 +61,7 @@ const AgeQuestion = () => {
               text="Helps us make adjustments to your personal plan."
             />
           </View>
+          </FadeTranslate>
         </View>
 
         <View style={styles.bottom}>

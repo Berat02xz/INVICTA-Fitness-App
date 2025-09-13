@@ -6,6 +6,7 @@ import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 const iconmap = {
   weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
   weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
@@ -30,14 +31,16 @@ const FitnessGoalScreen = () => {
       <SolidBackground />
       <View style={styles.outerContainer}>
         <View style={styles.container}>
+          <FadeTranslate order={2}>
           <QuestionOnboarding question="What is your fitness goal?" />
+          </FadeTranslate>
           <View style={{ marginTop: 30 }} />
 
           <ButtonOnboarding
             text="Lose Fat"
             emoji="🏃‍♂️"
             forQuestion="fitness_goal"
-            order={0}
+            order={3}
             onClickContinue={false}
             onClick={() => handleSelectGoal("Lose Fat", "fitness_goal")}
           />
@@ -45,7 +48,7 @@ const FitnessGoalScreen = () => {
             text="Gain Muscle"
             emoji="🏋️‍♀️"
             forQuestion="fitness_goal"
-            order={1}
+            order={4}
             onClickContinue={false}
             onClick={() => handleSelectGoal("Gain Muscle", "fitness_goal")}
           />
@@ -53,7 +56,7 @@ const FitnessGoalScreen = () => {
             text="Build Strength"
             emoji="💪"
             forQuestion="fitness_goal"
-            order={2}
+            order={5}
             onClickContinue={false}
             onClick={() => handleSelectGoal("Build Strength", "fitness_goal")}
           />
@@ -62,7 +65,7 @@ const FitnessGoalScreen = () => {
             //Green plant emoji
             emoji="🤸🏽"
             forQuestion="fitness_goal"
-            order={3}
+            order={6}
             onClickContinue={false}
             onClick={() =>
               handleSelectGoal("Holistic Wellbeing", "fitness_goal")

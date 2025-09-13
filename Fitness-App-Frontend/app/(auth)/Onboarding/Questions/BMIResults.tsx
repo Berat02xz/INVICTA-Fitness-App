@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import calculateBMI from "@/utils/CalculateBMI";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 function BMIResults() {
   const onboardingContext = useOnboarding();
@@ -111,14 +112,14 @@ function BMIResults() {
     <>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.outerContainer}>
-        <View style={styles.main}>
+        <View style={styles.main}>            
+          <FadeTranslate order={1}>
           <View style={styles.middle}>
             <Text style={styles.sloganBold}>Your Body Mass Index</Text>
             <Text style={[styles.sloganRegular, { paddingTop: 60 }]}>
               {dynamicCard.label}
             </Text>
             <Text style={styles.bmiValue}>{displayBmi.toFixed(1)}</Text>
-
             <Image
               source={BMIBar}
               style={{ width: 355 * scale, height: 27.9 * scale }}
@@ -133,6 +134,7 @@ function BMIResults() {
                 height: 16 * scale,
               }}
             />
+            <FadeTranslate order={5}>
             <View style={styles.undertextCard}>
               <UndertextCard
                 emoji={dynamicCard.emoji}
@@ -141,15 +143,19 @@ function BMIResults() {
                 text={dynamicCard.text}
               />
             </View>
-          </View>
+            </FadeTranslate>
+          </View>            
+          </FadeTranslate>
         </View>
 
         <View style={styles.bottom}>
+          <FadeTranslate order={6} duration={1000}>
           <ButtonFit
             title="Continue"
             backgroundColor={theme.primary}
             onPress={() => onboardingContext.goForward()}
           />
+          </FadeTranslate>
         </View>
       </View>
     </>

@@ -7,6 +7,7 @@ import { theme } from "@/constants/theme";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const DEFAULT_HEIGHT_METRIC = "170";
 const DEFAULT_HEIGHT_IMPERIAL = "5'7";
@@ -64,7 +65,10 @@ const HeightQuestion = () => {
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.content}>
+          <FadeTranslate order={1}>
           <QuestionOnboarding question="What is your height?" />
+          </FadeTranslate>
+          <FadeTranslate order={2}>
           <View style={styles.unitSwitchWrapper}>
             <UnitSwitch
               unit={unit}
@@ -73,6 +77,8 @@ const HeightQuestion = () => {
               imperialLabel="FT"
             />
           </View>
+          </FadeTranslate>
+          <FadeTranslate order={3}>
           <TextInput
             key={unit} // force rerender to clear input when unit changes
             style={styles.input}
@@ -83,7 +89,8 @@ const HeightQuestion = () => {
             placeholderTextColor={theme.buttonBorder}
             underlineColorAndroid="transparent"
           />
-
+          </FadeTranslate>
+          <FadeTranslate order={4}>
           <View style={styles.undertextCard}>
             <UndertextCard
               emoji="📏"
@@ -92,14 +99,18 @@ const HeightQuestion = () => {
               text="Calculating your body mass index requires your height."
             />
           </View>
+          </FadeTranslate>
         </View>
 
+
         <View style={styles.bottom}>
+          <FadeTranslate order={5}>
           <ButtonFit
             title="Continue"
             backgroundColor={theme.primary}
             onPress={handleSubmit}
           />
+          </FadeTranslate>
         </View>
       </View>
     </>

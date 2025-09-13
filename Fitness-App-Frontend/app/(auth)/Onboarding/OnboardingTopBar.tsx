@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { theme } from "../../../constants/theme";
 import { useOnboarding } from "./NavigationService";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const TopBar = () => {
   const { goBack, goForward, progressNow, totalScreens } = useOnboarding();
@@ -34,6 +35,7 @@ const TopBar = () => {
 
   return (
     <View style={styles.wrapper}>
+      <FadeTranslate order={1}>
       <View style={styles.topRow}>
         <TouchableOpacity onPress={goBack} style={styles.iconButton}>
           <Ionicons name="arrow-back-outline" size={25} color="#FFFFFF" />
@@ -52,12 +54,14 @@ const TopBar = () => {
           </Text>
         </View>
       </View>
-
+      </FadeTranslate>
+      <FadeTranslate order={2}>
       <View style={styles.progressContainer}>
         <Animated.View
           style={[styles.progressFill, { width: animatedWidth }]}
         />
       </View>
+      </FadeTranslate>
     </View>
   );
 };

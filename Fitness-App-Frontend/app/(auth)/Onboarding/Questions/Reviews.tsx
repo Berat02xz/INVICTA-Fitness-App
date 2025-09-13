@@ -49,27 +49,28 @@ export default function Reviews() {
       <SolidBackground />
       <View style={styles.outerContainer}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-  <FadeTranslate order={0}>
-    <QuestionOnboarding 
-      question="This program adapts to you based on latest science" 
-      undertext="and it has helped thousands"
-    />
-  </FadeTranslate>
+          <FadeTranslate order={0}>
+            <QuestionOnboarding
+              question="This program adapts to you based on latest science"
+              undertext="and it has helped thousands"
+            />
+          </FadeTranslate>
 
-  {reviews.map((review, i) => (
-    <FadeTranslate order={i + 1} key={i}>
-      <ReviewCard {...review} />
-    </FadeTranslate>
-  ))}
-</ScrollView>
-
+          {reviews.map((review, i) => (
+            <FadeTranslate order={i + 1} key={i}>
+              <ReviewCard {...review} />
+            </FadeTranslate>
+          ))}
+        </ScrollView>
 
         <View style={styles.bottom}>
-          <ButtonFit
-            title="Continue"
-            backgroundColor={theme.primary}
-            onPress={goForward}
-          />
+          <FadeTranslate order={5} duration={1000}>
+            <ButtonFit
+              title="Continue"
+              backgroundColor={theme.primary}
+              onPress={goForward}
+            />
+          </FadeTranslate>
         </View>
       </View>
     </>
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
       web: {
         width: 470,
       },
-        default: { width: "100%" },
+      default: { width: "100%" },
     }),
     justifyContent: "flex-start",
     alignSelf: "center",

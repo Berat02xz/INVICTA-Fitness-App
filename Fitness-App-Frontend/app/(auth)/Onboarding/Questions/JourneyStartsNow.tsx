@@ -116,7 +116,7 @@ export default function JourneyStartsNow() {
                 </FadeTranslate>
               </View>
 
-              <FadeTranslate order={5}>
+              <FadeTranslate order={7}>
                 <Text style={styles.sloganRegular}>
                   Your only limit is you. Show up every day.
                 </Text>

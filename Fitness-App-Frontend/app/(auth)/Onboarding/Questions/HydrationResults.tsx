@@ -1,5 +1,6 @@
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
@@ -38,11 +39,14 @@ export default function HappyBodyImageResults() {
         <View style={styles.container}>
           <View style={styles.main}>
             <View style={styles.middle}>
+              <FadeTranslate order={1}>
               <Text style={styles.sloganBold}>
                 {isLowWater
                   ? `Water is essential for progress.`
                   : `You drink more water than ${percentage}% of users`}
               </Text>
+              </FadeTranslate>
+              <FadeTranslate order={2}>
               <View style={styles.undertextCard}>
                 <UndertextCard
                   emoji="💧"
@@ -51,8 +55,10 @@ export default function HappyBodyImageResults() {
                   text="Invicta will remind you to drink enough water."
                 />
               </View>
+              </FadeTranslate>
             </View>
           </View>
+          <FadeTranslate order={3}  duration={1000}>
           <View style={styles.bottom}>
             <ButtonFit
               title="Continue"
@@ -60,6 +66,7 @@ export default function HappyBodyImageResults() {
               onPress={goForward}
             />
           </View>
+          </FadeTranslate>
         </View>
       </View>
     </>

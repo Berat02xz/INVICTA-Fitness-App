@@ -39,7 +39,9 @@ const DesiredTargetWeight = () => {
       <SolidBackground />
       <View style={styles.outerContainer}>
         <View style={styles.container}>
+          <FadeTranslate order={1}>
           <QuestionOnboarding question="Choose your calorie plan" />
+          </FadeTranslate>
           <View style={{ marginTop: 30 }} />
 
           {plans.map((plan, index) => (
@@ -48,7 +50,7 @@ const DesiredTargetWeight = () => {
               text={plan.type}
               undertext={`${plan.caloriesPerDay} kcal/day`}
               badgeText={plan.rate}
-              order={index}
+              order={index+1}
               onClick={() => {
                 setSelectedPlan(plan.type);
                 saveSelection("calories_target", plan.type);
@@ -72,7 +74,7 @@ const DesiredTargetWeight = () => {
               onClickContinue
             />
           ))}
-          <FadeTranslate duration={500}>
+          <FadeTranslate order={8} duration={1000}>
             <View style={{ marginTop: 5 }}>
               <Text style={styles.noteText}>
                 Plans that go below your BMR (your body’s basic energy need) are

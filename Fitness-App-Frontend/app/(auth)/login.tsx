@@ -13,6 +13,8 @@ import {
   Dimensions,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import BlurredBackground from "@/components/ui/BlurredBackground";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const { width } = Dimensions.get("window");
 
@@ -50,84 +52,92 @@ export const LoginScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Title */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Welcome Back!</Text>
-      </View>
-
-      {/* Form */}
-      <View style={styles.formContainer}>
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="mail-outline"
-            size={24}
-            color={theme.textColor}
-            style={styles.inputIcon}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor={theme.buttonBorder}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            value={Email}
-            onChangeText={setEmail}
-          />
+    <BlurredBackground intensity={100} circleBlur={50} animationSpeed={1.5}>
+      <View style={styles.container}>
+        {/* Title */}
+        <View style={styles.titleContainer}>
+          <FadeTranslate order={1}>
+            <Text style={styles.title}>Welcome Back!</Text>
+          </FadeTranslate>
         </View>
 
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={24}
-            color={theme.textColor}
-            style={styles.inputIcon}
-          />
-          <TextInput
-            style={styles.input}
-            secureTextEntry={!showPassword}
-            placeholder="Password"
-            placeholderTextColor={theme.buttonBorder}
-            autoCapitalize="none"
-            autoComplete="password"
-            value={Password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}
-          >
+        {/* Form */}
+        <View style={styles.formContainer}>
+          <FadeTranslate order={2}>
+          <View style={styles.inputContainer}>
             <Ionicons
-              name={showPassword ? "eye-off" : "eye"}
+              name="mail-outline"
               size={24}
               color={theme.textColor}
+              style={styles.inputIcon}
             />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor={theme.buttonBorder}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              value={Email}
+              onChangeText={setEmail}
+            />
+          </View>
+          </FadeTranslate>
+          <FadeTranslate order={3}>
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={24}
+              color={theme.textColor}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              secureTextEntry={!showPassword}
+              placeholder="Password"
+              placeholderTextColor={theme.buttonBorder}
+              autoCapitalize="none"
+              autoComplete="password"
+              value={Password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={24}
+                color={theme.textColor}
+              />
+            </TouchableOpacity>
+          </View>
+          </FadeTranslate>
+        </View>
+          
+        {/* Bottom Section */}
+        <View style={styles.bottomSection}>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={handleSubmit}
+          >
+            
+            <Text style={styles.loginButtonText}>Log In</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")}>
+            <Text style={styles.signupText}>You don't have an account?</Text>
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Bottom Section */}
-      <View style={styles.bottomSection}>
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={handleSubmit}
-        >
-          <Text style={styles.loginButtonText}>Log In</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")}>
-          <Text style={styles.signupText}>You don't have an account?</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      
+    </BlurredBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundColor,
     justifyContent: 'center',
     alignItems: 'center',
   },

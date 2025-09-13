@@ -17,6 +17,7 @@ import Toast from "react-native-toast-message";
 import { useOnboarding } from "../NavigationService";
 import database from "@/database/database";
 import { User } from "@/models/User";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
@@ -88,7 +89,9 @@ const OnboardingComplete = () => {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={{ justifyContent: "center", alignItems: "center" }}>
-            <QuestionOnboarding question="Almost done!" />
+            <FadeTranslate order={1}>
+              <QuestionOnboarding question="Almost done!" />
+            </FadeTranslate>
           </View>
 
           <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
@@ -100,6 +103,7 @@ const OnboardingComplete = () => {
                 flexGrow: 1,
               }}
             >
+              <FadeTranslate order={2}>
               <Text style={styles.infoText}>What should we call you?</Text>
               <TextInput
                 style={styles.input}
@@ -110,7 +114,8 @@ const OnboardingComplete = () => {
                 value={Name}
                 onChangeText={setName}
               />
-
+              </FadeTranslate>
+              <FadeTranslate order={3}>
               <Text style={styles.infoText}>Your Email</Text>
               <View style={{ flexDirection: "row", gap: 10 }}>
                 <TextInput
@@ -123,7 +128,8 @@ const OnboardingComplete = () => {
                   onChangeText={setEmail}
                 />
               </View>
-
+              </FadeTranslate>
+              <FadeTranslate order={4}>
               <Text style={styles.infoText}>Enter A Password</Text>
               <View style={{ flexDirection: "row", gap: 10 }}>
                 <TextInput
@@ -137,16 +143,19 @@ const OnboardingComplete = () => {
                   onChangeText={setPassword}
                 />
               </View>
+              </FadeTranslate>
             </View>
           </View>
         </View>
 
         <View style={styles.bottom}>
+          <FadeTranslate order={5} duration={1000}>
           <ButtonFit
-            title="Continue"
+            title="Register"
             backgroundColor={theme.primary}
             onPress={handleSubmit}
           />
+          </FadeTranslate>
         </View>
       </View>
     </>
