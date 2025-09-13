@@ -50,14 +50,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   glassButton: {
-    borderRadius: 25,
+    borderRadius: 21, // Adjusted for smaller button size
     marginHorizontal: 2,
   },
   glassPill: {
     flexDirection: "row",
-    borderRadius: 30,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderRadius: 22, // Slightly smaller
+    paddingHorizontal: 10, // Reduced padding
+    paddingVertical: 6, // Reduced padding
     alignSelf: "center",
   },
   glassCard: {

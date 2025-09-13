@@ -23,12 +23,14 @@ import MealInfo from "@/components/ui/Nutrition/MealInfo";
 import * as ImageManipulator from "expo-image-manipulator";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import Fontisto from '@expo/vector-icons/Fontisto';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "@/constants/theme";
 import ConditionalBlurView from "@/components/ui/ConditionalBlurView";
 import GlassEffect from "@/components/ui/GlassEffect";
+import MealCard from "@/components/ui/Nutrition/MealCard";
 
 // Meal/AI types
 export type MealInfoResponse = {
@@ -74,15 +76,56 @@ export default function ScanScreen() {
   const menuBottomSheetRef = useRef<BottomSheet>(null);
 
   const categories = [
-    { key: "Fridge", icon: "fridge-outline" },
-    { key: "Meal", icon: "food" },
-    { key: "Menu", icon: "clipboard-text-outline" },
+    { key: "Fridge", icon: "fridge-variant", label: "Scan Fridge" },
+    { key: "Meal", icon: "food-outline", label: "Scan Meal" },
+    { key: "Menu", icon: "menu-open", label: "Scan Menu" },
   ];
 
   const [selectedCategory, setSelectedCategory] = useState("Meal");
   const [flash, setFlash] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const scanningAnim = useRef(new Animated.Value(0)).current;
+  const categoryAnimations = useRef({
+    Meal: new Animated.Value(1),
+    Fridge: new Animated.Value(0),
+    Menu: new Animated.Value(0),
+  }).current;
+
+  // Get subtitle based on selected category
+  const getSubtitle = () => {
+    switch (selectedCategory) {
+      case "Meal":
+        return "Scan meal to log";
+      case "Fridge":
+        return "Scan fridge to get meal ideas";
+      case "Menu":
+        return "Scan menu to analyze best meals";
+      default:
+        return "Scan to get started";
+    }
+  };
+
+  // Handle category selection with animation
+  const handleCategorySelection = (newCategory: string) => {
+    if (newCategory === selectedCategory) return;
+    
+    // Animate out current category
+    Animated.timing(categoryAnimations[selectedCategory as keyof typeof categoryAnimations], {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+    
+    // Update selected category
+    setSelectedCategory(newCategory);
+    
+    // Animate in new category
+    Animated.timing(categoryAnimations[newCategory as keyof typeof categoryAnimations], {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
 
   // might not need memo, react compiler update
   const aiSnapPoints = useMemo(() => ['50%', '75%'], []);
@@ -254,13 +297,16 @@ export default function ScanScreen() {
         <View style={styles.topBar}>
           <GlassEffect variant="button" intensity={40} tint="dark">
             <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-              <MaterialCommunityIcons name="arrow-left" size={28} color="#fff" />
+              <MaterialCommunityIcons name="arrow-left" size={22} color="#fff" />
             </Pressable>
           </GlassEffect>
-          <Text style={styles.title}>Scanner</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Scanner</Text>
+            <Text style={styles.subtitle}>{getSubtitle()}</Text>
+          </View>
           <GlassEffect variant="button" intensity={40} tint="dark">
             <Pressable style={styles.menuButton} onPress={handleOpenMenu}>
-              <MaterialCommunityIcons name="menu" size={28} color="#fff" />
+              <MaterialCommunityIcons name="dots-horizontal" size={22} color="#fff" />
             </Pressable>
           </GlassEffect>
         </View>
@@ -289,85 +335,45 @@ export default function ScanScreen() {
           containerStyle={styles.menuBottomSheetContainer} // Lower zIndex than AI response
         >
           <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-            <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
-              <View style={styles.menuSheetContent}>
+            <BottomSheetView style={styles.bottomSheetWrapper}>
+              <View style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
                 <View style={styles.menuTitleContainer}>
                   <MaterialCommunityIcons name="clock-outline" size={24} color="#fff" style={styles.menuTitleIcon} />
                   <Text style={[styles.infoTitle, styles.menuTitle]}>Today's Scanned Meals</Text>
                 </View>
                 
-                {/* Realistic meal cards with detailed nutrition data */}
-                <View style={styles.todayMealCard}>
-                  <View style={styles.todayMealHeader}>
-                    <Text style={styles.todayMealName}>Grilled Chicken Salad</Text>
-                    <View style={styles.caloriesBadgeSmall}>
-                      <Text style={styles.caloriesTextSmall}>420 kcal</Text>
-                    </View>
-                  </View>
-                  <View style={styles.todayNutritionRow}>
-                    <View style={styles.todayProteinPill}>
-                      <Text style={styles.todayProteinText}>35g</Text>
-                    </View>
-                    <View style={styles.todayCarbsPill}>
-                      <Text style={styles.todayCarbsText}>12g</Text>
-                    </View>
-                    <View style={styles.todayFatPill}>
-                      <Text style={styles.todayFatText}>18g</Text>
-                    </View>
-                  </View>
-                  <View style={styles.todayTimeContainer}>
-                    <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
-                    <Text style={styles.todayTimeText}>2 hours ago</Text>
-                  </View>
-                </View>
+                {/* Meal cards using reusable MealCard component */}
+                <MealCard
+                  name="Grilled Chicken Salad"
+                  time="12:30pm"
+                  calories={420}
+                  protein={35}
+                  carbs={12}
+                  fat={18}
+                  healthScore={8}
+                  imageUrl="https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=884&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                />
 
-                <View style={styles.todayMealCard}>
-                  <View style={styles.todayMealHeader}>
-                    <Text style={styles.todayMealName}>Quinoa Bowl</Text>
-                    <View style={styles.caloriesBadgeSmall}>
-                      <Text style={styles.caloriesTextSmall}>380 kcal</Text>
-                    </View>
-                  </View>
-                  <View style={styles.todayNutritionRow}>
-                    <View style={styles.todayProteinPill}>
-                      <Text style={styles.todayProteinText}>15g</Text>
-                    </View>
-                    <View style={styles.todayCarbsPill}>
-                      <Text style={styles.todayCarbsText}>45g</Text>
-                    </View>
-                    <View style={styles.todayFatPill}>
-                      <Text style={styles.todayFatText}>12g</Text>
-                    </View>
-                  </View>
-                  <View style={styles.todayTimeContainer}>
-                    <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
-                    <Text style={styles.todayTimeText}>5 hours ago</Text>
-                  </View>
-                </View>
+                <MealCard
+                  name="Protein Smoothie"
+                  time="1:30pm"
+                  calories={380}
+                  protein={15}
+                  carbs={45}
+                  fat={12}
+                  healthScore={6}
+                  imageUrl="https://images.unsplash.com/photo-1553909489-cd47e0ef937f?q=80&w=725&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                />
 
-                <View style={styles.todayMealCard}>
-                  <View style={styles.todayMealHeader}>
-                    <Text style={styles.todayMealName}>Avocado Toast</Text>
-                    <View style={styles.caloriesBadgeSmall}>
-                      <Text style={styles.caloriesTextSmall}>290 kcal</Text>
-                    </View>
-                  </View>
-                  <View style={styles.todayNutritionRow}>
-                    <View style={styles.todayProteinPill}>
-                      <Text style={styles.todayProteinText}>8g</Text>
-                    </View>
-                    <View style={styles.todayCarbsPill}>
-                      <Text style={styles.todayCarbsText}>22g</Text>
-                    </View>
-                    <View style={styles.todayFatPill}>
-                      <Text style={styles.todayFatText}>18g</Text>
-                    </View>
-                  </View>
-                  <View style={styles.todayTimeContainer}>
-                    <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
-                    <Text style={styles.todayTimeText}>8 hours ago</Text>
-                  </View>
-                </View>
+                <MealCard
+                  name="Avocado Toast"
+                  time="8:15am"
+                  calories={290}
+                  protein={8}
+                  carbs={22}
+                  fat={18}
+                  healthScore={9}
+                />
               </View>
             </BottomSheetView>
           </ConditionalBlurView>
@@ -396,13 +402,16 @@ export default function ScanScreen() {
           <View style={styles.topBar}>
             <GlassEffect variant="button" intensity={40} tint="dark">
               <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-                <MaterialCommunityIcons name="arrow-left" size={28} color="#fff" />
+                <MaterialCommunityIcons name="arrow-left" size={22} color="#fff" />
               </Pressable>
             </GlassEffect>
-            <Text style={styles.title}>Scanner</Text>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Scanner</Text>
+              <Text style={styles.subtitle}>{getSubtitle()}</Text>
+            </View>
             <GlassEffect variant="button" intensity={40} tint="dark">
               <Pressable style={styles.menuButton} onPress={handleOpenMenu}>
-                <MaterialCommunityIcons name="menu" size={28} color="#fff" />
+                <MaterialCommunityIcons name="dots-horizontal" size={22} color="#fff" />
               </Pressable>
             </GlassEffect>
           </View>
@@ -422,15 +431,35 @@ export default function ScanScreen() {
               {categories.map((cat) => (
                 <Pressable
                   key={cat.key}
-                  style={[styles.categoryItem, selectedCategory === cat.key && styles.selectedCategory]}
-                  onPress={() => setSelectedCategory(cat.key)}
+                  style={styles.categoryItem}
+                  onPress={() => handleCategorySelection(cat.key)}
                 >
-                  <MaterialCommunityIcons
-                    name={cat.icon as any}
-                    size={24}
-                    color={selectedCategory === cat.key ? "#000" : "#fff"}
-                  />
-                  {selectedCategory === cat.key && <Text style={styles.categoryText}>{cat.key}</Text>}
+                  <Animated.View style={[
+                    styles.categoryBackgroundCircle,
+                    selectedCategory === cat.key && {
+                      backgroundColor: "#fff",
+                      opacity: categoryAnimations[cat.key as keyof typeof categoryAnimations],
+                      transform: [{ 
+                        scale: categoryAnimations[cat.key as keyof typeof categoryAnimations] 
+                      }]
+                    }
+                  ]}>
+                    <MaterialCommunityIcons
+                      name={cat.icon as any}
+                      size={20}
+                      color={selectedCategory === cat.key ? "#000" : "#fff"}
+                    />
+                    {selectedCategory === cat.key && (
+                      <Animated.View style={{ 
+                        opacity: categoryAnimations[cat.key as keyof typeof categoryAnimations],
+                        transform: [{ 
+                          scale: categoryAnimations[cat.key as keyof typeof categoryAnimations] 
+                        }]
+                      }}>
+                        <Text style={styles.categoryText}>{cat.label}</Text>
+                      </Animated.View>
+                    )}
+                  </Animated.View>
                 </Pressable>
               ))}
             </GlassEffect>
@@ -441,7 +470,11 @@ export default function ScanScreen() {
                 console.log("Flash button pressed, current flash:", flash);
                 setFlash(!flash);
               }}>
-                <MaterialCommunityIcons name={flash ? "flash" : "flash-off"} size={28} color="#fff" />
+                {flash ? (
+                  <Fontisto name="flash" size={24} color="#fff" />
+                ) : (
+                  <Ionicons name="flash-off-sharp" size={24} color="#fff" />
+                )}
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -480,8 +513,9 @@ export default function ScanScreen() {
           containerStyle={styles.aiBottomSheetContainer}
         >
           <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-            <BottomSheetView style={styles.bottomSheetContent}>
-              <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
+            <BottomSheetView style={styles.bottomSheetWrapper}>
+              <View style={styles.bottomSheetContent}>
+                <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
                 {isLoading ? (
                   <View>
                     <Animated.View style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 24, marginBottom: 12 }]} />
@@ -570,102 +604,62 @@ export default function ScanScreen() {
                   )
                 )}
               </Animated.View>
+              </View>
             </BottomSheetView>
           </ConditionalBlurView>
         </BottomSheet>
       )}
 
-      {/* Unified Menu Bottom Sheet for Today's Scanned Meals - appears on both permission and camera screens */}
       <BottomSheet
         ref={menuBottomSheetRef}
         snapPoints={menuSnapPoints}
-        index={0} // Start at minimal height (10%)
+        index={0} 
         onChange={handleMenuSheetChanges}
-        enablePanDownToClose={false} // Prevent full closing
+        enablePanDownToClose={false} 
         backgroundStyle={{ backgroundColor: "transparent" }}
         handleIndicatorStyle={styles.handleIndicator}
-        containerStyle={styles.menuBottomSheetContainer} // Lower zIndex than AI response
+        containerStyle={styles.menuBottomSheetContainer} 
       >
         <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-          <BottomSheetView style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
-            <View style={styles.menuSheetContent}>
+          <BottomSheetView style={styles.bottomSheetWrapper}>
+            <View style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
               <View style={styles.menuTitleContainer}>
                 <MaterialCommunityIcons name="clock-outline" size={24} color="#fff" style={styles.menuTitleIcon} />
                 <Text style={[styles.infoTitle, styles.menuTitle]}>Today's Scanned Meals</Text>
               </View>
               
               {/* Realistic meal cards with detailed nutrition data */}
-              <View style={styles.todayMealCard}>
-                <View style={styles.todayMealHeader}>
-                  <Text style={styles.todayMealName}>Grilled Chicken Salad</Text>
-                  <View style={styles.caloriesBadgeSmall}>
-                    <Text style={styles.caloriesTextSmall}>420 kcal</Text>
-                  </View>
-                </View>
-                <View style={styles.todayNutritionRow}>
-                  <View style={styles.todayProteinPill}>
-                    <Text style={styles.todayProteinText}>35g</Text>
-                  </View>
-                  <View style={styles.todayCarbsPill}>
-                    <Text style={styles.todayCarbsText}>12g</Text>
-                  </View>
-                  <View style={styles.todayFatPill}>
-                    <Text style={styles.todayFatText}>18g</Text>
-                  </View>
-                </View>
-                <View style={styles.todayTimeContainer}>
-                  <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
-                  <Text style={styles.todayTimeText}>2 hours ago</Text>
-                </View>
-              </View>
+              <MealCard
+                name="Apple Salmon salad..."
+                time="9:00am"
+                calories={500}
+                protein={78}
+                carbs={78}
+                fat={70}
+                healthScore={7}
+              />
 
-              <View style={styles.todayMealCard}>
-                <View style={styles.todayMealHeader}>
-                  <Text style={styles.todayMealName}>Quinoa Bowl</Text>
-                  <View style={styles.caloriesBadgeSmall}>
-                    <Text style={styles.caloriesTextSmall}>380 kcal</Text>
-                  </View>
-                </View>
-                <View style={styles.todayNutritionRow}>
-                  <View style={styles.todayProteinPill}>
-                    <Text style={styles.todayProteinText}>15g</Text>
-                  </View>
-                  <View style={styles.todayCarbsPill}>
-                    <Text style={styles.todayCarbsText}>45g</Text>
-                  </View>
-                  <View style={styles.todayFatPill}>
-                    <Text style={styles.todayFatText}>12g</Text>
-                  </View>
-                </View>
-                <View style={styles.todayTimeContainer}>
-                  <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
-                  <Text style={styles.todayTimeText}>5 hours ago</Text>
-                </View>
-              </View>
+              <MealCard
+                name="Quinoa Bowl"
+                time="1:30pm"
+                calories={380}
+                protein={15}
+                carbs={45}
+                fat={12}
+                healthScore={6}
+                imageUrl="https://images.unsplash.com/photo-1484980972926-edee96e0960d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              />
 
-              <View style={styles.todayMealCard}>
-                <View style={styles.todayMealHeader}>
-                  <Text style={styles.todayMealName}>Avocado Toast</Text>
-                  <View style={styles.caloriesBadgeSmall}>
-                    <Text style={styles.caloriesTextSmall}>290 kcal</Text>
-                  </View>
-                </View>
-                <View style={styles.todayNutritionRow}>
-                  <View style={styles.todayProteinPill}>
-                    <Text style={styles.todayProteinText}>8g</Text>
-                  </View>
-                  <View style={styles.todayCarbsPill}>
-                    <Text style={styles.todayCarbsText}>22g</Text>
-                  </View>
-                  <View style={styles.todayFatPill}>
-                    <Text style={styles.todayFatText}>18g</Text>
-                  </View>
-                </View>
-                <View style={styles.todayTimeContainer}>
-                  <Ionicons name="time-outline" size={14} color="#aaa" style={styles.todayTimeIcon} />
-                  <Text style={styles.todayTimeText}>8 hours ago</Text>
-                </View>
-              </View>
+              <MealCard
+                name="Avocado Toast"
+                time="8:15am"
+                calories={290}
+                protein={8}
+                carbs={22}
+                fat={18}
+                healthScore={9}
+                imageUrl="https://images.unsplash.com/photo-1484980972926-edee96e0960d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              />
             </View>
           </BottomSheetView>
         </ConditionalBlurView>
@@ -687,29 +681,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     zIndex: 10,
   },
-  title: { color: "#fff", fontSize: 22, fontWeight: "bold" },
+  titleContainer: {
+    alignItems: "center",
+  },
+  title: { 
+    color: "#fff", 
+    fontSize: 18, // Smaller font size
+    fontWeight: "bold" 
+  },
+  subtitle: {
+    color: "#ccc",
+    fontSize: 12,
+    fontWeight: "400",
+    opacity: 0.8,
+    marginTop: 2,
+  },
   backButton: {
-    width: 50,
-    height: 50,
+    width: 42,
+    height: 42,
     justifyContent: "center",
     alignItems: "center",
   },
   menuButton: {
-    width: 50,
-    height: 50,
+    width: 42,
+    height: 42,
     justifyContent: "center",
     alignItems: "center",
   },
 
   focusGuideline: {
     position: "absolute",
-    top: "25%", // Moved higher
-    left: "15%",
-    width: "70%",
-    height: "30%",
-    opacity: 0.2,
+    top: "20%", // Adjusted position
+    left: "20%", // Centered more
+    width: "60%", // Narrower width
+    height: "40%", // Taller height (more vertical)
+    opacity: 0.15, // Lower opacity
   },
-  corner: { width: 20, height: 50, borderColor: "#fff", borderWidth: 3, borderRadius: 3, position: "absolute" },
+  corner: { 
+    width: 16, // Smaller corners
+    height: 40, // Taller corners for vertical look
+    borderColor: "#fff", 
+    borderWidth: 2, // Thinner border
+    borderRadius: 8, // Added border radius
+    position: "absolute" 
+  },
   topLeft: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
   topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
@@ -723,24 +738,27 @@ const styles = StyleSheet.create({
     zIndex: 15, // Below bottom sheets but above background elements
   },
   categoryPillContainer: {
-    marginBottom: 20,
+    marginBottom: 16, // Reduced margin
   },
   categoryItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 6, // Reduced padding
+    paddingVertical: 4, // Reduced padding
     flexDirection: "row",
     alignItems: "center",
   },
-  selectedCategory: {
-    backgroundColor: "#fff",
-    borderRadius: 30,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  categoryBackgroundCircle: {
+    backgroundColor: "transparent",
+    borderRadius: 12, // Match the pill radius
+    paddingHorizontal: 10, // Reduced padding
+    paddingVertical: 7, // Reduced padding
+    flexDirection: "row",
+    alignItems: "center",
   },
   categoryText: {
-    marginLeft: 8,
+    marginLeft: 6, // Reduced margin
     fontWeight: "bold",
     color: "#000",
+    fontSize: 13, // Slightly smaller font
   },
 
   controlRow: {
@@ -751,24 +769,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   snapButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60, // Reduced from 70
+    height: 60, // Reduced from 70
+    borderRadius: 30, // Adjusted for new size
     borderWidth: 4,
     borderColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.1)", // Add background for visibility
   },
-  snapInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: "#fff" },
+  snapInner: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#fff" }, // Adjusted for new size
   flashButton: { 
-    width: 50, 
-    height: 50, 
+    width: 46, // Slightly bigger
+    height: 46, // Slightly bigger
     justifyContent: "center", 
     alignItems: "center",
 
   },
-  placeholderButton: { width: 50, height: 50, justifyContent: "center", alignItems: "center" },
+  placeholderButton: { width: 46, height: 46, justifyContent: "center", alignItems: "center" },
 
   permissionContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   permissionCard: {
@@ -817,14 +835,20 @@ const styles = StyleSheet.create({
   },
   permissionButtonText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 16,
     letterSpacing: 0.5,
   },
   bottomSheetBackground: {
     flex: 1,
-    borderRadius: 24,
+    borderRadius: 12,
     overflow: "hidden",
+    alignItems: Platform.OS === 'web' ? 'center' : 'stretch',
+  },
+  bottomSheetWrapper: {
+    flex: 1,
+    width: '100%',
+    alignItems: Platform.OS === 'web' ? 'center' : 'center', 
   },
   handleIndicator: { 
     backgroundColor: "#fff", 
@@ -833,14 +857,23 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     top: 25,
    },
-  bottomSheetContent: { flex: 1, padding: 15 }, // Reduced from 30 to 20
+  
+   //if platform is web increase margins
+  bottomSheetContent: { 
+    flex: 1, 
+    padding: 5, 
+    width: Platform.OS === 'web' ? 500 : '90%', 
+    maxWidth: Platform.OS === 'web' ? 500 : '100%', // Ensure max width constraint
+  }, 
   menuBottomSheetContent: {
-    marginHorizontal: 8, // Reduced margin for less spacing
+    marginHorizontal: 3,
+    marginTop: 7,
   },
-  infoTitle: { color: "#fff", fontSize: 22, fontWeight: "bold", marginBottom: 12 },
+  infoTitle: { color: "#fff", fontSize: 22, fontFamily: theme.bold, marginBottom: 12 },
   menuTitle: { 
     marginTop: 0, // Reset margin since we're centering now
     textAlign: 'center', // Center the text
+    fontSize: 18, // Smaller font size
   },
   menuTitleContainer: {
     flexDirection: 'row',
@@ -855,7 +888,7 @@ const styles = StyleSheet.create({
   },
   infoSubtitle: { color: "#fff", fontSize: 18, fontWeight: "600", marginBottom: 4 },
   infoText: { color: "#ddd", fontSize: 16, marginBottom: 6, opacity: 0.9 },
-  bold: { fontWeight: "bold", color: "#fff" },
+  bold: { fontFamily: theme.bold, color: "#fff" },
   mealItem: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.1)" },
 
   skeletonBlock: {
@@ -865,7 +898,7 @@ const styles = StyleSheet.create({
   },
 
   menuSheetContent: {
-    padding: 12, // Reduced from 20 to 12 for tighter spacing
+    padding: 8, // Further reduced from 12 to 8 for more content space
   },
   placeholderCard: {
     backgroundColor: "rgba(255,255,255,0.1)",
@@ -877,7 +910,7 @@ const styles = StyleSheet.create({
   placeholderSubText: { color: "#ddd", fontSize: 14, opacity: 0.8 },
 
   aiBottomSheetContainer: { zIndex: 30 }, // Highest zIndex - appears above everything
-  menuBottomSheetContainer: { zIndex: 25 }, // High zIndex - appears above buttons but below AI sheet
+  menuBottomSheetContainer: { zIndex: 25 }, // Lower than AI bottom sheet
 
   gradientShadow: {
     position: "absolute",
@@ -1051,32 +1084,127 @@ const styles = StyleSheet.create({
   },
   // Today's meal styles
   todayMealCard: {
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: "rgba(30,30,30,0.95)", // Darker background like the image
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    padding: 14, // Slightly reduced padding for better fit
+    marginBottom: 12, // Reduced margin between cards
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
   },
-  todayMealHeader: {
+  todayMealContent: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  todayMealImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+    backgroundColor: "rgba(76,175,80,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  todayMealImagePhoto: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    resizeMode: 'cover' as const,
+  },
+  todayMealInfo: {
+    flex: 1,
+  },
+  todayMealHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   todayMealName: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18, // Increased from 16
+    fontFamily: theme.bold,
+    fontSize: 16,
     flex: 1,
     marginRight: 8,
   },
+  todayMealTime: {
+    color: "#aaa",
+    fontSize: 12,
+    fontFamily: theme.regular,
+  },
+  todayCaloriesDisplay: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  todayCaloriesIcon: {
+    marginRight: 4,
+  },
+  todayCaloriesText: {
+    color: "#fff",
+    fontSize: 14, // Increased from 12 to 14
+    fontFamily: theme.semibold,
+  },
   todayNutritionRow: {
     flexDirection: "row",
-    justifyContent: "flex-start", // Align badges to left instead of stretching
-    marginBottom: 12,
-    gap: 8, // Increase gap between small badges
-    flexWrap: "wrap", // Allow wrapping if needed
+    justifyContent: "flex-start",
+    gap: 16, // Increased gap for better separation
+    marginTop: 4,
+  },
+  todayNutritionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3, // Reduced gap between icon and text for tighter fit
+  },
+  todayNutritionIcon: {
+    marginRight: 4,
+  },
+  todayNutritionValue: {
+    color: "#fff",
+    fontSize: 12,
+    fontFamily: theme.medium,
+  },
+  // Health Score styles
+  todayHealthScore: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  todayHealthIcon: {
+    marginRight: 4,
+  },
+  todayHealthText: {
+    color: "#aaa",
+    fontSize: 11,
+    fontFamily: theme.regular,
+    marginRight: 6,
+  },
+  todayHealthProgressContainer: {
+    flex: 1,
+    marginHorizontal: 2,
+    justifyContent: "center",
+  },
+  todayHealthProgressBackground: {
+    height: 5,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  todayHealthProgressFill: {
+    height: "100%",
+    backgroundColor: theme.primary,
+    borderRadius: 2,
+  },
+  todayHealthNumber: {
+    color: "#fff",
+    fontSize: 12,
+    fontFamily: theme.bold,
+    marginLeft: 6,
+  },
+  todayHealthTotal: {
+    color: "#777",
+    fontSize: 11,
+    fontFamily: theme.light,
+    opacity: 0.7,
   },
   // Protein pill - Blue theme (smaller badge style)
   todayProteinPill: {
