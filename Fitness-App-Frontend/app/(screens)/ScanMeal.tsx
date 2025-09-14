@@ -16,6 +16,7 @@ import {
 } from "expo-camera";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import SolidBackground from "@/components/ui/SolidBackground";
+import BlurredBackground from "@/components/ui/BlurredBackground";
 import Constants from "expo-constants";
 import { AIEndpoint } from "@/api/AIEndpoint";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
@@ -31,6 +32,9 @@ import { theme } from "@/constants/theme";
 import ConditionalBlurView from "@/components/ui/ConditionalBlurView";
 import GlassEffect from "@/components/ui/GlassEffect";
 import MealCard from "@/components/ui/Nutrition/MealCard";
+import CategoriesPicker, { CategoryItem } from "@/components/ui/CategoriesPicker";
+import FadeTranslate from "@/components/ui/FadeTranslate";
+import UndertextCard from "@/components/ui/UndertextCard";
 
 // Meal/AI types
 export type MealInfoResponse = {
@@ -75,7 +79,7 @@ export default function ScanScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const menuBottomSheetRef = useRef<BottomSheet>(null);
 
-  const categories = [
+  const categories: CategoryItem[] = [
     { key: "Fridge", icon: "fridge-variant", label: "Scan Fridge" },
     { key: "Meal", icon: "food-outline", label: "Scan Meal" },
     { key: "Menu", icon: "menu-open", label: "Scan Menu" },
@@ -85,11 +89,6 @@ export default function ScanScreen() {
   const [flash, setFlash] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const scanningAnim = useRef(new Animated.Value(0)).current;
-  const categoryAnimations = useRef({
-    Meal: new Animated.Value(1),
-    Fridge: new Animated.Value(0),
-    Menu: new Animated.Value(0),
-  }).current;
 
   // Get subtitle based on selected category
   const getSubtitle = () => {
@@ -103,28 +102,6 @@ export default function ScanScreen() {
       default:
         return "Scan to get started";
     }
-  };
-
-  // Handle category selection with animation
-  const handleCategorySelection = (newCategory: string) => {
-    if (newCategory === selectedCategory) return;
-    
-    // Animate out current category
-    Animated.timing(categoryAnimations[selectedCategory as keyof typeof categoryAnimations], {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    
-    // Update selected category
-    setSelectedCategory(newCategory);
-    
-    // Animate in new category
-    Animated.timing(categoryAnimations[newCategory as keyof typeof categoryAnimations], {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
   };
 
   // might not need memo, react compiler update
@@ -291,98 +268,61 @@ export default function ScanScreen() {
 
   if (!permission?.granted) {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SolidBackground style={StyleSheet.absoluteFill} />
-        {/* Top Bar: Back & Menu Buttons */}
-        <View style={styles.topBar}>
-          <GlassEffect variant="button" intensity={40} tint="dark">
-            <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-              <MaterialCommunityIcons name="arrow-left" size={22} color="#fff" />
+      <BlurredBackground intensity={70} circleBlur={100} animationSpeed={0.8}>
+        {/* Back Button */}
+        <FadeTranslate order={1}>
+          <GlassEffect 
+            intensity={40}
+            tint="dark"
+            style={styles.permissionBackButton}
+          >
+            <Pressable onPress={() => navigation.goBack()} style={styles.backButtonInner}>
+              <Ionicons name="arrow-back" size={24} color="white" />
             </Pressable>
           </GlassEffect>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Scanner</Text>
-            <Text style={styles.subtitle}>{getSubtitle()}</Text>
-          </View>
-          <GlassEffect variant="button" intensity={40} tint="dark">
-            <Pressable style={styles.menuButton} onPress={handleOpenMenu}>
-              <MaterialCommunityIcons name="dots-horizontal" size={22} color="#fff" />
-            </Pressable>
-          </GlassEffect>
-        </View>
-        {/* Permission Card */}
-        <ConditionalBlurView intensity={60} tint="dark" style={styles.permissionCard}>
-          <MaterialCommunityIcons name="camera-off" size={64} color={theme.primary} style={{ marginBottom: 16 }} />
-          <Text style={styles.permissionTitle}>Camera Permission Needed</Text>
-          <Text style={styles.permissionText}>
-            To scan your meals, we need access to your camera. Please grant permission to continue.
-          </Text>
-          {/* Grant Permission Button (no blur) */}
-          <Pressable onPress={requestPermission} style={styles.permissionButton}>
-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
-          </Pressable>
-        </ConditionalBlurView>
+        </FadeTranslate>
         
-        {/* Menu Bottom Sheet for Today's Scanned Meals - also appears on permission screen */}
-        <BottomSheet
-          ref={menuBottomSheetRef}
-          snapPoints={menuSnapPoints}
-          index={0} // Start at minimal height (10%)
-          onChange={handleMenuSheetChanges}
-          enablePanDownToClose={false} // Prevent full closing
-          backgroundStyle={{ backgroundColor: "transparent" }}
-          handleIndicatorStyle={styles.handleIndicator}
-          containerStyle={styles.menuBottomSheetContainer} // Lower zIndex than AI response
-        >
-          <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-            <BottomSheetView style={styles.bottomSheetWrapper}>
-              <View style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
-                <View style={styles.menuTitleContainer}>
-                  <MaterialCommunityIcons name="clock-outline" size={24} color="#fff" style={styles.menuTitleIcon} />
-                  <Text style={[styles.infoTitle, styles.menuTitle]}>Today's Scanned Meals</Text>
-                </View>
-                
-                {/* Meal cards using reusable MealCard component */}
-                <MealCard
-                  name="Grilled Chicken Salad"
-                  time="12:30pm"
-                  calories={420}
-                  protein={35}
-                  carbs={12}
-                  fat={18}
-                  healthScore={8}
-                  imageUrl="https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=884&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                />
-
-                <MealCard
-                  name="Protein Smoothie"
-                  time="1:30pm"
-                  calories={380}
-                  protein={15}
-                  carbs={45}
-                  fat={12}
-                  healthScore={6}
-                  imageUrl="https://images.unsplash.com/photo-1553909489-cd47e0ef937f?q=80&w=725&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                />
-
-                <MealCard
-                  name="Avocado Toast"
-                  time="8:15am"
-                  calories={290}
-                  protein={8}
-                  carbs={22}
-                  fat={18}
-                  healthScore={9}
-                />
-              </View>
-            </BottomSheetView>
+        <View style={styles.permissionContainer}>
+          {/* Permission Card */}
+          <FadeTranslate order={2}>
+          <ConditionalBlurView intensity={60} tint="dark" style={styles.permissionCard}>
+            <MaterialCommunityIcons name="camera-outline" size={64} color="white" style={{ marginBottom: 16 }} />
+            <Text style={styles.permissionTitle}>Camera Permission Needed</Text>
+            <Text style={styles.permissionText}>
+              To scan your meals, we need access to your camera. Please grant permission to continue.
+            </Text>
+            {/* Grant Permission Button (no blur) */}
+            <Pressable onPress={requestPermission} style={styles.permissionButton}>
+              <Text style={styles.permissionButtonText}>Grant Permission</Text>
+            </Pressable>
           </ConditionalBlurView>
-        </BottomSheet>
-      </GestureHandlerRootView>
+          </FadeTranslate>
+          
+          {/* Features You're Missing Out On */}
+          <FadeTranslate order={3}>
+            <UndertextCard 
+              emoji="📸"
+              title="Smart Meal Recognition"
+              titleColor="white"
+              text="Instantly identify your meals and log them with detailed nutritional information"
+            />
+          </FadeTranslate>
+          
+          <FadeTranslate order={4}>
+            <UndertextCard 
+              emoji="🥗"
+              titleColor="white"
+              title="Fridge Scanning"
+              text="Get meal ideas by scanning your fridge contents and ingredients"
+            />
+          </FadeTranslate>
+        </View>
+      </BlurredBackground>
     );
   }
 
   return (
+    <>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
@@ -399,6 +339,7 @@ export default function ScanScreen() {
           {capturedPhoto && <Image source={{ uri: capturedPhoto.uri }} style={StyleSheet.absoluteFill} />}
 
           {/* Top Bar */}
+          <FadeTranslate order={1}>
           <View style={styles.topBar}>
             <GlassEffect variant="button" intensity={40} tint="dark">
               <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -415,8 +356,9 @@ export default function ScanScreen() {
               </Pressable>
             </GlassEffect>
           </View>
-
+          </FadeTranslate>
           {/* Focus Guidelines */}
+          
           <View style={styles.focusGuideline}>
             <View style={[styles.corner, styles.topLeft]} />
             <View style={[styles.corner, styles.topRight]} />
@@ -425,47 +367,19 @@ export default function ScanScreen() {
           </View>
 
           {/* Bottom Controls */}
+          
           <View style={styles.bottomControls}>
             {/* Category Picker */}
-            <GlassEffect variant="pill" intensity={30} tint="dark" style={styles.categoryPillContainer}>
-              {categories.map((cat) => (
-                <Pressable
-                  key={cat.key}
-                  style={styles.categoryItem}
-                  onPress={() => handleCategorySelection(cat.key)}
-                >
-                  <Animated.View style={[
-                    styles.categoryBackgroundCircle,
-                    selectedCategory === cat.key && {
-                      backgroundColor: "#fff",
-                      opacity: categoryAnimations[cat.key as keyof typeof categoryAnimations],
-                      transform: [{ 
-                        scale: categoryAnimations[cat.key as keyof typeof categoryAnimations] 
-                      }]
-                    }
-                  ]}>
-                    <MaterialCommunityIcons
-                      name={cat.icon as any}
-                      size={20}
-                      color={selectedCategory === cat.key ? "#000" : "#fff"}
-                    />
-                    {selectedCategory === cat.key && (
-                      <Animated.View style={{ 
-                        opacity: categoryAnimations[cat.key as keyof typeof categoryAnimations],
-                        transform: [{ 
-                          scale: categoryAnimations[cat.key as keyof typeof categoryAnimations] 
-                        }]
-                      }}>
-                        <Text style={styles.categoryText}>{cat.label}</Text>
-                      </Animated.View>
-                    )}
-                  </Animated.View>
-                </Pressable>
-              ))}
-            </GlassEffect>
-
+            <FadeTranslate order={2}>
+            <CategoriesPicker
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+            />
+            </FadeTranslate>
             {/* Flash and Snap Row */}
             <View style={styles.controlRow}>
+              <FadeTranslate order={3}>
               <Pressable style={styles.flashButton} onPress={() => {
                 console.log("Flash button pressed, current flash:", flash);
                 setFlash(!flash);
@@ -476,6 +390,8 @@ export default function ScanScreen() {
                   <Ionicons name="flash-off-sharp" size={24} color="#fff" />
                 )}
               </Pressable>
+              </FadeTranslate>
+              <FadeTranslate order={4}>
               <Pressable
                 onPress={() => {
                   console.log("Snap button pressed");
@@ -486,8 +402,11 @@ export default function ScanScreen() {
               >
                 {isCapturing ? <ActivityIndicator color="#fff" /> : <View style={styles.snapInner} />}
               </Pressable>
+              </FadeTranslate>
               <View style={styles.placeholderButton}>
+                <FadeTranslate order={5}>
                 <MaterialCommunityIcons name="circle-outline" size={28} color="transparent" />
+                </FadeTranslate>
               </View>
             </View>
           </View>
@@ -528,7 +447,7 @@ export default function ScanScreen() {
                   </View>
                 ) : (
                   aiResponse && (
-                    <MealInfo>
+                    <>
                       {selectedCategory === "Meal" && isMealResponse(aiResponse) && (
                         <View style={styles.mealCard}>
                           <View style={styles.mealHeader}>
@@ -600,14 +519,15 @@ export default function ScanScreen() {
                           ))}
                         </View>
                       )}
-                    </MealInfo>
+                    </>
                   )
                 )}
-              </Animated.View>
+                </Animated.View>
               </View>
             </BottomSheetView>
           </ConditionalBlurView>
         </BottomSheet>
+      
       )}
 
       <BottomSheet
@@ -665,6 +585,7 @@ export default function ScanScreen() {
         </ConditionalBlurView>
       </BottomSheet>
     </GestureHandlerRootView>
+  </>
   );
 }
 
@@ -737,29 +658,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 15, // Below bottom sheets but above background elements
   },
-  categoryPillContainer: {
-    marginBottom: 16, // Reduced margin
-  },
-  categoryItem: {
-    paddingHorizontal: 6, // Reduced padding
-    paddingVertical: 4, // Reduced padding
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  categoryBackgroundCircle: {
-    backgroundColor: "transparent",
-    borderRadius: 12, // Match the pill radius
-    paddingHorizontal: 10, // Reduced padding
-    paddingVertical: 7, // Reduced padding
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  categoryText: {
-    marginLeft: 6, // Reduced margin
-    fontWeight: "bold",
-    color: "#000",
-    fontSize: 13, // Slightly smaller font
-  },
 
   controlRow: {
     flexDirection: "row",
@@ -788,57 +686,6 @@ const styles = StyleSheet.create({
   },
   placeholderButton: { width: 46, height: 46, justifyContent: "center", alignItems: "center" },
 
-  permissionContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  permissionCard: {
-    position: "absolute",
-    top: "30%",
-    alignSelf: "center",
-    width: 340,
-    borderRadius: 24,
-    padding: 32,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 6,
-    borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.18)",
-    overflow: "hidden",
-  },
-  permissionTitle: {
-    color: theme.primary,
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  permissionText: {
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 18,
-    fontSize: 16,
-    opacity: 0.85,
-  },
-  permissionButton: {
-    paddingHorizontal: 28,
-    paddingVertical: 12,
-    backgroundColor: theme.primary,
-    borderRadius: 16,
-    marginTop: 8,
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    elevation: 2,
-    alignItems: "center",
-  },
-  permissionButtonText: {
-    color: "#fff",
-    fontFamily: theme.bold,
-    fontSize: 16,
-    letterSpacing: 0.5,
-  },
   bottomSheetBackground: {
     flex: 1,
     borderRadius: 12,
@@ -1269,5 +1116,72 @@ const styles = StyleSheet.create({
     color: "#aaa",
     fontSize: 12,
     fontStyle: "italic",
+  },
+  
+  // Permission Screen Styles
+  permissionBackButton: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    zIndex: 10,
+    borderRadius: 15,
+    padding: 12,
+  },
+  backButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  permissionContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  permissionCard: {
+    width: 340,
+    borderRadius: 24,
+    padding: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 6,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.18)",
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  permissionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  permissionText: {
+    fontSize: 16,
+    color: "white",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 24,
+    opacity: 0.9,
+  },
+  permissionButton: {
+    backgroundColor: theme.primary,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 16,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  permissionButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

@@ -3,7 +3,7 @@ import { Login } from "@/api/UserDataEndpoint";
 import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Animated,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import BlurredBackground from "@/components/ui/BlurredBackground";
@@ -22,8 +23,35 @@ export const LoginScreen = () => {
   const [Email, setEmail] = useState<string>("");
   const [Password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  // Rotation animation
+  useEffect(() => {
+    if (isLoading) {
+      const rotateAnimation = Animated.loop(
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        })
+      );
+      rotateAnimation.start();
+      return () => rotateAnimation.stop();
+    } else {
+      rotateAnim.setValue(0);
+    }
+  }, [isLoading]);
+
+  const rotateInterpolate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   async function handleSubmit() {
+    if (isLoading) return; // Prevent multiple submissions
+    
+    setIsLoading(true);
     try {
       const response = await Login({ email: Email, password: Password });
       if (!response || !response.token) {
@@ -48,6 +76,8 @@ export const LoginScreen = () => {
         text1: "Error",
         text2: msg,
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -118,11 +148,23 @@ export const LoginScreen = () => {
         {/* Bottom Section */}
         <View style={styles.bottomSection}>
           <TouchableOpacity
-            style={styles.loginButton}
+            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
             onPress={handleSubmit}
+            disabled={isLoading}
           >
-            
-            <Text style={styles.loginButtonText}>Log In</Text>
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <Animated.View style={[
+                  styles.loadingIcon,
+                  { transform: [{ rotate: rotateInterpolate }] }
+                ]}>
+                  <Ionicons name="sync-outline" size={20} color="white" />
+                </Animated.View>
+                <Text style={styles.loginButtonText}>Logging in...</Text>
+              </View>
+            ) : (
+              <Text style={styles.loginButtonText}>Log In</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")}>
@@ -200,6 +242,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 25,
     marginBottom: 15,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingIcon: {
+    marginRight: 8,
   },
   loginButtonText: {
     color: 'white',

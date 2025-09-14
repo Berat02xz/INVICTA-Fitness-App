@@ -11,8 +11,8 @@ import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import { theme } from "@/constants/theme";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { StyleSheet, Text, TextInput, View, Animated } from "react-native";
 import Toast from "react-native-toast-message";
 import { useOnboarding } from "../NavigationService";
 import database from "@/database/database";
@@ -25,7 +25,26 @@ const OnboardingComplete = () => {
   const [Name, setName] = useState<string>("");
   const [Email, setEmail] = useState<string>("");
   const [Password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const { answers, saveSelection } = useOnboarding();
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  // Rotation animation
+  useEffect(() => {
+    if (isLoading) {
+      const rotateAnimation = Animated.loop(
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        })
+      );
+      rotateAnimation.start();
+      return () => rotateAnimation.stop();
+    } else {
+      rotateAnim.setValue(0);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -41,7 +60,10 @@ const OnboardingComplete = () => {
   }, []);
 
   async function handleSubmit() {
+    if (isLoading) return; // Prevent multiple submissions
+    
     let userId: string | null = null;
+    setIsLoading(true);
 
     try {
       // Step 1: Register
@@ -80,6 +102,8 @@ const OnboardingComplete = () => {
             ? error.message
             : "Server error. Please try again later.",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -154,6 +178,8 @@ const OnboardingComplete = () => {
             title="Register"
             backgroundColor={theme.primary}
             onPress={handleSubmit}
+            isLoading={isLoading}
+            loadingText="Creating account..."
           />
           </FadeTranslate>
         </View>
