@@ -18,7 +18,7 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 
 | Status | Task |
 |--------|------|
-| ✅ | Convert structured outputs to string outputs to reduce token usage |
+| ⬜ | Convert structured outputs to string outputs to reduce token usage |
 | ✅ | Increase image resolution for menu or fridge scans to 720px (from 256px) |
 | ⬜ | Store meal responses in WatermelonDB and display them in a bottom sheet for the current date. Save meals but delete images with cronjob (optional) |
 | ✅ | Style the "Grant Permission" screen for better visuals and user experience |
