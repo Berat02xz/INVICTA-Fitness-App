@@ -8,6 +8,7 @@
         public int Protein { get; set; }
         public int Carbohydrates { get; set; }
         public int Fats { get; set; }
+        public int HealthScoreOutOf10 { get; set; }
         public string MealQuality { get; set; }
 
     }

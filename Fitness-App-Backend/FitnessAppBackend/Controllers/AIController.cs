@@ -87,15 +87,15 @@ namespace FitnessAppBackend.Controllers
                         Protein = new { type = "integer" },
                         Carbs = new { type = "integer" },
                         Fat = new { type = "integer" },
+                        HealthScoreOutOf10 = new { type = "integer", minimum = 1, maximum = 10 },
                         MealQuality = new
                         {
                             type = "string",
-                            @enum = new[] { "Macro Rich", "Balanced Meal", "High Fat", "Consider Lighter Option", "Dairy Rich" }
+                            // @enum = new[] { "Macro Rich", "Balanced Meal", "High Fat", "Consider Lighter Option", "Dairy Rich" }
                         }
                     },
-                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality" },
+                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality","HealthScoreOutOf10" },
                     additionalProperties = false
-
                 };
             }
             else if (TypeOfUpload == "Menu")
@@ -137,7 +137,7 @@ namespace FitnessAppBackend.Controllers
                         Meals = new
                         {
                             type = "array",
-                            maxItems = 4,
+                            maxItems = 3,
                             items = new
                             {
                                 type = "object",
@@ -261,6 +261,7 @@ namespace FitnessAppBackend.Controllers
                         Carbohydrates = mealResponse.Carbs,
                         Fats = mealResponse.Fat,
                         MealQuality = mealResponse.MealQuality,
+                        HealthScoreOutOf10 = mealResponse.HealthScoreOutOf10,
                         CreatedAt = DateTime.UtcNow
                     };
 

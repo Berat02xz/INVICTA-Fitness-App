@@ -1,6 +1,5 @@
 import { Database, Model } from "@nozbe/watermelondb";
 import { field, text } from "@nozbe/watermelondb/decorators";
-import database from "@/database/database";
 import UserData from "./DTO/UserDTO";
 import UserDTO from "./DTO/UserDTO";
 
@@ -25,6 +24,7 @@ export class User extends Model {
   @field("caloric_deficit") caloricDeficit!: string;
   @field("unit") unit!: string;
   @field("app_name") appName!: string;
+  @field("role") role!: string; // "FREE", "PREMIUM", "ADMIN"
 
   static async createUser(database: Database, UserData: UserDTO): Promise<User> {
     return await database.get<User>("user").create((user) => {
@@ -46,6 +46,7 @@ export class User extends Model {
       user.caloricDeficit = UserData.caloricDeficit ?? "";
       user.unit = UserData.unit ?? "";
       user.appName = UserData.appName ?? "";
+      user.role = UserData.role ?? "FREE"; // Default to "FREE"
     });
   }
 

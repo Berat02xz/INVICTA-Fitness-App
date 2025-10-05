@@ -25,6 +25,8 @@ const OnboardingComplete = () => {
   const [Name, setName] = useState<string>("");
   const [Email, setEmail] = useState<string>("");
   const [Password, setPassword] = useState<string>("");
+  const [Role, setRole] = useState<string>("FREE");
+
   const [isLoading, setIsLoading] = useState(false);
   const { answers, saveSelection } = useOnboarding();
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -67,7 +69,7 @@ const OnboardingComplete = () => {
 
     try {
       // Step 1: Register
-      const response = await RegisterUser({ Name, Email, Password });
+      const response = await RegisterUser({ Name, Email, Password, Role });
       if (!response?.token) {
         throw new Error("Registration failed.");
       }

@@ -34,6 +34,7 @@ namespace FitnessAppBackend.Controllers
                     Protein = request.Protein,
                     Carbohydrates = request.Carbohydrates,
                     Fats = request.Fats,
+                    HealthScoreOutOf10 = request.HealthScoreOutOf10,
                     CreatedAt = DateTime.UtcNow
                 };
                 await _mealService.AddAsync(meal);

@@ -8,6 +8,7 @@ export const RegisterUser = async (userData: {
   Name: string;
   Email: string;
   Password: string;
+  Role: string;
 }) => {
   try {
     const response = await axios.post('/api/User/register', userData);
@@ -69,6 +70,7 @@ export const FetchUserInformationAndStore = async (userId: string) => {
         caloricDeficit: userData.caloricDeficit,
         unit: userData.unit,
         appName: userData.appName,
+        role: userData.role,
       });
     } else {
       await existing.update((u) => Object.assign(u, {
@@ -89,6 +91,7 @@ export const FetchUserInformationAndStore = async (userId: string) => {
         caloricDeficit: String(userData.caloricDeficit),
         unit: userData.unit,
         appName: userData.appName,
+        role: userData.role,
       }));
     }
   });
@@ -119,6 +122,7 @@ export const GetUserDetails = async (): Promise<UserDTO | null> => {
       caloricDeficit: user.caloricDeficit,
       unit: user.unit,
       appName: user.appName,
+      role: user.role,
     };
   } catch (error) {
     console.error("Error fetching user details:", error);

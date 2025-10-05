@@ -45,6 +45,7 @@ export type MealInfoResponse = {
   Carbs: number;
   Fat: number;
   MealQuality: string;
+  HealthScoreOutOf10: number;
 };
 export type MenuInfoResponse = {
   Meals: { MenuName: string; Calories: number; Ingredients: string[] }[];
@@ -105,7 +106,7 @@ export default function ScanScreen() {
   };
 
   // might not need memo, react compiler update
-  const aiSnapPoints = useMemo(() => ['50%', '75%'], []);
+  const aiSnapPoints = useMemo(() => ['75%', '80%'], []);
   const menuSnapPoints = useMemo(() => ['12%', '50%', '75%'], []);
 
   // bottom sheet starts closed on init
@@ -427,7 +428,7 @@ export default function ScanScreen() {
           index={0} // Show at first snap point when response exists
           onChange={handleSheetChanges}
           enablePanDownToClose={true}
-          backgroundStyle={{ backgroundColor: "transparent" }}
+          backgroundStyle={{ backgroundColor: "black" }}
           handleIndicatorStyle={styles.handleIndicator}
           containerStyle={styles.aiBottomSheetContainer}
         >
@@ -476,6 +477,24 @@ export default function ScanScreen() {
                           <View style={styles.qualityContainer}>
                             <Text style={styles.qualityLabel}>Quality Rating:</Text>
                             <Text style={styles.qualityValue}>{aiResponse.MealQuality}</Text>
+                          </View>
+                          
+                          {/* Health Score Progress Bar */}
+                          <View style={styles.healthScoreContainer}>
+                            <Text style={styles.healthScoreLabel}>Health Score</Text>
+                            <View style={styles.progressBarContainer}>
+                              <View style={styles.progressBarBackground}>
+                                <View 
+                                  style={[
+                                    styles.progressBarFill, 
+                                    { width: `${(aiResponse.HealthScoreOutOf10 / 10) * 100}%` }
+                                  ]} 
+                                />
+                              </View>
+                              <Text style={styles.healthScoreText}>
+                                {aiResponse.HealthScoreOutOf10}/10
+                              </Text>
+                            </View>
                           </View>
                         </View>
                       )}
@@ -1183,5 +1202,50 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
+  },
+  
+  // Health Score Progress Bar Styles
+  healthScoreContainer: {
+    marginTop: 20,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  healthScoreLabel: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+  progressBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  progressBarBackground: {
+    flex: 1,
+    height: 10,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: theme.primary,
+    borderRadius: 6,
+    minWidth: 4,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  healthScoreText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    minWidth: 35,
   },
 });

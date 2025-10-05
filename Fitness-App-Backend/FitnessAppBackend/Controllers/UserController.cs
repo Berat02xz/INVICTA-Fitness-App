@@ -40,6 +40,7 @@ namespace FitnessAppBackend.Controllers
                 Email = request.Email,
                 PasswordHash = HashedPassword,
                 CreatedAt = DateTime.UtcNow,
+                Role = request.Role,
             };
 
             await _userService.AddAsync(NewUser);

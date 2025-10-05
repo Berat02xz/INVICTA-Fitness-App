@@ -18,16 +18,17 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 
 | Status | Task |
 |--------|------|
-| ⬜ | Convert structured outputs to string outputs to reduce token usage |
+| ❌ | Convert structured outputs to string outputs to reduce token usage (canceled - no difference on token usage) |
 | ✅ | Increase image resolution for menu or fridge scans to 720px (from 256px) |
-| ⬜ | Store meal responses in WatermelonDB and display them in a bottom sheet for the current date. Save meals but delete images with cronjob (optional) |
+| ✅ | Store meal responses in WatermelonDB and display them in a bottom sheet for the current date. Save meals but delete images with cronjob (optional) |
+| ⬜  | Save and display meals watermelondDb |
 | ✅ | Style the "Grant Permission" screen for better visuals and user experience |
 | ✅ | Change the navigation bar color to black and apply the glass effect from scanning buttons |
 | ✅ | Update the bottom sheet bar color to black |
-| ⬜ | Implement a dynamic loading animation during meal scanning. Once the response is received, display results as fading-in/out pill-style elements, followed by the bottom bar appearing |
-| ⬜ | Put health score in database, input/output and WatermelonDB |
-| ⬜ | Put type of user, "FREE" "PREMIUM" or "ADMIN" (default: FREE) |
-| ⬜ | Limit food scanning to 5 scans a day. After that show a modal: "Daily Scan Limit Reached" (same as permission screen, so make it a ui component to reuse) |
+| ⬜ | Implement a dynamic loading animation during meal scanning with Rive |
+| ✅ | Put health score in database, input/output and WatermelonDB |
+| ✅ | Put type of user, "FREE" "PREMIUM" or "ADMIN" (default: FREE) |
+| ⬜ | Limit food scanning to 5 scans a day. After that show a modal: "Daily Scan Limit Reached" (same as permission screen, so make it a ui component Modal to reuse) |
 | ✅ | Show animation loading while registering/login (DB + backend init). |
 
 

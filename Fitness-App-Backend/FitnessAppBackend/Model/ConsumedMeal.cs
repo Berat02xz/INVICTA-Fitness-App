@@ -13,7 +13,8 @@ namespace FitnessAppBackend.Model
         public int Carbohydrates { get; set; }
         public int Fats { get; set; }
         public string MealQuality { get; set; }
+        public int HealthScoreOutOf10 { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        
     }
 }

@@ -1,5 +1,5 @@
 import { View, LayoutChangeEvent, StyleSheet } from "react-native";
-import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TabBarButton from "./TabBarButton";
 import { theme } from "@/constants/theme";
@@ -51,7 +51,7 @@ export function TabBar({
   state,
   descriptors,
   navigation,
-}: BottomTabBarButtonProps) {
+}: BottomTabBarProps) {
   const [dimensions, setDimensions] = useState({ width: 400, height: 75 });
   const buttonCount = state.routes.length;
   const buttonWidth = dimensions.width / buttonCount;
@@ -81,7 +81,7 @@ export function TabBar({
   return (
     <View style={styles.tabBarWrapper} onLayout={onTabbarLayout}>
       <BlurView
-        experimentalBlurMethod="dimezisBlurView"
+        // experimentalBlurMethod="dimezisBlurView"
         blurReductionFactor={3}
         intensity={50}
         tint="dark"
@@ -133,7 +133,6 @@ export function TabBar({
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel}
-              testID={options.tabBarTestID}
               onPress={onPress}
               style={{
                 width: buttonWidth,

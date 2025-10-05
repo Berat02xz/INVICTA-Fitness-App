@@ -17,4 +17,5 @@ export default interface UserData {
   caloricDeficit: string;
   unit: string;
   appName: string;
+  role: string; // "FREE", "PREMIUM", "ADMIN"
 }

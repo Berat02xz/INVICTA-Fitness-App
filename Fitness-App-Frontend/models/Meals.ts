@@ -15,9 +15,11 @@ export class Meal extends Model {
   @field("fats") fats!: number;
   @field("label") label!: string;
   @field("created_at") createdAt!: number;
+  @text("image_url") imageUrl!: string | null;
+  @field("health_score") healthScore!: number;
 
 
-static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; }): Promise<Meal> {
+static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; imageUrl: string | null; healthScore: number; }): Promise<Meal> {
   return await database.get<Meal>("meals").create((meal) => {
     meal.userId = mealData.userId;
     meal.mealName = mealData.mealName;
@@ -27,6 +29,8 @@ static async createMeal(database: Database, mealData: { userId: string; mealName
     meal.fats = mealData.fats;
     meal.label = mealData.label;
     meal.createdAt = mealData.createdAt;
+    meal.imageUrl = mealData.imageUrl || null;
+    meal.healthScore = mealData.healthScore;
   });
 }
 
@@ -39,8 +43,20 @@ static async getTodayMeals(database: Database): Promise<Meal[]> {
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).getTime();
 
+  //Delete meals older than 7 days
+  await this.deleteOldMeals(database, 7);
+
   return await database.get<Meal>("meals").query(Q.where("created_at", Q.between(startOfDay, endOfDay))).fetch();
 }
+
+static async deleteOldMeals(database: Database, daysOld: number): Promise<void> {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+  const cutoffTimestamp = cutoffDate.getTime();
+
+  await database.get<Meal>("meals").query(Q.where("created_at", Q.lt(cutoffTimestamp))).destroyAllPermanently();
+}
+
 
 
 }
