@@ -26,7 +26,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import Fontisto from '@expo/vector-icons/Fontisto';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "@/constants/theme";
 import ConditionalBlurView from "@/components/ui/ConditionalBlurView";
@@ -37,6 +37,7 @@ import FadeTranslate from "@/components/ui/FadeTranslate";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { Meal } from "@/models/Meals";
 import database from "@/database/database";
+import ScanResultModal from "@/components/ui/Nutrition/ScanResultModal";
 
 // Meal/AI types
 export type MealInfoResponse = {
@@ -79,7 +80,8 @@ export default function ScanScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const skeletonAnim = useRef(new Animated.Value(0.3)).current;
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalResult, setModalResult] = useState<any>(null);
   const menuBottomSheetRef = useRef<BottomSheet>(null);
 
   const categories: CategoryItem[] = [
@@ -109,7 +111,6 @@ export default function ScanScreen() {
   };
 
   // might not need memo, react compiler update
-  const aiSnapPoints = useMemo(() => ['75%', '80%'], []);
   const menuSnapPoints = useMemo(() => ['12%', '50%', '75%'], []);
 
   // Fetch today's meals from database
@@ -117,11 +118,24 @@ export default function ScanScreen() {
     try {
       if (!database) {
         console.warn("Database not initialized yet");
+        setTodayMeals([]);
         return;
       }
-      const meals = await Meal.getTodayMeals(database);
-      setTodayMeals(meals);
-      console.log(`Fetched ${meals.length} meals from today`);
+      const userId = await getUserIdFromToken();
+      if (!userId) {
+        console.warn("No user ID found, clearing meals");
+        setTodayMeals([]);
+        return;
+      }
+      
+      // Fetch meals with user ID filter
+      const meals = await Meal.getTodayMeals(database, userId);
+      
+      // Extra safety: filter out any meals that somehow don't match the current user
+      const validMeals = meals.filter(meal => meal.userId === userId);
+      
+      setTodayMeals(validMeals);
+      console.log(`Fetched ${validMeals.length} meals from today for user ${userId}`);
     } catch (error) {
       console.error("Error fetching today's meals:", error);
       // Set empty array on error to prevent UI issues
@@ -129,22 +143,12 @@ export default function ScanScreen() {
     }
   };
 
-  // bottom sheet starts closed on init
+  // Fetch meals on mount
   useEffect(() => {
-    bottomSheetRef.current?.close();
-    console.log("AI bottom sheet initialized as closed");
-    fetchTodayMeals(); // Fetch meals on mount
+    fetchTodayMeals();
   }, []);
 
-  // Log bottom sheet state changes
-  const handleSheetChanges = useCallback((index: number) => {
-    if (index === -1) {
-      setAiResponse(null);
-      setCapturedPhoto(null);
-      setResizedPhoto(null);
-      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start();
-    }
-  }, []);
+  // Log menu bottom sheet state changes
   const handleMenuSheetChanges = useCallback((index: number) => {
     console.log("Menu Bottom Sheet Changed:", index);
   }, []);
@@ -250,7 +254,6 @@ export default function ScanScreen() {
         console.log("Is Fridge Response:", isFridgeResponse(aiMealResponse));
         console.log("Is Menu Response:", isMenuResponse(aiMealResponse));
         console.log("Is Meal Response:", isMealResponse(aiMealResponse));
-        console.log("Bottom sheet ref:", bottomSheetRef.current ? "exists" : "null");
         
         // Save meal to database if it's a meal response
         if (selectedCategory === "Meal" && isMealResponse(aiMealResponse)) {
@@ -275,14 +278,33 @@ export default function ScanScreen() {
           }
         }
         
+        // Convert AI response to modal format
+        let modalData: any = null;
+        if (selectedCategory === "Meal" && isMealResponse(aiMealResponse)) {
+          modalData = {
+            type: "Meal",
+            ...aiMealResponse,
+          };
+        } else if (selectedCategory === "Menu" && isMenuResponse(aiMealResponse)) {
+          modalData = {
+            type: "Menu",
+            Meals: aiMealResponse.Meals,
+          };
+        } else if (selectedCategory === "Fridge" && isFridgeResponse(aiMealResponse)) {
+          modalData = {
+            type: "Fridge",
+            Meals: aiMealResponse.Meals,
+          };
+        }
+        
         setAiResponse(aiMealResponse);
+        setModalResult(modalData);
         setCapturedPhoto(null); // Clear captured photo to restore camera
         setResizedPhoto(null); // Clear resized photo
-        setTimeout(() => {
-          bottomSheetRef.current?.expand();
-          console.log("Expanding AI bottom sheet after response");
-        }, 100); // Slight delay to ensure bottom sheet is ready
-        Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+        
+        // Show modal with animation
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+        setModalVisible(true);
       } else {
         console.warn("No AI response received");
       }
@@ -295,12 +317,12 @@ export default function ScanScreen() {
     }
   };
 
-  const handleCloseBottomSheet = () => {
-    setAiResponse(null);
-    setCapturedPhoto(null);
-    setResizedPhoto(null);
-    bottomSheetRef.current?.close();
-    Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+  const handleCloseModal = () => {
+    Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+      setModalVisible(false);
+      setModalResult(null);
+      setAiResponse(null);
+    });
   };
 
   const handleOpenMenu = () => {
@@ -315,7 +337,6 @@ export default function ScanScreen() {
   if (!permission?.granted) {
     return (
       <BlurredBackground intensity={70} circleBlur={100} animationSpeed={0.8}>
-        {/* Back Button */}
         <FadeTranslate order={1}>
           <GlassEffect 
             intensity={40}
@@ -329,7 +350,6 @@ export default function ScanScreen() {
         </FadeTranslate>
         
         <View style={styles.permissionContainer}>
-          {/* Permission Card */}
           <FadeTranslate order={2}>
           <ConditionalBlurView intensity={60} tint="dark" style={styles.permissionCard}>
             <MaterialCommunityIcons name="camera-outline" size={64} color="white" style={{ marginBottom: 16 }} />
@@ -337,7 +357,6 @@ export default function ScanScreen() {
             <Text style={styles.permissionText}>
               To scan your meals, we need access to your camera. Please grant permission to continue.
             </Text>
-            {/* Grant Permission Button (no blur) */}
             <Pressable onPress={requestPermission} style={styles.permissionButton}>
               <Text style={styles.permissionButtonText}>Grant Permission</Text>
             </Pressable>
@@ -465,135 +484,6 @@ export default function ScanScreen() {
         </View>
       </View>
 
-      {/* Bottom Sheet for AI Response (Calorie Card) */}
-      {aiResponse && (
-        <BottomSheet
-          ref={bottomSheetRef}
-          snapPoints={aiSnapPoints}
-          index={0} // Show at first snap point when response exists
-          onChange={handleSheetChanges}
-          enablePanDownToClose={true}
-          backgroundStyle={{ backgroundColor: "black" }}
-          handleIndicatorStyle={styles.handleIndicator}
-          containerStyle={styles.aiBottomSheetContainer}
-        >
-          <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-            <BottomSheetView style={styles.bottomSheetWrapper}>
-              <View style={styles.bottomSheetContent}>
-                <Animated.View style={{ opacity: fadeAnim, padding: 16 }}>
-                {isLoading ? (
-                  <View>
-                    <Animated.View style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 24, marginBottom: 12 }]} />
-                    {[1, 2, 3, 4, 5].map((_, idx) => (
-                      <Animated.View
-                        key={idx}
-                        style={[styles.skeletonBlock, { opacity: skeletonAnim, height: 18, marginBottom: 6 }]}
-                      />
-                    ))}
-                  </View>
-                ) : (
-                  aiResponse && (
-                    <>
-                      {selectedCategory === "Meal" && isMealResponse(aiResponse) && (
-                        <View style={styles.mealCard}>
-                          <View style={styles.mealHeader}>
-                            <View style={styles.caloriesBadge}>
-                              <Text style={styles.caloriesText}>{aiResponse.CaloriesAmount} kcal</Text>
-                            </View>
-                          </View>
-                          <Text style={styles.infoTitle}>🍽️ {aiResponse.ShortMealName}</Text>
-                          <View style={styles.nutritionGrid}>
-                            <View style={styles.nutritionItem}>
-                              <Text style={styles.nutritionIcon}>💪</Text>
-                              <Text style={styles.nutritionLabel}>Protein</Text>
-                              <Text style={styles.nutritionValue}>{aiResponse.Protein}g</Text>
-                            </View>
-                            <View style={styles.nutritionItem}>
-                              <Text style={styles.nutritionIcon}>🍞</Text>
-                              <Text style={styles.nutritionLabel}>Carbs</Text>
-                              <Text style={styles.nutritionValue}>{aiResponse.Carbs}g</Text>
-                            </View>
-                            <View style={styles.nutritionItem}>
-                              <Text style={styles.nutritionIcon}>🧈</Text>
-                              <Text style={styles.nutritionLabel}>Fat</Text>
-                              <Text style={styles.nutritionValue}>{aiResponse.Fat}g</Text>
-                            </View>
-                          </View>
-                          <View style={styles.qualityContainer}>
-                            <Text style={styles.qualityLabel}>Quality Rating:</Text>
-                            <Text style={styles.qualityValue}>{aiResponse.MealQuality}</Text>
-                          </View>
-                          
-                          {/* Health Score Progress Bar */}
-                          <View style={styles.healthScoreContainer}>
-                            <Text style={styles.healthScoreLabel}>Health Score</Text>
-                            <View style={styles.progressBarContainer}>
-                              <View style={styles.progressBarBackground}>
-                                <View 
-                                  style={[
-                                    styles.progressBarFill, 
-                                    { width: `${(aiResponse.HealthScoreOutOf10 / 10) * 100}%` }
-                                  ]} 
-                                />
-                              </View>
-                              <Text style={styles.healthScoreText}>
-                                {aiResponse.HealthScoreOutOf10}/10
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      )}
-                      {selectedCategory === "Menu" && isMenuResponse(aiResponse) && (
-                        <View style={styles.menuCard}>
-                          <Text style={styles.infoTitle}>📋 Menu Items</Text>
-                          {aiResponse.Meals.map((meal, idx) => (
-                            <View key={idx} style={styles.menuItem}>
-                              <View style={styles.menuItemHeader}>
-                                <Text style={styles.menuItemName}>{meal.MenuName}</Text>
-                                <View style={styles.caloriesBadgeSmall}>
-                                  <Text style={styles.caloriesTextSmall}>{meal.Calories} kcal</Text>
-                                </View>
-                              </View>
-                              <Text style={styles.ingredientsText}>
-                                🥦 {meal.Ingredients.join(" • ")}
-                              </Text>
-                            </View>
-                          ))}
-                        </View>
-                      )}
-                      {selectedCategory === "Fridge" && isFridgeResponse(aiResponse) && (
-                        <View style={styles.fridgeCard}>
-                          <Text style={styles.infoTitle}>🧊 Fridge Suggestions</Text>
-                          {aiResponse.Meals.map((meal, idx) => (
-                            <View key={idx} style={styles.fridgeItem}>
-                              <View style={styles.fridgeItemHeader}>
-                                <Text style={styles.fridgeItemName}>{meal.Meal}</Text>
-                                <View style={styles.caloriesBadgeSmall}>
-                                  <Text style={styles.caloriesTextSmall}>{meal.Calories} kcal</Text>
-                                </View>
-                              </View>
-                              <Text style={styles.ingredientsText}>
-                                🥦 {meal.Ingredients.join(" • ")}
-                              </Text>
-                              <View style={styles.timeContainer}>
-                                <Text style={styles.timeIcon}>⏱️</Text>
-                                <Text style={styles.timeText}>{meal.TimeToMake}</Text>
-                              </View>
-                            </View>
-                          ))}
-                        </View>
-                      )}
-                    </>
-                  )
-                )}
-                </Animated.View>
-              </View>
-            </BottomSheetView>
-          </ConditionalBlurView>
-        </BottomSheet>
-      
-      )}
-
       <BottomSheet
         ref={menuBottomSheetRef}
         snapPoints={menuSnapPoints}
@@ -605,43 +495,54 @@ export default function ScanScreen() {
         containerStyle={styles.menuBottomSheetContainer} 
       >
         <ConditionalBlurView intensity={60} tint="dark" style={styles.bottomSheetBackground}>
-          <BottomSheetView style={styles.bottomSheetWrapper}>
-            <View style={[styles.bottomSheetContent, styles.menuBottomSheetContent]}>
-              <View style={styles.menuTitleContainer}>
-                <MaterialCommunityIcons name="clock-outline" size={24} color="#fff" style={styles.menuTitleIcon} />
-                <Text style={[styles.infoTitle, styles.menuTitle]}>Today's Scanned Meals</Text>
-              </View>
-              
-              {/* Display today's meals from database */}
-              {todayMeals.length > 0 ? (
-                todayMeals.map((meal) => (
-                  <MealCard
-                    key={meal.id}
-                    name={meal.mealName}
-                    time={new Date(meal.createdAt).toLocaleTimeString('en-US', { 
-                      hour: 'numeric', 
-                      minute: '2-digit',
-                      hour12: true 
-                    })}
-                    calories={meal.calories}
-                    protein={meal.protein}
-                    carbs={meal.carbohydrates}
-                    fat={meal.fats}
-                    healthScore={meal.healthScore}
-                    imageUrl={meal.imageUrl || undefined}
-                  />
-                ))
-              ) : (
-                <View style={styles.placeholderCard}>
-                  <Text style={styles.placeholderText}>No meals scanned today</Text>
-                  <Text style={styles.placeholderSubText}>Scan your first meal to get started!</Text>
-                </View>
-              )}
+          <BottomSheetScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollViewContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Title inside scroll view */}
+            <View style={styles.menuTitleContainer}>
+              <MaterialCommunityIcons name="clock-outline" size={24} color="#fff" style={styles.menuTitleIcon} />
+              <Text style={[styles.infoTitle, styles.menuTitle]}>Today's Scanned Meals</Text>
             </View>
-          </BottomSheetView>
+            
+            {/* Display today's meals from database */}
+            {todayMeals.length > 0 ? (
+              todayMeals.map((meal) => (
+                <MealCard
+                  key={meal.id}
+                  name={meal.mealName}
+                  time={new Date(meal.createdAt).toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
+                  calories={meal.calories}
+                  protein={meal.protein}
+                  carbs={meal.carbohydrates}
+                  fat={meal.fats}
+                  healthScore={meal.healthScore}
+                  imageUrl={meal.imageUrl || undefined}
+                />
+              ))
+            ) : (
+              <View style={styles.placeholderCard}>
+                <Text style={styles.placeholderText}>No meals scanned today</Text>
+                <Text style={styles.placeholderSubText}>Scan your first meal to get started!</Text>
+              </View>
+            )}
+          </BottomSheetScrollView>
         </ConditionalBlurView>
       </BottomSheet>
     </GestureHandlerRootView>
+
+    {/* Scan Result Modal */}
+    <ScanResultModal
+      visible={modalVisible}
+      result={modalResult}
+      onClose={handleCloseModal}
+      fadeAnim={fadeAnim}
+    />
   </>
   );
 }
@@ -773,6 +674,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
     marginTop: 7,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    paddingHorizontal: 16,
+    paddingTop: 5,
+    paddingBottom: 25,
+  },
   infoTitle: { color: "#fff", fontSize: 22, fontFamily: theme.bold, marginBottom: 12 },
   menuTitle: { 
     marginTop: 0, // Reset margin since we're centering now
@@ -784,7 +693,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    paddingTop: 8,
+    paddingTop: 25,
   },
   menuTitleIcon: {
     marginRight: 8,

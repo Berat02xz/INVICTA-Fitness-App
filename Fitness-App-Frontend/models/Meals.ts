@@ -40,7 +40,7 @@ static async getAllMeals(database: Database): Promise<Meal[]> {
   return await database.get<Meal>("meals").query().fetch();
 }
 
-static async getTodayMeals(database: Database): Promise<Meal[]> {
+static async getTodayMeals(database: Database, userId?: string): Promise<Meal[]> {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).getTime();
@@ -48,7 +48,14 @@ static async getTodayMeals(database: Database): Promise<Meal[]> {
   //Delete meals older than 7 days
   await this.deleteOldMeals(database, 7);
 
-  return await database.get<Meal>("meals").query(Q.where("created_at", Q.between(startOfDay, endOfDay))).fetch();
+  const query = userId 
+    ? Q.and(
+        Q.where("user_id", userId),
+        Q.where("created_at", Q.between(startOfDay, endOfDay))
+      )
+    : Q.where("created_at", Q.between(startOfDay, endOfDay));
+
+  return await database.get<Meal>("meals").query(query).fetch();
 }
 
 static async deleteOldMeals(database: Database, daysOld: number): Promise<void> {
@@ -62,6 +69,11 @@ static async deleteOldMeals(database: Database, daysOld: number): Promise<void> 
   });
 }
 
-
+static async deleteMealsForUser(database: Database, userId: string): Promise<void> {
+  await database.write(async () => {
+    const userMeals = await database.get<Meal>("meals").query(Q.where("user_id", userId)).fetch();
+    await Promise.all(userMeals.map((meal) => meal.destroyPermanently()));
+  });
+}
 
 }
