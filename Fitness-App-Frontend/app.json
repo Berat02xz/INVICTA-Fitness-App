@@ -2,7 +2,6 @@
   "expo": {
     "name": "Invicta",
     "slug": "invictus",
-    "displayName": "Invicta",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Invicta_Icon.png",
