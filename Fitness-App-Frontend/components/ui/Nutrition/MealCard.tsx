@@ -50,7 +50,7 @@ const MealCard: React.FC<MealCardProps> = ({
           <View style={styles.mealDetailsContainer}>
             {/* Calories */}
             <View style={styles.caloriesDisplay}>
-              <Ionicons name="flame" size={14} color="#fff" style={styles.caloriesIcon} />
+              <Ionicons name="flame" size={14} color="#ff0000ff" style={styles.caloriesIcon} />
               <Text style={styles.caloriesText}>{calories} Kcal</Text>
             </View>
 
@@ -72,7 +72,7 @@ const MealCard: React.FC<MealCardProps> = ({
 
             {/* Health Score */}
             <View style={styles.healthScore}>
-              <Ionicons name="heart" size={14} color="#ff4757" style={styles.healthIcon} />
+              <Ionicons name="heart" size={14} color="#19fb19ff" style={styles.healthIcon} />
               <Text style={styles.healthText}>Score: </Text>
               <View style={styles.healthProgressContainer}>
                 <View style={styles.healthProgressBackground}>
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   },
   healthProgressFill: {
     height: "100%",
-    backgroundColor: theme.primary,
+    backgroundColor: "#19fb19ff",
     borderRadius: 2,
   },
   healthNumber: {

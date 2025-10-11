@@ -35,6 +35,8 @@ import MealCard from "@/components/ui/Nutrition/MealCard";
 import CategoriesPicker, { CategoryItem } from "@/components/ui/CategoriesPicker";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import UndertextCard from "@/components/ui/UndertextCard";
+import { Meal } from "@/models/Meals";
+import database from "@/database/database";
 
 // Meal/AI types
 export type MealInfoResponse = {
@@ -90,6 +92,7 @@ export default function ScanScreen() {
   const [flash, setFlash] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const scanningAnim = useRef(new Animated.Value(0)).current;
+  const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
 
   // Get subtitle based on selected category
   const getSubtitle = () => {
@@ -109,10 +112,28 @@ export default function ScanScreen() {
   const aiSnapPoints = useMemo(() => ['75%', '80%'], []);
   const menuSnapPoints = useMemo(() => ['12%', '50%', '75%'], []);
 
+  // Fetch today's meals from database
+  const fetchTodayMeals = async () => {
+    try {
+      if (!database) {
+        console.warn("Database not initialized yet");
+        return;
+      }
+      const meals = await Meal.getTodayMeals(database);
+      setTodayMeals(meals);
+      console.log(`Fetched ${meals.length} meals from today`);
+    } catch (error) {
+      console.error("Error fetching today's meals:", error);
+      // Set empty array on error to prevent UI issues
+      setTodayMeals([]);
+    }
+  };
+
   // bottom sheet starts closed on init
   useEffect(() => {
     bottomSheetRef.current?.close();
     console.log("AI bottom sheet initialized as closed");
+    fetchTodayMeals(); // Fetch meals on mount
   }, []);
 
   // Log bottom sheet state changes
@@ -230,6 +251,30 @@ export default function ScanScreen() {
         console.log("Is Menu Response:", isMenuResponse(aiMealResponse));
         console.log("Is Meal Response:", isMealResponse(aiMealResponse));
         console.log("Bottom sheet ref:", bottomSheetRef.current ? "exists" : "null");
+        
+        // Save meal to database if it's a meal response
+        if (selectedCategory === "Meal" && isMealResponse(aiMealResponse)) {
+          try {
+            await Meal.createMeal(database, {
+              userId: userId,
+              mealName: aiMealResponse.ShortMealName,
+              calories: aiMealResponse.CaloriesAmount,
+              protein: aiMealResponse.Protein,
+              carbohydrates: aiMealResponse.Carbs,
+              fats: aiMealResponse.Fat,
+              label: aiMealResponse.MealQuality,
+              createdAt: Date.now(),
+              imageUrl: photo.uri, // Save the original photo URI
+              healthScore: aiMealResponse.HealthScoreOutOf10,
+            });
+            console.log("Meal saved to database successfully");
+            // Refresh today's meals
+            await fetchTodayMeals();
+          } catch (error) {
+            console.error("Error saving meal to database:", error);
+          }
+        }
+        
         setAiResponse(aiMealResponse);
         setCapturedPhoto(null); // Clear captured photo to restore camera
         setResizedPhoto(null); // Clear resized photo
@@ -567,38 +612,31 @@ export default function ScanScreen() {
                 <Text style={[styles.infoTitle, styles.menuTitle]}>Today's Scanned Meals</Text>
               </View>
               
-              {/* Realistic meal cards with detailed nutrition data */}
-              <MealCard
-                name="Apple Salmon salad..."
-                time="9:00am"
-                calories={500}
-                protein={78}
-                carbs={78}
-                fat={70}
-                healthScore={7}
-              />
-
-              <MealCard
-                name="Quinoa Bowl"
-                time="1:30pm"
-                calories={380}
-                protein={15}
-                carbs={45}
-                fat={12}
-                healthScore={6}
-                imageUrl="https://images.unsplash.com/photo-1484980972926-edee96e0960d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              />
-
-              <MealCard
-                name="Avocado Toast"
-                time="8:15am"
-                calories={290}
-                protein={8}
-                carbs={22}
-                fat={18}
-                healthScore={9}
-                imageUrl="https://images.unsplash.com/photo-1484980972926-edee96e0960d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              />
+              {/* Display today's meals from database */}
+              {todayMeals.length > 0 ? (
+                todayMeals.map((meal) => (
+                  <MealCard
+                    key={meal.id}
+                    name={meal.mealName}
+                    time={new Date(meal.createdAt).toLocaleTimeString('en-US', { 
+                      hour: 'numeric', 
+                      minute: '2-digit',
+                      hour12: true 
+                    })}
+                    calories={meal.calories}
+                    protein={meal.protein}
+                    carbs={meal.carbohydrates}
+                    fat={meal.fats}
+                    healthScore={meal.healthScore}
+                    imageUrl={meal.imageUrl || undefined}
+                  />
+                ))
+              ) : (
+                <View style={styles.placeholderCard}>
+                  <Text style={styles.placeholderText}>No meals scanned today</Text>
+                  <Text style={styles.placeholderSubText}>Scan your first meal to get started!</Text>
+                </View>
+              )}
             </View>
           </BottomSheetView>
         </ConditionalBlurView>
@@ -1233,7 +1271,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: theme.primary,
+    backgroundColor: "#4caf50",
     borderRadius: 6,
     minWidth: 4,
     shadowColor: theme.primary,

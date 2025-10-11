@@ -20,17 +20,19 @@ export class Meal extends Model {
 
 
 static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; imageUrl: string | null; healthScore: number; }): Promise<Meal> {
-  return await database.get<Meal>("meals").create((meal) => {
-    meal.userId = mealData.userId;
-    meal.mealName = mealData.mealName;
-    meal.calories = mealData.calories;
-    meal.protein = mealData.protein;
-    meal.carbohydrates = mealData.carbohydrates;
-    meal.fats = mealData.fats;
-    meal.label = mealData.label;
-    meal.createdAt = mealData.createdAt;
-    meal.imageUrl = mealData.imageUrl || null;
-    meal.healthScore = mealData.healthScore;
+  return await database.write(async () => {
+    return await database.get<Meal>("meals").create((meal) => {
+      meal.userId = mealData.userId;
+      meal.mealName = mealData.mealName;
+      meal.calories = mealData.calories;
+      meal.protein = mealData.protein;
+      meal.carbohydrates = mealData.carbohydrates;
+      meal.fats = mealData.fats;
+      meal.label = mealData.label;
+      meal.createdAt = mealData.createdAt;
+      meal.imageUrl = mealData.imageUrl || null;
+      meal.healthScore = mealData.healthScore;
+    });
   });
 }
 
@@ -54,7 +56,10 @@ static async deleteOldMeals(database: Database, daysOld: number): Promise<void> 
   cutoffDate.setDate(cutoffDate.getDate() - daysOld);
   const cutoffTimestamp = cutoffDate.getTime();
 
-  await database.get<Meal>("meals").query(Q.where("created_at", Q.lt(cutoffTimestamp))).destroyAllPermanently();
+  await database.write(async () => {
+    const oldMeals = await database.get<Meal>("meals").query(Q.where("created_at", Q.lt(cutoffTimestamp))).fetch();
+    await Promise.all(oldMeals.map((meal) => meal.destroyPermanently()));
+  });
 }
 
 
