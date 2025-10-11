@@ -86,6 +86,11 @@ const OnboardingComplete = () => {
         throw new Error("Failed to upload onboarding data.");
       }
 
+      // Step 3: Fetch and store user data in local database
+      console.log("🔐 Fetching user data for userId:", userId);
+      await FetchUserInformationAndStore(userId);
+      console.log("✅ User data fetched and stored successfully");
+
       // Success → move forward
       goForward();
       router.push("/(tabs)/workout");

@@ -1,4 +1,5 @@
-import axios, { removeToken, setToken } from '@/api/AxiosInstance';
+import axiosInstance from '@/api/AxiosInstance';
+import { removeToken, setToken } from '@/api/AxiosInstance';
 import database from '@/database/database';
 import { router } from 'expo-router';
 import { User } from '@/models/User';
@@ -11,7 +12,7 @@ export const RegisterUser = async (userData: {
   Role: string;
 }) => {
   try {
-    const response = await axios.post('/api/User/register', userData);
+    const response = await axiosInstance.post('/api/User/register', userData);
     const data = response.data as { token: string };
     const token = data.token;
     setToken(token);
@@ -32,7 +33,7 @@ export const UploadUserInformation = async ({
   answers: { [question: string]: string | number };
 }) => {
   try {
-    const response = await axios.post("/api/User/UploadUserInformation", {
+    const response = await axiosInstance.post("/api/User/UploadUserInformation", {
       userId,
       answers,
     });
@@ -44,57 +45,129 @@ export const UploadUserInformation = async ({
 };
 
 export const FetchUserInformationAndStore = async (userId: string) => {
-  const { data: userData } = await axios.get<UserDTO>(`/api/User/GetUserInformation/${userId}`);
-  if (!userData) return;
+  try {
+    console.log("📡 Making API call to fetch user information...");
+    console.log("📡 Request URL:", `/api/User/GetUserInformation/${userId}`);
+    
+    let response;
+    try {
+      response = await axiosInstance.get(`/api/User/GetUserInformation/${userId}`);
+      console.log("📦 Raw response received:", response);
+      console.log("📦 Response data:", JSON.stringify(response?.data, null, 2));
+    } catch (apiError: any) {
+      console.error("❌ API call failed:", apiError);
+      console.error("❌ API error message:", apiError?.message);
+      console.error("❌ API error response:", apiError?.response);
+      throw apiError;
+    }
+    
+    // Transform C# PascalCase response to JavaScript camelCase
+    const backendData: any = response.data;
+    
+    if (!backendData) {
+      console.warn("⚠️ API returned null or undefined data");
+      return;
+    }
+    
+    const userData: UserDTO = {
+      userId: backendData.UserId || backendData.userId || userId,
+      name: backendData.Name || backendData.name || '',
+      email: backendData.Email || backendData.email || '',
+      age: backendData.Age || backendData.age || 0,
+      gender: backendData.Gender || backendData.gender || '',
+      height: String(backendData.Height || backendData.height || 0),
+      weight: backendData.Weight || backendData.weight || 0,
+      equipmentAccess: backendData.EquipmentAccess || backendData.equipmentAccess || '',
+      activityLevel: backendData.ActivityLevel || backendData.activityLevel || '',
+      fitnessLevel: backendData.FitnessLevel || backendData.fitnessLevel || '',
+      goal: backendData.Goal || backendData.goal || '',
+      bmi: backendData.Bmi || backendData.bmi || 0,
+      bmr: backendData.Bmr || backendData.bmr || 0,
+      tdee: backendData.Tdee || backendData.tdee || 0,
+      caloricIntake: backendData.CaloricIntake || backendData.caloricIntake || 0,
+      caloricDeficit: String(backendData.CaloricDeficit || backendData.caloricDeficit || '0'),
+      unit: backendData.Unit || backendData.unit || 'metric',
+      appName: backendData.AppName || backendData.appName || 'Invicta',
+      role: backendData.Role || backendData.role || 'FREE',
+    };
+    
+    console.log("✅ Transformed userData:", JSON.stringify(userData, null, 2));
 
-  const existing = await User.getUserDetails(database);
+    console.log("🔍 Checking for existing user in local database...");
+    const existing = await User.getUserDetails(database);
 
-  await database.write(async () => {
-    if (!existing) {
-      await User.createUser(database, {
-        userId: userData.userId,
-        name: userData.name,
-        email: userData.email,
-        age: userData.age,
-        gender: userData.gender,
-        height: userData.height,
-        weight: userData.weight,
-        equipmentAccess: userData.equipmentAccess,
-        activityLevel: userData.activityLevel,
-        fitnessLevel: userData.fitnessLevel,
-        goal: userData.goal,
-        bmi: userData.bmi,
-        bmr: userData.bmr,
-        tdee: userData.tdee,
-        caloricIntake: userData.caloricIntake,
-        caloricDeficit: userData.caloricDeficit,
-        unit: userData.unit,
-        appName: userData.appName,
-        role: userData.role,
+    console.log("💾 Starting database write operation...");
+    await database.write(async () => {
+      if (!existing) {
+        console.log("➕ Creating new user in local database...");
+        await User.createUser(database, {
+          userId: userId,
+          name: userData.name,
+          email: userData.email,
+          age: userData.age,
+          gender: userData.gender,
+          height: userData.height,
+          weight: userData.weight,
+          equipmentAccess: userData.equipmentAccess,
+          activityLevel: userData.activityLevel,
+          fitnessLevel: userData.fitnessLevel,
+          goal: userData.goal,
+          bmi: userData.bmi,
+          bmr: userData.bmr,
+          tdee: userData.tdee,
+          caloricIntake: userData.caloricIntake,
+          caloricDeficit: userData.caloricDeficit,
+          unit: userData.unit,
+          appName: userData.appName,
+          role: userData.role,
+        });
+        console.log("✅ New user created successfully");
+      } else {
+        console.log("🔄 Updating existing user in local database...");
+        await existing.update((u) => Object.assign(u, {
+          name: userData.name,
+          email: userData.email,
+          age: userData.age,
+          gender: userData.gender,
+          height: String(userData.height),
+          weight: userData.weight,
+          equipmentAccess: userData.equipmentAccess,
+          activityLevel: userData.activityLevel,
+          fitnessLevel: userData.fitnessLevel,
+          goal: userData.goal,
+          bmi: userData.bmi,
+          bmr: userData.bmr,
+          tdee: userData.tdee,
+          caloricIntake: userData.caloricIntake,
+          caloricDeficit: String(userData.caloricDeficit),
+          unit: userData.unit,
+          appName: userData.appName,
+          role: userData.role,
+        }));
+        console.log("✅ Existing user updated successfully");
+      }
+    });
+    console.log("✅ Database write completed successfully");
+  } catch (error: any) {
+    console.error("❌ Error in FetchUserInformationAndStore:");
+    if (error.isAxiosError || error.response) {
+      console.error("  - Axios Error:", {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
       });
     } else {
-      await existing.update((u) => Object.assign(u, {
-        name: userData.name,
-        email: userData.email,
-        age: userData.age,
-        gender: userData.gender,
-        height: String(userData.height),
-        weight: userData.weight,
-        equipmentAccess: userData.equipmentAccess,
-        activityLevel: userData.activityLevel,
-        fitnessLevel: userData.fitnessLevel,
-        goal: userData.goal,
-        bmi: userData.bmi,
-        bmr: userData.bmr,
-        tdee: userData.tdee,
-        caloricIntake: userData.caloricIntake,
-        caloricDeficit: String(userData.caloricDeficit),
-        unit: userData.unit,
-        appName: userData.appName,
-        role: userData.role,
-      }));
+      console.error("  - Error details:", error);
+      console.error("  - Error type:", typeof error);
+      console.error("  - Error message:", error?.message);
+      if (error) {
+        console.error("  - Error properties:", Object.keys(error));
+      }
     }
-  });
+    throw error; // Re-throw so login.tsx can catch it
+  }
 };
 
 
@@ -145,7 +218,7 @@ export const Login = async (
   userData: { email: string; password: string }
 ): Promise<{ token: string }> => {
   try {
-    const response = await axios.post<{ token: string }>('/api/User/Login', userData);
+    const response = await axiosInstance.post<{ token: string }>('/api/User/Login', userData);
     const { token } = response.data;
     return { token };
   } catch (error) {
@@ -165,7 +238,7 @@ export const LogoutUser = async () => {
 
 export const DeleteUser = async (userId: string) => {
   try {
-    await axios.delete(`/api/User/DeleteUser/${userId}`);
+    await axiosInstance.delete(`/api/User/DeleteUser/${userId}`);
     console.log('User deleted successfully.');
   } catch (error) {
     console.error('Error deleting user:', error);

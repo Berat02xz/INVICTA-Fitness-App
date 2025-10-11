@@ -110,6 +110,7 @@ namespace FitnessAppBackend.Controllers
             var userInformation = await _userInformationService.GetByUserId(userId);
             var result = new
             {
+                UserId = user.Id,
                 Age = userInformation.Age,
                 Unit = userInformation.Unit,
                 Gender = userInformation.Gender,
@@ -126,9 +127,11 @@ namespace FitnessAppBackend.Controllers
                 CaloricDeficit = userInformation.CaloricDeficit,
                 AppName = userInformation.AppName,
                 Email = user.Email,
-                Name = user.Name
+                Name = user.Name,
+                Role = user.Role
             };
 
+            Console.WriteLine("Fetched User Information: "+ result);
             return Ok(result);
         }
 

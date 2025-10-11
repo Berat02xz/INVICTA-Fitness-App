@@ -81,9 +81,9 @@ export function TabBar({
   return (
     <View style={styles.tabBarWrapper} onLayout={onTabbarLayout}>
       <BlurView
-        // experimentalBlurMethod="dimezisBlurView"
-        blurReductionFactor={3}
-        intensity={50}
+        experimentalBlurMethod="dimezisBlurView"
+        blurReductionFactor={1}
+        intensity={100}
         tint="dark"
         style={styles.tabBar}
       >

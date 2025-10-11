@@ -1,5 +1,6 @@
 import { setToken } from "@/api/AxiosInstance";
-import { Login } from "@/api/UserDataEndpoint";
+import { Login, FetchUserInformationAndStore } from "@/api/UserDataEndpoint";
+import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -63,6 +64,20 @@ export const LoginScreen = () => {
         return;
       } else {
         setToken(response.token);
+        
+        // Fetch and store user data in local database
+        try {
+          const userId = await getUserIdFromToken();
+          if (userId) {
+            console.log("🔐 Fetching user data for userId:", userId);
+            await FetchUserInformationAndStore(userId);
+            console.log("✅ User data fetched and stored successfully");
+          }
+        } catch (userDataError) {
+          console.error("⚠️ Failed to fetch user data, but login succeeded:", userDataError);
+          // Don't block login if user data fetch fails
+        }
+        
         router.push("/(tabs)/workout");
       }
     } catch (error: any) {
