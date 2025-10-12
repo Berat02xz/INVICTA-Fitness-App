@@ -94,7 +94,7 @@ namespace FitnessAppBackend.Controllers
                             // @enum = new[] { "Macro Rich", "Balanced Meal", "High Fat", "Consider Lighter Option", "Dairy Rich" }
                         }
                     },
-                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality","HealthScoreOutOf10" },
+                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality", "HealthScoreOutOf10" },
                     additionalProperties = false
                 };
             }
@@ -286,6 +286,61 @@ namespace FitnessAppBackend.Controllers
                 _logger.LogError(ex, "Failed to parse AI JSON output for user {UserId}", UserId);
                 return StatusCode(500, "Invalid JSON from AI");
             }
+        }
+
+
+        //chat bot, i get string and return string from openai
+        [Authorize]
+        [HttpPost("AskChat")]
+        public async Task<IActionResult> AskChat([FromBody] ChatRequest chatRequest)
+        {
+            Console.WriteLine("AskChat called with question: {Question}", chatRequest.Question);
+            if (string.IsNullOrWhiteSpace(chatRequest.Question))
+            {
+                Console.WriteLine("Empty question received in AskChat");
+                return BadRequest("Question cannot be empty.");
+            }
+            var apiKey = Environment.GetEnvironmentVariable("OpenAI__ApiKey");
+
+            var requestBody = new
+            {
+                model = "gpt-5-nano-2025-08-07",
+                input = new[]
+                {
+                    new
+                    {
+                        role = "user",
+                        content = new object[]
+                        {
+                            new { type = "input_text", text = chatRequest.Question + " Answer short, you can answer information as list but use start 'TABLE' and delimeter ; and end 'ENDTABLE" }
+                        }
+                    }
+                }
+            };
+            var json = JsonSerializer.Serialize(requestBody);
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            var response = await httpClient.PostAsync(
+                "https://api.openai.com/v1/responses",
+                new StringContent(json, Encoding.UTF8, "application/json")
+            );
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("OpenAI API error in AskChat: {Error}", error);
+                return StatusCode((int)response.StatusCode, error);
+            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            JsonNode docNode = JsonNode.Parse(responseContent);
+
+            //get output array
+            var outputArray = docNode["output"]?.AsArray();
+            var assistantMessage = outputArray.LastOrDefault(msg => msg["role"]?.ToString() == "assistant");
+            var contentArray = assistantMessage["content"]?.AsArray();
+            var textContent = contentArray
+                .FirstOrDefault(c => c?["type"]?.ToString() == "output_text")?["text"]?.ToString();
+            return Ok(new { Answer = textContent ?? "No response received." });
+
         }
     }
 }
