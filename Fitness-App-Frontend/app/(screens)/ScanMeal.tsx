@@ -565,13 +565,13 @@ const styles = StyleSheet.create({
   },
   title: { 
     color: "#fff", 
-    fontSize: 18, // Smaller font size
-    fontWeight: "bold" 
+    fontSize: 18,
+    fontFamily: theme.bold,
   },
   subtitle: {
     color: "#ccc",
     fontSize: 12,
-    fontWeight: "400",
+    fontFamily: theme.regular,
     opacity: 0.8,
     marginTop: 2,
   },
@@ -699,8 +699,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginTop: -10, // Slight adjustment to align with text baseline
   },
-  infoSubtitle: { color: "#fff", fontSize: 18, fontWeight: "600", marginBottom: 4 },
-  infoText: { color: "#ddd", fontSize: 16, marginBottom: 6, opacity: 0.9 },
+  infoSubtitle: { color: "#fff", fontSize: 18, fontFamily: theme.semibold, marginBottom: 4 },
+  infoText: { color: "#ddd", fontSize: 16, fontFamily: theme.regular, marginBottom: 6, opacity: 0.9 },
   bold: { fontFamily: theme.bold, color: "#fff" },
   mealItem: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.1)" },
 
@@ -719,8 +719,8 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 12,
   },
-  placeholderText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  placeholderSubText: { color: "#ddd", fontSize: 14, opacity: 0.8 },
+  placeholderText: { color: "#fff", fontSize: 16, fontFamily: theme.semibold },
+  placeholderSubText: { color: "#ddd", fontSize: 14, fontFamily: theme.regular, opacity: 0.8 },
 
   aiBottomSheetContainer: { zIndex: 30 }, // Highest zIndex - appears above everything
   menuBottomSheetContainer: { zIndex: 25 }, // Lower than AI bottom sheet
@@ -772,7 +772,7 @@ const styles = StyleSheet.create({
   },
   caloriesText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 14,
   },
   caloriesBadgeSmall: {
@@ -783,7 +783,7 @@ const styles = StyleSheet.create({
   },
   caloriesTextSmall: {
     color: "#fff",
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 12,
   },
   nutritionGrid: {
@@ -806,11 +806,12 @@ const styles = StyleSheet.create({
   nutritionLabel: {
     color: "#aaa",
     fontSize: 12,
+    fontFamily: theme.regular,
     marginBottom: 2,
   },
   nutritionValue: {
     color: "#fff",
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 16,
   },
   qualityContainer: {
@@ -824,10 +825,11 @@ const styles = StyleSheet.create({
   qualityLabel: {
     color: "#aaa",
     fontSize: 14,
+    fontFamily: theme.regular,
   },
   qualityValue: {
     color: theme.primary,
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 14,
   },
   menuItem: {
@@ -846,7 +848,7 @@ const styles = StyleSheet.create({
   },
   menuItemName: {
     color: "#fff",
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 16,
     flex: 1,
     marginRight: 8,
@@ -867,7 +869,7 @@ const styles = StyleSheet.create({
   },
   fridgeItemName: {
     color: "#fff",
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     fontSize: 16,
     flex: 1,
     marginRight: 8,
@@ -875,6 +877,7 @@ const styles = StyleSheet.create({
   ingredientsText: {
     color: "#ccc",
     fontSize: 14,
+    fontFamily: theme.regular,
     lineHeight: 20,
     marginBottom: 8,
   },
@@ -892,7 +895,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     color: "#fff",
-    fontWeight: "600",
+    fontFamily: theme.semibold,
     fontSize: 12,
   },
   // Today's meal styles
@@ -1081,6 +1084,7 @@ const styles = StyleSheet.create({
   todayTimeText: {
     color: "#aaa",
     fontSize: 12,
+    fontFamily: theme.regular,
     fontStyle: "italic",
   },
   
@@ -1120,13 +1124,14 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     color: "white",
     textAlign: "center",
     marginBottom: 16,
   },
   permissionText: {
     fontSize: 16,
+    fontFamily: theme.regular,
     color: "white",
     textAlign: "center",
     lineHeight: 22,
@@ -1147,7 +1152,7 @@ const styles = StyleSheet.create({
   permissionButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: theme.semibold,
     textAlign: "center",
   },
   
@@ -1163,7 +1168,7 @@ const styles = StyleSheet.create({
   healthScoreLabel: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: theme.semibold,
     marginBottom: 12,
   },
   progressBarContainer: {
@@ -1192,7 +1197,7 @@ const styles = StyleSheet.create({
   healthScoreText: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.semibold,
     minWidth: 35,
   },
 });

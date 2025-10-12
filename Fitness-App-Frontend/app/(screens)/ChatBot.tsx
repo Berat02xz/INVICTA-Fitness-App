@@ -13,10 +13,11 @@ import {
   Keyboard,
   ScrollView,
   Animated,
+  BackHandler,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { GetUserDetails } from "@/api/UserDataEndpoint";
 import { Meal } from "@/models/Meals";
 import database from "@/database/database";
@@ -36,7 +37,7 @@ const FITNESS_KEYWORDS = ["fitness", "workout", "gym", "exercise", "training", "
 const SUGGESTED_QUESTIONS = [
   "15 min recipes",
   "Easy breakfast",
-  "Make workout plan",
+  "Make a personalized workout plan",
   "Healthy snacks",
   "Weight loss tips",
   "High protein meals",
@@ -93,6 +94,20 @@ export default function Chatbot() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const emojiAnimX = useRef(new Animated.Value(0)).current;
   const emojiAnimY = useRef(new Animated.Value(0)).current;
+
+  // Handle back button/gesture to go to workout tab
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        router.replace("/(tabs)/workout");
+        return true; // Prevent default back behavior
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => subscription.remove();
+    }, [])
+  );
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -168,7 +183,7 @@ export default function Chatbot() {
 
     if (hasNutrition && !hasFitness) return "nutrition";
     if (hasFitness && !hasNutrition) return "fitness";
-    if (hasNutrition && hasFitness) return "nutrition"; // Prioritize nutrition if both
+    if (hasNutrition && hasFitness) return "nutrition"; // prioritize nutrition if both
     return "general";
   };
 
@@ -249,29 +264,63 @@ export default function Chatbot() {
   };
 
   const parseTableResponse = (text: string) => {
-    const tableStart = text.indexOf("TABLE");
+    const tableStart = text.indexOf("STARTTABLE");
     const tableEnd = text.indexOf("ENDTABLE");
     
     if (tableStart === -1 || tableEnd === -1) {
       return <Text style={styles.messageText}>{text}</Text>;
     }
 
-    const beforeTable = text.substring(0, tableStart);
-    const tableContent = text.substring(tableStart + 5, tableEnd);
-    const afterTable = text.substring(tableEnd + 8);
+    const beforeTable = text.substring(0, tableStart).trim();
+    const tableContent = text.substring(tableStart + 10, tableEnd).trim();
+    const afterTable = text.substring(tableEnd + 8).trim();
     
-    const items = tableContent.split(';').map(item => item.trim()).filter(item => item);
-
+    // Split by newlines to get rows
+    const rows = tableContent.split(/\n/).filter(row => row.trim());
+    
     return (
       <>
         {beforeTable && <Text style={styles.messageText}>{beforeTable}</Text>}
-        <View style={styles.tablePillsContainer}>
-          {items.map((item, index) => (
-            <View key={index} style={styles.tablePill}>
-              <Text style={styles.tablePillText}>{item}</Text>
-            </View>
-          ))}
-        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.tableScrollView}
+        >
+          <View style={styles.tableContainer}>
+            {rows.map((row, rowIndex) => {
+              // Split by | to get columns
+              const columns = row.split('|').map(col => col.trim()).filter(col => col);
+              
+              const isHeaderRow = rowIndex === 0;
+              
+              return (
+                <View key={rowIndex} style={styles.tableRow}>
+                  {columns.map((column, colIndex) => (
+                    <View 
+                      key={colIndex} 
+                      style={[
+                        styles.tableCell,
+                        isHeaderRow && styles.tableHeaderCell,
+                        colIndex === 0 && styles.tableFirstColumn,
+                      ]}
+                    >
+                      <Text 
+                        style={[
+                          styles.tableCellText,
+                          isHeaderRow && styles.tableHeaderText,
+                        ]}
+                        numberOfLines={3}
+                        ellipsizeMode="tail"
+                      >
+                        {column}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              );
+            })}
+          </View>
+        </ScrollView>
         {afterTable && <Text style={styles.messageText}>{afterTable}</Text>}
       </>
     );
@@ -294,15 +343,29 @@ export default function Chatbot() {
     Keyboard.dismiss();
 
     try {
+      // Detect message category and get contextual data
+      const category = detectMessageCategory(textToSend);
+      const contextData = await getContextualData(category);
+      
+      // Build the question with context
+      let questionWithContext = textToSend;
+      if (contextData) {
+        const contextString = JSON.stringify(contextData, null, 2);
+        questionWithContext = `${textToSend}\n\nUser Context:\n${contextString}`;
+      }
+      
       // Debug: Log the request being sent
-      console.log('Sending chat request with question:', textToSend);
+      console.log('Sending chat request with question:', questionWithContext);
       
       // Call backend API
-      const response: any = await AIEndpoint.askChat(textToSend);
+      const response: any = await AIEndpoint.askChat(questionWithContext);
+      
+      // Handle both lowercase and uppercase 'answer' property
+      const answerText = response.answer || response.Answer || "Sorry, I couldn't process that.";
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response.Answer || "Sorry, I couldn't process that.",
+        text: answerText || "Sorry, I couldn't process that.",
         isUser: false,
         timestamp: new Date(),
       };
@@ -342,295 +405,175 @@ export default function Chatbot() {
     }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.isUser ? styles.userMessage : styles.aiMessage,
-      ]}
-    >
+  const renderMessage = ({ item }: { item: Message }) => {
+    // Check if message contains a table
+    const hasTable = item.text.includes("STARTTABLE");
+    
+    return (
       <View
         style={[
-          styles.messageBubble,
-          item.isUser 
-            ? (useBlurredBackground ? styles.userBubbleBlurred : styles.userBubble)
-            : styles.aiBubble,
+          styles.messageContainer,
+          item.isUser ? styles.userMessage : styles.aiMessage,
         ]}
       >
-        {item.isUser ? (
-          <Text style={[
-            styles.messageText, 
-            useBlurredBackground ? styles.userMessageTextBlurred : styles.userMessageText
-          ]}>
-            {highlightKeywords(item.text)}
-          </Text>
-        ) : (
-          parseTableResponse(item.text)
-        )}
+        <View
+          style={[
+            styles.messageBubble,
+            item.isUser 
+              ? (useBlurredBackground ? styles.userBubbleBlurred : styles.userBubble)
+              : styles.aiBubble,
+            !item.isUser && hasTable && styles.messageBubbleWide,
+          ]}
+        >
+          {item.isUser ? (
+            <Text style={[
+              styles.messageText, 
+              useBlurredBackground ? styles.userMessageTextBlurred : styles.userMessageText
+            ]}>
+              {highlightKeywords(item.text)}
+            </Text>
+          ) : (
+            parseTableResponse(item.text)
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
+  // Conditional wrapper component
+  const BackgroundWrapper = useBlurredBackground ? BlurredBackground : React.Fragment;
+  
   return (
     <>
-      {useBlurredBackground ? (
-        <BlurredBackground>
-          <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={0}
-          >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.iconButton} 
-            onPress={() => router.push("/(tabs)/workout")}
-            activeOpacity={0.7}
-          >
-            <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.iconButton} 
-            onPress={toggleBackground}
-            activeOpacity={0.7}
-          >
-            <MaterialCommunityIcons 
-              name={useBlurredBackground ? "blur" : "blur-off"} 
-              size={24} 
-              color="#fff" 
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.messagesList}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Animated.Text 
-                style={[
-                  styles.greetingEmoji,
-                  {
-                    transform: [
-                      { translateX: emojiAnimX },
-                      { translateY: emojiAnimY },
-                    ],
-                  },
-                ]}
-              >
-                {greetingMessage.emoji}
-              </Animated.Text>
-              <Text style={styles.greetingText}>{greetingMessage.text}</Text>
-            </View>
-          }
-          ListFooterComponent={
-            isLoading ? (
-              <Animated.View style={[styles.thinkingContainer, { opacity: fadeAnim }]}>
-                <Text style={[
-                  styles.thinkingText,
-                  useBlurredBackground && styles.thinkingTextBlurred
-                ]}>
-                  {THINKING_MESSAGES[thinkingMessageIndex]}
-                </Text>
-              </Animated.View>
-            ) : null
-          }
-        />
-
-        {/* Suggested Questions */}
-        <View style={styles.suggestionsWrapper}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.suggestionsScroll}
-          >
-            {SUGGESTED_QUESTIONS.map((question, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.suggestionChip}
-                onPress={() => sendMessage(question)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.suggestionText}>{question}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Input */}
-        <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.input}
-              placeholder="Ask me anything..."
-              placeholderTextColor={theme.textColorSecondary}
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-              maxLength={500}
-            />
-            <View style={styles.inputActions}>
-              <TouchableOpacity
-                style={styles.uploadButton}
-                onPress={() => router.push("/(screens)/ScanMeal")}
-                activeOpacity={0.7}
-              >
-                <MaterialCommunityIcons name="camera" size={18} color="#fff" />
-                <Text style={styles.uploadButtonText}>Scan Meal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-                onPress={() => sendMessage()}
-                disabled={!inputText.trim() || isLoading}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons
-                  name="arrow-up"
-                  size={20}
-                  color="#fff"
-                />
-              </TouchableOpacity>
-            </View>
+      {!useBlurredBackground && <SolidBackground style={StyleSheet.absoluteFill} />}
+      <BackgroundWrapper>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={0}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity 
+              style={styles.iconButton} 
+              onPress={() => router.replace("/(tabs)/workout")}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Your Coach</Text>
+            <TouchableOpacity 
+              style={styles.iconButton} 
+              onPress={toggleBackground}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons 
+                name={useBlurredBackground ? "blur" : "blur-off"} 
+                size={24} 
+                color="#fff" 
+              />
+            </TouchableOpacity>
           </View>
-        </View>
-          </KeyboardAvoidingView>
-        </BlurredBackground>
-      ) : (
-        <>
-          <SolidBackground style={StyleSheet.absoluteFill} />
-          <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={0}
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <TouchableOpacity 
-                style={styles.iconButton} 
-                onPress={() => router.push("/(tabs)/workout")}
-                activeOpacity={0.7}
-              >
-                <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.iconButton} 
-                onPress={toggleBackground}
-                activeOpacity={0.7}
-              >
-                <MaterialCommunityIcons 
-                  name={useBlurredBackground ? "blur" : "blur-off"} 
-                  size={24} 
-                  color="#fff" 
-                />
-              </TouchableOpacity>
-            </View>
 
-            {/* Messages */}
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              renderItem={renderMessage}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.messagesList}
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Animated.Text 
-                    style={[
-                      styles.greetingEmoji,
-                      {
-                        transform: [
-                          { translateX: emojiAnimX },
-                          { translateY: emojiAnimY },
-                        ],
-                      },
-                    ]}
-                  >
-                    {greetingMessage.emoji}
-                  </Animated.Text>
-                  <Text style={styles.greetingText}>{greetingMessage.text}</Text>
-                </View>
-              }
-              ListFooterComponent={
-                isLoading ? (
-                  <Animated.View style={[styles.thinkingContainer, { opacity: fadeAnim }]}>
-                    <Text style={[
-                      styles.thinkingText,
-                      useBlurredBackground && styles.thinkingTextBlurred
-                    ]}>
-                      {THINKING_MESSAGES[thinkingMessageIndex]}
-                    </Text>
-                  </Animated.View>
-                ) : null
-              }
-            />
+          {/* Messages */}
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.messagesList}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Animated.Text 
+                  style={[
+                    styles.greetingEmoji,
+                    {
+                      transform: [
+                        { translateX: emojiAnimX },
+                        { translateY: emojiAnimY },
+                      ],
+                    },
+                  ]}
+                >
+                  {greetingMessage.emoji}
+                </Animated.Text>
+                <Text style={styles.greetingText}>{greetingMessage.text}</Text>
+              </View>
+            }
+            ListFooterComponent={
+              isLoading ? (
+                <Animated.View style={[styles.thinkingContainer, { opacity: fadeAnim }]}>
+                  <Text style={[
+                    styles.thinkingText,
+                    useBlurredBackground && styles.thinkingTextBlurred
+                  ]}>
+                    {THINKING_MESSAGES[thinkingMessageIndex]}
+                  </Text>
+                </Animated.View>
+              ) : null
+            }
+          />
 
-            {/* Suggested Questions */}
-            <View style={styles.suggestionsWrapper}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.suggestionsScroll}
-              >
-                {SUGGESTED_QUESTIONS.map((question, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.suggestionChip}
-                    onPress={() => sendMessage(question)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.suggestionText}>{question}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
+          {/* Suggested Questions */}
+          <View style={styles.suggestionsWrapper}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.suggestionsScroll}
+            >
+              {SUGGESTED_QUESTIONS.map((question, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.suggestionChip}
+                  onPress={() => sendMessage(question)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.suggestionText}>{question}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
-            {/* Input */}
-            <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
-              <View style={styles.inputWrapper}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ask me anything..."
-                  placeholderTextColor={theme.textColorSecondary}
-                  value={inputText}
-                  onChangeText={setInputText}
-                  multiline
-                  maxLength={500}
-                />
-                <View style={styles.inputActions}>
-                  <TouchableOpacity
-                    style={styles.uploadButton}
-                    onPress={() => router.push("/(screens)/ScanMeal")}
-                    activeOpacity={0.7}
-                  >
-                    <MaterialCommunityIcons name="camera" size={18} color="#fff" />
-                    <Text style={styles.uploadButtonText}>Scan Meal</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-                    onPress={() => sendMessage()}
-                    disabled={!inputText.trim() || isLoading}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialCommunityIcons
-                      name="arrow-up"
-                      size={20}
-                      color="#fff"
-                    />
-                  </TouchableOpacity>
-                </View>
+          {/* Input */}
+          <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                placeholder="Ask me anything..."
+                placeholderTextColor={theme.textColorSecondary}
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
+                maxLength={500}
+              />
+              <View style={styles.inputActions}>
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={() => router.push("/(screens)/ScanMeal")}
+                  activeOpacity={0.7}
+                >
+                  <MaterialCommunityIcons name="camera" size={18} color="#fff" />
+                  <Text style={styles.uploadButtonText}>Scan Meal</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+                  onPress={() => sendMessage()}
+                  disabled={!inputText.trim() || isLoading}
+                  activeOpacity={0.8}
+                >
+                  <MaterialCommunityIcons
+                    name="arrow-up"
+                    size={20}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
               </View>
             </View>
-          </KeyboardAvoidingView>
-        </>
-      )}
+          </View>
+        </KeyboardAvoidingView>
+      </BackgroundWrapper>
     </>
   );
 }
@@ -646,6 +589,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: theme.black,
+    color: "#fff",
   },
   iconButton: {
     width: 40,
@@ -710,6 +658,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
+  },
+  messageBubbleWide: {
+    maxWidth: "95%",
   },
   userBubble: {
     backgroundColor: theme.primary,
@@ -861,23 +812,76 @@ const styles = StyleSheet.create({
   sendButtonDisabled: {
     opacity: 0.3,
   },
-  tablePillsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
+  tableScrollView: {
     marginTop: 8,
+    marginBottom: 8,
   },
+  tableContainer: {
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  tableCell: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRightWidth: 1,
+    borderRightColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    width: 100,
+  },
+  tableHeaderCell: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    paddingVertical: 10,
+  },
+  tableFirstColumn: {
+    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    width: 80,
+  },
+  tableCellText: {
+    fontSize: 11,
+    fontFamily: theme.regular,
+    color: "#fff",
+    lineHeight: 14,
+  },
+  tableHeaderText: {
+    fontFamily: theme.bold,
+    fontSize: 12,
+    color: "#fff",
+  },
+  // Keep old styles for backwards compatibility
   tablePill: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  tablePillHeader: {
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
+    minWidth: 80,
   },
   tablePillText: {
     fontSize: 13,
     fontFamily: theme.medium,
     color: "#fff",
+  },
+  tablePillHeaderText: {
+    fontFamily: theme.bold,
+    fontSize: 14,
+    color: "#fff",
+  },
+  tablePillsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 8,
   },
 });

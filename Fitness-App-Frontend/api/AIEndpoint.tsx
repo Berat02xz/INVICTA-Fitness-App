@@ -54,6 +54,8 @@ export const AIEndpoint = {
     try {
       const response = await axiosInstance.post('/api/AI/AskChat', {
         Question: question,
+      }, {
+        timeout: 60000, // 60 seconds timeout for AI responses
       });
       
       console.log('Chat Response:', response.data);

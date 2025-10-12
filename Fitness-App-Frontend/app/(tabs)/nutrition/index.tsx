@@ -1,124 +1,146 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { GetUserDetails } from "@/api/UserDataEndpoint";
 import { Meal } from "@/models/Meals";
 import database from "@/database/database";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
-import MealCard from "@/components/ui/Nutrition/MealCard";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import { LineChart } from "react-native-chart-kit";
 
 const { width } = Dimensions.get("window");
 
-export default function Nutrition() {
-  const [userName, setUserName] = useState("");
-  const [caloricIntake, setCaloricIntake] = useState(0);
-  const [caloricDeficit, setCaloricDeficit] = useState("0");
-  const [bmr, setBmr] = useState(0);
-  const [weight, setWeight] = useState(0);
+const MEAL_EMOJIS = ["🍕", "🍔", "🥗", "🍜", "🍱"];
+const MEAL_COLORS = [
+  "rgba(255, 107, 107, 0.2)",
+  "rgba(255, 184, 77, 0.2)",
+  "rgba(102, 187, 106, 0.2)",
+  "rgba(66, 165, 245, 0.2)",
+  "rgba(171, 71, 188, 0.2)",
+];
+
+export default function NutritionScreen() {
+  const [userData, setUserData] = useState<any>(null);
   const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
-  const [totalCalories, setTotalCalories] = useState(0);
-  const [totalProtein, setTotalProtein] = useState(0);
-  const [totalCarbs, setTotalCarbs] = useState(0);
-  const [totalFats, setTotalFats] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hidePersonalData, setHidePersonalData] = useState(false);
 
   useEffect(() => {
-    fetchUserData();
-    fetchTodayMeals();
+    fetchData();
   }, []);
 
-  const fetchUserData = async () => {
+  const fetchData = async () => {
     try {
+      const userId = await getUserIdFromToken();
       const user = await GetUserDetails();
-      console.log("📊 User Data from local DB:", user);
-      
-      if (user) {
-        console.log("📊 Caloric Intake:", user.caloricIntake);
-        console.log("📊 BMR:", user.bmr);
-        console.log("📊 Weight:", user.weight);
-        console.log("📊 Caloric Deficit:", user.caloricDeficit);
-        
-        setUserName(user.name);
-        setCaloricIntake(user.caloricIntake || 0);
-        setCaloricDeficit(user.caloricDeficit || "0");
-        setBmr(user.bmr || 0);
-        setWeight(user.weight || 0);
-      } else {
-        console.log("⚠️ No user data found in local DB");
-      }
+      setUserData(user);
+
+      const meals = await Meal.getTodayMeals(database, userId!);
+      setTodayMeals(meals);
     } catch (error) {
-      console.error("❌ Error fetching user data:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchTodayMeals = async () => {
+  const calculateTotals = () => {
+    return todayMeals.reduce(
+      (acc, meal) => {
+        acc.calories += meal.calories;
+        acc.protein += meal.protein;
+        acc.carbs += meal.carbohydrates;
+        acc.fats += meal.fats;
+        return acc;
+      },
+      { calories: 0, protein: 0, carbs: 0, fats: 0 }
+    );
+  };
+
+  const totals = calculateTotals();
+  const targetCalories = userData?.caloricIntake || 2000;
+
+  const radius = 25;
+  const strokeWidth = 20;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(totals.calories / targetCalories, 1);
+  const strokeDashoffset = circumference * (1 - progress);
+
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const getMealEmojiAndColor = (index: number) => {
+    const emojiIndex = index % MEAL_EMOJIS.length;
+    return {
+      emoji: MEAL_EMOJIS[emojiIndex],
+      color: MEAL_COLORS[emojiIndex],
+    };
+  };
+
+  // Generate weight projection for 30 days based on caloric deficit
+  const generateWeightData = () => {
     try {
-      const userId = await getUserIdFromToken();
-      console.log("🍽️ User ID for meals:", userId);
-      if (!userId) {
-        console.log("⚠️ No user ID found for fetching meals");
-        return;
+      if (!userData?.weight || isNaN(userData.weight) || !isFinite(userData.weight)) {
+        return [];
+      }
+
+      const currentWeight = parseFloat(String(userData.weight));
+      if (currentWeight <= 0) {
+        return [];
+      }
+
+      const caloricDeficit = parseFloat(String(userData.caloricDeficit || 0));
+      if (isNaN(caloricDeficit)) {
+        return [];
+      }
+
+      const unit = userData.unit || "metric";
+      
+      // Calculate daily weight loss based on unit
+      let dailyWeightLoss = 0;
+      if (unit === "imperial") {
+        // For imperial (lbs): 1 pound = 3500 calories
+        dailyWeightLoss = caloricDeficit / 3500;
+      } else {
+        // For metric (kg): 1 kg = 7700 calories
+        dailyWeightLoss = caloricDeficit / 7700;
       }
       
-      const meals = await Meal.getTodayMeals(database, userId);
-      console.log("🍽️ Fetched meals:", meals.length);
-      setTodayMeals(meals);
+      // Ensure dailyWeightLoss is valid
+      if (isNaN(dailyWeightLoss) || !isFinite(dailyWeightLoss)) {
+        dailyWeightLoss = 0;
+      }
       
-      // Calculate totals
-      const totalCals = meals.reduce((sum, meal) => sum + meal.calories, 0);
-      const totalProt = meals.reduce((sum, meal) => sum + meal.protein, 0);
-      const totalCarb = meals.reduce((sum, meal) => sum + meal.carbohydrates, 0);
-      const totalFat = meals.reduce((sum, meal) => sum + meal.fats, 0);
+      const data = [];
+      for (let day = 0; day <= 30; day++) {
+        const projectedWeight = currentWeight - (dailyWeightLoss * day);
+        const validWeight = Math.max(projectedWeight, currentWeight * 0.5);
+        
+        // Ensure each value is a valid number
+        if (!isNaN(validWeight) && isFinite(validWeight) && validWeight > 0) {
+          data.push(parseFloat(validWeight.toFixed(2)));
+        } else {
+          data.push(currentWeight);
+        }
+      }
       
-      console.log("🍽️ Total calories from meals:", totalCals);
-      setTotalCalories(totalCals);
-      setTotalProtein(Math.round(totalProt));
-      setTotalCarbs(Math.round(totalCarb));
-      setTotalFats(Math.round(totalFat));
+      return data.length > 2 ? data : [];
     } catch (error) {
-      console.error("❌ Error fetching meals:", error);
+      console.error("Error generating weight data:", error);
+      return [];
     }
   };
 
-  const getCalorieStatus = () => {
-    if (totalCalories === 0) {
-      return { text: "Scan your first meal to start tracking! 🍽️", color: theme.textColorSecondary };
-    }
-    const remaining = caloricIntake - totalCalories;
-    if (remaining < 0) {
-      return { text: `Over by ${Math.abs(remaining)} kcal 🔥`, color: "#FF6B6B" };
-    } else if (remaining < 200) {
-      return { text: `Almost there! ${remaining} kcal left`, color: "#4ECDC4" };
-    } else {
-      return { text: `${remaining} kcal remaining today`, color: "#95E1D3" };
-    }
-  };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
-  };
-
-  const getMealMessage = () => {
-    const count = todayMeals.length;
-    if (count === 0) return "Ready to start your day?";
-    if (count === 1) return "You've logged 1 meal today";
-    return `You've logged ${count} meals today`;
-  };
-
-  const caloriePercentage = caloricIntake > 0 ? Math.min((totalCalories / caloricIntake) * 100, 100) : 0;
-  const strokeDasharray = 2 * Math.PI * 55; // Smaller radius
-  const strokeDashoffset = strokeDasharray - (strokeDasharray * caloriePercentage) / 100;
-
-  const status = getCalorieStatus();
+  const weightData = generateWeightData();
 
   if (loading) {
     return (
@@ -130,7 +152,7 @@ export default function Nutrition() {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -138,175 +160,130 @@ export default function Nutrition() {
         {/* Header Space */}
         <View style={styles.headerSpace} />
 
-        {/* Greeting */}
+        {/* Total Calories Header */}
         <FadeTranslate order={0}>
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greetingText}>{getGreeting()}, {userName || "User"}! 👋</Text>
-            <Text style={styles.mealMessage}>{getMealMessage()}</Text>
-          </View>
-        </FadeTranslate>
-
-        {/* Calorie Tracker Card - Compressed */}
-        <FadeTranslate order={1}>
-          <View style={styles.calorieCard}>
-            <View style={styles.calorieContent}>
-              {/* Left Side - Circular Progress */}
-              <View style={styles.circularContainer}>
-                <Svg width={120} height={120}>
-                  {/* Background Circle */}
-                  <Circle
-                    cx="60"
-                    cy="60"
-                    r="55"
-                    stroke="rgba(255, 255, 255, 0.1)"
-                    strokeWidth="10"
-                    fill="none"
-                  />
-                  {/* Progress Circle */}
-                  <Circle
-                    cx="60"
-                    cy="60"
-                    r="55"
-                    stroke={totalCalories > caloricIntake ? "#FF6B6B" : theme.primary}
-                    strokeWidth="10"
-                    fill="none"
-                    strokeDasharray={strokeDasharray}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
-                    rotation="-90"
-                    origin="60, 60"
-                  />
-                  {/* Current Calories */}
-                  <SvgText
-                    x="60"
-                    y="55"
-                    textAnchor="middle"
-                    fontSize="24"
-                    fontWeight="bold"
-                    fill="#fff"
-                  >
-                    {totalCalories}
-                  </SvgText>
-                  {/* Divider */}
-                  <SvgText
-                    x="60"
-                    y="68"
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill={theme.textColorSecondary}
-                  >
-                    ――
-                  </SvgText>
-                  {/* Total Calories */}
-                  <SvgText
-                    x="60"
-                    y="82"
-                    textAnchor="middle"
-                    fontSize="16"
-                    fill={theme.textColorSecondary}
-                  >
-                    {caloricIntake}
-                  </SvgText>
-                </Svg>
-                <Text style={styles.calorieLabel}>Daily Calories</Text>
-              </View>
-
-              {/* Right Side - Macros */}
-              <View style={styles.macrosContainer}>
-                <View style={styles.macroRow}>
-                  <MaterialCommunityIcons name="food-drumstick" size={18} color={theme.primary} />
-                  <Text style={styles.macroLabel}>Protein</Text>
-                  <Text style={styles.macroValue}>{totalProtein}g</Text>
-                </View>
-                <View style={styles.macroRow}>
-                  <MaterialCommunityIcons name="bread-slice" size={18} color={theme.primary} />
-                  <Text style={styles.macroLabel}>Carbs</Text>
-                  <Text style={styles.macroValue}>{totalCarbs}g</Text>
-                </View>
-                <View style={styles.macroRow}>
-                  <MaterialCommunityIcons name="water" size={18} color={theme.primary} />
-                  <Text style={styles.macroLabel}>Fats</Text>
-                  <Text style={styles.macroValue}>{totalFats}g</Text>
-                </View>
-              </View>
+          <View style={styles.caloriesHeader}>
+            <View style={styles.caloriesHeaderLeft}>
+              <Text style={styles.caloriesLabel}>Today's Total Calories</Text>
+              <Text style={styles.caloriesValue}>
+                {hidePersonalData ? "***" : (
+                  <>
+                    {totals.calories}
+                    <Text style={styles.caloriesTarget}>/{targetCalories}</Text>
+                  </>
+                )}{" "}
+                <Text style={styles.caloriesUnit}>kcal</Text>
+              </Text>
             </View>
-
-            {/* Status Text */}
-            <Text style={[styles.statusText, { color: status.color }]}>
-              {status.text}
-            </Text>
+            <TouchableOpacity
+              onPress={() => setHidePersonalData(!hidePersonalData)}
+              style={styles.eyeButton}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={hidePersonalData ? "eye-off" : "eye"}
+                size={20}
+                color={theme.textColorSecondary}
+              />
+            </TouchableOpacity>
           </View>
         </FadeTranslate>
 
-        {/* Scan Button */}
-        <FadeTranslate order={2}>
-          <TouchableOpacity 
-            style={styles.scanButton} 
-            onPress={() => router.push("../(screens)/ScanMeal")}
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons name="camera-plus" size={24} color="#fff" />
-            <Text style={styles.scanButtonText}>Scan New Meal</Text>
-          </TouchableOpacity>
-        </FadeTranslate>
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
+          <FadeTranslate order={1} style={styles.actionButtonWrapper}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("../(screens)/ScanMeal")}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons
+                name="barcode-scan"
+                size={23}
+                color="#fff"
+              />
+            </TouchableOpacity>
+            <Text style={styles.actionButtonText}>Scan Meal</Text>
+          </FadeTranslate>
 
-        {/* Today's Meals */}
-        <FadeTranslate order={3}>
-          <View style={styles.mealsSection}>
-            <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons name="clock-outline" size={24} color="#fff" />
+          <FadeTranslate order={2} style={styles.actionButtonWrapper}>
+            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+              <MaterialCommunityIcons
+                name="magnify"
+                size={23}
+                color="#fff"
+              />
+            </TouchableOpacity>
+            <Text style={styles.actionButtonText}>Search Meal</Text>
+          </FadeTranslate>
+
+          <FadeTranslate order={3} style={styles.actionButtonWrapper}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("../(screens)/ChatBot")}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons
+                name="shimmer"
+                size={23}
+                color="#fff"
+              />
+            </TouchableOpacity>
+            <Text style={styles.actionButtonText}>Ask Coach</Text>
+          </FadeTranslate>
+
+          <FadeTranslate order={4} style={styles.actionButtonWrapper}>
+            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+              <MaterialCommunityIcons
+                name="weight-kilogram"
+                size={23}
+                color="#fff"
+              />
+            </TouchableOpacity>
+            <Text style={styles.actionButtonText}>Log Weight</Text>
+          </FadeTranslate>
+        </View>
+
+        {/* Divider */}
+        <View style={styles.divider} />
+
+        {/* Today's Meals Section */}
+        {todayMeals.length > 0 && (
+          <>
+            <FadeTranslate order={10}>
               <Text style={styles.sectionTitle}>Today's Meals</Text>
-            </View>
-            
-            {todayMeals.length > 0 ? (
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.mealsScroll}
-              >
-                {todayMeals.map((meal) => (
-                  <View key={meal.id} style={styles.mealCardWrapper}>
-                    <MealCard
-                      name={meal.mealName}
-                      time={new Date(meal.createdAt).toLocaleTimeString('en-US', { 
-                        hour: 'numeric', 
-                        minute: '2-digit',
-                        hour12: true 
-                      })}
-                      calories={meal.calories}
-                      protein={meal.protein}
-                      carbs={meal.carbohydrates}
-                      fat={meal.fats}
-                      healthScore={meal.healthScore}
-                      imageUrl={meal.imageUrl || undefined}
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            ) : (
-              <View style={styles.emptyState}>
-                <MaterialCommunityIcons name="food-off" size={48} color={theme.textColorSecondary} />
-                <Text style={styles.emptyText}>No meals scanned today</Text>
-                <Text style={styles.emptySubText}>Tap the button above to start tracking</Text>
-              </View>
-            )}
-          </View>
-        </FadeTranslate>
+            </FadeTranslate>
 
-        {/* Recipes Card */}
-        <FadeTranslate order={4}>
-          <View style={styles.recipesCard}>
-            <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons name="chef-hat" size={24} color="#fff" />
-              <Text style={styles.sectionTitle}>Recommended Recipes</Text>
+            <View style={styles.mealsContainer}>
+              {todayMeals.map((meal, index) => {
+                const { emoji, color } = getMealEmojiAndColor(index);
+                return (
+                  <FadeTranslate key={meal.id} order={11 + index}>
+                    <View style={styles.mealRow}>
+                      <View style={[styles.mealEmojiCircle, { backgroundColor: color }]}>
+                        <Text style={styles.mealEmoji}>{emoji}</Text>
+                      </View>
+                      <View style={styles.mealInfo}>
+                        <Text style={styles.mealName}>{meal.mealName}</Text>
+                        <Text style={styles.mealMacros}>
+                          🥩 {Math.round(meal.protein)}g • 🍞{" "}
+                          {Math.round(meal.carbohydrates)}g • 🥑{" "}
+                          {Math.round(meal.fats)}g
+                        </Text>
+                      </View>
+                      <View style={styles.mealRight}>
+                        <Text style={styles.mealTime}>{formatTime(meal.createdAt)}</Text>
+                        <Text style={styles.mealCalories}>
+                          {hidePersonalData ? "***" : `${meal.calories} kcal`}
+                        </Text>
+                      </View>
+                    </View>
+                  </FadeTranslate>
+                );
+              })}
             </View>
-            <View style={styles.comingSoon}>
-              <MaterialCommunityIcons name="clock-outline" size={32} color={theme.textColorSecondary} />
-              <Text style={styles.comingSoonText}>Coming Soon</Text>
-              <Text style={styles.comingSoonSubText}>Personalized recipes based on your goals</Text>
-            </View>
-          </View>
-        </FadeTranslate>
+          </>
+        )}
 
         {/* Bottom Padding */}
         <View style={styles.bottomPadding} />
@@ -324,10 +301,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   headerSpace: {
-    height: 120,
+    height: 100,
   },
   loadingText: {
     color: "#fff",
@@ -336,171 +313,260 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 100,
   },
-  
-  // Greeting
-  greetingContainer: {
-    marginBottom: 20,
+
+  // Calories Header
+  caloriesHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
   },
-  greetingText: {
-    fontSize: 28,
+  caloriesHeaderLeft: {
+    flex: 1,
+  },
+  caloriesLabel: {
+    fontSize: 15,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    opacity: 0.8,
+    marginBottom: 2,
+  },
+  caloriesValue: {
+    fontSize: 36,
+    fontFamily: theme.black,
+    color: "#fff",
+  },
+  caloriesTarget: {
+    fontSize: 24,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    opacity: 0.6,
+  },
+  caloriesUnit: {
+    fontSize: 18,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+  },
+  eyeButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Action Buttons
+  actionButtons: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 32,
+  },
+  actionButtonWrapper: {
+    flex: 1,
+    alignItems: "center",
+  },
+  actionButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 40,
+    width: 80,
+    height: 55,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    marginBottom: 8,
+  },
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 11,
+    fontFamily: theme.medium,
+    textAlign: "center",
+  },
+
+  // Divider
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    marginBottom: 24,
+  },
+
+  // Section Title
+  sectionTitle: {
+    fontSize: 14,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    marginBottom: 16,
+  },
+
+  // Info Grid
+  infoGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 32,
+  },
+  gridCard: {
+    width: "48%",
+  },
+  infoCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    height: 160,
+  },
+  infoCardTitle: {
+    fontSize: 13,
+    fontFamily: theme.bold,
+    color: "#fff",
+    marginBottom: 12,
+  },
+
+  // Calories Circle
+  circleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+
+  // Macros
+  macrosContainer: {
+    flex: 1,
+    justifyContent: "space-around",
+    paddingVertical: 8,
+  },
+  macroItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  macroItemCentered: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+  },
+  macroEmoji: {
+    fontSize: 22,
+  },
+  macroValue: {
+    fontSize: 15,
+    fontFamily: theme.semibold,
+    color: "#fff",
+  },
+
+  // Calories Burned
+  burnedContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  burnedValue: {
+    fontSize: 20,
+    fontFamily: theme.black,
+    color: "#fff",
+  },
+  burnedUnit: {
+    fontSize: 12,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+  },
+
+  // Weight Graph
+  chartContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  chart: {
+    marginLeft: -20,
+    marginRight: -20,
+  },
+  hiddenText: {
+    fontSize: 24,
+    fontFamily: theme.black,
+    color: theme.textColorSecondary,
+  },
+  noDataText: {
+    fontSize: 14,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    opacity: 0.5,
+  },
+
+  // Today's Meals
+  mealsContainer: {
+    marginBottom: 32,
+  },
+  mealRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+  },
+  mealEmojiCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  mealEmoji: {
+    fontSize: 24,
+  },
+  mealInfo: {
+    flex: 1,
+  },
+  mealName: {
+    fontSize: 14,
     fontFamily: theme.bold,
     color: "#fff",
     marginBottom: 4,
   },
-  mealMessage: {
-    fontSize: 15,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-
-  // Calorie Card - Compressed
-  calorieCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-  },
-  calorieContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  circularContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  calorieLabel: {
+  mealMacros: {
     fontSize: 12,
-    fontFamily: theme.semibold,
-    color: theme.textColorSecondary,
-    marginTop: 8,
-  },
-  macrosContainer: {
-    flex: 1,
-    marginLeft: 20,
-    gap: 12,
-  },
-  macroRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 12,
-    padding: 12,
-    gap: 10,
-  },
-  macroLabel: {
-    flex: 1,
-    fontSize: 14,
-    fontFamily: theme.medium,
-    color: "#fff",
-  },
-  macroValue: {
-    fontSize: 16,
-    fontFamily: theme.bold,
-    color: theme.primary,
-  },
-  statusText: {
-    fontSize: 14,
-    fontFamily: theme.semibold,
-    textAlign: "center",
-    marginTop: 4,
-  },
-
-  // Scan Button
-  scanButton: {
-    backgroundColor: theme.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    borderRadius: 16,
-    marginBottom: 24,
-    gap: 12,
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  scanButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontFamily: theme.bold,
-  },
-
-  // Meals Section
-  mealsSection: {
-    marginBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: theme.bold,
-    color: "#fff",
-  },
-  mealsScroll: {
-    gap: 12,
-    paddingRight: 16,
-  },
-  mealCardWrapper: {
-    width: width * 0.90,
-  },
-  emptyState: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
-    padding: 32,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-  },
-  emptyText: {
-    fontSize: 16,
-    fontFamily: theme.semibold,
-    color: theme.textColorSecondary,
-    marginTop: 12,
-  },
-  emptySubText: {
-    fontSize: 14,
     fontFamily: theme.regular,
     color: theme.textColorSecondary,
-    marginTop: 4,
     opacity: 0.7,
   },
+  mealRight: {
+    alignItems: "flex-end",
+  },
+  mealTime: {
+    fontSize: 11,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    opacity: 0.7,
+    marginBottom: 2,
+  },
+  mealCalories: {
+    fontSize: 16,
+    fontFamily: theme.black,
+    color: "#fff",
+  },
 
-  // Recipes Card
-  recipesCard: {
+  // Coming Soon
+  comingSoonCard: {
     backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 16,
+    borderRadius: 16,
+    padding: 40,
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
-  },
-  comingSoon: {
-    alignItems: "center",
-    paddingVertical: 32,
+    marginBottom: 32,
   },
   comingSoonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: theme.bold,
     color: theme.textColorSecondary,
-    marginTop: 12,
-  },
-  comingSoonSubText: {
-    fontSize: 14,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-    marginTop: 4,
-    opacity: 0.7,
-    textAlign: "center",
   },
 
   bottomPadding: {

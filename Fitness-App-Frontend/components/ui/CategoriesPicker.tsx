@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import GlassEffect from "@/components/ui/GlassEffect";
+import { theme } from "@/constants/theme";
 
 export interface CategoryItem {
   key: string;
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     marginLeft: 6,
-    fontWeight: "bold",
+    fontFamily: theme.bold,
     color: "#000",
     fontSize: 13,
   },
