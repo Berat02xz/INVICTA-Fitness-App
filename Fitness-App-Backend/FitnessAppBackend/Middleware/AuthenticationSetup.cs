@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 
@@ -39,7 +40,7 @@ namespace FitnessAppBackend.Middleware
                     },
                     OnTokenValidated = context =>
                     {
-                        Console.WriteLine("Token validated!");
+                        Console.WriteLine($"Token validated");
                         return Task.CompletedTask;
                     }
                 };

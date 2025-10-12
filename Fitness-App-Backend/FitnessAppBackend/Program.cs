@@ -4,10 +4,14 @@ using FitnessAppBackend.Repository.Implementations;
 using FitnessAppBackend.Service;
 using FitnessAppBackend.Service.Implementations;
 using FitnessAppBackend.Middleware;
+using FitnessAppBackend.Helpers;
 using Microsoft.EntityFrameworkCore;
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Redirect console output to custom log writer
+Console.SetOut(new LogWriter(Console.Out));
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -46,6 +50,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configure logging to output to console
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
 builder.Services.AddHttpClient();
 builder.Configuration.AddEnvironmentVariables();
 
@@ -78,6 +87,10 @@ app.UseSwaggerSetup();
 app.UseHttpsRedirection();
 app.UseCorsPolicy();
 app.UseJwtAuthentication();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();  
+
 
 app.MapControllers();
 app.Run();
