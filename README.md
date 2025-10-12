@@ -33,9 +33,11 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 | ✅ | Show animation loading while registering/login (DB + backend init). |
 | ⬜ | Design TopBar with rive elements |
 | ⬜ | Implement TopBar with Rive |
-| ⬜ | ChatBot AI Page |
-| ⬜ | Nutrition Page & Chatbot integrated together (generate recipes, check todays meal health etc...) |
+| ✅ | ChatBot AI Page |
+| ✅ | Nutrition Page & Chatbot integrated together (generate recipes, check todays meal health etc...) |
 | ⬜ | Profile Screen with badges |
+| ⬜ | Profile Screen Settings (Unit change etc.) |
+| ⬜ | Nutrition screen with full stats & burning calories stats, graph predictions etc. |
 | ⬜ | Roadmap Full Rive |
 | ⬜ | Host Dotnet backend |
 | ⬜ | Early V1 Release for testing (nutrition & AI chat finish) |
