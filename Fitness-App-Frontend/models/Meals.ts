@@ -3,6 +3,7 @@ import { field, text } from "@nozbe/watermelondb/decorators";
 import database from "@/database/database";
 import UserData from "./DTO/UserDTO";
 import UserDTO from "./DTO/UserDTO";
+import { User } from "./User";
 
 export class Meal extends Model {
   static table = "meals";
@@ -15,11 +16,10 @@ export class Meal extends Model {
   @field("fats") fats!: number;
   @field("label") label!: string;
   @field("created_at") createdAt!: number;
-  @text("image_url") imageUrl!: string | null;
   @field("health_score") healthScore!: number;
 
 
-static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; imageUrl: string | null; healthScore: number; }): Promise<Meal> {
+static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; healthScore: number; }): Promise<Meal> {
   return await database.write(async () => {
     return await database.get<Meal>("meals").create((meal) => {
       meal.userId = mealData.userId;
@@ -30,7 +30,6 @@ static async createMeal(database: Database, mealData: { userId: string; mealName
       meal.fats = mealData.fats;
       meal.label = mealData.label;
       meal.createdAt = mealData.createdAt;
-      meal.imageUrl = mealData.imageUrl || null;
       meal.healthScore = mealData.healthScore;
     });
   });
@@ -45,9 +44,6 @@ static async getTodayMeals(database: Database, userId?: string): Promise<Meal[]>
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).getTime();
 
-  //Delete meals older than 7 days
-  await this.deleteOldMeals(database, 7);
-
   const query = userId 
     ? Q.and(
         Q.where("user_id", userId),
@@ -58,22 +54,51 @@ static async getTodayMeals(database: Database, userId?: string): Promise<Meal[]>
   return await database.get<Meal>("meals").query(query).fetch();
 }
 
-static async deleteOldMeals(database: Database, daysOld: number): Promise<void> {
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - daysOld);
-  const cutoffTimestamp = cutoffDate.getTime();
-
-  await database.write(async () => {
-    const oldMeals = await database.get<Meal>("meals").query(Q.where("created_at", Q.lt(cutoffTimestamp))).fetch();
-    await Promise.all(oldMeals.map((meal) => meal.destroyPermanently()));
-  });
-}
-
 static async deleteMealsForUser(database: Database, userId: string): Promise<void> {
   await database.write(async () => {
     const userMeals = await database.get<Meal>("meals").query(Q.where("user_id", userId)).fetch();
     await Promise.all(userMeals.map((meal) => meal.destroyPermanently()));
   });
 }
+
+static async DaySumCalories(database: Database, userId?: string, date?: Date): Promise<number> {
+  const startOfDay = date ? new Date(date.setHours(0, 0, 0, 0)).getTime() : 0;
+  const endOfDay = date ? new Date(date.setHours(23, 59, 59, 999)).getTime() : 0;
+
+  const query = userId
+    ? Q.and(
+        Q.where("user_id", userId),
+        Q.where("created_at", Q.between(startOfDay, endOfDay))
+      )
+    : Q.where("created_at", Q.between(startOfDay, endOfDay));
+
+  const meals = await database.get<Meal>("meals").query(query).fetch();
+  return meals.reduce((sum, meal) => sum + meal.calories, 0);
+}
+
+static async DaySuccesfulCalorieIntake(database: Database, userId: string, date?: Date): Promise<boolean> {
+  const targetDate = date || new Date();
+  const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0)).getTime();
+  const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999)).getTime();
+
+  // Check if there are any meals for this day
+  const mealsQuery = Q.and(
+    Q.where("user_id", userId),
+    Q.where("created_at", Q.between(startOfDay, endOfDay))
+  );
+  const meals = await database.get<Meal>("meals").query(mealsQuery).fetch();
+  
+  // If no meals, day is unsuccessful
+  if (meals.length === 0) {
+    return false;
+  }
+
+  // If meals exist, check if total calories are within target
+  const user = await database.get<User>("user").query(Q.where("user_id", userId)).fetch();
+  const caloricIntake = user[0]?.caloricIntake || 0;
+  const totalCalories = await Meal.DaySumCalories(database, userId, targetDate);
+  return totalCalories > 0 && totalCalories <= caloricIntake;
+}
+
 
 }

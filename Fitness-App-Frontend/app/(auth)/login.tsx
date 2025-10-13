@@ -1,5 +1,5 @@
 import { setToken } from "@/api/AxiosInstance";
-import { Login, FetchUserInformationAndStore } from "@/api/UserDataEndpoint";
+import { Login, FetchUserInformationAndStore, FetchUserMealsAndStore } from "@/api/UserDataEndpoint";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -72,6 +72,16 @@ export const LoginScreen = () => {
             console.log("🔐 Fetching user data for userId:", userId);
             await FetchUserInformationAndStore(userId);
             console.log("✅ User data fetched and stored successfully");
+            
+            // Fetch and store user meals
+            try {
+              console.log("🍽️ Fetching user meals...");
+              await FetchUserMealsAndStore(userId);
+              console.log("✅ User meals fetched and stored successfully");
+            } catch (mealsError) {
+              console.error("⚠️ Failed to fetch user meals, but login succeeded:", mealsError);
+              // Don't block login if meals fetch fails
+            }
           }
         } catch (userDataError) {
           console.error("⚠️ Failed to fetch user data, but login succeeded:", userDataError);

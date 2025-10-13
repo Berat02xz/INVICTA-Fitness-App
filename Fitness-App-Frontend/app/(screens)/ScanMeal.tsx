@@ -267,7 +267,6 @@ export default function ScanScreen() {
               fats: aiMealResponse.Fat,
               label: aiMealResponse.MealQuality,
               createdAt: Date.now(),
-              imageUrl: photo.uri, // Save the original photo URI
               healthScore: aiMealResponse.HealthScoreOutOf10,
             });
             console.log("Meal saved to database successfully");
@@ -522,7 +521,6 @@ export default function ScanScreen() {
                   carbs={meal.carbohydrates}
                   fat={meal.fats}
                   healthScore={meal.healthScore}
-                  imageUrl={meal.imageUrl || undefined}
                 />
               ))
             ) : (
@@ -552,7 +550,7 @@ const styles = StyleSheet.create({
   cameraWrapper: { flex: 1 },
   topBar: {
     position: "absolute",
-    top: Constants.statusBarHeight + 25,
+    top: Platform.OS === 'ios' ? Constants.statusBarHeight + 10 : 60,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",

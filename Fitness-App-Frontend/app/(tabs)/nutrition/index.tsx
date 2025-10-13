@@ -26,7 +26,7 @@ export default function NutritionScreen() {
   const [userData, setUserData] = useState<any>(null);
   const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hidePersonalData, setHidePersonalData] = useState(false);
+  const [weekSuccessData, setWeekSuccessData] = useState<boolean[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -40,11 +40,64 @@ export default function NutritionScreen() {
 
       const meals = await Meal.getTodayMeals(database, userId!);
       setTodayMeals(meals);
+
+      // Fetch success data for the week
+      await fetchWeekSuccessData(userId!);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchWeekSuccessData = async (userId: string) => {
+    try {
+      const today = new Date();
+      const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - currentDay); // Go to Sunday of this week
+
+      const successData: boolean[] = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        const isSuccess = await Meal.DaySuccesfulCalorieIntake(database, userId, date);
+        successData.push(isSuccess);
+      }
+      setWeekSuccessData(successData);
+    } catch (error) {
+      console.error("Error fetching week success data:", error);
+      setWeekSuccessData([false, false, false, false, false, false, false]);
+    }
+  };
+
+  const getWeekDays = () => {
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - currentDay); // Go to Sunday of this week
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      const isFuture = date > today;
+      days.push({
+        dayName: date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
+        dayNumber: date.getDate(),
+        isToday: date.toDateString() === today.toDateString(),
+        isFuture: isFuture,
+      });
+    }
+    return days;
+  };
+
+  const getCurrentDateString = () => {
+    const today = new Date();
+    const dayName = today.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+    const month = today.toLocaleDateString("en-US", { month: "long" });
+    const day = today.getDate();
+    return { dayName, month, day };
   };
 
   const calculateTotals = () => {
@@ -62,12 +115,34 @@ export default function NutritionScreen() {
 
   const totals = calculateTotals();
   const targetCalories = userData?.caloricIntake || 2000;
+  const caloricDeficit = userData?.caloricDeficit || "Maintain weight";
 
   const radius = 25;
   const strokeWidth = 20;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(totals.calories / targetCalories, 1);
   const strokeDashoffset = circumference * (1 - progress);
+
+  // Get dynamic message based on calorie intake
+  const getCalorieMessage = () => {
+    if (totals.calories === 0) {
+      return { text: "Start logging", emoji: "🍽️", color: theme.textColorSecondary };
+    } else if (totals.calories > targetCalories * 1.2) {
+      // Way over (20% more than target)
+      return { text: "Over limit", emoji: "⚠️", color: "#FF6B6B" };
+    } else if (totals.calories > targetCalories) {
+      // Just over target
+      return { text: "Slightly over", emoji: "ℹ️", color: "#FFA726" };
+    } else if (totals.calories >= targetCalories * 0.8) {
+      // Within good range (80-100% of target)
+      return { text: "On track!", emoji: "✅", color: "#66BB6A" };
+    } else {
+      // Under target
+      return { text: "Keep going", emoji: "📈", color: theme.textColorSecondary };
+    }
+  };
+
+  const calorieMessage = getCalorieMessage();
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -85,6 +160,67 @@ export default function NutritionScreen() {
       color: MEAL_COLORS[emojiIndex],
     };
   };
+
+  // Generate calorie accumulation data for chart
+  const generateCalorieChartData = () => {
+    if (todayMeals.length === 0) {
+      // Return minimal data when no meals - will not show any points
+      return {
+        labels: [""],
+        datasets: [{
+          data: [0, targetCalories] // Include target for scale but won't show point at 0
+        }]
+      };
+    }
+
+    // Sort meals by timestamp
+    const sortedMeals = [...todayMeals].sort((a, b) => a.createdAt - b.createdAt);
+    
+    // Create data points with accumulated calories
+    const dataPoints: { time: number; calories: number }[] = [];
+    let accumulatedCalories = 0;
+    
+    sortedMeals.forEach(meal => {
+      // Only add points if meal has calories
+      if (meal.calories > 0) {
+        accumulatedCalories += meal.calories;
+        // Cap at target calories for display
+        const cappedCalories = Math.min(accumulatedCalories, targetCalories);
+        dataPoints.push({
+          time: meal.createdAt,
+          calories: cappedCalories
+        });
+      }
+    });
+
+    // If no valid points after filtering, return minimal data
+    if (dataPoints.length === 0) {
+      return {
+        labels: [""],
+        datasets: [{
+          data: [0, targetCalories]
+        }]
+      };
+    }
+
+    // Convert to chart format (show all points)
+    const labels = dataPoints.map(point => {
+      const date = new Date(point.time);
+      return `${date.getHours()}h`;
+    });
+    
+    const data = dataPoints.map(point => point.calories);
+
+    // Add target calorie as invisible point for proper Y-axis scaling
+    return {
+      labels: [...labels, ""],
+      datasets: [{
+        data: [...data, targetCalories]
+      }]
+    };
+  };
+
+  const calorieChartData = generateCalorieChartData();
 
   // Generate weight projection for 30 days based on caloric deficit
   const generateWeightData = () => {
@@ -160,38 +296,122 @@ export default function NutritionScreen() {
         {/* Header Space */}
         <View style={styles.headerSpace} />
 
-        {/* Total Calories Header */}
+        {/* Current Date Display */}
         <FadeTranslate order={0}>
-          <View style={styles.caloriesHeader}>
-            <View style={styles.caloriesHeaderLeft}>
-              <Text style={styles.caloriesLabel}>Today's Total Calories</Text>
-              <Text style={styles.caloriesValue}>
-                {hidePersonalData ? "***" : (
-                  <>
-                    {totals.calories}
-                    <Text style={styles.caloriesTarget}>/{targetCalories}</Text>
-                  </>
-                )}{" "}
-                <Text style={styles.caloriesUnit}>kcal</Text>
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setHidePersonalData(!hidePersonalData)}
-              style={styles.eyeButton}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name={hidePersonalData ? "eye-off" : "eye"}
-                size={20}
-                color={theme.textColorSecondary}
-              />
-            </TouchableOpacity>
+          <View style={styles.currentDateContainer}>
+            <Text style={styles.currentDateText}>
+              <Text style={styles.currentDateDay}>{getCurrentDateString().dayName}</Text>
+              <Text style={styles.currentDateRest}>, {getCurrentDateString().month} {getCurrentDateString().day}</Text>
+            </Text>
+          </View>
+        </FadeTranslate>
+
+        {/* Weekly Calendar */}
+        <FadeTranslate order={1}>
+          <View style={styles.weekContainer}>
+            {getWeekDays().map((day, index) => {
+              const isSuccess = weekSuccessData[index];
+              const isToday = day.isToday;
+              const isFuture = day.isFuture;
+              
+              return (
+                <View
+                  key={index}
+                  style={[
+                    styles.dayItem,
+                    isToday && styles.dayItemToday,
+                    !isSuccess && !isToday && !isFuture && styles.dayItemUnsuccessful,
+                    isSuccess && !isToday && !isFuture && styles.dayItemSuccessful,
+                    isFuture && styles.dayItemFuture,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.dayNumber,
+                      isToday && styles.dayNumberToday,
+                      !isSuccess && !isToday && !isFuture && styles.dayNumberUnsuccessful,
+                      isFuture && styles.dayNumberFuture,
+                    ]}
+                  >
+                    {day.dayNumber}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.dayName,
+                      isToday && styles.dayNameToday,
+                      !isSuccess && !isToday && !isFuture && styles.dayNameUnsuccessful,
+                      isFuture && styles.dayNameFuture,
+                    ]}
+                  >
+                    {day.dayName}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </FadeTranslate>
+
+        {/* Total Calories Header */}
+        <FadeTranslate order={2}>
+          <Text style={styles.caloriesLabel}>Today's Total Calories</Text>
+          <View style={styles.caloriesValueRow}>
+            <Text style={styles.caloriesValue}>
+              {totals.calories}
+              <Text style={styles.caloriesTarget}>/{targetCalories}</Text>
+              {" "}
+              <Text style={styles.caloriesUnit}>kcal</Text>
+            </Text>
+            
+            {/* Mini Calorie Chart - Right side */}
+            {todayMeals.length > 0 && (
+              <View style={styles.miniChartContainer}>
+                <LineChart
+                  data={calorieChartData}
+                  width={135}
+                  height={50}
+                  chartConfig={{
+                    backgroundColor: "transparent",
+                    backgroundGradientFrom: "transparent",
+                    backgroundGradientTo: "transparent",
+                    fillShadowGradientFrom: "#fd0e07",
+                    fillShadowGradientFromOpacity: 0.5,
+                    fillShadowGradientTo: "#fd0e07",
+                    fillShadowGradientToOpacity: 0.05,
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(253, 14, 7, ${opacity})`,
+                    strokeWidth: 3,
+                    propsForDots: {
+                      r: "4",
+                      strokeWidth: "0",
+                      fill: "#fd0e07"
+                    },
+                    propsForBackgroundLines: {
+                      strokeWidth: 0
+                    }
+                  }}
+                  bezier
+                  withVerticalLabels={true}
+                  withHorizontalLabels={false}
+                  withDots={true}
+                  withInnerLines={false}
+                  withOuterLines={false}
+                  withVerticalLines={false}
+                  withHorizontalLines={false}
+                  withShadow={true}
+                  transparent={true}
+                  style={{
+                    paddingRight: 0,
+                    paddingLeft: 5,
+                  }}
+                />
+              </View>
+            )}
           </View>
         </FadeTranslate>
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <FadeTranslate order={1} style={styles.actionButtonWrapper}>
+          <FadeTranslate order={3} style={styles.actionButtonWrapper}>
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => router.push("../(screens)/ScanMeal")}
@@ -206,18 +426,18 @@ export default function NutritionScreen() {
             <Text style={styles.actionButtonText}>Scan Meal</Text>
           </FadeTranslate>
 
-          <FadeTranslate order={2} style={styles.actionButtonWrapper}>
+          <FadeTranslate order={4} style={styles.actionButtonWrapper}>
             <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
               <MaterialCommunityIcons
-                name="magnify"
+                name="clipboard-list-outline"
                 size={23}
                 color="#fff"
               />
             </TouchableOpacity>
-            <Text style={styles.actionButtonText}>Search Meal</Text>
+            <Text style={styles.actionButtonText}>Change Plan</Text>
           </FadeTranslate>
 
-          <FadeTranslate order={3} style={styles.actionButtonWrapper}>
+          <FadeTranslate order={5} style={styles.actionButtonWrapper}>
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => router.push("../(screens)/ChatBot")}
@@ -232,7 +452,7 @@ export default function NutritionScreen() {
             <Text style={styles.actionButtonText}>Ask Coach</Text>
           </FadeTranslate>
 
-          <FadeTranslate order={4} style={styles.actionButtonWrapper}>
+          <FadeTranslate order={6} style={styles.actionButtonWrapper}>
             <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
               <MaterialCommunityIcons
                 name="weight-kilogram"
@@ -250,7 +470,7 @@ export default function NutritionScreen() {
         {/* Today's Meals Section */}
         {todayMeals.length > 0 && (
           <>
-            <FadeTranslate order={10}>
+            <FadeTranslate order={7}>
               <Text style={styles.sectionTitle}>Today's Meals</Text>
             </FadeTranslate>
 
@@ -258,7 +478,7 @@ export default function NutritionScreen() {
               {todayMeals.map((meal, index) => {
                 const { emoji, color } = getMealEmojiAndColor(index);
                 return (
-                  <FadeTranslate key={meal.id} order={11 + index}>
+                  <FadeTranslate key={meal.id} order={8 + index}>
                     <View style={styles.mealRow}>
                       <View style={[styles.mealEmojiCircle, { backgroundColor: color }]}>
                         <Text style={styles.mealEmoji}>{emoji}</Text>
@@ -274,7 +494,7 @@ export default function NutritionScreen() {
                       <View style={styles.mealRight}>
                         <Text style={styles.mealTime}>{formatTime(meal.createdAt)}</Text>
                         <Text style={styles.mealCalories}>
-                          {hidePersonalData ? "***" : `${meal.calories} kcal`}
+                          {meal.calories} kcal
                         </Text>
                       </View>
                     </View>
@@ -314,27 +534,119 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
 
+  // Current Date Display
+  currentDateContainer: {
+    marginBottom: 16,
+  },
+  currentDateText: {
+    fontSize: 16,
+    fontFamily: theme.regular,
+  },
+  currentDateDay: {
+    fontFamily: theme.bold,
+    color: "#fff",
+  },
+  currentDateRest: {
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    opacity: 0.7,
+  },
+
+  // Weekly Calendar
+  weekContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 24,
+    gap: 8,
+  },
+  dayItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  dayItemToday: {
+    backgroundColor: theme.primary,
+  },
+  dayItemSuccessful: {
+    backgroundColor: "rgba(76, 175, 80, 0.2)",
+  },
+  dayItemUnsuccessful: {
+    opacity: 0.4,
+  },
+  dayItemFuture: {
+    backgroundColor: "transparent",
+  },
+  dayNumber: {
+    fontSize: 16,
+    fontFamily: theme.bold,
+    color: "#fff",
+    marginBottom: 4,
+  },
+  dayNumberToday: {
+    color: "#fff",
+  },
+  dayNumberUnsuccessful: {
+    color: theme.textColorSecondary,
+  },
+  dayName: {
+    fontSize: 11,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+  },
+  dayNameToday: {
+    color: "#fff",
+  },
+  dayNameUnsuccessful: {
+    color: theme.textColorSecondary,
+  },
+  dayNumberFuture: {
+    color: theme.textColorSecondary,
+    opacity: 0.5,
+  },
+  dayNameFuture: {
+    color: theme.textColorSecondary,
+    opacity: 0.5,
+  },
+
   // Calories Header
-  caloriesHeader: {
+  caloriesHeaderTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 15,
-  },
-  caloriesHeaderLeft: {
-    flex: 1,
+    marginBottom: 8,
   },
   caloriesLabel: {
     fontSize: 15,
     fontFamily: theme.regular,
     color: theme.textColorSecondary,
     opacity: 0.8,
-    marginBottom: 2,
+  },
+  caloriePlanLabel: {
+    fontSize: 13,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+    opacity: 0.7,
+  },
+  caloriePlanValue: {
+    fontSize: 13,
+    fontFamily: theme.bold,
+    color: "#fff",
+  },
+  caloriesValueRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+    position: "relative",
   },
   caloriesValue: {
     fontSize: 36,
     fontFamily: theme.black,
     color: "#fff",
+    flex: 1,
   },
   caloriesTarget: {
     fontSize: 24,
@@ -347,13 +659,11 @@ const styles = StyleSheet.create({
     fontFamily: theme.regular,
     color: theme.textColorSecondary,
   },
-  eyeButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
+  miniChartContainer: {
+    position: "absolute",
+    right: 0,
+    top: -10,
+    backgroundColor: "transparent",
   },
 
   // Action Buttons

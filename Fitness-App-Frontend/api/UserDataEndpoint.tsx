@@ -4,6 +4,8 @@ import database from '@/database/database';
 import { router } from 'expo-router';
 import { User } from '@/models/User';
 import  UserDTO  from '@/models/DTO/UserDTO';
+import { Meal } from '@/models/Meals';
+import { MealEndpoint } from './MealEndpoint';
 
 export const RegisterUser = async (userData: {
   Name: string;
@@ -171,6 +173,51 @@ export const FetchUserInformationAndStore = async (userId: string) => {
 };
 
 
+
+export const FetchUserMealsAndStore = async (userId: string) => {
+  try {
+    console.log("🍽️ Fetching all meals for user:", userId);
+    
+    const response = await MealEndpoint.getMeals(userId);
+    console.log("📦 Received meals from API:", response);
+    
+    if (!response || !Array.isArray(response)) {
+      console.warn("⚠️ No meals data received or invalid format");
+      return;
+    }
+
+    // Clear existing meals for this user before importing
+    await Meal.deleteMealsForUser(database, userId);
+    console.log("🗑️ Cleared existing meals for user");
+
+    // Store each meal in WatermelonDB
+    let successCount = 0;
+    for (const backendMeal of response) {
+      try {
+        await Meal.createMeal(database, {
+          userId: userId,
+          mealName: backendMeal.MealName || backendMeal.mealName || 'Unknown Meal',
+          calories: backendMeal.Calories || backendMeal.calories || 0,
+          protein: backendMeal.Protein || backendMeal.protein || 0,
+          carbohydrates: backendMeal.Carbohydrates || backendMeal.carbohydrates || 0,
+          fats: backendMeal.Fats || backendMeal.fats || 0,
+          label: backendMeal.Label || backendMeal.label || '',
+          createdAt: backendMeal.CreatedAt || backendMeal.createdAt || Date.now(),
+          healthScore: backendMeal.HealthScore || backendMeal.healthScore || 0,
+        });
+        successCount++;
+      } catch (mealError) {
+        console.error("❌ Error storing individual meal:", mealError);
+      }
+    }
+    
+    console.log(`✅ Successfully stored ${successCount}/${response.length} meals`);
+  } catch (error: any) {
+    console.error("❌ Error in FetchUserMealsAndStore:", error);
+    console.error("  - Error message:", error?.message);
+    throw error;
+  }
+};
 
 export const GetUserDetails = async (): Promise<UserDTO | null> => {
   try {
