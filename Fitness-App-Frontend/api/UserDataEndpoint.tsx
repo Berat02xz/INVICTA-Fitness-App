@@ -204,6 +204,7 @@ export const FetchUserMealsAndStore = async (userId: string) => {
           label: backendMeal.Label || backendMeal.label || '',
           createdAt: backendMeal.CreatedAt || backendMeal.createdAt || Date.now(),
           healthScore: backendMeal.HealthScore || backendMeal.healthScore || 0,
+          oneEmoji: backendMeal.OneEmoji || backendMeal.oneEmoji || '🍽️',
         });
         successCount++;
       } catch (mealError) {

@@ -17,9 +17,10 @@ export class Meal extends Model {
   @field("label") label!: string;
   @field("created_at") createdAt!: number;
   @field("health_score") healthScore!: number;
+  @field("one_emoji") oneEmoji!:string;
+ 
 
-
-static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; healthScore: number; }): Promise<Meal> {
+static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; healthScore: number; oneEmoji:string; }): Promise<Meal> {
   return await database.write(async () => {
     return await database.get<Meal>("meals").create((meal) => {
       meal.userId = mealData.userId;
@@ -31,6 +32,7 @@ static async createMeal(database: Database, mealData: { userId: string; mealName
       meal.label = mealData.label;
       meal.createdAt = mealData.createdAt;
       meal.healthScore = mealData.healthScore;
+      meal.oneEmoji = mealData.oneEmoji;
     });
   });
 }
@@ -93,11 +95,12 @@ static async DaySuccesfulCalorieIntake(database: Database, userId: string, date?
     return false;
   }
 
-  // If meals exist, check if total calories are within target
+  // If meals exist, check if total calories are within ±20% of target
   const user = await database.get<User>("user").query(Q.where("user_id", userId)).fetch();
   const caloricIntake = user[0]?.caloricIntake || 0;
   const totalCalories = await Meal.DaySumCalories(database, userId, targetDate);
-  return totalCalories > 0 && totalCalories <= caloricIntake;
+  const lowerBound = caloricIntake * 0.9; // 10% below target
+  return totalCalories > 0 && totalCalories >= lowerBound;
 }
 
 

@@ -15,6 +15,7 @@ namespace FitnessAppBackend.Model
         public string MealQuality { get; set; }
         public int HealthScoreOutOf10 { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
+        public string OneEmoji { get; set; }
+
     }
 }

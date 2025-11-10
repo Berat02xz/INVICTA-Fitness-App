@@ -9,24 +9,17 @@ import database from "@/database/database";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import FadeTranslate from "@/components/ui/FadeTranslate";
-import { LineChart } from "react-native-chart-kit";
+import CalorieProgressChart from "@/components/ui/Nutrition/CalorieProgressChart";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 const { width } = Dimensions.get("window");
-
-const MEAL_EMOJIS = ["🍕", "🍔", "🥗", "🍜", "🍱"];
-const MEAL_COLORS = [
-  "rgba(255, 107, 107, 0.2)",
-  "rgba(255, 184, 77, 0.2)",
-  "rgba(102, 187, 106, 0.2)",
-  "rgba(66, 165, 245, 0.2)",
-  "rgba(171, 71, 188, 0.2)",
-];
 
 export default function NutritionScreen() {
   const [userData, setUserData] = useState<any>(null);
   const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekSuccessData, setWeekSuccessData] = useState<boolean[]>([]);
+  const isSuccessfulDay = weekSuccessData[new Date().getDay()];
 
   useEffect(() => {
     fetchData();
@@ -153,74 +146,50 @@ export default function NutritionScreen() {
     });
   };
 
-  const getMealEmojiAndColor = (index: number) => {
-    const emojiIndex = index % MEAL_EMOJIS.length;
-    return {
-      emoji: MEAL_EMOJIS[emojiIndex],
-      color: MEAL_COLORS[emojiIndex],
+  // Generate a darker, desaturated random color using HSL and convert to hex.
+  const hslToHex = (h: number, s: number, l: number) => {
+    s /= 100;
+    l /= 100;
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const color = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, '0');
     };
+    return `#${f(0)}${f(8)}${f(4)}`;
   };
 
-  // Generate calorie accumulation data for chart
-  const generateCalorieChartData = () => {
-    if (todayMeals.length === 0) {
-      // Return minimal data when no meals - will not show any points
-      return {
-        labels: [""],
-        datasets: [{
-          data: [0, targetCalories] // Include target for scale but won't show point at 0
-        }]
-      };
+  const randomDarkColor = (seed?: number) => {
+    // If seed provided, use it to make deterministic random via simple LCG
+    let rnd = seed && seed > 0 ? (seed % 2147483647) : Math.floor(Math.random() * 2147483647);
+    if (seed && seed > 0) {
+      rnd = (rnd * 48271) % 2147483647;
+    } else {
+      rnd = Math.floor(Math.random() * 2147483647);
     }
-
-    // Sort meals by timestamp
-    const sortedMeals = [...todayMeals].sort((a, b) => a.createdAt - b.createdAt);
-    
-    // Create data points with accumulated calories
-    const dataPoints: { time: number; calories: number }[] = [];
-    let accumulatedCalories = 0;
-    
-    sortedMeals.forEach(meal => {
-      // Only add points if meal has calories
-      if (meal.calories > 0) {
-        accumulatedCalories += meal.calories;
-        // Cap at target calories for display
-        const cappedCalories = Math.min(accumulatedCalories, targetCalories);
-        dataPoints.push({
-          time: meal.createdAt,
-          calories: cappedCalories
-        });
-      }
-    });
-
-    // If no valid points after filtering, return minimal data
-    if (dataPoints.length === 0) {
-      return {
-        labels: [""],
-        datasets: [{
-          data: [0, targetCalories]
-        }]
-      };
-    }
-
-    // Convert to chart format (show all points)
-    const labels = dataPoints.map(point => {
-      const date = new Date(point.time);
-      return `${date.getHours()}h`;
-    });
-    
-    const data = dataPoints.map(point => point.calories);
-
-    // Add target calorie as invisible point for proper Y-axis scaling
-    return {
-      labels: [...labels, ""],
-      datasets: [{
-        data: [...data, targetCalories]
-      }]
+    const rand = () => {
+      rnd = (rnd * 48271) % 2147483647;
+      return (rnd % 1000) / 1000;
     };
+
+    // Hue anywhere 0..360, saturation moderate (30-60), lightness dark (18-35)
+    const h = Math.floor(rand() * 360);
+    const s = 35 + Math.floor(rand() * 30); // 35-65
+    const l = 18 + Math.floor(rand() * 18); // 18-35
+    return hslToHex(h, s, l);
   };
 
-  const calorieChartData = generateCalorieChartData();
+  const getMealEmojiAndColor = (meal: Meal, index: number) => {
+    // Use index as seed so colors are somewhat stable per position in list
+    const color = randomDarkColor(index + Date.now() % 1000);
+    const fallbackEmoji = "🍽️";
+    return {
+      emoji: meal.oneEmoji || fallbackEmoji,
+      color,
+    };
+  };
 
   // Generate weight projection for 30 days based on caloric deficit
   const generateWeightData = () => {
@@ -288,6 +257,7 @@ export default function NutritionScreen() {
 
   return (
     <View style={styles.container}>
+      {isSuccessfulDay && <ConfettiCannon count={10} origin={{ x: -10, y: 0 }} />}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -362,47 +332,12 @@ export default function NutritionScreen() {
               <Text style={styles.caloriesUnit}>kcal</Text>
             </Text>
             
-            {/* Mini Calorie Chart - Right side */}
+            {/* Mini Progress Chart - Right side */}
             {todayMeals.length > 0 && (
               <View style={styles.miniChartContainer}>
-                <LineChart
-                  data={calorieChartData}
-                  width={135}
-                  height={50}
-                  chartConfig={{
-                    backgroundColor: "transparent",
-                    backgroundGradientFrom: "transparent",
-                    backgroundGradientTo: "transparent",
-                    fillShadowGradientFrom: "#fd0e07",
-                    fillShadowGradientFromOpacity: 0.5,
-                    fillShadowGradientTo: "#fd0e07",
-                    fillShadowGradientToOpacity: 0.05,
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(253, 14, 7, ${opacity})`,
-                    strokeWidth: 3,
-                    propsForDots: {
-                      r: "4",
-                      strokeWidth: "0",
-                      fill: "#fd0e07"
-                    },
-                    propsForBackgroundLines: {
-                      strokeWidth: 0
-                    }
-                  }}
-                  bezier
-                  withVerticalLabels={true}
-                  withHorizontalLabels={false}
-                  withDots={true}
-                  withInnerLines={false}
-                  withOuterLines={false}
-                  withVerticalLines={false}
-                  withHorizontalLines={false}
-                  withShadow={true}
-                  transparent={true}
-                  style={{
-                    paddingRight: 0,
-                    paddingLeft: 5,
-                  }}
+                <CalorieProgressChart 
+                  calories={totals.calories} 
+                  targetCalories={targetCalories} 
                 />
               </View>
             )}
@@ -476,7 +411,7 @@ export default function NutritionScreen() {
 
             <View style={styles.mealsContainer}>
               {todayMeals.map((meal, index) => {
-                const { emoji, color } = getMealEmojiAndColor(index);
+                const { emoji, color } = getMealEmojiAndColor(meal, index);
                 return (
                   <FadeTranslate key={meal.id} order={8 + index}>
                     <View style={styles.mealRow}>
@@ -662,8 +597,9 @@ const styles = StyleSheet.create({
   miniChartContainer: {
     position: "absolute",
     right: 0,
-    top: -10,
+    top: -20,
     backgroundColor: "transparent",
+    overflow: "visible",
   },
 
   // Action Buttons

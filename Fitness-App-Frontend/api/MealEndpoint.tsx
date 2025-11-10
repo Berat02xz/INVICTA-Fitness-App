@@ -1,7 +1,7 @@
 import axiosInstance from "./AxiosInstance";
 
 export const MealEndpoint = {
-  createMeal: async (mealData: { UserId: string; MealName: string; Calories: number; Carbohydrates: number; Fats: number; Label: string }) => {
+  createMeal: async (mealData: { UserId: string; MealName: string; Calories: number; Carbohydrates: number; Fats: number; Label: string; oneEmoji:string }) => {
     const response = await axiosInstance.post("/api/Meal/AddMeal", mealData);
     return response.data;
   },

@@ -28,32 +28,27 @@ namespace FitnessAppBackend.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("UploadMeal")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadMeal([FromForm] string UserId, [FromForm] IFormFile MealImage, [FromForm] string TypeOfUpload)
+        public async Task<IActionResult> UploadMeal([FromForm] string UserId, [FromForm] IFormFile MealImage)
         {
-            _logger.LogInformation("UploadMeal called for user {UserId} with type {TypeOfUpload}", UserId, TypeOfUpload);
+            _logger.LogInformation("UploadMeal called for user {UserId}", UserId);
 
             if (MealImage == null || MealImage.Length == 0)
             {
                 _logger.LogWarning("No file uploaded for user {UserId}", UserId);
                 return BadRequest("No file uploaded.");
             }
-            if (TypeOfUpload != "Meal" && TypeOfUpload != "Menu" && TypeOfUpload != "Fridge")
-            {
-                _logger.LogWarning("Invalid TypeOfUpload {TypeOfUpload} for user {UserId}", TypeOfUpload, UserId);
-                return BadRequest("Invalid TypeOfUpload. Must be Meal, Menu, or Fridge.");
-            }
 
             var apiKey = Environment.GetEnvironmentVariable("OpenAI__ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 _logger.LogError("OpenAI API key not configured for user {UserId}", UserId);
-
                 return StatusCode(500, "OpenAI API key not configured.");
             }
             else
             {
                 _logger.LogDebug("OpenAI API key: {ApiKey}", apiKey);
             }
+            
             // Convert file to Base64 for OpenAI
             string imageBase64;
             using (var ms = new MemoryStream())
@@ -62,123 +57,47 @@ namespace FitnessAppBackend.Controllers
                 imageBase64 = Convert.ToBase64String(ms.ToArray());
             }
 
-            //Text Prompt based on upload type
-            string textDependingOnCategory = TypeOfUpload switch
+            // Define meal schema
+            var schema = new
             {
-                "Meal" => "Estimate Meal Details and return JSON",
-                "Menu" => "Analyze text of a menu and provide healthiest options from it in JSON",
-                "Fridge" => "Analyze this fridge image and suggest meals i can make and return JSON.",
-                _ => throw new ArgumentException("Invalid TypeOfUpload")
+                type = "object",
+                properties = new
+                {
+                    isMeal = new { type = "boolean" },
+                    ShortMealName = new { type = "string" },
+                    CaloriesAmount = new { type = "integer" },
+                    Protein = new { type = "integer" },
+                    Carbs = new { type = "integer" },
+                    Fat = new { type = "integer" },
+                    HealthScoreOutOf10 = new { type = "integer", minimum = 1, maximum = 10 },
+                    MealQuality = new
+                    {
+                        type = "string",
+                        @enum = new[] { "Macro Rich", "Balanced Meal", "High Fat", "Consider Lighter Option", "Dairy Rich" }
+                    },
+                    OneEmoji = new { type = "string" }
+                },
+                required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality", "HealthScoreOutOf10", "OneEmoji" },
+                additionalProperties = false
             };
 
-            // Define JSON schema based on TypeOfUpload
-            object schema;
-
-            if (TypeOfUpload == "Meal")
-            {
-                schema = new
-                {
-                    type = "object",
-                    properties = new
-                    {
-                        isMeal = new { type = "boolean" },
-                        ShortMealName = new { type = "string" },
-                        CaloriesAmount = new { type = "integer" },
-                        Protein = new { type = "integer" },
-                        Carbs = new { type = "integer" },
-                        Fat = new { type = "integer" },
-                        HealthScoreOutOf10 = new { type = "integer", minimum = 1, maximum = 10 },
-                        MealQuality = new
-                        {
-                            type = "string",
-                            // @enum = new[] { "Macro Rich", "Balanced Meal", "High Fat", "Consider Lighter Option", "Dairy Rich" }
-                        }
-                    },
-                    required = new[] { "isMeal", "ShortMealName", "CaloriesAmount", "Protein", "Carbs", "Fat", "MealQuality", "HealthScoreOutOf10" },
-                    additionalProperties = false
-                };
-            }
-            else if (TypeOfUpload == "Menu")
-            {
-                schema = new
-                {
-                    type = "object",
-                    properties = new
-                    {
-                        Meals = new
-                        {
-                            type = "array",
-                            maxItems = 3,
-                            items = new
-                            {
-                                type = "object",
-                                properties = new
-                                {
-                                    MenuName = new { type = "string" },
-                                    Calories = new { type = "integer" },
-                                    Ingredients = new { type = "array", items = new { type = "string" } }
-                                },
-                                required = new[] { "MenuName", "Calories", "Ingredients" },
-                                additionalProperties = false
-                            }
-                        }
-                    },
-                    required = new[] { "Meals" },
-                    additionalProperties = false
-                };
-            }
-            else if (TypeOfUpload == "Fridge")
-            {
-                schema = new
-                {
-                    type = "object",
-                    properties = new
-                    {
-                        Meals = new
-                        {
-                            type = "array",
-                            maxItems = 3,
-                            items = new
-                            {
-                                type = "object",
-                                properties = new
-                                {
-                                    Meal = new { type = "string" },
-                                    Calories = new { type = "integer" },
-                                    Ingredients = new { type = "array", items = new { type = "string" } },
-                                    TimeToMake = new { type = "string" }
-                                },
-                                required = new[] { "Meal", "Calories", "Ingredients", "TimeToMake" },
-                                additionalProperties = false
-                            }
-                        }
-                    },
-                    required = new[] { "Meals" },
-                    additionalProperties = false
-
-                };
-            }
-            else
-            {
-                throw new ArgumentException("Invalid TypeOfUpload");
-            }
 
 
             var requestBody = new
             {
                 model = "gpt-5-nano-2025-08-07",
                 input = new[]
-            {
-                new
                 {
-                    role = "user",
-                    content = new object[]
+                    new
                     {
-                        new { type = "input_text", text = textDependingOnCategory },
-                        new { type = "input_image", image_url = $"data:image/jpeg;base64,{imageBase64}" }
+                        role = "user",
+                        content = new object[]
+                        {
+                            new { type = "input_text", text = "Estimate Meal Details and return JSON" },
+                            new { type = "input_image", image_url = $"data:image/jpeg;base64,{imageBase64}" }
+                        }
                     }
-                }
-            },
+                },
                 text = new
                 {
                     format = new
@@ -242,35 +161,38 @@ namespace FitnessAppBackend.Controllers
                 return StatusCode(500, "No usable AI response");
             }
 
-            // Save meal to database if TypeOfUpload is "Meal"
-            if (TypeOfUpload == "Meal")
+            // Save meal to database
+            try
             {
-                try
+                var mealResponse = JsonSerializer.Deserialize<MealResponse>(textContent);
+                if (mealResponse == null)
                 {
-                    var mealResponse = JsonSerializer.Deserialize<MealResponse>(textContent);
-                    if (mealResponse == null)
-                    {
-                        _logger.LogError("Deserialized mealResponse is null");
-                    }
-                    var meal = new ConsumedMeal
-                    {
-                        UserId = Guid.Parse(UserId),
-                        Name = mealResponse.ShortMealName,
-                        Calories = mealResponse.CaloriesAmount,
-                        Protein = mealResponse.Protein,
-                        Carbohydrates = mealResponse.Carbs,
-                        Fats = mealResponse.Fat,
-                        MealQuality = mealResponse.MealQuality,
-                        HealthScoreOutOf10 = mealResponse.HealthScoreOutOf10,
-                        CreatedAt = DateTime.UtcNow
-                    };
+                    _logger.LogError("Deserialized mealResponse is null");
+                    return StatusCode(500, "Failed to deserialize meal response");
+                }
+                
+                var meal = new ConsumedMeal
+                {
+                    UserId = Guid.Parse(UserId),
+                    Name = mealResponse.ShortMealName,
+                    Calories = mealResponse.CaloriesAmount,
+                    Protein = mealResponse.Protein,
+                    Carbohydrates = mealResponse.Carbs,
+                    Fats = mealResponse.Fat,
+                    MealQuality = mealResponse.MealQuality,
+                    HealthScoreOutOf10 = mealResponse.HealthScoreOutOf10,
+                    CreatedAt = DateTime.UtcNow,
+                    OneEmoji = mealResponse.OneEmoji
+                };
 
-                    await _mealService.AddAsync(meal);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to deserialize and save meal for user {UserId}", UserId);
-                }
+                await _mealService.AddAsync(meal);
+                
+                _logger.LogInformation("Meal saved successfully for user {UserId}", UserId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize and save meal for user {UserId}", UserId);
+                return StatusCode(500, "Failed to save meal data");
             }
 
             // Return the raw JSON response from AI to display on frontend

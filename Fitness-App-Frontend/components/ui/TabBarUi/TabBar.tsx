@@ -51,7 +51,8 @@ export function TabBar({
   state,
   descriptors,
   navigation,
-}: BottomTabBarProps) {
+  vertical,
+}: BottomTabBarProps & { vertical?: boolean }) {
   const [dimensions, setDimensions] = useState({ width: 400, height: 75 });
   const buttonCount = state.routes.length;
   const buttonWidth = dimensions.width / buttonCount;

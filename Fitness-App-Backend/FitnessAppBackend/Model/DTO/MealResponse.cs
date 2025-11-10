@@ -10,5 +10,6 @@
         public int Fat { get; set; } 
         public int HealthScoreOutOf10 { get; set; }
         public string MealQuality { get; set; } = string.Empty;
+        public string OneEmoji { get; set; } = string.Empty;
     }
 }
