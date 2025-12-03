@@ -14,6 +14,7 @@ import {
   ScrollView,
   Animated,
   BackHandler,
+  Modal,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
@@ -23,6 +24,8 @@ import { Meal } from "@/models/Meals";
 import database from "@/database/database";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { AIEndpoint } from "@/api/AIEndpoint";
+import { SavedMessage } from "@/models/SavedMessage";
+import { BlurView } from "expo-blur";
 
 interface Message {
   id: string;
@@ -86,7 +89,9 @@ export default function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [thinkingMessageIndex, setThinkingMessageIndex] = useState(0);
-  const [useBlurredBackground, setUseBlurredBackground] = useState(true);
+  const [showSavedMessages, setShowSavedMessages] = useState(false);
+  const [savedMessages, setSavedMessages] = useState<SavedMessage[]>([]);
+  const [selectedMessageToSave, setSelectedMessageToSave] = useState<Message | null>(null);
   const [greetingMessage] = useState(() => 
     GREETING_MESSAGES[Math.floor(Math.random() * GREETING_MESSAGES.length)]
   );
@@ -259,8 +264,51 @@ export default function Chatbot() {
     });
   };
 
-  const toggleBackground = () => {
-    setUseBlurredBackground(prev => !prev);
+  const loadSavedMessages = async () => {
+    try {
+      const userId = await getUserIdFromToken();
+      if (!userId) return;
+      
+      const saved = await SavedMessage.getSavedMessages(database, userId);
+      setSavedMessages(saved);
+    } catch (error) {
+      console.error("Error loading saved messages:", error);
+    }
+  };
+
+  const toggleSavedMessages = async () => {
+    if (!showSavedMessages) {
+      await loadSavedMessages();
+    }
+    setShowSavedMessages(!showSavedMessages);
+  };
+
+  const saveMessage = async (message: Message) => {
+    try {
+      const userId = await getUserIdFromToken();
+      if (!userId) return;
+
+      await SavedMessage.saveMessage(
+        database,
+        userId,
+        message.text,
+        message.isUser ? 'user' : 'ai'
+      );
+      
+      await loadSavedMessages();
+      setSelectedMessageToSave(null);
+    } catch (error) {
+      console.error("Error saving message:", error);
+    }
+  };
+
+  const deleteSavedMessage = async (messageId: string) => {
+    try {
+      await SavedMessage.deleteMessage(database, messageId);
+      await loadSavedMessages();
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
   };
 
   const parseTableResponse = (text: string) => {
@@ -420,33 +468,37 @@ export default function Chatbot() {
           style={[
             styles.messageBubble,
             item.isUser 
-              ? (useBlurredBackground ? styles.userBubbleBlurred : styles.userBubble)
+              ? styles.userBubble
               : styles.aiBubble,
             !item.isUser && hasTable && styles.messageBubbleWide,
           ]}
         >
           {item.isUser ? (
-            <Text style={[
-              styles.messageText, 
-              useBlurredBackground ? styles.userMessageTextBlurred : styles.userMessageText
-            ]}>
+            <Text style={styles.userMessageText}>
               {highlightKeywords(item.text)}
             </Text>
           ) : (
             parseTableResponse(item.text)
           )}
         </View>
+        {!item.isUser && (
+          <TouchableOpacity
+            style={styles.saveMessageButton}
+            onPress={() => saveMessage(item)}
+            activeOpacity={0.7}
+          >
+            <MaterialCommunityIcons name="bookmark-outline" size={18} color={theme.primary} />
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
 
   // Conditional wrapper component
-  const BackgroundWrapper = useBlurredBackground ? BlurredBackground : React.Fragment;
   
   return (
     <>
-      {!useBlurredBackground && <SolidBackground style={StyleSheet.absoluteFill} />}
-      <BackgroundWrapper>
+      <BlurredBackground>
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -459,18 +511,18 @@ export default function Chatbot() {
               onPress={() => router.replace("/(tabs)/workout")}
               activeOpacity={0.7}
             >
-              <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
+              <MaterialCommunityIcons name="arrow-left" size={24} color={theme.textColor} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Your Coach</Text>
             <TouchableOpacity 
               style={styles.iconButton} 
-              onPress={toggleBackground}
+              onPress={toggleSavedMessages}
               activeOpacity={0.7}
             >
               <MaterialCommunityIcons 
-                name={useBlurredBackground ? "blur" : "blur-off"} 
+                name="bookmark" 
                 size={24} 
-                color="#fff" 
+                color={theme.textColor} 
               />
             </TouchableOpacity>
           </View>
@@ -505,10 +557,7 @@ export default function Chatbot() {
             ListFooterComponent={
               isLoading ? (
                 <Animated.View style={[styles.thinkingContainer, { opacity: fadeAnim }]}>
-                  <Text style={[
-                    styles.thinkingText,
-                    useBlurredBackground && styles.thinkingTextBlurred
-                  ]}>
+                  <Text style={styles.thinkingText}>
                     {THINKING_MESSAGES[thinkingMessageIndex]}
                   </Text>
                 </Animated.View>
@@ -524,21 +573,31 @@ export default function Chatbot() {
               contentContainerStyle={styles.suggestionsScroll}
             >
               {SUGGESTED_QUESTIONS.map((question, index) => (
-                <TouchableOpacity
+                <BlurView
                   key={index}
+                  intensity={20}
+                  tint="light"
                   style={styles.suggestionChip}
-                  onPress={() => sendMessage(question)}
-                  activeOpacity={0.7}
                 >
-                  <Text style={styles.suggestionText}>{question}</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => sendMessage(question)}
+                    activeOpacity={0.7}
+                    style={styles.suggestionChipInner}
+                  >
+                    <Text style={styles.suggestionText}>{question}</Text>
+                  </TouchableOpacity>
+                </BlurView>
               ))}
             </ScrollView>
           </View>
 
           {/* Input */}
           <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
-            <View style={styles.inputWrapper}>
+            <BlurView
+              intensity={30}
+              tint="light"
+              style={styles.inputWrapper}
+            >
               <TextInput
                 style={styles.input}
                 placeholder="Ask me anything..."
@@ -554,7 +613,7 @@ export default function Chatbot() {
                   onPress={() => router.push("/(screens)/ScanMeal")}
                   activeOpacity={0.7}
                 >
-                  <MaterialCommunityIcons name="camera" size={18} color="#fff" />
+                  <MaterialCommunityIcons name="camera" size={18} color="#FFFFFF" />
                   <Text style={styles.uploadButtonText}>Scan Meal</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -566,14 +625,68 @@ export default function Chatbot() {
                   <MaterialCommunityIcons
                     name="arrow-up"
                     size={20}
-                    color="#fff"
+                    color="#FFFFFF"
                   />
                 </TouchableOpacity>
               </View>
-            </View>
+            </BlurView>
           </View>
         </KeyboardAvoidingView>
-      </BackgroundWrapper>
+
+        {/* Saved Messages Modal */}
+        <Modal
+          visible={showSavedMessages}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowSavedMessages(false)}
+        >
+          <BlurView intensity={90} tint="light" style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Saved Messages</Text>
+                <TouchableOpacity
+                  onPress={() => setShowSavedMessages(false)}
+                  style={styles.modalCloseButton}
+                >
+                  <MaterialCommunityIcons name="close" size={24} color={theme.textColor} />
+                </TouchableOpacity>
+              </View>
+              
+              <FlatList
+                data={savedMessages}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <BlurView intensity={20} tint="light" style={styles.savedMessageCard}>
+                    <View style={styles.savedMessageContent}>
+                      <View style={styles.savedMessageHeader}>
+                        <MaterialCommunityIcons 
+                          name={item.messageType === 'user' ? 'account' : 'robot'} 
+                          size={20} 
+                          color={item.messageType === 'user' ? theme.primary : theme.textColorSecondary} 
+                        />
+                        <Text style={styles.savedMessageDate}>
+                          {new Date(item.savedAt).toLocaleDateString()}
+                        </Text>
+                      </View>
+                      <Text style={styles.savedMessageText}>{item.messageText}</Text>
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => deleteSavedMessage(item.id)}
+                      >
+                        <MaterialCommunityIcons name="delete" size={18} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  </BlurView>
+                )}
+                contentContainerStyle={styles.savedMessagesList}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>No saved messages yet</Text>
+                }
+              />
+            </View>
+          </BlurView>
+        </Modal>
+      </BlurredBackground>
     </>
   );
 }
@@ -593,15 +706,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontFamily: theme.black,
-    color: "#fff",
+    color: theme.textColor,
   },
   iconButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: theme.backgroundSecondary,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   emptyContainer: {
     flex: 1,
@@ -616,7 +731,7 @@ const styles = StyleSheet.create({
   greetingText: {
     fontSize: 24,
     fontFamily: theme.bold,
-    color: "#fff",
+    color: theme.textColor,
     textAlign: "center",
   },
   messagesList: {
@@ -639,10 +754,12 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(253, 14, 7, 0.1)",
+    backgroundColor: theme.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: theme.primary,
   },
   userAvatar: {
     width: 32,
@@ -666,30 +783,34 @@ const styles = StyleSheet.create({
     backgroundColor: theme.primary,
     borderBottomRightRadius: 4,
   },
-  userBubbleBlurred: {
-    backgroundColor: "transparent",
-    borderBottomRightRadius: 4,
-  },
   aiBubble: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderBottomLeftRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: 'rgba(220, 220, 220, 0.5)',
   },
   messageText: {
     fontSize: 15,
     fontFamily: theme.regular,
-    color: "#fff",
+    color: theme.textColor,
     lineHeight: 20,
   },
   userMessageText: {
-    color: "#fff",
+    fontSize: 15,
+    fontFamily: theme.regular,
+    color: "#FFFFFF",
+    lineHeight: 20,
   },
-  userMessageTextBlurred: {
-    color: "#fff",
+  saveMessageButton: {
+    marginLeft: 8,
+    padding: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
   },
   boldKeyword: {
-    color: "#fff",
+    color: theme.textColor,
     fontFamily: theme.black,
   },
   thinkingContainer: {
@@ -703,9 +824,6 @@ const styles = StyleSheet.create({
     color: theme.primary,
     fontStyle: "italic",
   },
-  thinkingTextBlurred: {
-    color: "#fff",
-  },
   suggestionsWrapper: {
     paddingTop: 12,
     paddingBottom: 8,
@@ -715,17 +833,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   suggestionChip: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
+  },
+  suggestionChipInner: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
   },
   suggestionText: {
     fontSize: 12,
     fontFamily: theme.medium,
-    color: "#fff",
+    color: theme.textColor,
   },
   loadingContainer: {
     paddingHorizontal: 16,
@@ -737,10 +857,12 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: 20,
     alignSelf: "flex-start",
     marginLeft: 40,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   typingDot: {
     width: 8,
@@ -759,23 +881,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 15,
+    backgroundColor: 'transparent',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(224, 224, 224, 0.3)',
   },
   inputContainerKeyboardOpen: {
     paddingBottom: 10,
   },
   inputWrapper: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: 'rgba(220, 220, 220, 0.5)',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
+    overflow: 'hidden',
   },
   input: {
     fontSize: 15,
     fontFamily: theme.regular,
-    color: "#fff",
+    color: theme.textColor,
     minHeight: 40,
     maxHeight: 80,
     marginBottom: 12,
@@ -791,21 +916,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000",
+    backgroundColor: theme.primary,
     borderRadius: 20,
     gap: 8,
-    opacity: 0.6,
   },
   uploadButtonText: {
     fontSize: 14,
     fontFamily: theme.medium,
-    color: "#fff",
+    color: "#FFFFFF",
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#000",
+    backgroundColor: theme.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -883,5 +1007,90 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
     marginTop: 8,
+  },
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    height: '80%',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(220, 220, 220, 0.3)',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontFamily: theme.bold,
+    color: theme.textColor,
+  },
+  modalCloseButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(245, 245, 245, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
+  },
+  savedMessagesList: {
+    padding: 16,
+  },
+  savedMessageCard: {
+    marginBottom: 12,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
+  },
+  savedMessageContent: {
+    padding: 16,
+  },
+  savedMessageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  savedMessageDate: {
+    fontSize: 12,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+  },
+  savedMessageText: {
+    fontSize: 14,
+    fontFamily: theme.regular,
+    color: theme.textColor,
+    lineHeight: 20,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: theme.medium,
+    color: theme.textColorSecondary,
+    textAlign: 'center',
+    marginTop: 40,
   },
 });

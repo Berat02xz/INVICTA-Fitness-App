@@ -3,7 +3,7 @@ import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { useEffect } from "react";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, StatusBar } from "react-native";
 import { theme } from "@/constants/theme";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -48,6 +48,7 @@ export default function RootLayout() {
 
   return (
     <>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Slot />
         <Toast />

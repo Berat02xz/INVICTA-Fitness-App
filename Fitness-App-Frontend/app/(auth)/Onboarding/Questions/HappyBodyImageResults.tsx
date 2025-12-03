@@ -44,7 +44,6 @@ export default function HappyBodyImageResults() {
               <UndertextCard
                 emoji="🤗"
                 title="Responded the same way"
-                titleColor="white"
                 text="You are not alone in your feelings about your body image."
               />
             </View>

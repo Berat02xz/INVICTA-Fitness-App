@@ -98,14 +98,14 @@ const styles = StyleSheet.create({
   },
   masterText: {
     fontSize: 32,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: theme.textColorSecondary,
     fontFamily: theme.regular,
     textAlign: 'center',
     marginBottom: 8,
   },
   dynamicTitle: {
     fontSize: 48,
-    color: 'white',
+    color: theme.primary,
     fontFamily: theme.bold,
     textAlign: 'center',
   },
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === "ios" ? 50 : 30,
   },
   beginButton: {
-    backgroundColor: 'white',
+    backgroundColor: theme.primary,
     borderRadius: 30,
     paddingVertical: 16,
     paddingHorizontal: 60,
@@ -126,13 +126,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   beginButtonText: {
-    color: '#000000',
+    color: '#FFFFFF',
     fontSize: 18,
     fontFamily: theme.bold,
     textAlign: 'center',
   },
   loginText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: theme.textColorSecondary,
     fontSize: 14,
     textAlign: 'center',
     fontFamily: theme.regular,

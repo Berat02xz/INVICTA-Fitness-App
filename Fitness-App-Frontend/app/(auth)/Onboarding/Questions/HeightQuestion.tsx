@@ -95,7 +95,6 @@ const HeightQuestion = () => {
             <UndertextCard
               emoji="📏"
               title="Height"
-              titleColor="white"
               text="Calculating your body mass index requires your height."
             />
           </View>

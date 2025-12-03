@@ -86,7 +86,6 @@ export default function JourneyStartsNow() {
                   <UndertextCard
                     emoji="💪"
                     title="Muscle Progress"
-                    titleColor="white"
                     text="In 3 months, expect noticeable gains in strength and tone."
                   />
                 </FadeTranslate>
@@ -94,7 +93,6 @@ export default function JourneyStartsNow() {
                   <UndertextCard
                     emoji="🔥"
                     title={`${caloriesTarget || "Calorie Target"}`}
-                    titleColor="white"
                     text={`${displayedCalories} calories per day to stay on track`}
                   />
                 </FadeTranslate>
@@ -102,15 +100,13 @@ export default function JourneyStartsNow() {
                   <UndertextCard
                     emoji="📅"
                     title="Target Date"
-                    titleColor="white"
-                    text={`You’ll crush your goal by ${animatedDateString}`}
+                    text={`You'll crush your goal by ${animatedDateString}`}
                   />
                 </FadeTranslate>
                 <FadeTranslate order={5}>
                   <UndertextCard
                     emoji="🍽️"
                     title="Workout & Diet"
-                    titleColor="white"
                     text="Initial Daily Caloric Intake based on your goals"
                   />
                 </FadeTranslate>

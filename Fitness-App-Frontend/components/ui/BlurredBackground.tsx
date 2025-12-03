@@ -12,19 +12,20 @@ import Animated, {
   withRepeat,
 } from "react-native-reanimated";
 import { BlurView } from 'expo-blur';
+import { theme } from '@/constants/theme';
 
 const { width, height } = Dimensions.get("window");
 
-// Circle colors - primarily red-ish
+// Circle colors - beautiful pastel colors
 const circleColors = [
-  '#b80b0bff', // Light red
-  '#FF5252', // Red
-  '#E57373', // Light red
-  '#F44336', // Material red
-  '#D32F2F', // Dark red
-  '#B71C1C', // Deep red
-  '#981306ff', // Light red accent
-  '#FF1744', // Red accent
+  '#FFB3BA', // Pastel pink
+  '#FFDFBA', // Pastel peach
+  '#FFFFBA', // Pastel yellow
+  '#BAFFC9', // Pastel mint green
+  '#BAE1FF', // Pastel blue
+  '#E0BBE4', // Pastel lavender
+  '#FFC9DE', // Pastel rose
+  '#C7CEEA', // Pastel periwinkle
 ];
 
 interface BlurredBackgroundProps {
@@ -38,79 +39,55 @@ interface BlurredBackgroundProps {
 export default function BlurredBackground({ 
   children, 
   intensity = Platform.OS === 'android' ? 150 : 20,
-  tint = 'dark',
+  tint = 'light',
   circleBlur = 120,
   animationSpeed = 1
 }: BlurredBackgroundProps) {
-  // Simple shared values for circle positions
-  const circle1X = useSharedValue(width * 0.2);
-  const circle1Y = useSharedValue(height * 0.3);
-  const circle2X = useSharedValue(width * 0.7);
-  const circle2Y = useSharedValue(height * 0.2);
-  const circle3X = useSharedValue(width * 0.3);
-  const circle3Y = useSharedValue(height * 0.7);
-  const circle4X = useSharedValue(width * 0.8);
-  const circle4Y = useSharedValue(height * 0.6);
-  const circle5X = useSharedValue(width * 0.5);
-  const circle5Y = useSharedValue(height * 0.4);
+  // Simple shared values for circle positions - centered vertically in a horizontal line
+  const centerY = height * 0.5;
+  const circle1X = useSharedValue(width * 0.1);
+  const circle1Y = useSharedValue(centerY);
+  const circle2X = useSharedValue(width * 0.3);
+  const circle2Y = useSharedValue(centerY);
+  const circle3X = useSharedValue(width * 0.5);
+  const circle3Y = useSharedValue(centerY);
+  const circle4X = useSharedValue(width * 0.7);
+  const circle4Y = useSharedValue(centerY);
+  const circle5X = useSharedValue(width * 0.9);
+  const circle5Y = useSharedValue(centerY);
 
-  // Simple movement that works on all platforms
+  // Simple movement that works on all platforms - horizontal movement only
   useEffect(() => {
-    // Start simple continuous movement for each circle
+    // Start simple continuous horizontal movement for each circle
     const startMovement = () => {
-      const baseSpeed = 2000 / animationSpeed;
+      const baseSpeed = 3000 / animationSpeed;
       
       circle1X.value = withRepeat(
-        withTiming(circle1X.value + 60, { duration: baseSpeed }),
-        -1,
-        true
-      );
-      circle1Y.value = withRepeat(
-        withTiming(circle1Y.value + 40, { duration: baseSpeed * 1.25 }),
+        withTiming(circle1X.value + 50, { duration: baseSpeed }),
         -1,
         true
       );
 
       circle2X.value = withRepeat(
-        withTiming(circle2X.value - 50, { duration: baseSpeed * 0.9 }),
-        -1,
-        true
-      );
-      circle2Y.value = withRepeat(
-        withTiming(circle2Y.value + 50, { duration: baseSpeed * 1.1 }),
+        withTiming(circle2X.value - 40, { duration: baseSpeed * 0.9 }),
         -1,
         true
       );
 
       circle3X.value = withRepeat(
-        withTiming(circle3X.value + 70, { duration: baseSpeed * 1.15 }),
-        -1,
-        true
-      );
-      circle3Y.value = withRepeat(
-        withTiming(circle3Y.value - 60, { duration: baseSpeed * 0.95 }),
+        withTiming(circle3X.value + 60, { duration: baseSpeed * 1.1 }),
         -1,
         true
       );
 
       circle4X.value = withRepeat(
-        withTiming(circle4X.value - 40, { duration: baseSpeed * 1.05 }),
-        -1,
-        true
-      );
-      circle4Y.value = withRepeat(
-        withTiming(circle4Y.value + 30, { duration: baseSpeed * 1.2 }),
+        withTiming(circle4X.value - 45, { duration: baseSpeed * 0.85 }),
         -1,
         true
       );
 
       circle5X.value = withRepeat(
-        withTiming(circle5X.value + 35, { duration: baseSpeed * 0.85 }),
-        -1,
-        true
-      );
-      circle5Y.value = withRepeat(
-        withTiming(circle5Y.value - 45, { duration: baseSpeed * 1.3 }),
+        withTiming(circle5X.value + 35, { duration: baseSpeed * 1.2 }),
         -1,
         true
       );
@@ -156,8 +133,8 @@ export default function BlurredBackground({
           styles.circle, 
           { 
             backgroundColor: circleColors[1], 
-            width: 120, 
-            height: 120,
+            width: 180, 
+            height: 180,
           }, 
           circle2Style
         ]} />
@@ -165,8 +142,8 @@ export default function BlurredBackground({
           styles.circle, 
           { 
             backgroundColor: circleColors[2], 
-            width: 80, 
-            height: 80,
+            width: 220, 
+            height: 220,
           }, 
           circle3Style
         ]} />
@@ -174,8 +151,8 @@ export default function BlurredBackground({
           styles.circle, 
           { 
             backgroundColor: circleColors[3], 
-            width: 150, 
-            height: 150,
+            width: 160, 
+            height: 160,
           }, 
           circle4Style
         ]} />
@@ -183,8 +160,8 @@ export default function BlurredBackground({
           styles.circle, 
           { 
             backgroundColor: circleColors[4], 
-            width: 90, 
-            height: 90,
+            width: 190, 
+            height: 190,
           }, 
           circle5Style
         ]} />
@@ -206,7 +183,7 @@ export default function BlurredBackground({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000000",
+    backgroundColor: theme.backgroundColor,
   },
   circlesContainer: {
     position: 'absolute',
@@ -217,10 +194,10 @@ const styles = StyleSheet.create({
   },
   circle: {
     position: 'absolute',
-    width: 500,
-    height: 500,
-    borderRadius: 50,
-    opacity: 0.7,
+    width: 800,
+    height: 800,
+    borderRadius: 100,
+    opacity: 0.4,
   },
   blurContainer: {
     flex: 1,

@@ -51,7 +51,6 @@ export default function HappyBodyImageResults() {
                 <UndertextCard
                   emoji="💧"
                   title="Hydration Reminder"
-                  titleColor="white"
                   text="Invicta will remind you to drink enough water."
                 />
               </View>

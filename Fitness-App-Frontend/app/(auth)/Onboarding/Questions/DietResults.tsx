@@ -45,7 +45,6 @@ export default function DietResults() {
               <UndertextCard
                 emoji="🥗"
                 title="Dietary Guidance"
-                titleColor="white"
                 text="We provide you with personalized recommendations."
               />
             </View>

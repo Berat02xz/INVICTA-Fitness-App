@@ -9,11 +9,13 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useOnboarding } from "../../../app/(auth)/Onboarding/NavigationService";
 
 interface ButtonOnboardingProps {
   height?: number;
   imageSrc?: any;
+  iconName?: string;
   text: string;
   undertext?: string;
   BodyImage?: any;
@@ -30,6 +32,7 @@ interface ButtonOnboardingProps {
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   height = 80,
   imageSrc,
+  iconName,
   text,
   undertext,
   BodyImage,
@@ -98,7 +101,15 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
         ]}
         onPress={handleClick}
       >
-        {imageSrc && (
+        {iconName && (
+          <MaterialCommunityIcons 
+            name={iconName as any} 
+            size={32} 
+            color={theme.primary} 
+            style={styles.iconStyle}
+          />
+        )}
+        {imageSrc && !iconName && (
           <Image source={imageSrc} style={styles.icon} resizeMode="contain" />
         )}
 
@@ -158,6 +169,9 @@ const styles = StyleSheet.create({
     height: 31,
     marginLeft: 10,
   },
+  iconStyle: {
+    marginLeft: 10,
+  },
   textContainer: {
     flex: 1,
     justifyContent: "center",
@@ -170,7 +184,7 @@ const styles = StyleSheet.create({
   },
   undertext: {
     fontSize: 12,
-    color: "#e0e0e0",
+    color: theme.textColorSecondary,
     marginTop: 3,
   },
   bodyIcon: {

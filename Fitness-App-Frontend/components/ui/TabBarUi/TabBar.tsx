@@ -13,8 +13,8 @@ import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
 
 const ACTIVE_CIRCLE = theme.primary;
-const ICON_COLOR_SELECTED = "#FFFFFF";
-const ICON_COLOR_UNSELECTED = "#A0A0A0";
+const ICON_COLOR_SELECTED = theme.primary;
+const ICON_COLOR_UNSELECTED = theme.textColorSecondary;
 
 export const icon = {
   Workout: (props: any) => (
@@ -84,8 +84,8 @@ export function TabBar({
       <BlurView
         experimentalBlurMethod="dimezisBlurView"
         blurReductionFactor={1}
-        intensity={100}
-        tint="dark"
+        intensity={80}
+        tint="light"
         style={styles.tabBar}
       >
         {/* Glass effect border */}
@@ -97,7 +97,7 @@ export function TabBar({
             styles.circle,
             {
               top: (dimensions.height - circleSize) / 2,
-              backgroundColor: ACTIVE_CIRCLE,
+              backgroundColor: theme.primaryLight,
               width: circleSize,
               height: circleSize,
               borderRadius: circleSize / 2,
@@ -165,23 +165,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgba(20,20,20,0.7)", // frosted dark
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     paddingVertical: 14,
     borderRadius: 100,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.10,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowColor: "#00000031",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
     width: 333,
     height: 75,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   glassBorder: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: "rgba(145, 145, 145, 0.18)", // glassy white border
+    borderColor: 'rgba(255, 255, 255, 0.8)',
     zIndex: 2,
   },
   circle: {

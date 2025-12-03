@@ -36,30 +36,32 @@ const UndertextCard: React.FC<UndertextCardProps> = ({
 };
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.buttonsolid,
+    backgroundColor: theme.backgroundSecondary,
     padding: 15,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 15,
-    alignSelf: "center", // center horizontally
-    width: 335, // take full width
+    alignSelf: "center",
+    width: 335,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   emoji: {
     fontSize: 25,
   },
   title: {
-    fontSize: 16,
+    fontSize: theme.fontSize.md,
     fontFamily: theme.semibold,
     marginBottom: 4,
-    
+    color: theme.textColor,
   },
   text: {
     fontFamily: theme.regular,
     textAlign: "left",
-    color: "#ddd",
-    fontSize: 14,
+    color: theme.textColorSecondary,
+    fontSize: theme.fontSize.sm,
     lineHeight: 18,
   },
 });

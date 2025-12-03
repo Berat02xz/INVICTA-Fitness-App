@@ -68,7 +68,6 @@ const WeightQuestion = () => {
             <UndertextCard
               emoji="⚖️"
               title="Weight"
-              titleColor="white"
               text="Your weight is essential for tailoring your fitness plan."
             />
           </View>

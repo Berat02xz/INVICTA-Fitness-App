@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
-  Image,
   Platform,
   StyleSheet,
   Text,
@@ -38,14 +37,14 @@ const TopBar = () => {
       <FadeTranslate order={1}>
       <View style={styles.topRow}>
         <TouchableOpacity onPress={goBack} style={styles.iconButton}>
-          <Ionicons name="arrow-back-outline" size={25} color="#FFFFFF" />
+          <Ionicons name="arrow-back-outline" size={25} color={theme.textColor} />
         </TouchableOpacity>
 
-        <Image
-          source={require("@/assets/icons/branding/Invictus_Logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <View style={styles.progressContainer}>
+          <Animated.View
+            style={[styles.progressFill, { width: animatedWidth }]}
+          />
+        </View>
 
         <View style={styles.numberScreen}>
           <Text style={styles.skip}>
@@ -53,13 +52,6 @@ const TopBar = () => {
             <Text style={styles.totalDimmed}> / {totalScreensCount}</Text>
           </Text>
         </View>
-      </View>
-      </FadeTranslate>
-      <FadeTranslate order={2}>
-      <View style={styles.progressContainer}>
-        <Animated.View
-          style={[styles.progressFill, { width: animatedWidth }]}
-        />
       </View>
       </FadeTranslate>
     </View>
@@ -75,7 +67,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    position: "relative", 
+    gap: 12,
   },
 
   iconButton: {
@@ -86,35 +78,26 @@ const styles = StyleSheet.create({
     fontFamily: theme.bold,
   },
   skip: {
-    color: "#FFFFFF",
+    color: theme.textColor,
     fontSize: 14,
     fontFamily: theme.semibold,
     fontWeight: "500",
   },
   totalDimmed: {
-    color: "#B0B0B0",
+    color: theme.textColorSecondary,
     fontSize: 14,
     fontFamily: theme.light,
   },
-  logo: {
-    height: 40,
-    width: 95,
-    position: "absolute",
-    left: "50%",
-    transform: [{ translateX: -47.5 }],
-    zIndex: 1,
-  },
 
   progressContainer: {
-    marginTop: Platform.OS === "web" ? 20 : 25,
-    height: 4,
-    backgroundColor: "#383838ff",
+    flex: 1,
+    height: 10,
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: 3,
     overflow: "hidden",
-    marginHorizontal: 15,
   },
   progressFill: {
-    height: 6,
+    height: 10,
     backgroundColor: theme.primary,
   },
 });
