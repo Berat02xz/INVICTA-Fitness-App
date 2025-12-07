@@ -36,7 +36,7 @@ export default function ReviewCard({
           </View>
         </View>
         <Text style={styles.name}>{name}</Text>
-        <Text style={styles.comment}>{comment}</Text>
+        <Text style={styles.comment} numberOfLines={4}>{comment}</Text>
       </View>
     </View>
   );
@@ -45,20 +45,32 @@ export default function ReviewCard({
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.08)",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: theme.backgroundColor,
+    borderRadius: 16,
+    marginTop: 20,
     marginHorizontal: 6,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    width: 336,
+    height: 160,
+    padding: 20,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     marginRight: 12,
   },
   content: {
+    paddingRight: 15,
     flex: 1,
+    left: 10,
+    justifyContent: "flex-start",
   },
   header: {
     flexDirection: "row",
@@ -67,21 +79,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   username: {
-    color: "#aaa",
-    fontSize: 12,
+    color: theme.textColorSecondary,
+    fontSize: 11,
+    fontFamily: theme.regular,
   },
   stars: {
     flexDirection: "row",
+    gap: 2,
   },
   name: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 14,
-    marginBottom: 4,
+    color: theme.textColor,
+    fontFamily: theme.semibold,
+    fontSize: 13,
+    marginBottom: 3,
   },
   comment: {
-    color: "#ddd",
+    color: theme.textColor,
+    fontFamily: theme.regular,
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 17,
+    width: 230,
   },
 });

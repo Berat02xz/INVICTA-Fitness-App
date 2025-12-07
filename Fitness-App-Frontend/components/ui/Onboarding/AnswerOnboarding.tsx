@@ -28,6 +28,7 @@ interface ButtonOnboardingProps {
   order?: number;
   badgeText?: string;
   isMultipleAnswers?: boolean;
+  textSize?: number;
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
@@ -46,6 +47,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   order = 0,
   badgeText,
   isMultipleAnswers = false,
+  textSize = 18,
 }) => {
   const [selected, setSelected] = useState(false);
   const { goForward, goBack, saveSelection } = useOnboarding();
@@ -104,7 +106,6 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   // Check if there are any icons/images on the sides
   const hasLeftIcon = isMultipleAnswers; // Plus icon on left
   const hasRightIcon = emoji || BodyImage || badgeText || iconName || (imageSrc && !BodyImage);
-  const hasNoSideContent = !hasLeftIcon && !hasRightIcon;
   
   // Rotate animation interpolation
   const rotateInterpolate = rotateAnim.interpolate({
@@ -141,9 +142,9 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
           </Animated.View>
         )}
 
-        <View style={[styles.textContainer, hasNoSideContent && styles.textContainerCentered]}>
-          <Text style={[selected ? styles.selectedtext : styles.text, hasNoSideContent && styles.textCentered]}>{text}</Text>
-          {undertext && <Text style={[selected ? styles.selectedUndertext : styles.undertext, hasNoSideContent && styles.undertextCentered]}>{undertext}</Text>}
+        <View style={styles.textContainer}>
+          <Text style={[selected ? styles.selectedtext : styles.text, { fontSize: textSize }]}>{text}</Text>
+          {undertext && <Text style={selected ? styles.selectedUndertext : styles.undertext}>{undertext}</Text>}
         </View>
 
         {emoji && !BodyImage && <Text style={styles.emoji}>{emoji}</Text>}
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 12,
-    color: theme.textColor,
+    color: "#FFFFFF",
     fontFamily: theme.semibold,
   },
 

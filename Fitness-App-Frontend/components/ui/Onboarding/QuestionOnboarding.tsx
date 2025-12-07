@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontFamily: theme.light,
     fontSize: 16,
-    color: "#D9D9D9",
+    color: "rgba(0, 0, 0, 0.84)",
     textAlign: "center",
     lineHeight: 25,
     maxWidth: "100%",

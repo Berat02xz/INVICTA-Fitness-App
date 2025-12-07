@@ -1,6 +1,5 @@
-import BMIBar from "@/assets/icons/onboarding/BMIBar.png";
-import BMIIndicator from "@/assets/icons/onboarding/BMIIndicator.png";
 import ButtonFit from "@/components/ui/ButtonFit";
+import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
@@ -11,6 +10,13 @@ import { useOnboarding } from "../NavigationService";
 import calculateBMI from "@/utils/CalculateBMI";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 
+const BMIBar = require("@/assets/icons/onboarding/BMIBar.png");
+const BMIIndicator = require("@/assets/icons/onboarding/BMIIndicator.png");
+const UnderdevelopedImage = require("@/assets/icons/onboarding/underdeveloped.png");
+const NormalImage = require("@/assets/icons/onboarding/normal.png");
+const OverweightImage = require("@/assets/icons/onboarding/overweight.png");
+const ObeseImage = require("@/assets/icons/onboarding/obese.png");
+
 function BMIResults() {
   const onboardingContext = useOnboarding();
   const { answers, saveSelection } = onboardingContext;
@@ -19,11 +25,22 @@ function BMIResults() {
   const height = answers.height?.toString() || "185";
   const unit = answers.unit || "metric";
 
+  // Extract values from answers array (assuming multiple selections)
+  const fitnessLevel = Array.isArray(answers.fitnessLevel)
+    ? answers.fitnessLevel[0]
+    : answers.fitnessLevel || "Beginner";
+  const activityLevel = Array.isArray(answers.activity_level)
+    ? answers.activity_level[0]
+    : answers.activity_level || "Sedentary";
+  const motivation = Array.isArray(answers.motivation)
+    ? answers.motivation[0]
+    : answers.motivation || "HIGH";
+
   const [bmi, setBmi] = useState<number>(0);
-  const [targetLeft, setTargetLeft] = useState<number>(-150);
+  const [targetLeft, setTargetLeft] = useState<number>(-3.6);
   const [displayBmi, setDisplayBmi] = useState<number>(0);
 
-  const leftAnim = useRef(new Animated.Value(-150)).current;
+  const leftAnim = useRef(new Animated.Value(-3.6)).current;
   const animatedBMI = useRef(new Animated.Value(0)).current;
 
   // --- only save once on init or when inputs change ---
@@ -40,46 +57,55 @@ function BMIResults() {
 
   const calculateLeftValue = (bmiValue: number): number => {
     const minBMI = 15;
-    const maxBMI = 40;
+    const maxBMI = 40; // Increased to handle higher BMI values
     const clampedBMI = Math.min(Math.max(bmiValue, minBMI), maxBMI);
     const range = maxBMI - minBMI;
-    return ((clampedBMI - minBMI) / range) * 320 - 150;
+    // Returns percentage position (0-100), accounting for indicator width
+    return ((clampedBMI - minBMI) / range) * 300; // 3.6 = 12/332 * 100
+  };
+
+  const getBodyImage = (bmi: number) => {
+    if (bmi < 19) return UnderdevelopedImage;
+    if (bmi >= 19 && bmi < 25) return NormalImage;
+    if (bmi >= 25 && bmi < 30) return OverweightImage;
+    return ObeseImage;
   };
 
   const getDynamicCardContent = (bmi: number) => {
     if (bmi < 19) {
       return {
-        emoji: "🧃",
-        label: "Underweight",
-        color: "#05C9FF",
-        text: "You’re underweight. We’ll help you gain healthy mass through a balanced plan.",
+        emoji: "❤️",
+        title: "You are underweight!",
+        text: "Your tailored plan will help you achieve your goal BMI in no time!",
+        color: "#A8E6CF",
       };
     }
     if (bmi >= 19 && bmi < 25) {
       return {
-        emoji: "💪",
-        label: "Normal weight",
-        color: "#2FFF05",
-        text: "Great job! You're in a healthy range. Let’s keep it that way with smart choices.",
+        emoji: "❤️",
+        title: "You are healthy!",
+        text: "Your tailored plan will help you maintain your goal BMI in no time!",
+        color: "#A8E6CF",
       };
     }
     if (bmi >= 25 && bmi < 30) {
       return {
-        emoji: "🥗",
-        label: "Overweight",
-        color: "#FF7A05",
-        text: "You're slightly overweight. We'll focus on shedding some pounds safely.",
+        emoji: "❤️",
+        title: "You are overweight!",
+        text: "Your tailored plan will help you achieve your goal BMI in no time!",
+        color: "#FFE0B2",
       };
     }
     return {
-      emoji: "🚨",
-      label: "Obesity",
-      color: "#FF0000",
-      text: "Your BMI is in the obesity range. We’ll help you take the first steps toward better health.",
+      emoji: "❤️",
+      title: "You are obese!",
+      text: "Your tailored plan will help you achieve your goal BMI in no time!",
+      color: "#FFCCCC",
     };
   };
 
   const dynamicCard = getDynamicCardContent(bmi);
+  const bodyImage = getBodyImage(bmi);
 
   useEffect(() => {
     Animated.timing(leftAnim, {
@@ -112,49 +138,96 @@ function BMIResults() {
     <>
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.outerContainer}>
-        <View style={styles.main}>            
+        <View style={styles.main}>
+          {/* Header */}
           <FadeTranslate order={1}>
-          <View style={styles.middle}>
-            <Text style={styles.sloganBold}>Your Body Mass Index</Text>
-            <Text style={[styles.sloganRegular, { paddingTop: 60 }]}>
-              {dynamicCard.label}
-            </Text>
-            <Text style={styles.bmiValue}>{displayBmi.toFixed(1)}</Text>
-            <Image
-              source={BMIBar}
-              style={{ width: 355 * scale, height: 27.9 * scale }}
+            <QuestionOnboarding
+              question="Summary of your overall wellness"
             />
-            <Animated.Image
-              source={BMIIndicator}
-              style={{
-                position: "relative",
-                top: 10,
-                left: leftAnim,
-                width: 17 * scale,
-                height: 16 * scale,
-              }}
-            />
-            <FadeTranslate order={5}>
-            <View style={styles.undertextCard}>
+          </FadeTranslate>
+
+          {/* BMI Label */}
+          <FadeTranslate order={2}>
+            <Text style={styles.bmiLabel}>Body-Mass-Index (BMI)</Text>
+          </FadeTranslate>
+
+          {/* BMI Bar Section */}
+          <FadeTranslate order={3}>
+            <View style={styles.bmiBarSection}>
+              <View style={styles.bmiBarContainer}>
+                <Image
+                  source={BMIBar}
+                  style={{ width: "100%", height: 51 }}
+                />
+                <Animated.Image
+                  source={BMIIndicator}
+                  style={{
+                    position: "absolute",
+                    top: 5,
+                    left: Animated.add(
+                      Animated.multiply(leftAnim, new Animated.Value(1)),
+                      new Animated.Value(0)
+                    ),
+                    width: "5.76%", // 24/332*100
+                    height: 24,
+                    zIndex: 10,
+                  }}
+                />
+              </View>
+            </View>
+          </FadeTranslate>
+
+          {/* Stats and Body Image Section */}
+          <FadeTranslate order={4}>
+            <View style={styles.statsBodySection}>
+              {/* Left: Stats */}
+              <View style={styles.statsContainer}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statLabel}>Body Mass Index</Text>
+                  <Text style={styles.statValue}>{displayBmi.toFixed(1)}</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statLabel}>Lifestyle</Text>
+                  <Text style={styles.statValue}>{activityLevel}</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statLabel}>Motivation</Text>
+                  <Text style={styles.statValue}>{motivation}</Text>
+                </View>
+              </View>
+
+              {/* Right: Body Image */}
+              <View style={styles.bodyImageContainer}>
+                <Image
+                  source={bodyImage}
+                  style={styles.bodyImage}
+                  contentFit="contain"
+                />
+              </View>
+            </View>
+          </FadeTranslate>
+
+          {/* UndertextCard */}
+          <FadeTranslate order={5}>
+            <View style={styles.undertextCardContainer}>
               <UndertextCard
                 emoji={dynamicCard.emoji}
-                title={dynamicCard.label}
-                titleColor={dynamicCard.color}
+                title={dynamicCard.title}
                 text={dynamicCard.text}
+                backgroundColor={dynamicCard.color}
               />
             </View>
-            </FadeTranslate>
-          </View>            
           </FadeTranslate>
         </View>
 
+        {/* Continue Button */}
         <View style={styles.bottom}>
           <FadeTranslate order={6} duration={1000}>
-          <ButtonFit
-            title="Continue"
-            backgroundColor={theme.primary}
-            onPress={() => onboardingContext.goForward()}
-          />
+            <ButtonFit
+              title="Continue"
+              backgroundColor={theme.primary}
+              onPress={() => onboardingContext.goForward()}
+            />
           </FadeTranslate>
         </View>
       </View>
@@ -170,58 +243,82 @@ const styles = StyleSheet.create({
   main: {
     flex: 1,
     paddingTop: 40,
-    paddingBottom: 80,
     paddingHorizontal: 24,
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     zIndex: 1,
+    overflow: "visible" as any,
   },
-  middle: {
+  bmiLabel: {
+    fontSize: 15,
+    fontFamily: theme.regular,
+    color: theme.textColor,
+    textAlign: "center",
+    marginBottom: 10,
+    marginTop: 30,
+  },
+  bmiBarSection: {
+    alignItems: "center",
+    marginBottom: 40,
+    position: "relative",
+    height: 80,
+    justifyContent: "center",
+    overflow: "visible" as any,
+  },
+  bmiBarContainer: {
+    position: "relative",
+    width: "100%",
+    maxWidth: 332,
+    alignItems: "center",
+  },
+  statsBodySection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 30,
+    gap: 100,
+  },
+  statsContainer: {
+    justifyContent: "center",
+  },
+  statItem: {
+    marginBottom: 15,
+  },
+  statLabel: {
+    fontSize: 15,
+    fontFamily: theme.regular,
+    color: theme.textColor,
+    marginBottom: 4,
+  },
+  statValue: {
+    fontSize: 15,
+    fontFamily: theme.bold,
+    color: theme.primary,
+  },
+  bodyImageContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 200,
+    width: 120,
+  },
+  bodyImage: {
+    width: 120,
+    height: 200,
+  },
+  bmiValue: {
+    fontSize: 50,
+    fontFamily: theme.black,
+    color: theme.primary,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  undertextCardContainer: {
+    marginBottom: 20,
     alignItems: "center",
   },
   bottom: {
     alignItems: "center",
     marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  sloganBold: {
-    fontSize: 25,
-    fontFamily: theme.semibold,
-    color: "#FFFFFF",
-    textAlign: "center",
-  },
-  sloganRegular: {
-    fontSize: 16,
-    fontFamily: theme.semibold,
-    color: "#D9D9D9",
-    textAlign: "center",
-    width: "65%",
-  },
-  bmiValue: {
-    fontSize: 60,
-    fontFamily: theme.black,
-    color: "#FFFFFF",
-    marginBottom: 60,
-    lineHeight: 60,
-  },
-  undertextCard: {
-    marginTop: 10,
-  },
-  emoji: {
-    fontSize: 25,
-  },
-  undertext: {
-    flex: 1,
-    fontSize: 15,
-    color: theme.textColor,
-    fontFamily: theme.regular,
-    textAlign: "left",
-    lineHeight: 22,
-  },
-  categoryTitle: {
-    fontSize: 16,
-    fontFamily: theme.semibold,
-    marginBottom: 4,
+    paddingHorizontal: 24,
   },
 });
 

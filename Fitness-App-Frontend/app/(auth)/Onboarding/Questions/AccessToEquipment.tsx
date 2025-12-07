@@ -22,7 +22,7 @@ const AccessToEquipment = () => {
 
           <ButtonOnboarding
             text="Home Workouts"
-            imageSrc={activity_level.home}
+            emoji="🏠"
             undertext="No Equipment"
             onClickContinue
             forQuestion="equipment_access"
@@ -31,7 +31,7 @@ const AccessToEquipment = () => {
           <ButtonOnboarding
             text="Basic Equipment"
             undertext="Dumbbells or similar gear at home"
-            imageSrc={activity_level.gym}
+            emoji="🔩"
             onClickContinue
             forQuestion="equipment_access"
             order={1}
@@ -39,7 +39,7 @@ const AccessToEquipment = () => {
           <ButtonOnboarding
             text="Gym Access"
             undertext="You can use full gym machines"
-            imageSrc={activity_level.full}
+            emoji="🏋️"
             onClickContinue
             forQuestion="equipment_access"
             order={2}

@@ -7,16 +7,18 @@ interface UndertextCardProps {
   title?: string;
   titleColor?: string;
   text: string;
+  backgroundColor?: string;
 }
 
 const UndertextCard: React.FC<UndertextCardProps> = ({
   emoji,
   title,
-  titleColor,
+  titleColor = "#000000",
   text,
+  backgroundColor = "#ACFFB8",
 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <Text style={styles.emoji}>{emoji}</Text>
       <View style={{ flex: 1 }}>
         {title && (
@@ -36,32 +38,31 @@ const UndertextCard: React.FC<UndertextCardProps> = ({
 };
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.backgroundSecondary,
     padding: 15,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: 20,
     marginTop: 10,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 15,
     alignSelf: "center",
     width: 335,
-    borderWidth: 1,
-    borderColor: theme.border,
   },
   emoji: {
-    fontSize: 25,
+    fontSize: 30,
+    fontFamily: theme.medium,
+    marginTop: 2,
   },
   title: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.semibold,
+    fontSize: 13,
+    fontFamily: theme.medium,
     marginBottom: 4,
     color: theme.textColor,
   },
   text: {
-    fontFamily: theme.regular,
+    fontFamily: theme.light,
     textAlign: "left",
-    color: theme.textColorSecondary,
-    fontSize: theme.fontSize.sm,
+    color: theme.textColor,
+    fontSize: 12,
     lineHeight: 18,
   },
 });

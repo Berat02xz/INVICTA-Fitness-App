@@ -51,6 +51,8 @@ const DesiredTargetWeight = () => {
               undertext={`${plan.caloriesPerDay} kcal/day`}
               badgeText={plan.rate}
               order={index+1}
+              height={80}
+              textSize={16}
               onClick={() => {
                 setSelectedPlan(plan.type);
                 saveSelection("calories_target", plan.type);
@@ -61,14 +63,6 @@ const DesiredTargetWeight = () => {
                 }
                 saveSelection("caloric_intake", plan.caloriesPerDay);
                 goForward();
-              }}
-              style={{
-                borderColor:
-                  selectedPlan === plan.type ? theme.primary : "transparent",
-                backgroundColor:
-                  selectedPlan === plan.type
-                    ? theme.primary
-                    : theme.buttonsolid,
               }}
               forQuestion="calorie_plan"
               onClickContinue

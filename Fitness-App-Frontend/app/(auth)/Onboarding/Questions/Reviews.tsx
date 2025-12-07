@@ -1,12 +1,12 @@
-import React from "react";
-import { ScrollView, StyleSheet, View, Platform } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { ScrollView, StyleSheet, View, Platform, Animated, Text, Dimensions } from "react-native";
 import ReviewCard from "@/components/ui/Onboarding/ReviewCard";
 import SolidBackground from "@/components/ui/SolidBackground";
 import ButtonFit from "@/components/ui/ButtonFit";
 import { theme } from "@/constants/theme";
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
-import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
+import { ProgressChart } from "react-native-chart-kit";
 const reviews = [
   {
     name: "Matt Young",
@@ -43,28 +43,114 @@ const reviews = [
 
 export default function Reviews() {
   const { goForward } = useOnboarding();
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [displayedPercentage, setDisplayedPercentage] = useState(0);
+  const percentageAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // Animate progress and percentage to 100% over 10 seconds
+  useEffect(() => {
+    Animated.timing(percentageAnim, {
+      toValue: 100,
+      duration: 10000,
+      useNativeDriver: false,
+    }).start();
+
+    // Update displayed percentage
+    const id = percentageAnim.addListener(({ value }) => {
+      setDisplayedPercentage(Math.round(value));
+    });
+
+    return () => percentageAnim.removeListener(id);
+  }, []);
+
+  // Auto-change reviews every 3 seconds with fade transition
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Fade out
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        // Change review
+        setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
+        // Fade in
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [fadeAnim]);
 
   return (
     <>
       <SolidBackground />
       <View style={styles.outerContainer}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          {/* Header Text */}
           <FadeTranslate order={0}>
-            <QuestionOnboarding
-              question="This program adapts to you based on latest science"
-              undertext="and it has helped thousands"
-            />
+            <Text style={styles.headerText}>
+              Generating your personalized plan
+            </Text>
           </FadeTranslate>
 
-          {reviews.map((review, i) => (
-            <FadeTranslate order={i + 1} key={i}>
-              <ReviewCard {...review} />
-            </FadeTranslate>
-          ))}
-        </ScrollView>
+          {/* Circular Progress */}
+          <FadeTranslate order={1}>
+            <View style={styles.circleContainer}>
+              <View style={styles.progressChartWrapper}>
+                <ProgressChart
+                  data={{
+                    labels: [""],
+                    data: [[displayedPercentage / 100]] as any,
+                  }}
+                  width={280}
+                  height={280}
+                  radius={80}
+                  strokeWidth={8}
+                  chartConfig={{
+                    backgroundColor: theme.backgroundColor,
+                    backgroundGradientFrom: theme.backgroundColor,
+                    backgroundGradientTo: theme.backgroundColor,
+                    color: () => theme.primary,
+                    strokeWidth: 8,
+                    barPercentage: 0.5,
+                    propsForBackgroundLines: {
+                      stroke: "#E0E0E0",
+                      strokeWidth: 8,
+                    },
+                    decimalPlaces: 0,
+                  }}
+                  hideLegend
+                  style={styles.progressChart}
+                />
+              </View>
+              <Animated.Text style={styles.percentageText}>
+                {displayedPercentage}%
+              </Animated.Text>
+            </View>
+          </FadeTranslate>
+
+          {/* Subtext */}
+          <FadeTranslate order={2}>
+            <Text style={styles.subtextText}>trusted by thousands.</Text>
+          </FadeTranslate>
+
+          {/* Reviews Display */}
+          <FadeTranslate order={3}>
+            <View style={styles.reviewsContainer}>
+              <Animated.View style={[styles.reviewWrapper, { opacity: fadeAnim }]}>
+                <ReviewCard {...reviews[currentReviewIndex]} />
+              </Animated.View>
+            </View>
+          </FadeTranslate>
+        </View>
 
         <View style={styles.bottom}>
-          <FadeTranslate order={5} duration={1000}>
+          <FadeTranslate order={50} duration={1000} >
             <ButtonFit
               title="Continue"
               backgroundColor={theme.primary}
@@ -83,18 +169,55 @@ const styles = StyleSheet.create({
     position: "relative",
     justifyContent: "space-between",
   },
-  scrollContent: {
-    paddingVertical: 20,
+  content: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 30,
     paddingHorizontal: 20,
-    gap: 10, // spacing between cards
-    ...Platform.select({
-      web: {
-        width: 470,
-      },
-      default: { width: "100%" },
-    }),
     justifyContent: "flex-start",
-    alignSelf: "center",
+  },
+  headerText: {
+    fontSize: 25,
+    fontFamily: theme.semibold,
+    color: theme.primary,
+    textAlign: "center",
+    maxWidth: 300,
+  },
+  circleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 280,
+    width: 280,
+  },
+  progressChartWrapper: {
+    position: "absolute",
+  },
+  progressChart: {
+    marginHorizontal: 0,
+    borderRadius: 16,
+  },
+  percentageText: {
+    position: "absolute",
+    fontSize: 38,
+    fontFamily: theme.bold,
+    color: theme.textColor,
+  },
+  subtextText: {
+    fontSize: 20,
+    fontFamily: theme.semibold,
+    color: theme.primary,
+    marginBottom: 25,
+  },
+  reviewsContainer: {
+    width: "100%",
+    height: 220,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  reviewWrapper: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   bottom: {
     paddingHorizontal: 20,

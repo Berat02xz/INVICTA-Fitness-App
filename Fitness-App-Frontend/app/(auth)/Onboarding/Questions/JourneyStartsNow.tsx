@@ -87,6 +87,7 @@ export default function JourneyStartsNow() {
                     emoji="💪"
                     title="Muscle Progress"
                     text="In 3 months, expect noticeable gains in strength and tone."
+                    backgroundColor="#E8F5E9"
                   />
                 </FadeTranslate>
                 <FadeTranslate order={3}>
@@ -94,6 +95,7 @@ export default function JourneyStartsNow() {
                     emoji="🔥"
                     title={`${caloriesTarget || "Calorie Target"}`}
                     text={`${displayedCalories} calories per day to stay on track`}
+                    backgroundColor="#FFF3E0"
                   />
                 </FadeTranslate>
                 <FadeTranslate order={4}>
@@ -101,6 +103,7 @@ export default function JourneyStartsNow() {
                     emoji="📅"
                     title="Target Date"
                     text={`You'll crush your goal by ${animatedDateString}`}
+                    backgroundColor="#E3F2FD"
                   />
                 </FadeTranslate>
                 <FadeTranslate order={5}>
@@ -108,6 +111,7 @@ export default function JourneyStartsNow() {
                     emoji="🍽️"
                     title="Workout & Diet"
                     text="Initial Daily Caloric Intake based on your goals"
+                    backgroundColor="#FCE4EC"
                   />
                 </FadeTranslate>
               </View>
@@ -145,38 +149,44 @@ const styles = StyleSheet.create({
     zIndex: 1,
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 70,
+    paddingHorizontal: 24,
   },
   main: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    width: "100%",
   },
   middle: {
     alignItems: "center",
+    width: "100%",
   },
   cardsContainer: {
-    marginTop: 15,
-    marginBottom: 10,
+    marginTop: 30,
+    marginBottom: 20,
+    gap: 15,
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 50,
+    width: "100%",
   },
   sloganBold: {
-    fontSize: 23,
+    fontSize: 28,
     fontFamily: theme.bold,
-    width: 300,
     textAlign: "center",
+    color: theme.textColor,
+    marginBottom: 10,
   },
   sloganRegular: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: theme.light,
-    color: "#D9D9D9",
+    color: theme.textColorSecondary,
     textAlign: "center",
-    marginTop: 10,
+    marginTop: 20,
+    lineHeight: 24,
   },
   whiteText: {
-    color: "white",
+    color: theme.textColor,
   },
 });

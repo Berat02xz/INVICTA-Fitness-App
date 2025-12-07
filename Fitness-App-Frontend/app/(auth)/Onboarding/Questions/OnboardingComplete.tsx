@@ -119,36 +119,36 @@ const OnboardingComplete = () => {
       <SolidBackground style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.content}>
-          <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <View>
             <FadeTranslate order={1}>
               <QuestionOnboarding question="Almost done!" />
             </FadeTranslate>
           </View>
 
-          <View style={{ marginTop: 10, flexGrow: 1, alignItems: "center" }}>
+          <View style={{ marginTop: 30, flexGrow: 1, alignItems: "center", width: "100%" }}>
             <View
               style={{
                 flexDirection: "column",
-                gap: 12,
+                gap: 0,
                 justifyContent: "flex-start",
                 flexGrow: 1,
+                width: "100%",
               }}
             >
               <FadeTranslate order={2}>
-              <Text style={styles.infoText}>What should we call you?</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="default"
-                placeholder="Name"
-                autoComplete="name"
-                placeholderTextColor={theme.buttonBorder}
-                value={Name}
-                onChangeText={setName}
-              />
+                <Text style={styles.infoText}>What should we call you?</Text>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="default"
+                  placeholder="Name"
+                  autoComplete="name"
+                  placeholderTextColor={theme.buttonBorder}
+                  value={Name}
+                  onChangeText={setName}
+                />
               </FadeTranslate>
               <FadeTranslate order={3}>
-              <Text style={styles.infoText}>Your Email</Text>
-              <View style={{ flexDirection: "row", gap: 10 }}>
+                <Text style={styles.infoText}>Your Email</Text>
                 <TextInput
                   style={styles.input}
                   keyboardType="email-address"
@@ -158,11 +158,9 @@ const OnboardingComplete = () => {
                   value={Email}
                   onChangeText={setEmail}
                 />
-              </View>
               </FadeTranslate>
               <FadeTranslate order={4}>
-              <Text style={styles.infoText}>Enter A Password</Text>
-              <View style={{ flexDirection: "row", gap: 10 }}>
+                <Text style={styles.infoText}>Enter A Password</Text>
                 <TextInput
                   style={styles.input}
                   keyboardType="default"
@@ -173,7 +171,6 @@ const OnboardingComplete = () => {
                   value={Password}
                   onChangeText={setPassword}
                 />
-              </View>
               </FadeTranslate>
             </View>
           </View>
@@ -200,36 +197,42 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   content: {
     flex: 1,
-    paddingTop: 25,
-    paddingHorizontal: 25,
-    paddingBottom: 25,
+    paddingTop: 40,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    width: "100%",
+    maxWidth: 370,
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
+    marginBottom: 40,
+    paddingHorizontal: 24,
+    width: "100%",
   },
   infoText: {
-    fontSize: 16,
-    fontFamily: theme.medium,
+    fontSize: 14,
+    fontFamily: theme.semibold,
     color: theme.textColor,
     textAlign: "left",
-    marginTop: 20,
+    marginTop: 18,
+    marginBottom: 2,
   },
   input: {
     fontSize: 16,
-    padding: 3,
-    width: 330,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.buttonBorder,
+    padding: 12,
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 12,
     textAlign: "left",
     color: theme.textColor,
     fontFamily: theme.regular,
-    marginTop: 5,
+    marginTop: 8,
+    backgroundColor: theme.backgroundColor,
   },
 });
 

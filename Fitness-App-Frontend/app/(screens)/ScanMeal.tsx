@@ -544,6 +544,7 @@ const styles = StyleSheet.create({
     marginTop: `-${FOCUS_AREA.HEIGHT_PERCENT / 2}%`,
     marginLeft: `-${FOCUS_AREA.WIDTH_PERCENT / 2}%`,
     zIndex: 2,
+    transform: [{ translateY: -100 }], // Shift up more to center on screen
   } as ViewStyle,
   corner: { 
     width: FOCUS_AREA.CORNER_SIZE,

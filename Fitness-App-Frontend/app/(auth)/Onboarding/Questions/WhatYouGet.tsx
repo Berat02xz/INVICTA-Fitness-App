@@ -12,32 +12,32 @@ const features = [
   {
     emoji: "🏋️‍♂️",
     title: "Dynamic Workouts",
-    titleColor: "white",
     text: "Access over 1500+ dynamic workouts tailored to your fitness level and goals.",
+    backgroundColor: "#E8F5E9",
   },
   {
     emoji: "📸",
     title: "Meal Scanning with AI",
-    titleColor: "white",
     text: "Scan your meals to track nutrition effortlessly with AI-powered analysis.",
+    backgroundColor: "#FFF3E0",
   },  
   {
     emoji: "💪",
     title: "Muscle Statistics",
-    titleColor: "white",
-    text: "Track which muscles you’ve worked out each day for balanced training.",
+    text: "Track which muscles you've worked out each day for balanced training.",
+    backgroundColor: "#E3F2FD",
   },  
   {
     emoji: "🤖",
     title: "AI Coach",
-    titleColor: "white",
     text: "Chat with your personal AI coach who knows your calories, workouts, and answers fitness-related questions.",
+    backgroundColor: "#FCE4EC",
   },
   {
     emoji: "🌟",
     title: "And More...",
-    titleColor: "white",
     text: "Explore additional features to enhance your fitness journey.",
+    backgroundColor: "#F3E5F5",
   },
 ];
 
@@ -82,15 +82,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   scrollContent: {
-    paddingVertical: 20,
+    paddingVertical: 30,
     paddingHorizontal: 20,
-    gap: 10, // Spacing between cards
+    gap: 14,
     ...Platform.select({
       web: {
-        width: 470, // Fixed width for web
+        width: 470,
       },
       default: {
-        width: "100%", // Full width for mobile
+        width: "100%",
       },
     }),
     justifyContent: "flex-start",

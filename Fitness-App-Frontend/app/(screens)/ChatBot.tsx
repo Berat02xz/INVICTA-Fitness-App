@@ -65,22 +65,8 @@ const GREETING_MESSAGES = [
 
 const THINKING_MESSAGES = [
   "Thinking...",
-  "Analyzing...",
-  "Exercising a bit...",
-  "Flexing my AI muscles...",
-  "Brewing some knowledge...",
-  "Almost there...",
-  "Remember stay hydrated 💧",
-  "🤔",
-  "Damn, you're really making me think!",
-  "holdup...",
-  "...",
-  "This is taking longer than expected...",
-  "so like whats up?",
-  "hmmm...",
-  ":( ",
-  "Just try later again honestly",
-  "🤷‍♂️",
+  "Reasoning...",
+  "Analyzing your data...",
 ];
 
 export default function Chatbot() {
@@ -92,6 +78,7 @@ export default function Chatbot() {
   const [showSavedMessages, setShowSavedMessages] = useState(false);
   const [savedMessages, setSavedMessages] = useState<SavedMessage[]>([]);
   const [selectedMessageToSave, setSelectedMessageToSave] = useState<Message | null>(null);
+  const [savedMessageIds, setSavedMessageIds] = useState<Set<string>>(new Set());
   const [greetingMessage] = useState(() => 
     GREETING_MESSAGES[Math.floor(Math.random() * GREETING_MESSAGES.length)]
   );
@@ -295,6 +282,9 @@ export default function Chatbot() {
         message.isUser ? 'user' : 'ai'
       );
       
+      // Add message ID to saved set
+      setSavedMessageIds(prev => new Set([...prev, message.id]));
+      
       await loadSavedMessages();
       setSelectedMessageToSave(null);
     } catch (error) {
@@ -487,7 +477,11 @@ export default function Chatbot() {
             onPress={() => saveMessage(item)}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="bookmark-outline" size={18} color={theme.primary} />
+            <MaterialCommunityIcons 
+              name={savedMessageIds.has(item.id) ? "bookmark" : "bookmark-outline"} 
+              size={18} 
+              color={savedMessageIds.has(item.id) ? theme.primary : theme.primary}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -694,6 +688,7 @@ export default function Chatbot() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    overflow: 'hidden',
   },
   header: {
     paddingTop: 60,
@@ -810,18 +805,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(220, 220, 220, 0.5)',
   },
   boldKeyword: {
-    color: theme.textColor,
-    fontFamily: theme.black,
+    color: "#FFFFFF",
+    fontFamily: theme.bold,
   },
   thinkingContainer: {
-    alignItems: "center",
+    alignItems: "flex-start",
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
   thinkingText: {
     fontSize: 14,
     fontFamily: theme.medium,
-    color: theme.primary,
+    color: "#747474ff",
     fontStyle: "italic",
   },
   suggestionsWrapper: {
@@ -904,7 +899,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     maxHeight: 80,
     marginBottom: 12,
-  },
+  } as any,
   inputActions: {
     flexDirection: "row",
     alignItems: "center",

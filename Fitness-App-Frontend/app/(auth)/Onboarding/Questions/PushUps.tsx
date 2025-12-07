@@ -18,12 +18,12 @@ const PushUps = () => {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={{ zIndex: 1 }}>
-            <QuestionOnboarding question="How many push-ups can you do in one go?" />
+            <QuestionOnboarding question="How many pushups can you do?" />
             <View style={{ marginTop: 30 }} />
             <ButtonOnboarding
               text="Beginner"
               undertext="Less than 10 push-ups"
-              imageSrc={iconmap.pushUp1}
+              emoji="🥀"
               forQuestion="PushUps"
               onClickContinue
               order={0}
@@ -31,7 +31,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Intermediate"
               undertext="10 to 20 push-ups"
-              imageSrc={iconmap.pushUp2}
+              emoji="😤"
               forQuestion="PushUps"
               onClickContinue
               order={1}
@@ -39,7 +39,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Advanced"
               undertext="21 to 30 push-ups"
-              imageSrc={iconmap.pushUp3}
+              emoji="🚀"
               forQuestion="PushUps"
               onClickContinue
               order={2}
@@ -47,7 +47,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Gym Enthusiast"
               undertext="More than 30 push-ups"
-              imageSrc={iconmap.Gym}
+              emoji="💪"
               forQuestion="PushUps"
               onClickContinue
               order={3}

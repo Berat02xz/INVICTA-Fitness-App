@@ -23,21 +23,21 @@ const FeelBetweenMeals = () => {
           <QuestionOnboarding question="How do you feel between meals?" />
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
-            text="I feel tired after I eat"
+            text="tired or sluggish"
             emoji="😴"
             forQuestion="FeelBetweenMeals"
             onClickContinue
             order={0}
           />
           <ButtonOnboarding
-            text="I feel irritable"
+            text="irritable"
             emoji="😡"
             forQuestion="FeelBetweenMeals"
             onClickContinue
             order={1}
           />
           <ButtonOnboarding
-            text="I feel light and energetic"
+            text="light and energetic"
             emoji="💪"
             forQuestion="FeelBetweenMeals"
             onClickContinue
