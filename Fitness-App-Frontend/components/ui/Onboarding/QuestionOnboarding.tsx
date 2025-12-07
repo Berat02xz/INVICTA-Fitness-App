@@ -13,7 +13,7 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
   // Font size logic
   let questionFontSize = 27;
   if (Platform.OS === "web") {
-    questionFontSize = screenWidth > 768 ? 30 : 22; // Desktop web vs mobile web
+    questionFontSize = screenWidth > 768 ? 30 : 30; // Desktop web vs mobile web
   }
 
   return (
@@ -28,10 +28,11 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 
 const styles = StyleSheet.create({
   questionText: {
-    fontFamily: theme.bold,
+    fontFamily: theme.semibold,
     color: theme.textColor,
     textAlign: "center",
-    maxWidth: "100%",
+    alignSelf: "center",
+    maxWidth: "90%",
   },
   undertext: {
     marginTop: 10,

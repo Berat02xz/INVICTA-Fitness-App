@@ -9,24 +9,24 @@ export const theme = {
   semibold: 'Bold',
 
   // Colors - Light Theme
-  primary: '#FF5722', // Orange primary color
+  primary: '#FB0903', // Orange primary color
   primaryLight: '#bb9d99ff',
   primaryDark: '#E64A19',
   
-  backgroundColor: '#ebebeb', // White background
-  backgroundSecondary: '#F5F5F5', // Light gray for cards
+  backgroundColor: '#FFFFFF', // White background
+  backgroundSecondary: '#E6E6E6', // Light gray for cards
   backgroundTertiary: '#FAFAFA', // Slightly darker for contrast
   
   textColor: '#333232ff', // Dark text for readability
   textColorSecondary: '#757575', // Gray for secondary text
-  textColorTertiary: '#BDBDBD', // Light gray for disabled/subtle text
+  textColorTertiary: '#ffffffff', // Light gray for disabled/subtle text
   
   border: '#E0E0E0', // Light border
   borderDark: '#BDBDBD', // Darker border for emphasis
   
   // Backward compatibility
   buttonBorder: '#E0E0E0',
-  buttonsolid: '#F5F5F5',
+  buttonsolid: '#E6E6E6',
   deepPrimary: '#E64A19',
   
   success: '#4CAF50',

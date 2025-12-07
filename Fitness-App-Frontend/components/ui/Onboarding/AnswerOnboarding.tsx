@@ -27,10 +27,11 @@ interface ButtonOnboardingProps {
   animated?: boolean;
   order?: number;
   badgeText?: string;
+  isMultipleAnswers?: boolean;
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
-  height = 80,
+  height = 65,
   imageSrc,
   iconName,
   text,
@@ -44,12 +45,14 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   animated = true,
   order = 0,
   badgeText,
+  isMultipleAnswers = false,
 }) => {
   const [selected, setSelected] = useState(false);
   const { goForward, goBack, saveSelection } = useOnboarding();
 
   const fadeAnim = useRef(new Animated.Value(animated ? 0 : 1)).current;
   const translateY = useRef(new Animated.Value(animated ? 20 : 0)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (animated) {
@@ -72,15 +75,42 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
 
   const handleClick = () => {
     setSelected(!selected);
+    
+    // Rotate plus icon if multiple answers
+    if (isMultipleAnswers) {
+      Animated.timing(rotateAnim, {
+        toValue: selected ? 0 : 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+    
     if (onClick) onClick();
 
-    if (onClickContinue) {
+    if (onClickContinue && !isMultipleAnswers) {
+      setTimeout(() => {
+        saveSelection(forQuestion, text);
+        goForward();
+      }, 150);
+    } else if (onClickContinue && isMultipleAnswers && selected) {
+      // For multiple answers, continue only after selecting
       setTimeout(() => {
         saveSelection(forQuestion, text);
         goForward();
       }, 150);
     }
   };
+
+  // Check if there are any icons/images on the sides
+  const hasLeftIcon = isMultipleAnswers; // Plus icon on left
+  const hasRightIcon = emoji || BodyImage || badgeText || iconName || (imageSrc && !BodyImage);
+  const hasNoSideContent = !hasLeftIcon && !hasRightIcon;
+  
+  // Rotate animation interpolation
+  const rotateInterpolate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '45deg'],
+  });
 
   return (
     <Animated.View
@@ -93,7 +123,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
         style={[
           styles.button,
           {
-            height,
+            height: height,
             borderColor: selected ? theme.primary : "transparent",
             backgroundColor: selected ? theme.primary : theme.buttonsolid,
           },
@@ -101,21 +131,19 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
         ]}
         onPress={handleClick}
       >
-        {iconName && (
-          <MaterialCommunityIcons 
-            name={iconName as any} 
-            size={32} 
-            color={theme.primary} 
-            style={styles.iconStyle}
-          />
-        )}
-        {imageSrc && !iconName && (
-          <Image source={imageSrc} style={styles.icon} resizeMode="contain" />
+        {isMultipleAnswers && (
+          <Animated.View style={[styles.plusIcon, { transform: [{ rotate: rotateInterpolate }] }]}>
+            <MaterialCommunityIcons 
+              name="plus" 
+              size={24} 
+              color={selected ? "#FFFFFF" : theme.primary}
+            />
+          </Animated.View>
         )}
 
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>{text}</Text>
-          {undertext && <Text style={styles.undertext}>{undertext}</Text>}
+        <View style={[styles.textContainer, hasNoSideContent && styles.textContainerCentered]}>
+          <Text style={[selected ? styles.selectedtext : styles.text, hasNoSideContent && styles.textCentered]}>{text}</Text>
+          {undertext && <Text style={[selected ? styles.selectedUndertext : styles.undertext, hasNoSideContent && styles.undertextCentered]}>{undertext}</Text>}
         </View>
 
         {emoji && !BodyImage && <Text style={styles.emoji}>{emoji}</Text>}
@@ -123,6 +151,17 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{badgeText}</Text>
           </View>
+        )}
+        {iconName && (
+          <MaterialCommunityIcons 
+            name={iconName as any} 
+            size={32} 
+            color={selected ? "#FFFFFF" : theme.primary} 
+            style={styles.iconStyle}
+          />
+        )}
+        {imageSrc && !iconName && (
+          <Image source={imageSrc} style={styles.icon} resizeMode="contain" />
         )}
         {BodyImage && (
           <Image
@@ -144,7 +183,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 10,
     borderWidth: 1,
-    borderRadius: 15,
+    borderRadius: 20,
     backgroundColor: theme.buttonsolid,
     gap: 14,
     width: 330,
@@ -167,25 +206,52 @@ const styles = StyleSheet.create({
   icon: {
     width: 30,
     height: 31,
-    marginLeft: 10,
+    marginRight: 10,
   },
   iconStyle: {
+    marginRight: 10,
+  },
+  plusIcon: {
     marginLeft: 10,
   },
   textContainer: {
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 10,
+    alignItems: "flex-start",
+  },
+  textContainerCentered: {
+    alignItems: "center",
   },
   text: {
     color: theme.textColor,
-    fontSize: 16,
-    fontFamily: theme.semibold,
+    fontSize: 18,
+    fontFamily: theme.medium,
+    textAlign: "left",
+  },
+  textCentered: {
+    textAlign: "center",
+  },
+  selectedtext: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontFamily: theme.medium,
+    textAlign: "left",
   },
   undertext: {
     fontSize: 12,
     color: theme.textColorSecondary,
     marginTop: 3,
+    textAlign: "left",
+  },
+  selectedUndertext: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    marginTop: 3,
+    textAlign: "left",
+  },
+  undertextCentered: {
+    textAlign: "center",
   },
   bodyIcon: {
     width: "50%",

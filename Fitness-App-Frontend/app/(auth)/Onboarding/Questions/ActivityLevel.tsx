@@ -22,28 +22,24 @@ const ActivityLevel = () => {
 
           <ButtonOnboarding
             text="Sedentary"
-            undertext="Little to no movement"
             iconName={activity_level.no_level}
             forQuestion="activity_level"
             order={0}
           />
           <ButtonOnboarding
             text="Slightly Active"
-            undertext="Light daily movement or walks"
             iconName={activity_level.slightly_active}
             forQuestion="activity_level"
             order={1}
           />
           <ButtonOnboarding
             text="Moderately Active"
-            undertext="physical job"
             iconName={activity_level.moderately_active}
             forQuestion="activity_level"
             order={2}
           />
           <ButtonOnboarding
             text="Very Active"
-            undertext="I exercise daily"
             iconName={activity_level.very_active}
             forQuestion="activity_level"
             order={3}

@@ -63,6 +63,11 @@ export default function HappyBodyImageResults() {
               title="Continue"
               backgroundColor={theme.primary}
               onPress={goForward}
+              hasMoreInfo={true}
+              moreInfoColor={isLowWater ? "#FFCDD2" : "#C8E6C9"}
+              moreInfoTitle={isLowWater ? "Hydration Needed" : "Great Job!"}
+              moreInfoIcon="water"
+              moreInfoText={isLowWater ? "Please increase your water intake for better health." : "Keep up the good hydration habits!"}
             />
           </View>
           </FadeTranslate>

@@ -9,25 +9,15 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    Regular: require("../assets/fonts/futura-now-headline/FuturaNowHeadline.ttf"),
-    Bold: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineBold.ttf"),
-    Light: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineLight.ttf"),
-    Black: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineBlack.ttf"),
-    Medium: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineMedium.ttf"),
-    ExtraBold: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineExtraBold.ttf"),
-    ExtraLight: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineExtraLight.ttf"),
-    Thin: require("../assets/fonts/futura-now-headline/FuturaNowHeadlineThin.ttf"),
-  
-    // MONTSERRAT FONTS
-    // "Regular": require("../assets/fonts/Montserrat/Montserrat-Medium.ttf"),
-    // "Bold": require("../assets/fonts/Montserrat/Montserrat-Bold.ttf"),
-    // "Light": require("../assets/fonts/Montserrat/Montserrat-Light.ttf"),
-    // "Black": require("../assets/fonts/Montserrat/Montserrat-Black.ttf"),
-    // "Medium": require("../assets/fonts/Montserrat/Montserrat-Medium.ttf"),
-    // "ExtraBold": require("../assets/fonts/Montserrat/Montserrat-ExtraBold.ttf"),
-    // "ExtraLight": require("../assets/fonts/Montserrat/Montserrat-ExtraLight.ttf"),
-    // "Thin": require("../assets/fonts/Montserrat/Montserrat-Thin.ttf"),
-  
+    Regular: require("../assets/fonts/Albert_Sans/static/AlbertSans-Regular.ttf"),
+    Bold: require("../assets/fonts/Albert_Sans/static/AlbertSans-Bold.ttf"),
+    Light: require("../assets/fonts/Albert_Sans/static/AlbertSans-Light.ttf"),
+    Medium: require("../assets/fonts/Albert_Sans/static/AlbertSans-Medium.ttf"),
+    SemiBold: require("../assets/fonts/Albert_Sans/static/AlbertSans-SemiBold.ttf"), 
+    ExtraBold: require("../assets/fonts/Albert_Sans/static/AlbertSans-ExtraBold.ttf"),
+    ExtraLight: require("../assets/fonts/Albert_Sans/static/AlbertSans-ExtraLight.ttf"),
+    Thin: require("../assets/fonts/Albert_Sans/static/AlbertSans-Thin.ttf"),
+    Black: require("../assets/fonts/Albert_Sans/static/AlbertSans-Black.ttf"),
   });
 
   useEffect(() => {

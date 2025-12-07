@@ -38,38 +38,37 @@ const FitnessGoalScreen = () => {
 
           <ButtonOnboarding
             text="Lose Fat"
-            emoji="🏃‍♂️"
             forQuestion="fitness_goal"
             order={3}
             onClickContinue={false}
             onClick={() => handleSelectGoal("Lose Fat", "fitness_goal")}
+            isMultipleAnswers={true}
           />
           <ButtonOnboarding
             text="Gain Muscle"
-            emoji="🏋️‍♀️"
             forQuestion="fitness_goal"
             order={4}
             onClickContinue={false}
             onClick={() => handleSelectGoal("Gain Muscle", "fitness_goal")}
+            isMultipleAnswers={true}
           />
           <ButtonOnboarding
             text="Build Strength"
-            emoji="💪"
             forQuestion="fitness_goal"
             order={5}
             onClickContinue={false}
             onClick={() => handleSelectGoal("Build Strength", "fitness_goal")}
+            isMultipleAnswers={true}
           />
           <ButtonOnboarding
             text="Holistic Wellbeing"
-            //Green plant emoji
-            emoji="🤸🏽"
             forQuestion="fitness_goal"
             order={6}
             onClickContinue={false}
             onClick={() =>
               handleSelectGoal("Holistic Wellbeing", "fitness_goal")
             }
+            isMultipleAnswers={true}
           />
         </View>
         {selectedGoal && (

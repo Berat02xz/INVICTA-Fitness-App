@@ -36,21 +36,16 @@ const TopBar = () => {
     <View style={styles.wrapper}>
       <FadeTranslate order={1}>
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={goBack} style={styles.iconButton}>
-          <Ionicons name="arrow-back-outline" size={25} color={theme.textColor} />
-        </TouchableOpacity>
+        <View style={styles.backIconCircle}>
+          <TouchableOpacity onPress={goBack} style={styles.iconButton}>
+            <Ionicons name="arrow-back-outline" size={25} color={theme.textColor} />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.progressContainer}>
           <Animated.View
             style={[styles.progressFill, { width: animatedWidth }]}
           />
-        </View>
-
-        <View style={styles.numberScreen}>
-          <Text style={styles.skip}>
-            {currentScreen}
-            <Text style={styles.totalDimmed}> / {totalScreensCount}</Text>
-          </Text>
         </View>
       </View>
       </FadeTranslate>
@@ -61,7 +56,7 @@ const TopBar = () => {
 const styles = StyleSheet.create({
   wrapper: {
     paddingTop: Platform.OS === "web" ? 20 : 60,
-    paddingHorizontal: 15,
+    paddingHorizontal: Platform.OS === "web" ? 25 : 15,
   },
   topRow: {
     flexDirection: "row",
@@ -73,32 +68,26 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 10,
   },
-  numberScreen: {
-    padding: 10,
-    fontFamily: theme.bold,
-  },
-  skip: {
-    color: theme.textColor,
-    fontSize: 14,
-    fontFamily: theme.semibold,
-    fontWeight: "500",
-  },
-  totalDimmed: {
-    color: theme.textColorSecondary,
-    fontSize: 14,
-    fontFamily: theme.light,
+  backIconCircle: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: "#f3f3f3ff",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   progressContainer: {
     flex: 1,
-    height: 10,
+    height: 5,
     backgroundColor: theme.backgroundSecondary,
-    borderRadius: 3,
+    borderRadius: 30,
     overflow: "hidden",
   },
   progressFill: {
-    height: 10,
+    height: 5,
     backgroundColor: theme.primary,
+    borderRadius: 30,
   },
 });
 

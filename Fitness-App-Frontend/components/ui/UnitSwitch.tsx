@@ -1,6 +1,6 @@
 import { theme } from "@/constants/theme";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Animated } from "react-native";
 
 
 interface UnitSwitchProps {
@@ -18,11 +18,10 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
 }) => {
   return (
     <View style={styles.toggleContainer}>
+      <View style={[styles.sliderPill, unit === "imperial" && styles.sliderRight]} />
+      
       <TouchableOpacity
-        style={[
-          styles.toggleOption,
-          unit === "metric" && styles.selectedOption,
-        ]}
+        style={styles.toggleOption}
         onPress={() => {
           onSelect("metric");
         }}
@@ -35,19 +34,13 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[
-          styles.toggleOption,
-          unit === "imperial" && styles.selectedOption,
-        ]}
+        style={styles.toggleOption}
         onPress={() => {
           onSelect("imperial");
         }}
       >
         <Text
-          style={[
-            styles.optionText,
-            unit === "imperial" && styles.selectedText,
-          ]}
+          style={[styles.optionText, unit === "imperial" && styles.selectedText]}
         >
           {imperialLabel}
         </Text>
@@ -59,31 +52,42 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
 const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: "row",
-    backgroundColor: "#292929ff",
-    borderRadius: 15,
+    backgroundColor: theme.backgroundSecondary,
+    borderRadius: 20,
     alignSelf: "center",
-    height: 32,
-    width: 120,
+    height: 33,
+    width: 103,
+    position: "relative",
+    overflow: "hidden",
+  },
+  sliderPill: {
+    position: "absolute",
+    width: 50,
+    height: 28,
+    backgroundColor: theme.primary,
+    borderRadius: 20,
+    top: 3,
+    left: 3,
+    zIndex: 0,
+  },
+  sliderRight: {
+    left: 50,
   },
   toggleOption: {
     flex: 1,
-    paddingVertical: 5,
-    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-  },
-  selectedOption: {
-    backgroundColor: theme.primary,
+    zIndex: 1,
   },
   optionText: {
-    fontSize: 14,
-    color: "white",
-    fontFamily: theme.bold,
+    fontSize: 15,
+    color: "rgba(0, 0, 0, 0.5)",
+    fontFamily: theme.regular,
   },
   selectedText: {
-    fontSize: 14,
-    color: "white",
-    fontFamily: theme.bold,
+    fontSize: 15,
+    color: "#FFFFFF",
+    fontFamily: theme.regular,
   },
 });
 
