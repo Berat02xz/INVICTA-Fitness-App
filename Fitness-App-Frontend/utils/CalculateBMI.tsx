@@ -13,15 +13,9 @@ export function calculateBMI(
 
     bmi = weightValue / (heightInM * heightInM);
   } else {
-    const [feetStr, inchStr = "0"] = height.trim().split("'");
-    const feet = parseInt(feetStr || "0", 10);
-    let inches = parseInt(inchStr || "0", 10);
-
-    // Cap inches at 11
-    inches = Math.min(inches, 11);
-
-    const totalInches = feet * 12 + inches;
-    if (totalInches === 0) return 0;
+    // Imperial: height is in total inches (e.g., 70 for 5'10")
+    const totalInches = parseFloat(height);
+    if (isNaN(totalInches) || totalInches <= 0) return 0;
 
     bmi = (weightValue / (totalInches * totalInches)) * 703;
   }

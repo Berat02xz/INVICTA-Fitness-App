@@ -13,8 +13,8 @@ import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
 
 const ACTIVE_CIRCLE = theme.primary;
-const ICON_COLOR_SELECTED = theme.primary;
-const ICON_COLOR_UNSELECTED = theme.textColorSecondary;
+const ICON_COLOR_SELECTED = '#FFFFFF';
+const ICON_COLOR_UNSELECTED = '#999999';
 
 export const icon = {
   Workout: (props: any) => (
@@ -97,7 +97,7 @@ export function TabBar({
             styles.circle,
             {
               top: (dimensions.height - circleSize) / 2,
-              backgroundColor: theme.primaryLight,
+              backgroundColor: theme.primary,
               width: circleSize,
               height: circleSize,
               borderRadius: circleSize / 2,
@@ -165,25 +165,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
     paddingVertical: 14,
     borderRadius: 100,
-    shadowColor: "#00000031",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
     width: 333,
     height: 75,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
   },
   glassBorder: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 100,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1.5,
+    borderTopColor: 'rgba(255, 255, 255, 1)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.9)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.4)',
+    borderRightColor: 'rgba(255, 255, 255, 0.4)',
     zIndex: 2,
   },
   circle: {
