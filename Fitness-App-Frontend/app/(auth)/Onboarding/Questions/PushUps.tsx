@@ -8,13 +8,6 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
-const iconmap = {
-  pushUp1: require("@/assets/icons/onboarding/pushUp1.png"),
-  pushUp2: require("@/assets/icons/onboarding/pushUp2.png"),
-  pushUp3: require("@/assets/icons/onboarding/pushUp3.png"),
-  Gym: require("@/assets/icons/onboarding/Gym.png"),
-};
-
 const PushUps = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { goForward } = useOnboarding();
@@ -29,7 +22,7 @@ const PushUps = () => {
       return {
         title: "Dont Worry!",
         message: "Every rep counts. We'll build your strength step by step. You've got this!",
-        color: "#FFACAC",
+        color: "#D0FFAC",
       };
     }
     // Intermediate
@@ -37,7 +30,7 @@ const PushUps = () => {
       return {
         title: "Good Foundation!",
         message: "Let's push your limits and reach new milestones.",
-        color: "#FFACAC",
+        color: "#D0FFAC",
       };
     }
     // Advanced
@@ -71,7 +64,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Beginner"
               undertext="Less than 10 push-ups"
-              emoji="🥀"
+              rightImage={require("@/assets/icons/onboarding/deadflower.png")}
               forQuestion="PushUps"
               onClickContinue={false}
               order={0}
@@ -80,7 +73,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Intermediate"
               undertext="10 to 20 push-ups"
-              emoji="😤"
+              rightImage={require("@/assets/icons/onboarding/facesteam.png")}
               forQuestion="PushUps"
               onClickContinue={false}
               order={1}
@@ -89,7 +82,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Advanced"
               undertext="21 to 30 push-ups"
-              emoji="🚀"
+              rightImage={require("@/assets/icons/onboarding/rocket.png")}
               forQuestion="PushUps"
               onClickContinue={false}
               order={2}
@@ -98,7 +91,7 @@ const PushUps = () => {
             <ButtonOnboarding
               text="Gym Enthusiast"
               undertext="More than 30 push-ups"
-              emoji="💪"
+              rightImage={require("@/assets/icons/onboarding/strong.png")}
               forQuestion="PushUps"
               onClickContinue={false}
               order={3}
@@ -109,7 +102,7 @@ const PushUps = () => {
       </View>
 
       {selectedOption && infoMessage && (
-        <FadeTranslate order={5} duration={1000}>
+        <FadeTranslate order={1} duration={1000}>
           <View style={styles.bottom}>
             <ButtonFit
               title="Continue"
@@ -118,7 +111,7 @@ const PushUps = () => {
               hasMoreInfo={true}
               moreInfoColor={infoMessage.color}
               moreInfoTitle={infoMessage.title}
-              moreInfoIcon="dumbbell"
+              moreInfoImageSource={require("@/assets/icons/onboarding/workout.png")}
               moreInfoText={infoMessage.message}
             />
           </View>

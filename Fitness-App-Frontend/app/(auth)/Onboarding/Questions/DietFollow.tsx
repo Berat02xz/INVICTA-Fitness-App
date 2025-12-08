@@ -5,12 +5,6 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
-const iconmap = {
-  weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
-  weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
-  build_strength: require("@/assets/icons/onboarding/build_strength.png"),
-  improve_health: require("@/assets/icons/onboarding/improve_health.png"),
-};
 
 const DietFollow = () => {
   const { goForward } = useOnboarding();
@@ -24,7 +18,7 @@ const DietFollow = () => {
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
             text="Vegetarian"
-            emoji="🥗"
+            rightImage={require("@/assets/icons/onboarding/salad.png")}
             undertext="Excludes meat"
             forQuestion="DietFollow"
             onClickContinue
@@ -32,7 +26,7 @@ const DietFollow = () => {
           />
           <ButtonOnboarding
             text="Vegan"
-            emoji="🥕"
+            rightImage={require("@/assets/icons/onboarding/carrot.png")}
             undertext="Excludes all animal products"
             forQuestion="DietFollow"
             onClickContinue
@@ -40,7 +34,7 @@ const DietFollow = () => {
           />
           <ButtonOnboarding
             text="Keto"
-            emoji="🥑"
+            rightImage={require("@/assets/icons/onboarding/avocado.png")}
             undertext="Low-carb, high fat"
             forQuestion="DietFollow"
             onClickContinue
@@ -48,7 +42,7 @@ const DietFollow = () => {
           />
           <ButtonOnboarding
             text="No"
-            emoji="❌"
+            rightImage={require("@/assets/icons/onboarding/never.png")}
             forQuestion="DietFollow"
             onClickContinue
             order={3}

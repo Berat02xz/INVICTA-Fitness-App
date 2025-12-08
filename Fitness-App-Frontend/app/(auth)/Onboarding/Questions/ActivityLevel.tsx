@@ -22,25 +22,25 @@ const ActivityLevel = () => {
 
           <ButtonOnboarding
             text="Sedentary"
-            emoji="🪑"
+            rightImage={require("@/assets/icons/onboarding/chair.png")}
             forQuestion="activity_level"
             order={0}
           />
           <ButtonOnboarding
             text="Slightly Active"
-            emoji="🚶‍♂️"
+            rightImage={require("@/assets/icons/onboarding/walking.png")}
             forQuestion="activity_level"
             order={1}
           />
           <ButtonOnboarding
             text="Moderately Active"
-            emoji="🏃‍♂️"
+            rightImage={require("@/assets/icons/onboarding/running.png")}
             forQuestion="activity_level"
             order={2}
           />
           <ButtonOnboarding
             text="Very Active"
-            emoji="🏋️‍♂️"
+            rightImage={require("@/assets/icons/onboarding/weightlifter.png")}
             forQuestion="activity_level"
             order={3}
           />

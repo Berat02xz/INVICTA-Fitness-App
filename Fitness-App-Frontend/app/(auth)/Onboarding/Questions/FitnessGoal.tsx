@@ -7,12 +7,7 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
-const iconmap = {
-  weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
-  weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
-  build_strength: require("@/assets/icons/onboarding/build_strength.png"),
-  improve_health: require("@/assets/icons/onboarding/improve_health.png"),
-};
+
 
 const FitnessGoalScreen = () => {
   const { goForward, saveSelection } = useOnboarding();

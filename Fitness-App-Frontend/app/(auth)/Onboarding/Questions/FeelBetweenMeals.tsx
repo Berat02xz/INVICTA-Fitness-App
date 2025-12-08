@@ -5,13 +5,6 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 
-const iconmap = {
-  weight_loss: require("@/assets/icons/onboarding/weight_loss.png"),
-  weight_gain: require("@/assets/icons/onboarding/weight_gain.png"),
-  build_strength: require("@/assets/icons/onboarding/build_strength.png"),
-  improve_health: require("@/assets/icons/onboarding/improve_health.png"),
-};
-
 const FeelBetweenMeals = () => {
   const { goForward } = useOnboarding();
 
@@ -24,21 +17,21 @@ const FeelBetweenMeals = () => {
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
             text="tired or sluggish"
-            emoji="😴"
+            rightImage={require("@/assets/icons/onboarding/sleepy.png")}
             forQuestion="FeelBetweenMeals"
             onClickContinue
             order={0}
           />
           <ButtonOnboarding
             text="irritable"
-            emoji="😡"
+            rightImage={require("@/assets/icons/onboarding/angry.png")}
             forQuestion="FeelBetweenMeals"
             onClickContinue
             order={1}
           />
           <ButtonOnboarding
             text="light and energetic"
-            emoji="💪"
+            rightImage={require("@/assets/icons/onboarding/strong.png")}
             forQuestion="FeelBetweenMeals"
             onClickContinue
             order={2}

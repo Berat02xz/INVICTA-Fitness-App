@@ -21,8 +21,8 @@ const LastTimeHappyBodyImage = () => {
     // Low confidence options
     if (selectedOption === "1-2 years ago" || selectedOption === ">3 years ago" || selectedOption === "Never") {
       return {
-        title: "You've Got This!",
-        message: "Every step counts. We're here to help you feel confident again!",
+        title: "60% of users feel the same way!",
+        message: "You are not alone, many share your feelings!",
         color: "#FFACAC",
       };
     }
@@ -49,7 +49,7 @@ const LastTimeHappyBodyImage = () => {
 
           <ButtonOnboarding
             text="<1 year ago"
-            emoji="🤔"
+            rightImage={require("@/assets/icons/onboarding/thinking.png")}
             onClickContinue={false}
             forQuestion="last_time_happy_body_image"
             order={0}
@@ -57,7 +57,7 @@ const LastTimeHappyBodyImage = () => {
           />
           <ButtonOnboarding
             text="1-2 years ago"
-            emoji="😅"
+            rightImage={require("@/assets/icons/onboarding/grinning.png")}
             onClickContinue={false}
             forQuestion="last_time_happy_body_image"
             order={1}
@@ -65,7 +65,7 @@ const LastTimeHappyBodyImage = () => {
           />
           <ButtonOnboarding
             text=">3 years ago"
-            emoji="🙁"
+            rightImage={require("@/assets/icons/onboarding/sad.png")}
             onClickContinue={false}
             forQuestion="last_time_happy_body_image"
             order={2}
@@ -73,7 +73,7 @@ const LastTimeHappyBodyImage = () => {
           />
           <ButtonOnboarding
             text="Never"
-            emoji="✖️"
+            rightImage={require("@/assets/icons/onboarding/never.png")}
             onClickContinue={false}
             forQuestion="last_time_happy_body_image"
             order={3}
@@ -92,7 +92,7 @@ const LastTimeHappyBodyImage = () => {
               hasMoreInfo={true}
               moreInfoColor={infoMessage.color}
               moreInfoTitle={infoMessage.title}
-              moreInfoIcon="heart"
+              moreInfoImageSource={require("@/assets/icons/onboarding/hug.png")}
               moreInfoText={infoMessage.message}
             />
           </View>

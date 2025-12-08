@@ -3,15 +3,30 @@ import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import { useOnboarding } from "../NavigationService";
 ("use client");
 
-const bodyImage = {
-  Average: require("@/assets/icons/onboarding/Average2.png"),
-  Heavy: require("@/assets/icons/onboarding/Heavy.png"),
-  Skinny: require("@/assets/icons/onboarding/Skinny.png"),
+const bodyImages = {
+  male: {
+    Average: require("@/assets/icons/onboarding/Average2.png"),
+    Heavy: require("@/assets/icons/onboarding/Heavy.png"),
+    Skinny: require("@/assets/icons/onboarding/Skinny.png"),
+  },
+  female: {
+    Average: require("@/assets/icons/onboarding/F_Average.png"),
+    Heavy: require("@/assets/icons/onboarding/F_Heavy.png"),
+    Skinny: require("@/assets/icons/onboarding/F_Skinny.png"),
+  },
 };
 
 const HowDoYouLookRightNow = () => {
+  const { answers } = useOnboarding();
+  console.log("🔍 HowDoYouLookRightNow - All answers:", answers);
+  const gender = ((answers.gender as string) || "male").toLowerCase();
+  console.log("👤 Gender detected:", gender);
+  const images = bodyImages[gender as keyof typeof bodyImages] || bodyImages.male;
+  console.log("🖼️ Using images for gender:", gender, "|", images);
+
   return (
     <>
       <SolidBackground />
@@ -25,7 +40,7 @@ const HowDoYouLookRightNow = () => {
             text="Average"
             onClickContinue
             forQuestion="look_perception"
-            BodyImage={bodyImage.Average}
+            BodyImage={images.Average}
             order={0}
           />
           <ButtonOnboarding
@@ -33,7 +48,7 @@ const HowDoYouLookRightNow = () => {
             text="Heavy"
             onClickContinue
             forQuestion="look_perception"
-            BodyImage={bodyImage.Heavy}
+            BodyImage={images.Heavy}
             order={1}
           />
           <ButtonOnboarding
@@ -41,7 +56,7 @@ const HowDoYouLookRightNow = () => {
             text="Slim"
             onClickContinue
             forQuestion="look_perception"
-            BodyImage={bodyImage.Skinny}
+            BodyImage={images.Skinny}
             order={2}
           />
         </View>

@@ -16,6 +16,10 @@ const UnderdevelopedImage = require("@/assets/icons/onboarding/underdeveloped.pn
 const NormalImage = require("@/assets/icons/onboarding/normal.png");
 const OverweightImage = require("@/assets/icons/onboarding/overweight.png");
 const ObeseImage = require("@/assets/icons/onboarding/obese.png");
+const F_UnderdevelopedImage = require("@/assets/icons/onboarding/F_underdeveloped.png");
+const F_NormalImage = require("@/assets/icons/onboarding/F_normal.png");
+const F_OverweightImage = require("@/assets/icons/onboarding/F_overweight.png");
+const F_ObeseImage = require("@/assets/icons/onboarding/F_overweight.png");
 
 function BMIResults() {
   const onboardingContext = useOnboarding();
@@ -24,6 +28,7 @@ function BMIResults() {
   const weight = answers.weight?.toString() || "85";
   const height = answers.height?.toString() || "185";
   const unit = answers.unit || "metric";
+  const gender = ((answers.gender as string) || "male").toLowerCase();
 
   // Extract values from answers array (assuming multiple selections)
   const fitnessLevel = Array.isArray(answers.fitnessLevel)
@@ -65,10 +70,18 @@ function BMIResults() {
   };
 
   const getBodyImage = (bmi: number) => {
-    if (bmi < 19) return UnderdevelopedImage;
-    if (bmi >= 19 && bmi < 25) return NormalImage;
-    if (bmi >= 25 && bmi < 30) return OverweightImage;
-    return ObeseImage;
+    const isFemale = gender === "female";
+    
+    if (bmi < 19) {
+      return isFemale ? F_UnderdevelopedImage : UnderdevelopedImage;
+    }
+    if (bmi >= 19 && bmi < 25) {
+      return isFemale ? F_NormalImage : NormalImage;
+    }
+    if (bmi >= 25 && bmi < 30) {
+      return isFemale ? F_OverweightImage : OverweightImage;
+    }
+    return isFemale ? F_ObeseImage : ObeseImage;
   };
 
   const getDynamicCardContent = (bmi: number) => {
@@ -77,7 +90,7 @@ function BMIResults() {
         emoji: "❤️",
         title: "You are underweight!",
         text: "Your tailored plan will help you achieve your goal BMI in no time!",
-        color: "#A8E6CF",
+        color: "#ACFFB8",
       };
     }
     if (bmi >= 19 && bmi < 25) {
@@ -85,7 +98,7 @@ function BMIResults() {
         emoji: "❤️",
         title: "You are healthy!",
         text: "Your tailored plan will help you maintain your goal BMI in no time!",
-        color: "#A8E6CF",
+        color: "#ACFFB8",
       };
     }
     if (bmi >= 25 && bmi < 30) {

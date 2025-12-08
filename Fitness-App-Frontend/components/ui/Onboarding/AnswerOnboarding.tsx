@@ -15,7 +15,7 @@ import { useOnboarding } from "../../../app/(auth)/Onboarding/NavigationService"
 interface ButtonOnboardingProps {
   height?: number;
   imageSrc?: any;
-  iconName?: string;
+  rightImage?: any;
   text: string;
   undertext?: string;
   BodyImage?: any;
@@ -34,7 +34,7 @@ interface ButtonOnboardingProps {
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
   height = 65,
   imageSrc,
-  iconName,
+  rightImage,
   text,
   undertext,
   BodyImage,
@@ -105,7 +105,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
 
   // Check if there are any icons/images on the sides
   const hasLeftIcon = isMultipleAnswers; // Plus icon on left
-  const hasRightIcon = emoji || BodyImage || badgeText || iconName || (imageSrc && !BodyImage);
+  const hasRightIcon = emoji || BodyImage || badgeText || rightImage || (imageSrc && !BodyImage);
   
   // Rotate animation interpolation
   const rotateInterpolate = rotateAnim.interpolate({
@@ -153,15 +153,14 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
             <Text style={styles.badgeText}>{badgeText}</Text>
           </View>
         )}
-        {iconName && (
-          <MaterialCommunityIcons 
-            name={iconName as any} 
-            size={32} 
-            color={selected ? "#FFFFFF" : theme.primary} 
-            style={styles.iconStyle}
+        {rightImage && (
+          <Image 
+            source={rightImage} 
+            style={styles.rightImage}
+            resizeMode="contain"
           />
         )}
-        {imageSrc && !iconName && (
+        {imageSrc && !rightImage && (
           <Image source={imageSrc} style={styles.icon} resizeMode="contain" />
         )}
         {BodyImage && (
@@ -209,7 +208,9 @@ const styles = StyleSheet.create({
     height: 31,
     marginRight: 10,
   },
-  iconStyle: {
+  rightImage: {
+    width: 35,
+    height: 36,
     marginRight: 10,
   },
   plusIcon: {

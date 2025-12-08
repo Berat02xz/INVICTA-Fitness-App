@@ -1,7 +1,7 @@
 import { theme } from '@/constants/theme';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useRef, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Animated } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Animated, Image, ImageSourcePropType } from 'react-native';
 
 interface ButtonFitProps {
     title: string;
@@ -16,6 +16,7 @@ interface ButtonFitProps {
     moreInfoTitle?: string;
     moreInfoIcon?: string;
     moreInfoText?: string;
+    moreInfoImageSource?: ImageSourcePropType;
 }
 
 const ButtonFit: React.FC<ButtonFitProps> = ({ 
@@ -29,7 +30,8 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
     moreInfoColor = "#C8E6C9",
     moreInfoTitle = "Info",
     moreInfoIcon = "information",
-    moreInfoText = "Additional information"
+    moreInfoText = "Additional information",
+    moreInfoImageSource
 }) => {
     const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -60,12 +62,19 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
             {hasMoreInfo && (
                 <View style={[styles.infoCardWrapper, { backgroundColor: moreInfoColor }]}>
                     <View style={styles.infoContent}>
-                        <MaterialCommunityIcons 
-                            name={moreInfoIcon as any} 
-                            size={32} 
-                            color="#333" 
-                            style={styles.infoIcon}
-                        />
+                        {moreInfoImageSource ? (
+                            <Image 
+                                source={moreInfoImageSource} 
+                                style={styles.infoImage}
+                            />
+                        ) : (
+                            <MaterialCommunityIcons 
+                                name={moreInfoIcon as any} 
+                                size={32} 
+                                color="#333" 
+                                style={styles.infoIcon}
+                            />
+                        )}
                         <View style={styles.infoTextContainer}>
                             <Text style={styles.infoTitle}>{moreInfoTitle}</Text>
                             <Text style={styles.infoUndertext}>{moreInfoText}</Text>
@@ -143,19 +152,25 @@ const styles = StyleSheet.create({
         marginRight: 12,
         marginTop: 2,
     },
+    infoImage: {
+        width: 30,
+        height: 30,
+        marginRight: 12,
+        marginTop: 2,
+    },
     infoTextContainer: {
         flex: 1,
     },
     infoTitle: {
         color: '#333',
         fontSize: 16,
-        fontFamily: theme.bold,
+        fontFamily: theme.medium,
         marginBottom: 4,
     },
     infoUndertext: {
-        color: '#666',
+        color: '#000000ff',
         fontSize: 13,
-        fontFamily: theme.regular,
+        fontFamily: theme.light,
         lineHeight: 18,
     },
     button: {

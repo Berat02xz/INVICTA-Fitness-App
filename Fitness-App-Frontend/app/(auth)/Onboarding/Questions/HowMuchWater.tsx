@@ -20,7 +20,7 @@ const HowMuchWater = () => {
     // Low water intake
     if (selectedOption === "2 glasses") {
       return {
-        title: "You drink less than 25% of users!",
+        title: "You drink less than 60% of users!",
         message: "Staying hydrated is key to your fitness journey. Let's work together to improve this habit.",
         color: "#ACE6FF",
       };
@@ -63,7 +63,7 @@ const HowMuchWater = () => {
           <View style={{ marginTop: 30 }} />
           <ButtonOnboarding
             text="2 glasses"
-            emoji="💧"
+            rightImage={require("@/assets/icons/onboarding/droplet.png")}
             undertext="0,5l / 17oz"
             forQuestion="Water"
             onClickContinue={false}
@@ -72,7 +72,7 @@ const HowMuchWater = () => {
           />
           <ButtonOnboarding
             text="2-6 glasses"
-            emoji="💦"
+            rightImage={require("@/assets/icons/onboarding/drops.png")}
             undertext="0,5-1.5l / 17-50 oz"
             forQuestion="Water"
             onClickContinue={false}
@@ -81,7 +81,7 @@ const HowMuchWater = () => {
           />
           <ButtonOnboarding
             text="7-10 glasses"
-            emoji="🌊"
+            rightImage={require("@/assets/icons/onboarding/ocean.png")}
             undertext="1,5-2,5l / 50-85 oz"
             forQuestion="Water"
             onClickContinue={false}
@@ -90,7 +90,7 @@ const HowMuchWater = () => {
           />
           <ButtonOnboarding
             text="More than 10 glasses"
-            emoji="🐋"
+            rightImage={require("@/assets/icons/onboarding/whale.png")}
             undertext="1,5-2.5l / 50-85 oz"
             forQuestion="Water"
             onClickContinue={false}
@@ -110,7 +110,7 @@ const HowMuchWater = () => {
               hasMoreInfo={true}
               moreInfoColor={infoMessage.color}
               moreInfoTitle={infoMessage.title}
-              moreInfoIcon="water"
+              moreInfoImageSource={require("@/assets/icons/onboarding/water.png")}
               moreInfoText={infoMessage.message}
             />
           </View>

@@ -1,43 +1,50 @@
 import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { useOnboarding } from "../NavigationService";
 
 
-const AccessToEquipment = () => {
+const Gender = () => {
+      const { goForward, saveSelection } = useOnboarding();
+    
+      type FitnessGoal = string;
+      const [selectedGoal, setSelectedGoal] = useState<FitnessGoal | null>(null);
+    
+      const handleSelectGoal = (goal: FitnessGoal, question: string): void => {
+        setSelectedGoal(goal);
+        saveSelection(question, goal);
+      };
+      
   return (
     <>
       <SolidBackground />
       <View style={styles.outerContainer}>
         <View style={styles.container}>
-          <QuestionOnboarding question="Choose your workout access" />
+          <QuestionOnboarding question="Select your gender" />
 
           <View style={{ marginTop: 30 }} />
 
           <ButtonOnboarding
-            text="Home Workouts"
-            rightImage={require("@/assets/icons/onboarding/home.png")}
-            undertext="No Equipment"
+            text="Male"
+            rightImage={require("@/assets/icons/onboarding/male.png")}
             onClickContinue
-            forQuestion="equipment_access"
+            forQuestion="gender"
             order={0}
+            onClick={() =>
+              handleSelectGoal("male", "gender")
+            }
           />
           <ButtonOnboarding
-            text="Basic Equipment"
-            undertext="Dumbbells or similar gear at home"
-            rightImage={require("@/assets/icons/onboarding/dumbbell.png")}
+            text="Female"
+            rightImage={require("@/assets/icons/onboarding/female.png")}
             onClickContinue
-            forQuestion="equipment_access"
+            forQuestion="gender"
             order={1}
-          />
-          <ButtonOnboarding
-            text="Gym Access"
-            undertext="You can use full gym machines"
-            rightImage={require("@/assets/icons/onboarding/weightlifter.png")}
-            onClickContinue
-            forQuestion="equipment_access"
-            order={2}
+            onClick={() =>
+              handleSelectGoal("female", "gender")
+            }
           />
         </View>
       </View>
@@ -65,4 +72,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AccessToEquipment;
+export default Gender;

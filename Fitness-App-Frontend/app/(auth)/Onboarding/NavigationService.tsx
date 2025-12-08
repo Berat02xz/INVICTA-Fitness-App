@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 
 export const OnboardingScreens = [
   "FitnessGoal",
+  "Gender",
   "HowDoYouLookRightNow",
   // "HowDoYouWantToLookLike",
   "ActivityLevel",
@@ -80,10 +81,15 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   const progressNow = () => (index + 1) / totalScreens();
 
   const saveSelection = (question: string, answer: string | number) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [question]: answer,
-    }));
+    setAnswers((prev) => {
+      const updated = {
+        ...prev,
+        [question]: answer,
+      };
+      console.log("📝 Saved Answer:", { question, answer });
+      console.log("📊 All Answers:", updated);
+      return updated;
+    });
   };
 
   return (
