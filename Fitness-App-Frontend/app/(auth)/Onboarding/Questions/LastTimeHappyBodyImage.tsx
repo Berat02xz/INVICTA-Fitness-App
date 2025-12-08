@@ -2,6 +2,7 @@ import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -22,7 +23,7 @@ const LastTimeHappyBodyImage = () => {
       return {
         title: "You've Got This!",
         message: "Every step counts. We're here to help you feel confident again!",
-        color: "#FFE0B2",
+        color: "#FFACAC",
       };
     }
     // High confidence option
@@ -30,7 +31,7 @@ const LastTimeHappyBodyImage = () => {
       return {
         title: "Great Foundation!",
         message: "Keep building on this momentum. We'll help you reach your goals!",
-        color: "#C8E6C9",
+        color: "#D0FFAC",
       };
     }
     return null;
@@ -82,18 +83,20 @@ const LastTimeHappyBodyImage = () => {
       </View>
 
       {selectedOption && infoMessage && (
-        <View style={styles.bottom}>
-          <ButtonFit
-            title="Continue"
-            backgroundColor={theme.primary}
-            onPress={goForward}
-            hasMoreInfo={true}
-            moreInfoColor={infoMessage.color}
-            moreInfoTitle={infoMessage.title}
-            moreInfoIcon="heart"
-            moreInfoText={infoMessage.message}
-          />
-        </View>
+        <FadeTranslate order={1} duration={1000}>
+          <View style={styles.bottom}>
+            <ButtonFit
+              title="Continue"
+              backgroundColor={theme.primary}
+              onPress={goForward}
+              hasMoreInfo={true}
+              moreInfoColor={infoMessage.color}
+              moreInfoTitle={infoMessage.title}
+              moreInfoIcon="heart"
+              moreInfoText={infoMessage.message}
+            />
+          </View>
+        </FadeTranslate>
       )}
     </>
   );
