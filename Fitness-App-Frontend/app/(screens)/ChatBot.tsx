@@ -431,6 +431,19 @@ export default function Chatbot() {
             break;
           case 'table':
             const rows = tagContent.match(/<tr[^>]*>([\s\S]*?)<\/tr>/g) || [];
+            
+            // Calculate max width needed for each column
+            const columnWidths: number[] = [];
+            rows.forEach((row) => {
+              const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g) || [];
+              cells.forEach((cell, idx) => {
+                const cellContent = cell.replace(/<\/?t[dh][^>]*>/g, '').trim();
+                const contentLength = cellContent.length;
+                const estimatedWidth = Math.min(Math.max(contentLength * 6, 100), 250); // min 100, max 250
+                columnWidths[idx] = Math.max(columnWidths[idx] || 0, estimatedWidth);
+              });
+            });
+            
             result.push(
               <ScrollView
                 key={keyIndex++}
@@ -454,6 +467,7 @@ export default function Chatbot() {
                                 styles.tableCell,
                                 isHeaderRow && styles.tableHeaderCell,
                                 cellIdx === 0 && styles.tableFirstColumn,
+                                { width: columnWidths[cellIdx] },
                               ]}
                             >
                               <Text
@@ -461,8 +475,6 @@ export default function Chatbot() {
                                   styles.tableCellText,
                                   isHeaderRow && styles.tableHeaderText,
                                 ]}
-                                numberOfLines={3}
-                                ellipsizeMode="tail"
                               >
                                 {parseElements(cellContent, depth)}
                               </Text>
@@ -1172,12 +1184,12 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(100, 100, 100, 0.2)",
   },
   tableCell: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     borderRightWidth: 1,
     borderRightColor: "rgba(100, 100, 100, 0.2)",
     justifyContent: "center",
-    width: 100,
+    alignItems: 'flex-start',
   },
   tableHeaderCell: {
     backgroundColor: "rgba(200, 200, 200, 0.3)",
@@ -1185,7 +1197,6 @@ const styles = StyleSheet.create({
   },
   tableFirstColumn: {
     backgroundColor: "rgba(200, 200, 200, 0.15)",
-    width: 80,
   },
   tableCellText: {
     fontSize: 11,
