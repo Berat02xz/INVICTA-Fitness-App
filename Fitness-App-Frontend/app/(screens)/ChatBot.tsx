@@ -1,4 +1,3 @@
-import BlurredBackground from "@/components/ui/BlurredBackground";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -15,6 +14,7 @@ import {
   Animated,
   BackHandler,
   Modal,
+  Share,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
@@ -79,6 +79,8 @@ export default function Chatbot() {
   const [savedMessages, setSavedMessages] = useState<SavedMessage[]>([]);
   const [selectedMessageToSave, setSelectedMessageToSave] = useState<Message | null>(null);
   const [savedMessageIds, setSavedMessageIds] = useState<Set<string>>(new Set());
+  const [userName, setUserName] = useState("there");
+  const [isReasoning, setIsReasoning] = useState(false);
   const [greetingMessage] = useState(() => 
     GREETING_MESSAGES[Math.floor(Math.random() * GREETING_MESSAGES.length)]
   );
@@ -86,13 +88,27 @@ export default function Chatbot() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const emojiAnimX = useRef(new Animated.Value(0)).current;
   const emojiAnimY = useRef(new Animated.Value(0)).current;
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
-  // Handle back button/gesture to go to workout tab
+  // Load user name and handle back button/gesture
   useFocusEffect(
     React.useCallback(() => {
+      const loadUserName = async () => {
+        try {
+          const user = await GetUserDetails();
+          if (user?.name) {
+            setUserName(user.name.split(' ')[0]);
+          }
+        } catch (error) {
+          console.error("Error loading user name:", error);
+        }
+      };
+
+      loadUserName();
+
       const onBackPress = () => {
         router.replace("/(tabs)/workout");
-        return true; // Prevent default back behavior
+        return true;
       };
 
       const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -124,6 +140,15 @@ export default function Chatbot() {
       return;
     }
 
+    // Start the spinning animation for the sync icon
+    Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: false,
+      })
+    ).start();
+
     const interval = setInterval(() => {
       setThinkingMessageIndex(prev => (prev + 1) % THINKING_MESSAGES.length);
       
@@ -141,7 +166,10 @@ export default function Chatbot() {
       ]).start();
     }, 2700);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      spinAnim.setValue(0);
+    };
   }, [isLoading]);
 
   // Animate greeting emoji with random movements
@@ -443,6 +471,17 @@ export default function Chatbot() {
     }
   };
 
+  const handleShareMessage = async (message: Message) => {
+    try {
+      await Share.share({
+        message: message.text,
+        title: "Share AI Response",
+      });
+    } catch (error) {
+      console.error("Error sharing message:", error);
+    }
+  };
+
   const renderMessage = ({ item }: { item: Message }) => {
     // Check if message contains a table
     const hasTable = item.text.includes("STARTTABLE");
@@ -454,62 +493,74 @@ export default function Chatbot() {
           item.isUser ? styles.userMessage : styles.aiMessage,
         ]}
       >
-        <View
-          style={[
-            styles.messageBubble,
-            item.isUser 
-              ? styles.userBubble
-              : styles.aiBubble,
-            !item.isUser && hasTable && styles.messageBubbleWide,
-          ]}
-        >
-          {item.isUser ? (
-            <Text style={styles.userMessageText}>
-              {highlightKeywords(item.text)}
-            </Text>
-          ) : (
-            parseTableResponse(item.text)
+        <View style={styles.messageBubbleWrapper}>
+          <View
+            style={[
+              styles.messageBubble,
+              item.isUser 
+                ? styles.userBubble
+                : styles.aiBubble,
+              !item.isUser && hasTable && styles.messageBubbleWide,
+            ]}
+          >
+            {item.isUser ? (
+              <Text style={styles.userMessageText}>
+                {highlightKeywords(item.text)}
+              </Text>
+            ) : (
+              parseTableResponse(item.text)
+            )}
+          </View>
+          {!item.isUser && (
+            <View style={styles.messageActionsContainer}>
+              <TouchableOpacity
+                style={styles.messageActionPill}
+                onPress={() => handleShareMessage(item)}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons 
+                  name="share-variant" 
+                  size={14} 
+                  color={theme.textColor}
+                />
+                <Text style={styles.messageActionText}>Share</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.messageActionPill}
+                onPress={() => saveMessage(item)}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons 
+                  name={savedMessageIds.has(item.id) ? "bookmark" : "bookmark-outline"} 
+                  size={14} 
+                  color={theme.textColor}
+                />
+                <Text style={styles.messageActionText}>{savedMessageIds.has(item.id) ? "Saved" : "Save"}</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
-        {!item.isUser && (
-          <TouchableOpacity
-            style={styles.saveMessageButton}
-            onPress={() => saveMessage(item)}
-            activeOpacity={0.7}
-          >
-            <MaterialCommunityIcons 
-              name={savedMessageIds.has(item.id) ? "bookmark" : "bookmark-outline"} 
-              size={18} 
-              color={savedMessageIds.has(item.id) ? theme.primary : theme.primary}
-            />
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
 
-  // Conditional wrapper component
-  
   return (
     <>
-      <BlurredBackground>
+      <View style={styles.container}>
         <KeyboardAvoidingView
-          style={styles.container}
+          style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={0}
         >
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity 
-              style={styles.iconButton} 
               onPress={() => router.replace("/(tabs)/workout")}
               activeOpacity={0.7}
             >
               <MaterialCommunityIcons name="arrow-left" size={24} color={theme.textColor} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Your Coach</Text>
             <TouchableOpacity 
-              style={styles.iconButton} 
               onPress={toggleSavedMessages}
               activeOpacity={0.7}
             >
@@ -532,29 +583,30 @@ export default function Chatbot() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Animated.Text 
-                  style={[
-                    styles.greetingEmoji,
-                    {
-                      transform: [
-                        { translateX: emojiAnimX },
-                        { translateY: emojiAnimY },
-                      ],
-                    },
-                  ]}
-                >
-                  {greetingMessage.emoji}
-                </Animated.Text>
-                <Text style={styles.greetingText}>{greetingMessage.text}</Text>
+                <Text style={styles.greetingText}>Hey {userName}, What are you looking for today?</Text>
               </View>
             }
             ListFooterComponent={
               isLoading ? (
-                <Animated.View style={[styles.thinkingContainer, { opacity: fadeAnim }]}>
-                  <Text style={styles.thinkingText}>
-                    {THINKING_MESSAGES[thinkingMessageIndex]}
-                  </Text>
-                </Animated.View>
+                <View style={styles.loadingContainer}>
+                  <View style={styles.resultsLabelContainer}>
+                    <Animated.View
+                      style={{
+                        transform: [
+                          {
+                            rotate: spinAnim.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: ['0deg', '360deg'],
+                            }),
+                          },
+                        ],
+                      }}
+                    >
+                      <MaterialCommunityIcons name="sync" size={16} color={theme.textColor} />
+                    </Animated.View>
+                    <Text style={styles.resultsText}>Results</Text>
+                  </View>
+                </View>
               ) : null
             }
           />
@@ -567,29 +619,21 @@ export default function Chatbot() {
               contentContainerStyle={styles.suggestionsScroll}
             >
               {SUGGESTED_QUESTIONS.map((question, index) => (
-                <BlurView
+                <TouchableOpacity
                   key={index}
-                  intensity={20}
-                  tint="light"
+                  onPress={() => sendMessage(question)}
+                  activeOpacity={0.7}
                   style={styles.suggestionChip}
                 >
-                  <TouchableOpacity
-                    onPress={() => sendMessage(question)}
-                    activeOpacity={0.7}
-                    style={styles.suggestionChipInner}
-                  >
-                    <Text style={styles.suggestionText}>{question}</Text>
-                  </TouchableOpacity>
-                </BlurView>
+                  <Text style={styles.suggestionText}>{question}</Text>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
 
           {/* Input */}
           <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
-            <BlurView
-              intensity={30}
-              tint="light"
+            <View
               style={styles.inputWrapper}
             >
               <TextInput
@@ -603,12 +647,18 @@ export default function Chatbot() {
               />
               <View style={styles.inputActions}>
                 <TouchableOpacity
-                  style={styles.uploadButton}
-                  onPress={() => router.push("/(screens)/ScanMeal")}
+                  style={[styles.uploadButton, isReasoning && styles.uploadButtonReasoning]}
+                  onPress={() => setIsReasoning(!isReasoning)}
                   activeOpacity={0.7}
                 >
-                  <MaterialCommunityIcons name="camera" size={18} color="#FFFFFF" />
-                  <Text style={styles.uploadButtonText}>Scan Meal</Text>
+                  <MaterialCommunityIcons 
+                    name={isReasoning ? "lightbulb" : "magnify"} 
+                    size={16} 
+                    color={isReasoning ? theme.primary : theme.textColor}
+                  />
+                  <Text style={[styles.uploadButtonText, isReasoning && styles.uploadButtonTextReasoning]}>
+                    {isReasoning ? "Reasoning" : "Standard"}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
@@ -623,7 +673,7 @@ export default function Chatbot() {
                   />
                 </TouchableOpacity>
               </View>
-            </BlurView>
+            </View>
           </View>
         </KeyboardAvoidingView>
 
@@ -680,7 +730,7 @@ export default function Chatbot() {
             </View>
           </BlurView>
         </Modal>
-      </BlurredBackground>
+      </View>
     </>
   );
 }
@@ -689,6 +739,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
+    backgroundColor: '#F7F7F7',
   },
   header: {
     paddingTop: 60,
@@ -725,25 +776,32 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: 24,
-    fontFamily: theme.bold,
+    fontFamily: theme.medium,
     color: theme.textColor,
     textAlign: "center",
+    marginBottom: 20,
   },
   messagesList: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
+    paddingTop: 8,
     flexGrow: 1,
   },
   messageContainer: {
     flexDirection: "row",
     marginBottom: 16,
-    alignItems: "flex-end",
+    alignItems: "flex-start",
   },
   userMessage: {
     justifyContent: "flex-end",
+    alignSelf: "flex-end",
   },
   aiMessage: {
     justifyContent: "flex-start",
+    alignSelf: "flex-start",
+  },
+  messageBubbleWrapper: {
+    flex: 1,
   },
   aiAvatar: {
     width: 32,
@@ -766,23 +824,30 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   messageBubble: {
-    maxWidth: "75%",
+    width: "100%",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
   },
   messageBubbleWide: {
-    maxWidth: "95%",
+    width: "100%",
   },
   userBubble: {
-    backgroundColor: theme.primary,
+    backgroundColor: '#F2F2F2',
     borderBottomRightRadius: 4,
   },
   aiBubble: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: 'transparent',
     borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
+    borderWidth: 0,
+    borderColor: 'transparent',
+    shadowColor: 'transparent',
+    elevation: 0,
   },
   messageText: {
     fontSize: 15,
@@ -793,7 +858,7 @@ const styles = StyleSheet.create({
   userMessageText: {
     fontSize: 15,
     fontFamily: theme.regular,
-    color: "#FFFFFF",
+    color: theme.textColor,
     lineHeight: 20,
   },
   saveMessageButton: {
@@ -804,9 +869,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(220, 220, 220, 0.5)',
   },
+  messageActionsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+    alignItems: 'center',
+    paddingLeft: 16,
+  },
+  messageActionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(240, 240, 240, 0.9)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 220, 220, 0.5)',
+  },
+  messageActionText: {
+    fontSize: 12,
+    fontFamily: theme.medium,
+    color: theme.textColor,
+  },
+  resultsLabel: {
+    fontSize: 14,
+    fontFamily: theme.medium,
+    color: theme.textColor,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   boldKeyword: {
-    color: "#FFFFFF",
+    fontSize: 14,
     fontFamily: theme.bold,
+    color: theme.textColor,
   },
   thinkingContainer: {
     alignItems: "flex-start",
@@ -820,31 +918,45 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   suggestionsWrapper: {
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingTop: 0,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F7F7F7',
   },
   suggestionsScroll: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  suggestionChip: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
-  },
-  suggestionChipInner: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 0,
+    gap: 8,
     paddingVertical: 8,
   },
+  suggestionChip: {
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  suggestionChipInner: {
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
   suggestionText: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: theme.medium,
     color: theme.textColor,
   },
   loadingContainer: {
+    alignItems: "flex-start",
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+  },
+  resultsLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  resultsText: {
+    fontSize: 14,
+    fontFamily: theme.medium,
+    color: theme.textColor,
   },
   typingIndicator: {
     flexDirection: "row",
@@ -876,7 +988,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 15,
-    backgroundColor: 'transparent',
+    backgroundColor: '#F7F7F7',
     borderTopWidth: 1,
     borderTopColor: 'rgba(224, 224, 224, 0.3)',
   },
@@ -888,17 +1000,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(220, 220, 220, 0.5)',
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 14,
+    paddingBottom: 14,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
   },
   input: {
     fontSize: 15,
     fontFamily: theme.regular,
     color: theme.textColor,
-    minHeight: 40,
-    maxHeight: 80,
-    marginBottom: 12,
+    minHeight: 32,
+    maxHeight: 70,
+    marginBottom: 10,
   } as any,
   inputActions: {
     flexDirection: "row",
@@ -911,14 +1024,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: theme.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  uploadButtonReasoning: {
+    backgroundColor: '#FFFFFF',
+    borderColor: theme.primary,
+    borderWidth: 1.5,
   },
   uploadButtonText: {
     fontSize: 14,
     fontFamily: theme.medium,
-    color: "#FFFFFF",
+    color: theme.textColor,
+  },
+  uploadButtonTextReasoning: {
+    color: theme.primary,
   },
   sendButton: {
     width: 40,
@@ -937,41 +1060,42 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "rgba(100, 100, 100, 0.3)",
     borderRadius: 8,
     overflow: "hidden",
+    backgroundColor: 'rgba(250, 250, 250, 0.5)',
   },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: "rgba(100, 100, 100, 0.2)",
   },
   tableCell: {
     paddingHorizontal: 8,
     paddingVertical: 8,
     borderRightWidth: 1,
-    borderRightColor: "rgba(255, 255, 255, 0.1)",
+    borderRightColor: "rgba(100, 100, 100, 0.2)",
     justifyContent: "center",
     width: 100,
   },
   tableHeaderCell: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(200, 200, 200, 0.3)",
     paddingVertical: 10,
   },
   tableFirstColumn: {
-    backgroundColor: "rgba(239, 68, 68, 0.15)",
+    backgroundColor: "rgba(200, 200, 200, 0.15)",
     width: 80,
   },
   tableCellText: {
     fontSize: 11,
     fontFamily: theme.regular,
-    color: "#fff",
+    color: theme.textColor,
     lineHeight: 14,
   },
   tableHeaderText: {
     fontFamily: theme.bold,
     fontSize: 12,
-    color: "#fff",
+    color: theme.textColor,
   },
   // Keep old styles for backwards compatibility
   tablePill: {
