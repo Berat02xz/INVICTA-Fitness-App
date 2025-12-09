@@ -15,6 +15,7 @@ import {
   BackHandler,
   Modal,
   Share,
+  Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
@@ -36,6 +37,19 @@ interface Message {
 
 const NUTRITION_KEYWORDS = ["meal", "nutrition", "food", "recipes", "eat", "diet", "calorie", "protein", "carbs", "fat", "hungry", "breakfast", "lunch", "dinner"];
 const FITNESS_KEYWORDS = ["fitness", "workout", "gym", "exercise", "training", "muscle", "cardio", "strength", "run", "lift", "weight"];
+
+const GREETING_SUGGESTIONS = [
+  { icon: "clock-fast", text: "15 min meals", color: "#4CAF50" },
+  { icon: "dumbbell", text: "Workout plan", color: "#FF6B35" },
+  { icon: "chef-hat", text: "Quick breakfast", color: "#2196F3" },
+  { icon: "fire", text: "Burn calories", color: "#FFC107" },
+];
+
+const GREETING_VARIANTS = [
+  () => `What can I help with?`,
+  () => `How can I assist you?`,
+  () => `What can I do for you?`,
+];
 
 const SUGGESTED_QUESTIONS = [
   "15 min recipes",
@@ -80,15 +94,16 @@ export default function Chatbot() {
   const [selectedMessageToSave, setSelectedMessageToSave] = useState<Message | null>(null);
   const [savedMessageIds, setSavedMessageIds] = useState<Set<string>>(new Set());
   const [userName, setUserName] = useState("there");
+  const [userPlan, setUserPlan] = useState("Free");
+  const [subscriptionPlan, setSubscriptionPlan] = useState("Free");
   const [isReasoning, setIsReasoning] = useState(false);
-  const [greetingMessage] = useState(() => 
-    GREETING_MESSAGES[Math.floor(Math.random() * GREETING_MESSAGES.length)]
-  );
+  const [greetingMessage, setGreetingMessage] = useState("What can I help with?");
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const emojiAnimX = useRef(new Animated.Value(0)).current;
   const emojiAnimY = useRef(new Animated.Value(0)).current;
   const spinAnim = useRef(new Animated.Value(0)).current;
+  const thinkingOpacity = useRef(new Animated.Value(0.4)).current;
 
   // Load user name and handle back button/gesture
   useFocusEffect(
@@ -97,7 +112,14 @@ export default function Chatbot() {
         try {
           const user = await GetUserDetails();
           if (user?.name) {
-            setUserName(user.name.split(' ')[0]);
+            const firstName = user.name.split(' ')[0];
+            setUserName(firstName);
+            // Set random greeting
+            const randomGreeting = GREETING_VARIANTS[Math.floor(Math.random() * GREETING_VARIANTS.length)];
+            setGreetingMessage(randomGreeting());
+          }
+          if (user?.role) {
+            setSubscriptionPlan(user.role);
           }
         } catch (error) {
           console.error("Error loading user name:", error);
@@ -137,6 +159,7 @@ export default function Chatbot() {
   useEffect(() => {
     if (!isLoading) {
       setThinkingMessageIndex(0);
+      thinkingOpacity.setValue(0.4);
       return;
     }
 
@@ -147,6 +170,22 @@ export default function Chatbot() {
         duration: 1000,
         useNativeDriver: false,
       })
+    ).start();
+
+    // Start the thinking text opacity animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(thinkingOpacity, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(thinkingOpacity, {
+          toValue: 0.4,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
     ).start();
 
     const interval = setInterval(() => {
@@ -169,6 +208,7 @@ export default function Chatbot() {
     return () => {
       clearInterval(interval);
       spinAnim.setValue(0);
+      thinkingOpacity.setValue(0.4);
     };
   }, [isLoading]);
 
@@ -514,28 +554,43 @@ export default function Chatbot() {
           {!item.isUser && (
             <View style={styles.messageActionsContainer}>
               <TouchableOpacity
-                style={styles.messageActionPill}
+                style={styles.messageActionIcon}
+                onPress={async () => {
+                  try {
+                    await Share.share({ message: item.text });
+                  } catch (error) {
+                    console.error('Copy failed:', error);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons 
+                  name="content-copy" 
+                  size={18} 
+                  color="#9CA3AF"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.messageActionIcon}
                 onPress={() => handleShareMessage(item)}
                 activeOpacity={0.7}
               >
                 <MaterialCommunityIcons 
-                  name="share-variant" 
-                  size={14} 
-                  color={theme.textColor}
+                  name="share-variant-outline" 
+                  size={18} 
+                  color="#9CA3AF"
                 />
-                <Text style={styles.messageActionText}>Share</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.messageActionPill}
+                style={styles.messageActionIcon}
                 onPress={() => saveMessage(item)}
                 activeOpacity={0.7}
               >
                 <MaterialCommunityIcons 
                   name={savedMessageIds.has(item.id) ? "bookmark" : "bookmark-outline"} 
-                  size={14} 
-                  color={theme.textColor}
+                  size={18} 
+                  color={savedMessageIds.has(item.id) ? "#6366F1" : "#9CA3AF"}
                 />
-                <Text style={styles.messageActionText}>{savedMessageIds.has(item.id) ? "Saved" : "Save"}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -555,21 +610,33 @@ export default function Chatbot() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity 
+              style={styles.headerButton}
               onPress={() => router.replace("/(tabs)/workout")}
               activeOpacity={0.7}
             >
-              <MaterialCommunityIcons name="arrow-left" size={24} color={theme.textColor} />
+              <MaterialCommunityIcons name="arrow-left" size={24} color="#6B7280" />
             </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={toggleSavedMessages}
-              activeOpacity={0.7}
-            >
-              <MaterialCommunityIcons 
-                name="bookmark" 
-                size={24} 
-                color={theme.textColor} 
-              />
-            </TouchableOpacity>
+            
+            {subscriptionPlan && (
+              <View style={styles.planPill}>
+                <MaterialCommunityIcons name="star-four-points" size={14} color="#e37d4eff" />
+                <Text style={styles.planText}>{subscriptionPlan === "Free" ? "Get Plus" : "Plus"}</Text>
+              </View>
+            )}
+            
+            <View style={styles.headerRightIcons}>
+              <TouchableOpacity 
+                style={styles.headerButton}
+                onPress={toggleSavedMessages}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons 
+                  name="message-outline" 
+                  size={24} 
+                  color="#6B7280" 
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Messages */}
@@ -583,7 +650,20 @@ export default function Chatbot() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.greetingText}>Hey {userName}, What are you looking for today?</Text>
+                <Text style={styles.greetingText}>{greetingMessage}</Text>
+                <View style={styles.greetingSuggestionsGrid}>
+                  {GREETING_SUGGESTIONS.map((suggestion, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.greetingSuggestionPill}
+                      onPress={() => sendMessage(suggestion.text)}
+                      activeOpacity={0.7}
+                    >
+                      <MaterialCommunityIcons name={suggestion.icon as any} size={18} color={suggestion.color} />
+                      <Text style={styles.greetingSuggestionText}>{suggestion.text}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             }
             ListFooterComponent={
@@ -604,75 +684,50 @@ export default function Chatbot() {
                     >
                       <MaterialCommunityIcons name="sync" size={16} color={theme.textColor} />
                     </Animated.View>
-                    <Text style={styles.resultsText}>Results</Text>
+                    <Animated.Text style={[styles.resultsText, { opacity: thinkingOpacity }]}>Thinking</Animated.Text>
                   </View>
                 </View>
               ) : null
             }
           />
 
-          {/* Suggested Questions */}
-          <View style={styles.suggestionsWrapper}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.suggestionsScroll}
-            >
-              {SUGGESTED_QUESTIONS.map((question, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => sendMessage(question)}
-                  activeOpacity={0.7}
-                  style={styles.suggestionChip}
-                >
-                  <Text style={styles.suggestionText}>{question}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
           {/* Input */}
           <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
-            <View
-              style={styles.inputWrapper}
+            <TouchableOpacity
+              style={styles.cameraButton}
+              onPress={() => router.push("/(screens)/ScanMeal")}
+              activeOpacity={0.7}
             >
+              <MaterialCommunityIcons 
+                name="camera-outline" 
+                size={22} 
+                color="#6B7280"
+              />
+            </TouchableOpacity>
+
+            <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.input}
                 placeholder="Ask me anything..."
-                placeholderTextColor={theme.textColorSecondary}
+                placeholderTextColor="#9CA3AF"
                 value={inputText}
                 onChangeText={setInputText}
-                multiline
+                multiline={false}
                 maxLength={500}
               />
-              <View style={styles.inputActions}>
-                <TouchableOpacity
-                  style={[styles.uploadButton, isReasoning && styles.uploadButtonReasoning]}
-                  onPress={() => setIsReasoning(!isReasoning)}
-                  activeOpacity={0.7}
-                >
-                  <MaterialCommunityIcons 
-                    name={isReasoning ? "lightbulb" : "magnify"} 
-                    size={16} 
-                    color={isReasoning ? theme.primary : theme.textColor}
-                  />
-                  <Text style={[styles.uploadButtonText, isReasoning && styles.uploadButtonTextReasoning]}>
-                    {isReasoning ? "Reasoning" : "Standard"}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-                  onPress={() => sendMessage()}
-                  disabled={!inputText.trim() || isLoading}
-                  activeOpacity={0.8}
-                >
-                  <MaterialCommunityIcons
-                    name="arrow-up"
-                    size={20}
-                    color="#FFFFFF"
-                  />
-                </TouchableOpacity>
-              </View>
+
+              <TouchableOpacity
+                style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+                onPress={() => sendMessage()}
+                disabled={!inputText.trim() || isLoading}
+                activeOpacity={0.8}
+              >
+                <MaterialCommunityIcons
+                  name="arrow-up"
+                  size={20}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -684,15 +739,21 @@ export default function Chatbot() {
           transparent={true}
           onRequestClose={() => setShowSavedMessages(false)}
         >
-          <BlurView intensity={90} tint="light" style={styles.modalContainer}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity 
+              style={{ flex: 1 }} 
+              activeOpacity={1} 
+              onPress={() => setShowSavedMessages(false)}
+            />
             <View style={styles.modalContent}>
+              <View style={styles.modalDragIndicator} />
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Saved Messages</Text>
                 <TouchableOpacity
                   onPress={() => setShowSavedMessages(false)}
                   style={styles.modalCloseButton}
                 >
-                  <MaterialCommunityIcons name="close" size={24} color={theme.textColor} />
+                  <MaterialCommunityIcons name="close" size={20} color="#6B7280" />
                 </TouchableOpacity>
               </View>
               
@@ -700,35 +761,64 @@ export default function Chatbot() {
                 data={savedMessages}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <BlurView intensity={20} tint="light" style={styles.savedMessageCard}>
+                  <View style={styles.savedMessageCard}>
                     <View style={styles.savedMessageContent}>
-                      <View style={styles.savedMessageHeader}>
-                        <MaterialCommunityIcons 
-                          name={item.messageType === 'user' ? 'account' : 'robot'} 
-                          size={20} 
-                          color={item.messageType === 'user' ? theme.primary : theme.textColorSecondary} 
-                        />
-                        <Text style={styles.savedMessageDate}>
-                          {new Date(item.savedAt).toLocaleDateString()}
-                        </Text>
-                      </View>
                       <Text style={styles.savedMessageText}>{item.messageText}</Text>
-                      <TouchableOpacity
-                        style={styles.deleteButton}
-                        onPress={() => deleteSavedMessage(item.id)}
-                      >
-                        <MaterialCommunityIcons name="delete" size={18} color="#EF4444" />
-                      </TouchableOpacity>
+                      <View style={styles.savedMessageActions}>
+                        <Text style={styles.savedMessageDate}>
+                          {new Date(item.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </Text>
+                        <View style={styles.savedMessageIcons}>
+                          <TouchableOpacity
+                            style={styles.savedActionIcon}
+                            onPress={async () => {
+                              try {
+                                await Share.share({ message: item.messageText });
+                              } catch (error) {
+                                console.error('Copy failed:', error);
+                              }
+                            }}
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons name="content-copy" size={16} color="#9CA3AF" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.savedActionIcon}
+                            onPress={async () => {
+                              try {
+                                await Share.share({ message: item.messageText, title: "Share Message" });
+                              } catch (error) {
+                                console.error('Share failed:', error);
+                              }
+                            }}
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons name="share-variant-outline" size={16} color="#9CA3AF" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.savedActionIcon}
+                            onPress={() => deleteSavedMessage(item.id)}
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons name="bookmark" size={16} color="#000000" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
                     </View>
-                  </BlurView>
+                  </View>
                 )}
                 contentContainerStyle={styles.savedMessagesList}
+                showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
-                  <Text style={styles.emptyText}>No saved messages yet</Text>
+                  <View style={styles.emptyModalContainer}>
+                    <MaterialCommunityIcons name="bookmark-outline" size={48} color="#D1D5DB" />
+                    <Text style={styles.emptyText}>No saved messages yet</Text>
+                    <Text style={styles.emptySubtext}>Save messages to access them later</Text>
+                  </View>
                 }
               />
             </View>
-          </BlurView>
+          </View>
         </Modal>
       </View>
     </>
@@ -748,6 +838,46 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  headerRightIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 50,
+    elevation: 8,
+  },
+  planPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#fff4f0ff",
+    borderWidth: 1,
+    borderColor: '#ffe0e0ff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  planText: {
+    fontSize: 14,
+    fontFamily: theme.medium,
+    color: '#d2571eff',
   },
   headerTitle: {
     fontSize: 20,
@@ -769,6 +899,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 100,
+    paddingHorizontal: 20,
   },
   greetingEmoji: {
     fontSize: 50,
@@ -776,15 +907,41 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: 24,
-    fontFamily: theme.medium,
-    color: theme.textColor,
+    fontFamily: theme.semibold,
+    color: '#111827',
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
+  },
+  greetingSuggestionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+    width: '100%',
+    rowGap: 10,
+  },
+  greetingSuggestionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    backgroundColor: '#FFFFFF',
+  },
+  greetingSuggestionText: {
+    fontSize: 14,
+    fontFamily: theme.medium,
+    textAlign: 'center',
+    color: '#374151',
   },
   messagesList: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingTop: 8,
+    paddingTop: 120,
+    paddingBottom: 100,
     flexGrow: 1,
   },
   messageContainer: {
@@ -831,15 +988,15 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowRadius: 50,
     elevation: 3,
   },
   messageBubbleWide: {
     width: "100%",
   },
   userBubble: {
-    backgroundColor: '#F2F2F2',
-    borderBottomRightRadius: 4,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 100,
   },
   aiBubble: {
     backgroundColor: 'transparent',
@@ -871,10 +1028,13 @@ const styles = StyleSheet.create({
   },
   messageActionsContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 16,
     marginTop: 8,
     alignItems: 'center',
-    paddingLeft: 16,
+    paddingLeft: 4,
+  },
+  messageActionIcon: {
+    padding: 4,
   },
   messageActionPill: {
     flexDirection: 'row',
@@ -916,32 +1076,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.medium,
     color: "#747474ff",
     fontStyle: "italic",
-  },
-  suggestionsWrapper: {
-    paddingTop: 0,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#F7F7F7',
-  },
-  suggestionsScroll: {
-    paddingHorizontal: 0,
-    gap: 8,
-    paddingVertical: 8,
-  },
-  suggestionChip: {
-    borderRadius: 25,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
-  },
-  suggestionChipInner: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-  },
-  suggestionText: {
-    fontSize: 13,
-    fontFamily: theme.medium,
-    color: theme.textColor,
   },
   loadingContainer: {
     alignItems: "flex-start",
@@ -987,56 +1121,69 @@ const styles = StyleSheet.create({
   inputContainer: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 15,
-    backgroundColor: '#F7F7F7',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(224, 224, 224, 0.3)',
+    paddingBottom: 20,
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   inputContainerKeyboardOpen: {
     paddingBottom: 10,
   },
   inputWrapper: {
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 26,
     paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 14,
-    overflow: 'hidden',
+    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 50,
+    elevation: 8,
+    gap: 12,
   },
   input: {
+    flex: 1,
     fontSize: 15,
     fontFamily: theme.regular,
     color: theme.textColor,
-    minHeight: 32,
-    maxHeight: 70,
-    marginBottom: 10,
+    paddingVertical: 0,
   } as any,
-  inputActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  uploadButton: {
-    height: 40,
-    flexDirection: "row",
-    paddingHorizontal: 16,
+  cameraButton: {
+    width: 48,
+    height: 48,
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 24,
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 50,
+    elevation: 8,
+  },
+  uploadButton: {
+    width: 36,
+    height: 36,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: '#F5F5F5',
+    borderRadius: 18,
+    gap: 4,
   },
   uploadButtonReasoning: {
-    backgroundColor: '#FFFFFF',
-    borderColor: theme.primary,
-    borderWidth: 1.5,
+    backgroundColor: '#FFF3E0',
   },
   uploadButtonText: {
-    fontSize: 14,
+    fontSize: 0,
     fontFamily: theme.medium,
     color: theme.textColor,
   },
@@ -1044,10 +1191,10 @@ const styles = StyleSheet.create({
     color: theme.primary,
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.primary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#000000',
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1131,85 +1278,105 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   modalContent: {
-    height: '80%',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
+    height: '85%',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingTop: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  modalDragIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 12,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(220, 220, 220, 0.3)',
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 20,
   },
   modalTitle: {
-    fontSize: 24,
-    fontFamily: theme.bold,
-    color: theme.textColor,
+    fontSize: 22,
+    fontFamily: theme.semibold,
+    color: '#111827',
   },
   modalCloseButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(245, 245, 245, 0.8)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
   },
   savedMessagesList: {
-    padding: 16,
+    padding: 20,
+    paddingTop: 8,
   },
   savedMessageCard: {
     marginBottom: 12,
     borderRadius: 16,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
+    backgroundColor: '#F9FAFB',
   },
   savedMessageContent: {
     padding: 16,
   },
-  savedMessageHeader: {
+  savedMessageActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  savedMessageIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
+    gap: 16,
+  },
+  savedActionIcon: {
+    padding: 4,
   },
   savedMessageDate: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: '#9CA3AF',
   },
   savedMessageText: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: theme.regular,
-    color: theme.textColor,
-    lineHeight: 20,
+    color: '#374151',
+    lineHeight: 22,
   },
-  deleteButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
+  emptyModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 80,
   },
   emptyText: {
-    fontSize: 16,
-    fontFamily: theme.medium,
-    color: theme.textColorSecondary,
+    fontSize: 17,
+    fontFamily: theme.semibold,
+    color: '#6B7280',
     textAlign: 'center',
-    marginTop: 40,
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    fontFamily: theme.regular,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginTop: 4,
   },
 });
