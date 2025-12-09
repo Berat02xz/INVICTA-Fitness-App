@@ -1,4 +1,5 @@
-import SolidBackground from "@/components/ui/SolidBackground";
+import FadeTranslate from "@/components/ui/FadeTranslate";
+import * as Clipboard from 'expo-clipboard';
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -15,7 +16,6 @@ import {
   BackHandler,
   Modal,
   Share,
-  Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
@@ -26,7 +26,6 @@ import database from "@/database/database";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { AIEndpoint } from "@/api/AIEndpoint";
 import { SavedMessage } from "@/models/SavedMessage";
-import { BlurView } from "expo-blur";
 
 interface Message {
   id: string;
@@ -39,10 +38,21 @@ const NUTRITION_KEYWORDS = ["meal", "nutrition", "food", "recipes", "eat", "diet
 const FITNESS_KEYWORDS = ["fitness", "workout", "gym", "exercise", "training", "muscle", "cardio", "strength", "run", "lift", "weight"];
 
 const GREETING_SUGGESTIONS = [
-  { icon: "clock-fast", text: "15 min meals", color: "#4CAF50" },
-  { icon: "dumbbell", text: "Workout plan", color: "#FF6B35" },
-  { icon: "chef-hat", text: "Quick breakfast", color: "#2196F3" },
-  { icon: "fire", text: "Burn calories", color: "#FFC107" },
+  { icon: "clock-fast", text: "15 min meals table", color: "#22C55E" },
+  { icon: "dumbbell", text: "Workout plan table", color: "#EF4444" },
+  { icon: "chef-hat", text: "Quick breakfast", color: "#F97316" },
+  { icon: "fire", text: "How to burn calories fast", color: "#EF4444" },
+  { icon: "food-apple", text: "Healthy snacks for me", color: "#22C55E" },
+  { icon: "weight-lifter", text: "How to Build muscle", color: "#3B82F6" },
+  { icon: "run-fast", text: "Cardio tips for me", color: "#F97316" },
+  { icon: "food-drumstick", text: "High protein food table", color: "#A855F7" },
+  { icon: "scale-bathroom", text: "Lose weight plan for me", color: "#EC4899" },
+  { icon: "yoga", text: "Stretching properly", color: "#14B8A6" },
+  { icon: "food-variant", text: "Meal prep for me", color: "#22C55E" },
+  { icon: "lightning-bolt", text: "Pre-workout tips list", color: "#FBBF24" },
+  { icon: "sleep", text: "Recovery tips", color: "#6366F1" },
+  { icon: "water", text: "Hydration importance", color: "#0EA5E9" },
+  { icon: "arm-flex", text: "Arm workout table", color: "#EF4444" },
 ];
 
 const GREETING_VARIANTS = [
@@ -60,21 +70,6 @@ const SUGGESTED_QUESTIONS = [
   "High protein meals",
 ];
 
-const GREETING_MESSAGES = [
-  { emoji: "💪", text: "Ask away!" },
-  { emoji: "🏅", text: "Hey champ!" },
-  { emoji: "🏃‍♂️", text: "What’s up?" },
-  { emoji: "✨", text: "Ready?" },
-  { emoji: "🚀", text: "Let’s go!" },
-  { emoji: "💬", text: "Shoot!" },
-  { emoji: "🥗", text: "What’s good?" },
-  { emoji: "⚡", text: "Zap me!" },
-  { emoji: "🏆", text: "You win!" },
-  { emoji: "🧠", text: "Brain mode!" },
-  { emoji: "🤖", text: "Hi there!" },
-  { emoji: "🌟", text: "Shine on!" },
-];
-
 
 
 const THINKING_MESSAGES = [
@@ -88,32 +83,23 @@ export default function Chatbot() {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [thinkingMessageIndex, setThinkingMessageIndex] = useState(0);
   const [showSavedMessages, setShowSavedMessages] = useState(false);
   const [savedMessages, setSavedMessages] = useState<SavedMessage[]>([]);
-  const [selectedMessageToSave, setSelectedMessageToSave] = useState<Message | null>(null);
   const [savedMessageIds, setSavedMessageIds] = useState<Set<string>>(new Set());
-  const [userName, setUserName] = useState("there");
-  const [userPlan, setUserPlan] = useState("Free");
   const [subscriptionPlan, setSubscriptionPlan] = useState("Free");
-  const [isReasoning, setIsReasoning] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState("What can I help with?");
+  const [randomSuggestions, setRandomSuggestions] = useState<typeof GREETING_SUGGESTIONS>([]);
   const flatListRef = useRef<FlatList>(null);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const emojiAnimX = useRef(new Animated.Value(0)).current;
-  const emojiAnimY = useRef(new Animated.Value(0)).current;
   const spinAnim = useRef(new Animated.Value(0)).current;
   const thinkingOpacity = useRef(new Animated.Value(0.4)).current;
 
-  // Load user name and handle back button/gesture
+  // Load user data and handle back button/gesture
   useFocusEffect(
     React.useCallback(() => {
-      const loadUserName = async () => {
+      const loadUserData = async () => {
         try {
           const user = await GetUserDetails();
           if (user?.name) {
-            const firstName = user.name.split(' ')[0];
-            setUserName(firstName);
             // Set random greeting
             const randomGreeting = GREETING_VARIANTS[Math.floor(Math.random() * GREETING_VARIANTS.length)];
             setGreetingMessage(randomGreeting());
@@ -121,12 +107,15 @@ export default function Chatbot() {
           if (user?.role) {
             setSubscriptionPlan(user.role);
           }
+          // Pick 4 random suggestions
+          const shuffled = [...GREETING_SUGGESTIONS].sort(() => Math.random() - 0.5);
+          setRandomSuggestions(shuffled.slice(0, 4));
         } catch (error) {
-          console.error("Error loading user name:", error);
+          console.error("Error loading user data:", error);
         }
       };
 
-      loadUserName();
+      loadUserData();
 
       const onBackPress = () => {
         router.replace("/(tabs)/workout");
@@ -155,10 +144,9 @@ export default function Chatbot() {
     };
   }, []);
 
-  // Rotate thinking messages while loading
+  // Animate loading state
   useEffect(() => {
     if (!isLoading) {
-      setThinkingMessageIndex(0);
       thinkingOpacity.setValue(0.4);
       return;
     }
@@ -188,53 +176,11 @@ export default function Chatbot() {
       ])
     ).start();
 
-    const interval = setInterval(() => {
-      setThinkingMessageIndex(prev => (prev + 1) % THINKING_MESSAGES.length);
-      
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0.3,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, 2700);
-
     return () => {
-      clearInterval(interval);
       spinAnim.setValue(0);
       thinkingOpacity.setValue(0.4);
     };
   }, [isLoading]);
-
-  // Animate greeting emoji with random movements
-  useEffect(() => {
-    const animateEmoji = () => {
-      const randomX = (Math.random() - 0.5) * 20; // -20 to 20
-      const randomY = (Math.random() - 0.5) * 20; // -20 to 20
-      const duration = 2000 + Math.random() * 100; // 2-3 seconds
-
-      Animated.parallel([
-        Animated.timing(emojiAnimX, {
-          toValue: randomX,
-          duration: duration,
-          useNativeDriver: true,
-        }),
-        Animated.timing(emojiAnimY, {
-          toValue: randomY,
-          duration: duration,
-          useNativeDriver: true,
-        }),
-      ]).start(() => animateEmoji());
-    };
-
-    animateEmoji();
-  }, []);
 
   const detectMessageCategory = (text: string): "nutrition" | "fitness" | "general" => {
     const lowerText = text.toLowerCase();
@@ -343,18 +289,32 @@ export default function Chatbot() {
       const userId = await getUserIdFromToken();
       if (!userId) return;
 
-      await SavedMessage.saveMessage(
-        database,
-        userId,
-        message.text,
-        message.isUser ? 'user' : 'ai'
-      );
-      
-      // Add message ID to saved set
-      setSavedMessageIds(prev => new Set([...prev, message.id]));
+      // If already saved, delete it (toggle behavior)
+      if (savedMessageIds.has(message.id)) {
+        // Find the saved message with matching text
+        const savedMessage = savedMessages.find(m => m.messageText === message.text);
+        if (savedMessage) {
+          await SavedMessage.deleteMessage(database, savedMessage.id);
+          setSavedMessageIds(prev => {
+            const newSet = new Set([...prev]);
+            newSet.delete(message.id);
+            return newSet;
+          });
+        }
+      } else {
+        // Save new message
+        await SavedMessage.saveMessage(
+          database,
+          userId,
+          message.text,
+          message.isUser ? 'user' : 'ai'
+        );
+        
+        // Add message ID to saved set
+        setSavedMessageIds(prev => new Set([...prev, message.id]));
+      }
       
       await loadSavedMessages();
-      setSelectedMessageToSave(null);
     } catch (error) {
       console.error("Error saving message:", error);
     }
@@ -369,67 +329,164 @@ export default function Chatbot() {
     }
   };
 
-  const parseTableResponse = (text: string) => {
-    const tableStart = text.indexOf("STARTTABLE");
-    const tableEnd = text.indexOf("ENDTABLE");
-    
-    if (tableStart === -1 || tableEnd === -1) {
-      return <Text style={styles.messageText}>{text}</Text>;
-    }
+  const parseHtmlResponse = (html: string) => {
+    let keyIndex = 0;
 
-    const beforeTable = text.substring(0, tableStart).trim();
-    const tableContent = text.substring(tableStart + 10, tableEnd).trim();
-    const afterTable = text.substring(tableEnd + 8).trim();
-    
-    // Split by newlines to get rows
-    const rows = tableContent.split(/\n/).filter(row => row.trim());
-    
-    return (
-      <>
-        {beforeTable && <Text style={styles.messageText}>{beforeTable}</Text>}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.tableScrollView}
-        >
-          <View style={styles.tableContainer}>
-            {rows.map((row, rowIndex) => {
-              // Split by | to get columns
-              const columns = row.split('|').map(col => col.trim()).filter(col => col);
-              
-              const isHeaderRow = rowIndex === 0;
-              
-              return (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {columns.map((column, colIndex) => (
-                    <View 
-                      key={colIndex} 
-                      style={[
-                        styles.tableCell,
-                        isHeaderRow && styles.tableHeaderCell,
-                        colIndex === 0 && styles.tableFirstColumn,
-                      ]}
-                    >
-                      <Text 
-                        style={[
-                          styles.tableCellText,
-                          isHeaderRow && styles.tableHeaderText,
-                        ]}
-                        numberOfLines={3}
-                        ellipsizeMode="tail"
-                      >
-                        {column}
-                      </Text>
+    const parseElements = (content: string, depth: number = 0): React.ReactNode[] => {
+      const result: React.ReactNode[] = [];
+      
+      // Regex to match HTML tags and their content
+      const tagRegex = /<(\w+)([^>]*)>([\s\S]*?)<\/\1>|<(\w+)([^>]*)\/?>|([^<]+)/g;
+      let match;
+
+      while ((match = tagRegex.exec(content)) !== null) {
+        // Plain text between tags
+        if (match[6]) {
+          const text = match[6].trim();
+          if (text) {
+            result.push(text);
+          }
+          continue;
+        }
+
+        const tagName = match[1] || match[4];
+        const tagContent = match[3] || '';
+
+        switch (tagName?.toLowerCase()) {
+          case 'p':
+            result.push(
+              <Text key={keyIndex++} style={[styles.messageText, { marginBottom: 12 }]}>
+                {parseElements(tagContent, depth)}
+              </Text>
+            );
+            break;
+          case 'b':
+          case 'strong':
+            result.push(
+              <Text key={keyIndex++} style={[styles.messageText, { fontFamily: theme.bold }]}>
+                {parseElements(tagContent, depth)}
+              </Text>
+            );
+            break;
+          case 'i':
+          case 'em':
+            result.push(
+              <Text key={keyIndex++} style={[styles.messageText, { fontStyle: 'italic' }]}>
+                {parseElements(tagContent, depth)}
+              </Text>
+            );
+            break;
+          case 'food':
+            result.push(
+              <TouchableOpacity key={keyIndex++} style={styles.foodPill} activeOpacity={0.7}>
+                <MaterialCommunityIcons name="magnify" size={14} color="#22C55E" />
+                <Text style={[styles.pillText, { color: '#22C55E' }]}>
+                  {parseElements(tagContent, depth)}
+                </Text>
+              </TouchableOpacity>
+            );
+            break;
+          case 'exercise':
+            result.push(
+              <TouchableOpacity key={keyIndex++} style={styles.exercisePill} activeOpacity={0.7}>
+                <MaterialCommunityIcons name="magnify" size={14} color="#D97706" />
+                <Text style={[styles.pillText, { color: '#D97706' }]}>
+                  {parseElements(tagContent, depth)}
+                </Text>
+              </TouchableOpacity>
+            );
+            break;
+          case 'ul':
+            const listItems = tagContent.match(/<li[^>]*>([\s\S]*?)<\/li>/g) || [];
+            result.push(
+              <View key={keyIndex++} style={{ marginLeft: depth === 0 ? 0 : 16, marginBottom: 8 }}>
+                {listItems.map((item, idx) => {
+                  // Extract content and nested lists
+                  const itemContent = item.replace(/<\/?li[^>]*>/g, '').trim();
+                  const nestedListMatch = itemContent.match(/<ul[\s\S]*?<\/ul>/);
+                  const textContent = itemContent.replace(/<ul[\s\S]*?<\/ul>/g, '').trim();
+                  
+                  return (
+                    <View key={idx}>
+                      {textContent && (
+                        <View style={{ flexDirection: 'row', marginBottom: 4 }}>
+                          <Text style={[styles.messageText, { marginRight: 8, marginTop: 2 }]}>•</Text>
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.messageText}>
+                              {parseElements(textContent, depth)}
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+                      {nestedListMatch && (
+                        <View style={{ marginLeft: 12, marginBottom: 8 }}>
+                          {parseElements(nestedListMatch[0], depth + 1)}
+                        </View>
+                      )}
                     </View>
-                  ))}
+                  );
+                })}
+              </View>
+            );
+            break;
+          case 'table':
+            const rows = tagContent.match(/<tr[^>]*>([\s\S]*?)<\/tr>/g) || [];
+            result.push(
+              <ScrollView
+                key={keyIndex++}
+                horizontal
+                nestedScrollEnabled={true}
+                showsHorizontalScrollIndicator={true}
+                style={styles.tableScrollView}
+              >
+                <View style={styles.tableContainer}>
+                  {rows.map((row, rowIdx) => {
+                    const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g) || [];
+                    const isHeaderRow = row.includes('<th');
+                    return (
+                      <View key={rowIdx} style={styles.tableRow}>
+                        {cells.map((cell, cellIdx) => {
+                          const cellContent = cell.replace(/<\/?t[dh][^>]*>/g, '').trim();
+                          return (
+                            <View
+                              key={cellIdx}
+                              style={[
+                                styles.tableCell,
+                                isHeaderRow && styles.tableHeaderCell,
+                                cellIdx === 0 && styles.tableFirstColumn,
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.tableCellText,
+                                  isHeaderRow && styles.tableHeaderText,
+                                ]}
+                                numberOfLines={3}
+                                ellipsizeMode="tail"
+                              >
+                                {parseElements(cellContent, depth)}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    );
+                  })}
                 </View>
-              );
-            })}
-          </View>
-        </ScrollView>
-        {afterTable && <Text style={styles.messageText}>{afterTable}</Text>}
-      </>
-    );
+              </ScrollView>
+            );
+            break;
+          default:
+            if (tagContent) {
+              result.push(...parseElements(tagContent, depth));
+            }
+        }
+      }
+
+      return result;
+    };
+
+    return <>{parseElements(html)}</>;
   };
 
   const sendMessage = async (messageText?: string) => {
@@ -523,9 +580,6 @@ export default function Chatbot() {
   };
 
   const renderMessage = ({ item }: { item: Message }) => {
-    // Check if message contains a table
-    const hasTable = item.text.includes("STARTTABLE");
-    
     return (
       <View
         style={[
@@ -540,15 +594,14 @@ export default function Chatbot() {
               item.isUser 
                 ? styles.userBubble
                 : styles.aiBubble,
-              !item.isUser && hasTable && styles.messageBubbleWide,
             ]}
           >
             {item.isUser ? (
-              <Text style={styles.userMessageText}>
+              <Text style={styles.messageText}>
                 {highlightKeywords(item.text)}
               </Text>
             ) : (
-              parseTableResponse(item.text)
+              parseHtmlResponse(item.text)
             )}
           </View>
           {!item.isUser && (
@@ -557,7 +610,7 @@ export default function Chatbot() {
                 style={styles.messageActionIcon}
                 onPress={async () => {
                   try {
-                    await Share.share({ message: item.text });
+                    await Clipboard.setStringAsync(item.text);
                   } catch (error) {
                     console.error('Copy failed:', error);
                   }
@@ -619,8 +672,8 @@ export default function Chatbot() {
             
             {subscriptionPlan && (
               <View style={styles.planPill}>
-                <MaterialCommunityIcons name="star-four-points" size={14} color="#e37d4eff" />
-                <Text style={styles.planText}>{subscriptionPlan === "Free" ? "Get Plus" : "Plus"}</Text>
+                <MaterialCommunityIcons name="star-four-points" size={14} color="#e65f20ff" />
+                <Text style={styles.planText}>{subscriptionPlan === "FREE" ? "Get Premium" : "Unlimited Plan"}</Text>
               </View>
             )}
             
@@ -631,7 +684,7 @@ export default function Chatbot() {
                 activeOpacity={0.7}
               >
                 <MaterialCommunityIcons 
-                  name="message-outline" 
+                  name="bookmark-outline" 
                   size={24} 
                   color="#6B7280" 
                 />
@@ -650,18 +703,21 @@ export default function Chatbot() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.greetingText}>{greetingMessage}</Text>
+                <FadeTranslate order={0}>
+                  <Text style={styles.greetingText}>{greetingMessage}</Text>
+                </FadeTranslate>
                 <View style={styles.greetingSuggestionsGrid}>
-                  {GREETING_SUGGESTIONS.map((suggestion, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.greetingSuggestionPill}
-                      onPress={() => sendMessage(suggestion.text)}
-                      activeOpacity={0.7}
-                    >
-                      <MaterialCommunityIcons name={suggestion.icon as any} size={18} color={suggestion.color} />
-                      <Text style={styles.greetingSuggestionText}>{suggestion.text}</Text>
-                    </TouchableOpacity>
+                  {randomSuggestions.map((suggestion, index) => (
+                    <FadeTranslate key={index} order={index + 1}>
+                      <TouchableOpacity
+                        style={styles.greetingSuggestionPill}
+                        onPress={() => sendMessage(suggestion.text)}
+                        activeOpacity={0.7}
+                      >
+                        <MaterialCommunityIcons name={suggestion.icon as any} size={18} color={suggestion.color} />
+                        <Text style={styles.greetingSuggestionText}>{suggestion.text}</Text>
+                      </TouchableOpacity>
+                    </FadeTranslate>
                   ))}
                 </View>
               </View>
@@ -763,7 +819,9 @@ export default function Chatbot() {
                 renderItem={({ item }) => (
                   <View style={styles.savedMessageCard}>
                     <View style={styles.savedMessageContent}>
-                      <Text style={styles.savedMessageText}>{item.messageText}</Text>
+                      <View>
+                        {parseHtmlResponse(item.messageText)}
+                      </View>
                       <View style={styles.savedMessageActions}>
                         <Text style={styles.savedMessageDate}>
                           {new Date(item.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -773,7 +831,7 @@ export default function Chatbot() {
                             style={styles.savedActionIcon}
                             onPress={async () => {
                               try {
-                                await Share.share({ message: item.messageText });
+                                await Clipboard.setStringAsync(item.messageText);
                               } catch (error) {
                                 console.error('Copy failed:', error);
                               }
@@ -800,7 +858,7 @@ export default function Chatbot() {
                             onPress={() => deleteSavedMessage(item.id)}
                             activeOpacity={0.7}
                           >
-                            <MaterialCommunityIcons name="bookmark" size={16} color="#000000" />
+                            <MaterialCommunityIcons name="trash-can-outline" size={16} color="#9CA3AF" />
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -859,40 +917,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 50,
+    shadowOpacity: 0.50,
+    shadowRadius: 80,
     elevation: 8,
   },
   planPill: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#fff4f0ff",
+    backgroundColor: "#ffffffff",
     borderWidth: 1,
-    borderColor: '#ffe0e0ff',
+    borderColor: '#ffcfcfff',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.50,
+    shadowRadius: 80,
+    elevation: 8,
   },
   planText: {
     fontSize: 14,
     fontFamily: theme.medium,
-    color: '#d2571eff',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: theme.black,
-    color: theme.textColor,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.backgroundSecondary,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: theme.border,
+    color: '#e65f20ff',
   },
   emptyContainer: {
     flex: 1,
@@ -901,13 +949,9 @@ const styles = StyleSheet.create({
     paddingVertical: 100,
     paddingHorizontal: 20,
   },
-  greetingEmoji: {
-    fontSize: 50,
-    marginBottom: 16,
-  },
   greetingText: {
-    fontSize: 24,
-    fontFamily: theme.semibold,
+    fontSize: 25,
+    fontFamily: theme.medium,
     color: '#111827',
     textAlign: "center",
     marginBottom: 30,
@@ -960,26 +1004,6 @@ const styles = StyleSheet.create({
   messageBubbleWrapper: {
     flex: 1,
   },
-  aiAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: theme.primaryLight,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: theme.primary,
-  },
-  userAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: theme.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-  },
   messageBubble: {
     width: "100%",
     paddingHorizontal: 16,
@@ -987,8 +1011,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 50,
+    shadowOpacity: 0.10,
+    shadowRadius: 100,
     elevation: 3,
   },
   messageBubbleWide: {
@@ -1012,19 +1036,30 @@ const styles = StyleSheet.create({
     color: theme.textColor,
     lineHeight: 20,
   },
-  userMessageText: {
-    fontSize: 15,
-    fontFamily: theme.regular,
-    color: theme.textColor,
-    lineHeight: 20,
+  pillText: {
+    fontSize: 13,
+    fontFamily: theme.bold,
+    marginLeft: 6,
   },
-  saveMessageButton: {
-    marginLeft: 8,
-    padding: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 12,
+  foodPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#ECFDF5',
     borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
+    borderColor: '#D1FAE5',
+  },
+  exercisePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
   },
   messageActionsContainer: {
     flexDirection: 'row',
@@ -1036,46 +1071,10 @@ const styles = StyleSheet.create({
   messageActionIcon: {
     padding: 4,
   },
-  messageActionPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(240, 240, 240, 0.9)',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(220, 220, 220, 0.5)',
-  },
-  messageActionText: {
-    fontSize: 12,
-    fontFamily: theme.medium,
-    color: theme.textColor,
-  },
-  resultsLabel: {
-    fontSize: 14,
-    fontFamily: theme.medium,
-    color: theme.textColor,
-    marginBottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
   boldKeyword: {
     fontSize: 14,
     fontFamily: theme.bold,
     color: theme.textColor,
-  },
-  thinkingContainer: {
-    alignItems: "flex-start",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  thinkingText: {
-    fontSize: 14,
-    fontFamily: theme.medium,
-    color: "#747474ff",
-    fontStyle: "italic",
   },
   loadingContainer: {
     alignItems: "flex-start",
@@ -1091,32 +1090,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: theme.medium,
     color: theme.textColor,
-  },
-  typingIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: 20,
-    alignSelf: "flex-start",
-    marginLeft: 40,
-    borderWidth: 1,
-    borderColor: theme.border,
-  },
-  typingDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: theme.textColorSecondary,
-    opacity: 0.4,
-  },
-  typingDot2: {
-    opacity: 0.6,
-  },
-  typingDot3: {
-    opacity: 0.8,
   },
   inputContainer: {
     paddingHorizontal: 16,
@@ -1140,12 +1113,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 26,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 9,
     backgroundColor: '#FFFFFF',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 50,
+    shadowOpacity: 0.30,
+    shadowRadius: 150,
     elevation: 8,
     gap: 12,
   },
@@ -1165,30 +1138,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 50,
+    shadowOpacity: 0.30,
+    shadowRadius: 150,
     elevation: 8,
-  },
-  uploadButton: {
-    width: 36,
-    height: 36,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: '#F5F5F5',
-    borderRadius: 18,
-    gap: 4,
-  },
-  uploadButtonReasoning: {
-    backgroundColor: '#FFF3E0',
-  },
-  uploadButtonText: {
-    fontSize: 0,
-    fontFamily: theme.medium,
-    color: theme.textColor,
-  },
-  uploadButtonTextReasoning: {
-    color: theme.primary,
   },
   sendButton: {
     width: 36,
@@ -1204,6 +1156,7 @@ const styles = StyleSheet.create({
   tableScrollView: {
     marginTop: 8,
     marginBottom: 8,
+    width: '100%',
   },
   tableContainer: {
     borderWidth: 1,
@@ -1211,6 +1164,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: 'rgba(250, 250, 250, 0.5)',
+    minWidth: '100%',
   },
   tableRow: {
     flexDirection: "row",
@@ -1243,36 +1197,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.bold,
     fontSize: 12,
     color: theme.textColor,
-  },
-  // Keep old styles for backwards compatibility
-  tablePill: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-  },
-  tablePillHeader: {
-    backgroundColor: theme.primary,
-    borderColor: theme.primary,
-    minWidth: 80,
-  },
-  tablePillText: {
-    fontSize: 13,
-    fontFamily: theme.medium,
-    color: "#fff",
-  },
-  tablePillHeaderText: {
-    fontFamily: theme.bold,
-    fontSize: 14,
-    color: "#fff",
-  },
-  tablePillsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 8,
   },
   // Modal styles
   modalContainer: {

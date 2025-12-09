@@ -349,27 +349,30 @@ export default function NutritionScreen() {
           <FadeTranslate order={3} style={styles.actionButtonWrapper}>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => router.push("../(screens)/ScanMeal")}
               activeOpacity={0.7}
             >
-              <MaterialCommunityIcons
-                name="barcode-scan"
-                size={theme.iconSize.md}
-                color={theme.primary}
+              <Ionicons
+                name="search-outline"
+                size={22}
+                color="#111827"
               />
             </TouchableOpacity>
-            <Text style={styles.actionButtonText}>Scan Meal</Text>
+            <Text style={styles.actionButtonText}>Search Meal</Text>
           </FadeTranslate>
 
           <FadeTranslate order={4} style={styles.actionButtonWrapper}>
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
-              <MaterialCommunityIcons
-                name="clipboard-list-outline"
-                size={theme.iconSize.md}
-                color={theme.primary}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("../(screens)/ScanMeal")}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="scan-outline"
+                size={22}
+                color="#111827"
               />
             </TouchableOpacity>
-            <Text style={styles.actionButtonText}>Change Plan</Text>
+            <Text style={styles.actionButtonText}>Scan Meal</Text>
           </FadeTranslate>
 
           <FadeTranslate order={5} style={styles.actionButtonWrapper}>
@@ -378,10 +381,10 @@ export default function NutritionScreen() {
               onPress={() => router.push("../(screens)/ChatBot")}
               activeOpacity={0.7}
             >
-              <MaterialCommunityIcons
-                name="shimmer"
-                size={theme.iconSize.md}
-                color={theme.primary}
+              <Ionicons
+                name="sparkles-outline"
+                size={22}
+                color="#111827"
               />
             </TouchableOpacity>
             <Text style={styles.actionButtonText}>Ask Coach</Text>
@@ -389,10 +392,10 @@ export default function NutritionScreen() {
 
           <FadeTranslate order={6} style={styles.actionButtonWrapper}>
             <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
-              <MaterialCommunityIcons
-                name="weight-kilogram"
-                size={theme.iconSize.md}
-                color={theme.primary}
+              <Ionicons
+                name="scale-outline"
+                size={22}
+                color="#111827"
               />
             </TouchableOpacity>
             <Text style={styles.actionButtonText}>Log Weight</Text>
@@ -450,19 +453,19 @@ export default function NutritionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundColor,
+    backgroundColor: "#FAFAFA",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: 20,
   },
   headerSpace: {
-    height: 100,
+    height: 60,
   },
   loadingText: {
-    color: theme.textColor,
+    color: "#111827",
     fontSize: theme.fontSize.md,
     fontFamily: theme.medium,
     textAlign: "center",
@@ -471,82 +474,92 @@ const styles = StyleSheet.create({
 
   // Current Date Display
   currentDateContainer: {
-    marginBottom: theme.spacing.md,
+    marginBottom: 16,
   },
   currentDateText: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.regular,
+    fontSize: 28,
+    fontFamily: theme.bold,
+    letterSpacing: -0.5,
   },
   currentDateDay: {
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: "#111827",
   },
   currentDateRest: {
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
   },
 
   // Weekly Calendar
   weekContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: theme.spacing.lg,
-    gap: theme.spacing.sm,
+    marginBottom: 24,
+    gap: 8,
   },
   dayItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.backgroundSecondary,
-    borderWidth: 1,
-    borderColor: theme.border,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   dayItemToday: {
-    backgroundColor: theme.primary,
-    borderColor: theme.primary,
+    backgroundColor: "#111827",
   },
   dayItemSuccessful: {
-    backgroundColor: theme.successLight,
-    borderColor: theme.success,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: "#22C55E",
   },
   dayItemUnsuccessful: {
-    opacity: 0.5,
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: "#D1D5DB",
   },
   dayItemFuture: {
-    backgroundColor: theme.backgroundTertiary,
-    borderColor: 'transparent',
+    backgroundColor: "#F9FAFB",
+    opacity: 0.7,
   },
   dayNumber: {
-    fontSize: theme.fontSize.md,
+    fontSize: 16,
     fontFamily: theme.bold,
-    color: theme.textColor,
-    marginBottom: theme.spacing.xs,
+    color: "#111827",
+    marginBottom: 2,
   },
   dayNumberToday: {
     color: '#FFFFFF',
   },
   dayNumberUnsuccessful: {
-    color: theme.textColorTertiary,
+    color: "#9CA3AF",
   },
   dayName: {
-    fontSize: theme.fontSize.xs,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    fontSize: 10,
+    fontFamily: theme.medium,
+    color: "#6B7280",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   dayNameToday: {
-    color: '#FFFFFF',
+    color: 'rgba(255,255,255,0.8)',
   },
   dayNameUnsuccessful: {
-    color: theme.textColorTertiary,
+    color: "#9CA3AF",
   },
   dayNumberFuture: {
-    color: theme.textColorTertiary,
+    color: "#D1D5DB",
   },
   dayNameFuture: {
-    color: theme.textColorTertiary,
+    color: "#D1D5DB",
   },
 
   // Calories Header
@@ -554,45 +567,49 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.sm,
+    marginBottom: 8,
   },
   caloriesLabel: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    fontSize: 13,
+    fontFamily: theme.semibold,
+    color: "#9CA3AF",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   caloriePlanLabel: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
   },
   caloriePlanValue: {
-    fontSize: theme.fontSize.sm,
-    fontFamily: theme.bold,
-    color: theme.textColor,
+    fontSize: 13,
+    fontFamily: theme.semibold,
+    color: "#111827",
   },
   caloriesValueRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.md,
+    marginBottom: 20,
     position: "relative",
   },
   caloriesValue: {
-    fontSize: theme.fontSize.xxxl,
+    fontSize: 44,
     fontFamily: theme.black,
-    color: theme.textColor,
+    color: "#111827",
     flex: 1,
+    letterSpacing: -1,
   },
   caloriesTarget: {
-    fontSize: theme.fontSize.xl,
+    fontSize: 20,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#9CA3AF",
   },
   caloriesUnit: {
-    fontSize: theme.fontSize.lg,
+    fontSize: 16,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#9CA3AF",
   },
   miniChartContainer: {
     position: "absolute",
@@ -605,32 +622,31 @@ const styles = StyleSheet.create({
   // Action Buttons
   actionButtons: {
     flexDirection: "row",
-    gap: theme.spacing.md,
-    marginBottom: theme.spacing.xl,
+    gap: 12,
+    marginBottom: 28,
   },
   actionButtonWrapper: {
     flex: 1,
     alignItems: "center",
   },
   actionButton: {
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: theme.borderRadius.full,
-    width: 70,
-    height: 70,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    width: 64,
+    height: 64,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: theme.border,
-    marginBottom: theme.spacing.sm,
-    shadowColor: theme.shadow,
+    borderWidth: 0,
+    marginBottom: 8,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
   },
   actionButtonText: {
-    color: theme.textColor,
-    fontSize: theme.fontSize.xs,
+    color: "#6B7280",
+    fontSize: 11,
     fontFamily: theme.medium,
     textAlign: "center",
   },
@@ -638,104 +654,111 @@ const styles = StyleSheet.create({
   // Divider
   divider: {
     height: 1,
-    backgroundColor: theme.border,
-    marginBottom: theme.spacing.lg,
+    backgroundColor: "#F3F4F6",
+    marginBottom: 20,
   },
 
   // Section Title
   sectionTitle: {
-    fontSize: theme.fontSize.md,
+    fontSize: 13,
     fontFamily: theme.semibold,
-    color: theme.textColor,
-    marginBottom: theme.spacing.md,
+    color: "#9CA3AF",
+    marginBottom: 14,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 
   // Today's Meals
   mealsContainer: {
-    marginBottom: theme.spacing.xl,
+    marginBottom: 24,
   },
   mealRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.border,
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 1,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   mealEmojiCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: theme.spacing.md,
+    marginRight: 14,
   },
   mealEmoji: {
-    fontSize: 24,
+    fontSize: 22,
   },
   mealInfo: {
     flex: 1,
   },
   mealName: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-    marginBottom: theme.spacing.xs,
+    fontSize: 15,
+    fontFamily: theme.semibold,
+    color: "#111827",
+    marginBottom: 4,
   },
   mealMacros: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 12,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
   },
   mealRight: {
     alignItems: "flex-end",
   },
   mealTime: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-    marginBottom: theme.spacing.xs,
+    color: "#9CA3AF",
+    marginBottom: 4,
   },
   mealCalories: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.black,
-    color: theme.textColor,
+    fontSize: 15,
+    fontFamily: theme.bold,
+    color: "#111827",
   },
 
   bottomPadding: {
-    height: 40,
+    height: 60,
   },
 
   // Info Grid (if needed)
   infoGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: theme.spacing.md,
-    marginBottom: theme.spacing.xl,
+    gap: 12,
+    marginBottom: 24,
   },
   gridCard: {
     width: "48%",
   },
   infoCard: {
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.border,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 0,
     height: 160,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   infoCardTitle: {
-    fontSize: theme.fontSize.sm,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-    marginBottom: theme.spacing.md,
+    fontSize: 13,
+    fontFamily: theme.semibold,
+    color: "#9CA3AF",
+    marginBottom: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   circleContainer: {
     alignItems: "center",
@@ -745,42 +768,42 @@ const styles = StyleSheet.create({
   macrosContainer: {
     flex: 1,
     justifyContent: "space-around",
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: 8,
   },
   macroItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: theme.spacing.sm,
+    gap: 8,
   },
   macroItemCentered: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: theme.spacing.sm,
+    paddingHorizontal: 8,
   },
   macroEmoji: {
-    fontSize: 22,
+    fontSize: 20,
   },
   macroValue: {
-    fontSize: theme.fontSize.md,
+    fontSize: 15,
     fontFamily: theme.semibold,
-    color: theme.textColor,
+    color: "#111827",
   },
   burnedContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: theme.spacing.sm,
+    gap: 8,
   },
   burnedValue: {
-    fontSize: theme.fontSize.lg,
-    fontFamily: theme.black,
-    color: theme.textColor,
+    fontSize: 18,
+    fontFamily: theme.bold,
+    color: "#111827",
   },
   burnedUnit: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
   },
   chartContainer: {
     flex: 1,
@@ -793,27 +816,31 @@ const styles = StyleSheet.create({
     marginRight: -20,
   },
   hiddenText: {
-    fontSize: theme.fontSize.xl,
-    fontFamily: theme.black,
-    color: theme.textColorSecondary,
+    fontSize: 18,
+    fontFamily: theme.bold,
+    color: "#9CA3AF",
   },
   noDataText: {
-    fontSize: theme.fontSize.md,
+    fontSize: 14,
     fontFamily: theme.regular,
-    color: theme.textColorTertiary,
+    color: "#D1D5DB",
   },
   comingSoonCard: {
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     padding: 40,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: theme.border,
-    marginBottom: theme.spacing.xl,
+    borderWidth: 0,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   comingSoonText: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.bold,
-    color: theme.textColorSecondary,
+    fontSize: 14,
+    fontFamily: theme.semibold,
+    color: "#6B7280",
   },
 });

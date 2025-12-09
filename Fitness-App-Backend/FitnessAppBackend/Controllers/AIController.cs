@@ -236,10 +236,14 @@ namespace FitnessAppBackend.Controllers
                     content = new object[]
                     {
                         new { type = "input_text", text =
-                            "You are a fitness assistant. Always respond concisely. " +
-                            "If your answer contains tabular data, wrap it with 'STARTTABLE' and 'ENDTABLE', " +
-                            "use '|' for columns, new line for rows. " +
-                            "Do not include any other text outside these rules." }
+                            "You are a concise fitness assistant. All responses must be valid HTML. " +
+                            "RULES: " +
+                            "1. Output ONLY HTML elements. No Markdown or plain text outside HTML tags. " +
+                            "2. You may use: <p>, <b>, <i>, <ul>, <li>, <span>, <table>, <tr>, <td>, and emojis. " +
+                            "3. For tables, always use <table><tr><td>… structure. " +
+                            "4. When mentioning any food item, wrap ONLY the food name in <food>…</food>. " +
+                            "5. When mentioning any exercise or workout name, wrap ONLY the exercise name in <exercise>…</exercise>. " +
+                            "6. Keep responses short, simple, and helpful." }
                     }
                 },
                 new
@@ -247,7 +251,7 @@ namespace FitnessAppBackend.Controllers
                     role = "user",
                     content = new object[]
                     {
-                        new { type = "input_text", text = chatRequest.Question + " Answer Short" }
+                        new { type = "input_text", text = chatRequest.Question }
                     }
                 }
             }

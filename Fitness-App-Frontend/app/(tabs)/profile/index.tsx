@@ -349,7 +349,7 @@ export default function Profile() {
       {/* Top Header Section */}
       <View style={styles.headerSection}>
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Hey, {userData?.name?.split(" ")[0]}! 👋</Text>
+          <Text style={styles.greeting}>Hey, {userData?.name?.split(" ")[0]}!</Text>
           <Text style={styles.greetingSubtitle}>{userData?.email}</Text>
         </View>
 
@@ -357,19 +357,23 @@ export default function Profile() {
         <View style={styles.pillsRow}>
           {/* Rank Pill */}
           <View style={styles.rankPill}>
-            <Ionicons name="star" size={16} color={theme.primary} />
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: "#FEF3C7", justifyContent: "center", alignItems: "center" }}>
+              <Ionicons name="trophy" size={16} color="#D97706" />
+            </View>
             <View style={styles.rankPillContent}>
               <Text style={styles.rankPillLabel}>Rank</Text>
-              <Text style={styles.rankPillValue}>ELITE</Text>
+              <Text style={styles.rankPillValue}>Elite</Text>
             </View>
-            <Text style={styles.rankPillPoints}>2,450 PTS</Text>
+            <Text style={styles.rankPillPoints}>2,450 pts</Text>
           </View>
 
           {/* Plan Pill */}
           <View style={styles.planPill}>
-            <Ionicons name={userData?.role === "PREMIUM" ? "star-sharp" : "wallet"} size={16} color={userData?.role === "PREMIUM" ? "#FFD700" : theme.textColorSecondary} />
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: userData?.role === "PREMIUM" ? "#FEF3C7" : "#F3F4F6", justifyContent: "center", alignItems: "center" }}>
+              <Ionicons name={userData?.role === "PREMIUM" ? "diamond" : "wallet-outline"} size={16} color={userData?.role === "PREMIUM" ? "#D97706" : "#6B7280"} />
+            </View>
             <Text style={styles.planPillText}>
-              {userData?.role === "PREMIUM" ? "Premium" : "Free"}
+              {userData?.role === "PREMIUM" ? "Premium" : "Free Plan"}
             </Text>
           </View>
         </View>
@@ -388,15 +392,15 @@ export default function Profile() {
               setWeightModalVisible(true);
             }}
           >
-            <View style={[styles.statIconBg, { backgroundColor: "rgba(251, 9, 3, 0.1)" }]}>
-              <Ionicons name="scale" size={20} color={theme.primary} />
+            <View style={[styles.statIconBg, { backgroundColor: "#FEE2E2" }]}>
+              <Ionicons name="scale-outline" size={18} color="#EF4444" />
             </View>
             <Text style={styles.statLabelModern}>Weight</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
               <Text style={styles.statValueModern}>{userData?.weight}</Text>
               <Text style={styles.statUnitModern}>{userData?.unit === "metric" ? "kg" : "lbs"}</Text>
             </View>
-            <Text style={{ fontSize: theme.fontSize.xs, color: theme.primary, fontFamily: theme.semibold }}>Edit</Text>
+            <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
           </TouchableOpacity>
 
           {/* Height Card */}
@@ -414,8 +418,8 @@ export default function Profile() {
               setHeightModalVisible(true);
             }}
           >
-            <View style={[styles.statIconBg, { backgroundColor: "rgba(76, 175, 80, 0.1)" }]}>
-              <Ionicons name="fitness" size={20} color={theme.success} />
+            <View style={[styles.statIconBg, { backgroundColor: "#D1FAE5" }]}>
+              <Ionicons name="resize-outline" size={18} color="#059669" />
             </View>
             <Text style={styles.statLabelModern}>Height</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
@@ -433,7 +437,7 @@ export default function Profile() {
                 </>
               )}
             </View>
-            <Text style={{ fontSize: theme.fontSize.xs, color: theme.primary, fontFamily: theme.semibold }}>Edit</Text>
+            <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
           </TouchableOpacity>
 
           {/* Age Card */}
@@ -444,33 +448,37 @@ export default function Profile() {
               setAgeModalVisible(true);
             }}
           >
-            <View style={[styles.statIconBg, { backgroundColor: "rgba(255, 152, 0, 0.1)" }]}>
-              <Ionicons name="person" size={20} color={theme.warning} />
+            <View style={[styles.statIconBg, { backgroundColor: "#FEF3C7" }]}>
+              <Ionicons name="calendar-outline" size={18} color="#D97706" />
             </View>
             <Text style={styles.statLabelModern}>Age</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
               <Text style={styles.statValueModern}>{userData?.age}</Text>
-              <Text style={styles.statUnitModern}>years</Text>
+              <Text style={styles.statUnitModern}>yrs</Text>
             </View>
-            <Text style={{ fontSize: theme.fontSize.xs, color: theme.primary, fontFamily: theme.semibold }}>Edit</Text>
+            <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
           </TouchableOpacity>
         </View>
 
         {/* BMI Card - Full Width Below */}
         <View style={styles.statCardModern}>
-          <View style={[styles.statIconBg, { backgroundColor: "rgba(33, 150, 243, 0.1)" }]}>
-            <Ionicons name="analytics" size={20} color={theme.info} />
+          <View style={[styles.statIconBg, { backgroundColor: "#DBEAFE" }]}>
+            <Ionicons name="pulse-outline" size={18} color="#3B82F6" />
           </View>
           <View style={styles.statContent}>
             <Text style={styles.statLabelModern}>BMI</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
               <Text style={styles.statValueModern}>{userData?.bmi?.toFixed(1)}</Text>
-              <Text style={styles.statUnitModern}>
-                {userData?.bmi < 18.5 ? "Underweight" : userData?.bmi < 25 ? "Normal" : userData?.bmi < 30 ? "Overweight" : "Obese"}
-              </Text>
+              <View style={{ backgroundColor: userData?.bmi < 18.5 ? "#FEE2E2" : userData?.bmi < 25 ? "#D1FAE5" : userData?.bmi < 30 ? "#FEF3C7" : "#FEE2E2", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                <Text style={{ fontSize: 11, fontFamily: theme.medium, color: userData?.bmi < 18.5 ? "#EF4444" : userData?.bmi < 25 ? "#059669" : userData?.bmi < 30 ? "#D97706" : "#EF4444" }}>
+                  {userData?.bmi < 18.5 ? "Underweight" : userData?.bmi < 25 ? "Normal" : userData?.bmi < 30 ? "Overweight" : "Obese"}
+                </Text>
+              </View>
             </View>
           </View>
-          <Text style={{ fontSize: theme.fontSize.xs, color: theme.textColorSecondary, fontFamily: theme.regular }}>Auto</Text>
+          <View style={{ backgroundColor: "#F3F4F6", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+            <Text style={{ fontSize: 11, color: "#6B7280", fontFamily: theme.medium }}>Auto</Text>
+          </View>
         </View>
       </View>
 
@@ -481,50 +489,50 @@ export default function Profile() {
         style={styles.settingCardModern}
         onPress={() => setFitnessLevelModalVisible(true)}
       >
-        <View style={[styles.iconCircle, { backgroundColor: "rgba(251, 9, 3, 0.1)" }]}>
-          <Ionicons name="barbell" size={22} color={theme.primary} />
+        <View style={[styles.iconCircle, { backgroundColor: "#FEE2E2" }]}>
+          <Ionicons name="barbell-outline" size={20} color="#EF4444" />
         </View>
         <View style={styles.settingMiddle}>
           <Text style={styles.settingTitleModern}>Fitness Level</Text>
           <Text style={styles.settingValueModern}>{userData?.fitnessLevel || "Not set"}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={22} color={theme.textColorSecondary} />
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.settingCardModern}
         onPress={() => setEquipmentModalVisible(true)}
       >
-        <View style={[styles.iconCircle, { backgroundColor: "rgba(76, 175, 80, 0.1)" }]}>
-          <Ionicons name="build" size={22} color={theme.success} />
+        <View style={[styles.iconCircle, { backgroundColor: "#D1FAE5" }]}>
+          <Ionicons name="fitness-outline" size={20} color="#059669" />
         </View>
         <View style={styles.settingMiddle}>
           <Text style={styles.settingTitleModern}>Equipment Access</Text>
           <Text style={styles.settingValueModern}>{userData?.equipmentAccess || "Not set"}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={22} color={theme.textColorSecondary} />
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.settingCardModern}
         onPress={() => setCalorieModalVisible(true)}
       >
-        <View style={[styles.iconCircle, { backgroundColor: "rgba(255, 152, 0, 0.1)" }]}>
-          <Ionicons name="nutrition" size={22} color={theme.warning} />
+        <View style={[styles.iconCircle, { backgroundColor: "#FEF3C7" }]}>
+          <Ionicons name="flame-outline" size={20} color="#D97706" />
         </View>
         <View style={styles.settingMiddle}>
           <Text style={styles.settingTitleModern}>Daily Calories</Text>
           <Text style={styles.settingValueModern}>{userData?.caloricIntake} cal</Text>
         </View>
-        <Ionicons name="chevron-forward" size={22} color={theme.textColorSecondary} />
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       </TouchableOpacity>
 
       {/* Account Settings */}
-      <Text style={styles.sectionTitle}>Account Settings</Text>
+      <Text style={styles.sectionTitle}>Account</Text>
 
       <View style={styles.settingCardModern}>
-        <View style={[styles.iconCircle, { backgroundColor: "rgba(33, 150, 243, 0.1)" }]}>
-          <Ionicons name="settings" size={22} color={theme.info} />
+        <View style={[styles.iconCircle, { backgroundColor: "#DBEAFE" }]}>
+          <Ionicons name="options-outline" size={20} color="#3B82F6" />
         </View>
         <View style={styles.settingMiddle}>
           <Text style={styles.settingTitleModern}>Measurement Unit</Text>
@@ -541,33 +549,33 @@ export default function Profile() {
       </View>
 
       <TouchableOpacity style={styles.settingCardModern}>
-        <View style={[styles.iconCircle, { backgroundColor: "rgba(156, 39, 176, 0.1)" }]}>
-          <Ionicons name="card" size={22} color="#9C27B0" />
+        <View style={[styles.iconCircle, { backgroundColor: "#F3E8FF" }]}>
+          <Ionicons name="diamond-outline" size={20} color="#9333EA" />
         </View>
         <View style={styles.settingMiddle}>
           <Text style={styles.settingTitleModern}>Subscription</Text>
           <Text style={styles.settingValueModern}>
-            {userData?.role === "PREMIUM" ? "Premium - $9.99/mo" : "Free Plan"}
+            {userData?.role === "PREMIUM" ? "Premium · $9.99/mo" : "Free Plan"}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={22} color={theme.textColorSecondary} />
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       </TouchableOpacity>
 
       {/* Logout */}
-      <TouchableOpacity style={styles.settingCardModern} onPress={handleLogout}>
-        <View style={[styles.iconCircle, { backgroundColor: "rgba(244, 67, 54, 0.15)" }]}>
-          <Ionicons name="log-out" size={22} color={theme.error} />
+      <TouchableOpacity style={[styles.settingCardModern, { marginTop: 8 }]} onPress={handleLogout}>
+        <View style={[styles.iconCircle, { backgroundColor: "#FEE2E2" }]}>
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
         </View>
         <View style={styles.settingMiddle}>
-          <Text style={[styles.settingTitleModern, { color: theme.error }]}>Logout</Text>
+          <Text style={[styles.settingTitleModern, { color: "#EF4444" }]}>Sign Out</Text>
         </View>
-        <Ionicons name="chevron-forward" size={22} color={theme.error} />
+        <Ionicons name="chevron-forward" size={20} color="#EF4444" />
       </TouchableOpacity>
 
       {/* Footer */}
       <View style={styles.footer}>
         <Text style={styles.footerApp}>INVICTA Fitness</Text>
-        <Text style={styles.footerVersion}>v{VERSION}</Text>
+        <Text style={styles.footerVersion}>Version {VERSION}</Text>
       </View>
 
       {/* Weight Modal */}
@@ -962,9 +970,9 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundColor,
-    paddingHorizontal: 30,
-    paddingTop: 25,
+    backgroundColor: "#FAFAFA",
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   loadingText: {
     fontSize: theme.fontSize.lg,
@@ -973,114 +981,139 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   headerSection: {
-    marginBottom: 24,
-    gap: 12,
+    marginBottom: 28,
+    gap: 16,
   },
   greetingContainer: {
-    gap: 2,
+    gap: 4,
   },
   greeting: {
-    fontSize: theme.fontSize.xxl,
+    fontSize: 28,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: "#111827",
+    letterSpacing: -0.5,
   },
   greetingSubtitle: {
     fontSize: theme.fontSize.sm,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
   },
   pillsRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
   },
   rankPill: {
     flex: 1,
-    backgroundColor: "rgba(251, 9, 3, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(251, 9, 3, 0.15)",
-    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 0,
+    borderColor: "transparent",
+    borderRadius: 16,
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   rankPillContent: {
     flex: 1,
-    gap: 1,
+    gap: 2,
   },
   rankPillLabel: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.medium,
-    color: theme.textColorSecondary,
+    color: "#9CA3AF",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   rankPillValue: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.bold,
-    color: theme.primary,
+    color: "#111827",
   },
   rankPillPoints: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.semibold,
-    color: theme.primary,
+    color: "#6B7280",
   },
   planPill: {
-    backgroundColor: "rgba(0, 0, 0, 0.04)",
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 0,
+    borderColor: "transparent",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   planPillText: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.semibold,
-    color: theme.textColor,
+    color: "#111827",
   },
   sectionTitleTop: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.bold,
-    color: theme.textColor,
+    fontSize: 13,
+    fontFamily: theme.semibold,
+    color: "#9CA3AF",
     marginBottom: 12,
-    marginTop: 4,
+    marginTop: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   statsGrid: {
     flexDirection: "column",
-    gap: 10,
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 20,
   },
   statsGridTop: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
     justifyContent: "space-between",
   },
   statCardCompact: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: theme.border,
-    padding: 8,
+    borderRadius: 16,
+    borderWidth: 0,
+    borderColor: "transparent",
+    padding: 12,
     alignItems: "center",
-    gap: 4,
+    gap: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statCardModern: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: theme.border,
-    padding: 10,
+    borderRadius: 16,
+    borderWidth: 0,
+    borderColor: "transparent",
+    padding: 14,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statIconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1089,19 +1122,19 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   statLabelModern: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 12,
     fontFamily: theme.medium,
-    color: theme.textColorSecondary,
+    color: "#9CA3AF",
   },
   statValueModern: {
     fontSize: theme.fontSize.lg,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: "#111827",
   },
   statUnitModern: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#9CA3AF",
   },
   smallEditBtn: {
     width: 32,
@@ -1112,28 +1145,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   sectionTitle: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.bold,
-    color: theme.textColor,
+    fontSize: 13,
+    fontFamily: theme.semibold,
+    color: "#9CA3AF",
     marginBottom: 12,
-    marginTop: 16,
+    marginTop: 20,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   settingCardModern: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: theme.border,
-    padding: 10,
-    marginBottom: 8,
+    borderRadius: 16,
+    borderWidth: 0,
+    borderColor: "transparent",
+    padding: 14,
+    marginBottom: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
+    gap: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1144,76 +1184,77 @@ const styles = StyleSheet.create({
   settingTitleModern: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.semibold,
-    color: theme.textColor,
+    color: "#111827",
   },
   settingValueModern: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
   },
   logoutCardModern: {
     marginTop: 12,
-    borderColor: "rgba(244, 67, 54, 0.15)",
+    borderColor: "transparent",
     justifyContent: "space-between",
   },
   footer: {
     alignItems: "center",
-    marginVertical: 32,
-    marginBottom: 48,
-    gap: 4,
+    marginVertical: 40,
+    marginBottom: 60,
+    gap: 6,
   },
   footerApp: {
     fontSize: theme.fontSize.sm,
-    fontFamily: theme.bold,
-    color: theme.textColor,
+    fontFamily: theme.semibold,
+    color: "#374151",
   },
   footerVersion: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#9CA3AF",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
     justifyContent: "flex-end",
   },
   modalContent: {
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     padding: 24,
-    paddingBottom: 40,
+    paddingBottom: 44,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   modalTitle: {
-    fontSize: theme.fontSize.lg,
+    fontSize: 18,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: "#111827",
     flex: 1,
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
   },
   input: {
     borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: 20,
+    borderColor: "#E5E7EB",
+    borderRadius: 14,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: theme.fontSize.md,
     fontFamily: theme.regular,
-    color: theme.textColor,
+    color: "#111827",
     marginBottom: 16,
+    backgroundColor: "#F9FAFB",
   },
   weightAdjustContainer: {
     gap: 16,
@@ -1222,10 +1263,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "rgba(251, 9, 3, 0.05)",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
   },
   weightDisplayContent: {
     flexDirection: "row",
@@ -1233,15 +1274,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   weightValue: {
-    fontSize: theme.fontSize.xxxl,
+    fontSize: 36,
     fontFamily: theme.bold,
-    color: theme.primary,
+    color: "#111827",
   },
   weightUnit: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-    marginBottom: 2,
+    color: "#6B7280",
+    marginBottom: 4,
   },
   adjustButtonsRow: {
     flexDirection: "row",
@@ -1249,21 +1290,22 @@ const styles = StyleSheet.create({
   },
   adjustBtn: {
     flex: 1,
-    height: 48,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: theme.primary,
+    height: 52,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
   },
   adjustBtnActive: {
-    backgroundColor: theme.primary,
+    backgroundColor: "#111827",
+    borderColor: "#111827",
   },
   adjustBtnText: {
     fontSize: theme.fontSize.xxl,
     fontFamily: theme.bold,
-    color: theme.primary,
+    color: "#374151",
   },
   adjustBtnTextActive: {
     color: "#FFFFFF",
@@ -1271,26 +1313,27 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: "row",
     gap: 12,
-    marginTop: 20,
+    marginTop: 24,
   },
   cancelBtn: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 20,
+    paddingVertical: 14,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: theme.border,
+    borderColor: "#E5E7EB",
     alignItems: "center",
+    backgroundColor: "#F9FAFB",
   },
   cancelBtnText: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.semibold,
-    color: theme.textColor,
+    color: "#374151",
   },
   confirmBtn: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 20,
-    backgroundColor: theme.primary,
+    paddingVertical: 14,
+    borderRadius: 14,
+    backgroundColor: "#111827",
     alignItems: "center",
   },
   confirmBtnText: {
@@ -1299,46 +1342,46 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   modalOption: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderRadius: 12,
+    marginBottom: 6,
+    backgroundColor: "#F9FAFB",
   },
   modalOptionSelected: {
-    backgroundColor: "rgba(251, 9, 3, 0.1)",
+    backgroundColor: "#111827",
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderBottomWidth: 0,
-    marginVertical: 4,
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 6,
   },
   modalOptionText: {
     fontSize: theme.fontSize.md,
-    fontFamily: theme.regular,
-    color: theme.textColor,
+    fontFamily: theme.medium,
+    color: "#374151",
   },
   modalOptionSubtext: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 12,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: "#6B7280",
     marginTop: 2,
   },
   ratePill: {
-    backgroundColor: "#2E7D32",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: "#059669",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     marginTop: 0,
     alignSelf: "flex-start",
   },
   ratePillText: {
-    fontSize: theme.fontSize.xs,
-    fontFamily: theme.regular,
+    fontSize: 11,
+    fontFamily: theme.medium,
     color: "#FFFFFF",
   },
   modalOptionTextSelected: {
-    fontFamily: theme.bold,
-    color: theme.primary,
+    fontFamily: theme.semibold,
+    color: "#FFFFFF",
   },
 });
 
