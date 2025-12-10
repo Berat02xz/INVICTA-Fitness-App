@@ -760,34 +760,35 @@ export default function Chatbot() {
           />
 
           {/* Input */}
-          <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
-            <TouchableOpacity
-              style={styles.cameraButton}
-              onPress={() => router.push("/(screens)/ScanMeal")}
-              activeOpacity={0.7}
-            >
-              <MaterialCommunityIcons 
-                name="camera-outline" 
-                size={22} 
-                color="#6B7280"
-              />
-            </TouchableOpacity>
-
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={styles.input}
-                placeholder="Ask me anything..."
-                placeholderTextColor="#9CA3AF"
-                value={inputText}
-                onChangeText={setInputText}
-                multiline={false}
-                maxLength={500}
-              />
-
+          <View style={styles.inputContainerWrapper}>
+            <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
               <TouchableOpacity
-                style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-                onPress={() => sendMessage()}
-                disabled={!inputText.trim() || isLoading}
+                style={styles.cameraButton}
+                onPress={() => router.push("/(screens)/ScanMeal")}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons 
+                  name="camera-outline" 
+                  size={22} 
+                  color="#6B7280"
+                />
+              </TouchableOpacity>
+
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ask me anything..."
+                  placeholderTextColor="#9CA3AF"
+                  value={inputText}
+                  onChangeText={setInputText}
+                  multiline={false}
+                  maxLength={500}
+                />
+
+                <TouchableOpacity
+                  style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+                  onPress={() => sendMessage()}
+                  disabled={!inputText.trim() || isLoading}
                 activeOpacity={0.8}
               >
                 <MaterialCommunityIcons
@@ -796,6 +797,7 @@ export default function Chatbot() {
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
+            </View>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -900,6 +902,13 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
     backgroundColor: '#F7F7F7',
+    ...Platform.select({
+      web: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    }),
   },
   header: {
     paddingTop: 60,
@@ -929,7 +938,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.50,
+    shadowOpacity: 0.10,
     shadowRadius: 80,
     elevation: 8,
   },
@@ -945,7 +954,7 @@ const styles = StyleSheet.create({
     gap: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.50,
+    shadowOpacity: 0.10,
     shadowRadius: 80,
     elevation: 8,
   },
@@ -999,6 +1008,13 @@ const styles = StyleSheet.create({
     paddingTop: 120,
     paddingBottom: 100,
     flexGrow: 1,
+    ...Platform.select({
+      web: {
+        maxWidth: 768,
+        marginHorizontal: 'auto',
+        width: '100%',
+      },
+    }),
   },
   messageContainer: {
     flexDirection: "row",
@@ -1103,15 +1119,24 @@ const styles = StyleSheet.create({
     fontFamily: theme.medium,
     color: theme.textColor,
   },
+  inputContainerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    ...Platform.select({
+      web: {
+        width: '100%',
+        maxWidth: 768,
+        alignSelf: 'center',
+      },
+    }),
+  },
   inputContainer: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 20,
     backgroundColor: 'transparent',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -1129,7 +1154,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.30,
+    shadowOpacity: 0.10,
     shadowRadius: 150,
     elevation: 8,
     gap: 12,
@@ -1150,7 +1175,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.30,
+    shadowOpacity: 0.10,
     shadowRadius: 150,
     elevation: 8,
   },
@@ -1220,12 +1245,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
+    width: '100%',
+    maxWidth: 768,
     paddingTop: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 20,
+    alignSelf: 'center',
   },
   modalDragIndicator: {
     width: 40,
