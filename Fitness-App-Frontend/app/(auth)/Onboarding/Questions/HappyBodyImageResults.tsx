@@ -1,7 +1,6 @@
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import FadeTranslate from "@/components/ui/FadeTranslate";
-import RadialBlurBackground from "@/components/ui/RadialBlurBackground";
 import SolidBackground from "@/components/ui/SolidBackground";
 import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";

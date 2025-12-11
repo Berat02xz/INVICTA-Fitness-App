@@ -142,6 +142,7 @@ namespace FitnessAppBackend.Controllers
 
             if (user == null || !_userService.VerifyPassword(request.Password, user.PasswordHash))
             {
+                Console.WriteLine("Invalid email or password.");
                 return Unauthorized("Invalid email or password.");
             }
 

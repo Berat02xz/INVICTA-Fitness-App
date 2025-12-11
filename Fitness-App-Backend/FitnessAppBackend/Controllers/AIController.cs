@@ -213,14 +213,16 @@ namespace FitnessAppBackend.Controllers
 
         [Authorize]
         [HttpPost("AskChat")]
-        public async Task<IActionResult> AskChat([FromBody] ChatRequest chatRequest)
+        public async Task AskChat([FromBody] ChatRequest chatRequest)
         {
-            Console.WriteLine($"AskChat called with question: {chatRequest.Question}");
+            Console.WriteLine($"[AskChat] Called with question: {chatRequest.Question}");
 
             if (string.IsNullOrWhiteSpace(chatRequest.Question))
             {
-                Console.WriteLine("Empty question received in AskChat");
-                return BadRequest("Question cannot be empty.");
+                Console.WriteLine("[AskChat] Empty question received");
+                Response.StatusCode = 400;
+                await Response.WriteAsync("Question cannot be empty.");
+                return;
             }
 
             var apiKey = Environment.GetEnvironmentVariable("OpenAI__ApiKey");
@@ -228,64 +230,150 @@ namespace FitnessAppBackend.Controllers
             var requestBody = new
             {
                 model = "gpt-5-nano-2025-08-07",
+                stream = true,
                 input = new[]
-            {
-                new
                 {
-                    role = "system",
-                    content = new object[]
+                    new
                     {
-                        new { type = "input_text", text =
-                            "You are a concise fitness assistant. All responses must be valid HTML. " +
-                            "RULES: " +
-                            "1. Output ONLY HTML elements. No Markdown or plain text outside HTML tags. " +
-                            "2. You may use: <p>, <b>, <i>, <ul>, <li>, <span>, <table>, <tr>, <td>, and emojis. " +
-                            "3. For tables, always use <table><tr><td>… structure. " +
-                            "4. When mentioning any food item, wrap ONLY the food name in <food>…</food>. " +
-                            "5. When mentioning any exercise or workout name, wrap ONLY the exercise name in <exercise>…</exercise>. " +
-                            "6. Keep responses short, simple, and helpful." }
-                    }
-                },
-                new
-                {
-                    role = "user",
-                    content = new object[]
+                        role = "system",
+                        content = new object[]
+                        {
+                            new {
+                                type = "input_text",
+                                text =
+                                "You are a fitness assistant. All responses must be valid HTML. " +
+                                "RULES: " +
+                                "1. Output ONLY HTML elements. No Markdown. " +
+                                "2. Allowed tags: <p>, <b>, <i>, <h1>, <table>, <tr>, <td>. " +
+                                "3. For tables, use <table>, <tr> and <td> tags always. " +
+                                "4. Wrap food names in <food>…</food>. " +
+                                "5. Wrap exercise names in <exercise>…</exercise>. " +
+                                "6. Keep responses short."
+                            }
+                        }
+                    },
+                    new
                     {
-                        new { type = "input_text", text = chatRequest.Question }
+                        role = "user",
+                        content = new object[]
+                        {
+                            new { type = "input_text", text = chatRequest.Question }
+                        }
                     }
                 }
-            }
             };
 
-
             var json = JsonSerializer.Serialize(requestBody);
+            Console.WriteLine($"[AskChat] Sending to OpenAI:\n{json}");
 
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-            var response = await httpClient.PostAsync(
-                "https://api.openai.com/v1/responses",
-                new StringContent(json, Encoding.UTF8, "application/json")
-            );
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/responses")
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"OpenAI API error in AskChat: {error}");
-                return StatusCode((int)response.StatusCode, error);
+                Console.WriteLine($"[AskChat] OpenAI API error: {error}");
+                Response.StatusCode = (int)response.StatusCode;
+                await Response.WriteAsync(error);
+                return;
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            JsonNode docNode = JsonNode.Parse(responseContent);
+            // Set up SSE response headers
+            Response.ContentType = "text/event-stream";
+            Response.Headers.Append("Cache-Control", "no-cache");
+            Response.Headers.Append("Connection", "keep-alive");
 
-            var outputArray = docNode["output"]?.AsArray();
-            var assistantMessage = outputArray.LastOrDefault(msg => msg["role"]?.ToString() == "assistant");
-            var contentArray = assistantMessage["content"]?.AsArray();
-            var textContent = contentArray
-                .FirstOrDefault(c => c?["type"]?.ToString() == "output_text")?["text"]?.ToString();
+            var stream = await response.Content.ReadAsStreamAsync();
+            using var reader = new StreamReader(stream);
 
-            return Ok(new { Answer = textContent ?? "No response received." });
+            // Batching configuration to reduce bandwidth usage
+            const int BATCH_CHAR_THRESHOLD = 40;  // Send after accumulating this many characters
+            const int BATCH_TIME_MS = 350;        // Or after this many milliseconds
+            var textBuffer = new StringBuilder();
+            var lastFlushTime = DateTime.UtcNow;
+
+            while (!reader.EndOfStream)
+            {
+                var line = await reader.ReadLineAsync();
+
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                if (!line.StartsWith("data: "))
+                    continue;
+
+                var jsonPart = line.Substring("data: ".Length).Trim();
+
+                if (jsonPart == "[DONE]")
+                {
+                    // Flush any remaining buffered text before finishing
+                    if (textBuffer.Length > 0)
+                    {
+                        var batchedJson = JsonSerializer.Serialize(new { type = "response.output_text.delta", delta = textBuffer.ToString() });
+                        await Response.WriteAsync($"data: {batchedJson}\n\n");
+                        await Response.Body.FlushAsync();
+                        textBuffer.Clear();
+                    }
+                    
+                    Console.WriteLine("[AskChat] Stream finished ([DONE])");
+                    await Response.WriteAsync("data: [DONE]\n\n");
+                    await Response.Body.FlushAsync();
+                    break;
+                }
+
+                // Extract delta text from the chunk
+                string? deltaText = null;
+                try
+                {
+                    var node = JsonNode.Parse(jsonPart);
+                    if (node?["type"]?.ToString() == "response.output_text.delta")
+                    {
+                        deltaText = node["delta"]?.ToString();
+                    }
+                    else
+                    {
+                        // Non-delta events (like response.completed) - forward immediately
+                        await Response.WriteAsync($"data: {jsonPart}\n\n");
+                        await Response.Body.FlushAsync();
+                        continue;
+                    }
+                }
+                catch
+                {
+                    // If parsing fails, forward as-is
+                    await Response.WriteAsync($"data: {jsonPart}\n\n");
+                    await Response.Body.FlushAsync();
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(deltaText))
+                {
+                    textBuffer.Append(deltaText);
+                    var timeSinceLastFlush = (DateTime.UtcNow - lastFlushTime).TotalMilliseconds;
+
+                    // Flush if we've accumulated enough characters or enough time has passed
+                    if (textBuffer.Length >= BATCH_CHAR_THRESHOLD || timeSinceLastFlush >= BATCH_TIME_MS)
+                    {
+                        var batchedJson = JsonSerializer.Serialize(new { type = "response.output_text.delta", delta = textBuffer.ToString() });
+                        Console.WriteLine($"[AskChat] Sending batched chunk ({textBuffer.Length} chars): {textBuffer}");
+                        
+                        await Response.WriteAsync($"data: {batchedJson}\n\n");
+                        await Response.Body.FlushAsync();
+                        
+                        textBuffer.Clear();
+                        lastFlushTime = DateTime.UtcNow;
+                    }
+                }
+            }
         }
+
 
     }
 }

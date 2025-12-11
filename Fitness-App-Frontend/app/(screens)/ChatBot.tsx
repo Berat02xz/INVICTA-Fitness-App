@@ -265,6 +265,121 @@ export default function Chatbot() {
     });
   };
 
+  // Parse HTML response and render styled components
+  const parseHtmlResponse = (html: string) => {
+    if (!html) return null;
+    
+    const elements: React.ReactNode[] = [];
+    let key = 0;
+    
+    // Regex to match tags we care about
+    const tagRegex = /<(food|exercise|b|i|p|ul|li|table|tr|td|h1)>([\s\S]*?)<\/\1>|([^<]+)/gi;
+    
+    let match;
+    while ((match = tagRegex.exec(html)) !== null) {
+      const [, tagName, content, plainText] = match;
+      
+      if (plainText) {
+        // Plain text outside tags
+        const trimmed = plainText.trim();
+        if (trimmed) {
+          elements.push(<Text key={key++} style={styles.messageText}>{plainText}</Text>);
+        }
+      } else if (tagName && content) {
+        const tag = tagName.toLowerCase();
+        
+        switch (tag) {
+          case 'food':
+            elements.push(
+              <TouchableOpacity 
+                key={key++} 
+                style={styles.foodPill}
+                activeOpacity={0.7}
+                onPress={() => {/* TODO: Search functionality */}}
+              >
+                <MaterialCommunityIcons name="magnify" size={14} color="#15803D" />
+                <Text style={styles.foodPillText}>{content.trim()}</Text>
+              </TouchableOpacity>
+            );
+            break;
+          case 'exercise':
+            elements.push(
+              <TouchableOpacity 
+                key={key++} 
+                style={styles.exercisePill}
+                activeOpacity={0.7}
+                onPress={() => {/* TODO: Search functionality */}}
+              >
+                <MaterialCommunityIcons name="magnify" size={14} color="#C2410C" />
+                <Text style={styles.exercisePillText}>{content.trim()}</Text>
+              </TouchableOpacity>
+            );
+            break;
+          case 'b':
+            elements.push(<Text key={key++} style={[styles.messageText, { fontFamily: theme.bold }]}>{content}</Text>);
+            break;
+          case 'i':
+            elements.push(<Text key={key++} style={[styles.messageText, { fontStyle: 'italic' }]}>{content}</Text>);
+            break;
+          case 'h1':
+            elements.push(
+              <Text key={key++} style={styles.h1Text}>
+                {parseHtmlResponse(content)}
+              </Text>
+            );
+            break;
+          case 'p':
+            elements.push(
+              <Text key={key++} style={[styles.messageText, { marginBottom: 8 }]}>
+                {parseHtmlResponse(content)}
+              </Text>
+            );
+            break;
+          case 'li':
+            elements.push(
+              <View key={key++} style={styles.listItem}>
+                <Text style={styles.messageText}>• </Text>
+                <Text style={[styles.messageText, { flex: 1 }]}>{parseHtmlResponse(content)}</Text>
+              </View>
+            );
+            break;
+          case 'ul':
+            elements.push(
+              <View key={key++} style={styles.listContainer}>
+                {parseHtmlResponse(content)}
+              </View>
+            );
+            break;
+          case 'table':
+            elements.push(
+              <View key={key++} style={styles.tableContainer}>
+                {parseHtmlResponse(content)}
+              </View>
+            );
+            break;
+          case 'tr':
+            elements.push(
+              <View key={key++} style={styles.tableRow}>
+                {parseHtmlResponse(content)}
+              </View>
+            );
+            break;
+          case 'td':
+            elements.push(
+              <View key={key++} style={styles.tableCell}>
+                <Text style={styles.messageText}>{parseHtmlResponse(content)}</Text>
+              </View>
+            );
+            break;
+          default:
+            elements.push(<Text key={key++} style={styles.messageText}>{content}</Text>);
+        }
+      }
+    }
+    
+    return elements.length > 0 ? elements : <Text style={styles.messageText}>{html}</Text>;
+  };
+
   const loadSavedMessages = async () => {
     try {
       const userId = await getUserIdFromToken();
@@ -329,178 +444,6 @@ export default function Chatbot() {
     }
   };
 
-  const parseHtmlResponse = (html: string) => {
-    let keyIndex = 0;
-
-    const parseElements = (content: string, depth: number = 0): React.ReactNode[] => {
-      const result: React.ReactNode[] = [];
-      
-      // Regex to match HTML tags and their content
-      const tagRegex = /<(\w+)([^>]*)>([\s\S]*?)<\/\1>|<(\w+)([^>]*)\/?>|([^<]+)/g;
-      let match;
-
-      while ((match = tagRegex.exec(content)) !== null) {
-        // Plain text between tags
-        if (match[6]) {
-          const text = match[6].trim();
-          if (text) {
-            result.push(text);
-          }
-          continue;
-        }
-
-        const tagName = match[1] || match[4];
-        const tagContent = match[3] || '';
-
-        switch (tagName?.toLowerCase()) {
-          case 'p':
-            result.push(
-              <Text key={keyIndex++} style={[styles.messageText, { marginBottom: 12 }]}>
-                {parseElements(tagContent, depth)}
-              </Text>
-            );
-            break;
-          case 'b':
-          case 'strong':
-            result.push(
-              <Text key={keyIndex++} style={[styles.messageText, { fontFamily: theme.bold }]}>
-                {parseElements(tagContent, depth)}
-              </Text>
-            );
-            break;
-          case 'i':
-          case 'em':
-            result.push(
-              <Text key={keyIndex++} style={[styles.messageText, { fontStyle: 'italic' }]}>
-                {parseElements(tagContent, depth)}
-              </Text>
-            );
-            break;
-          case 'food':
-            result.push(
-              <TouchableOpacity key={keyIndex++} style={styles.foodPill} activeOpacity={0.7}>
-                <MaterialCommunityIcons name="magnify" size={14} color="#22C55E" />
-                <Text style={[styles.pillText, { color: '#22C55E' }]}>
-                  {parseElements(tagContent, depth)}
-                </Text>
-              </TouchableOpacity>
-            );
-            break;
-          case 'exercise':
-            result.push(
-              <TouchableOpacity key={keyIndex++} style={styles.exercisePill} activeOpacity={0.7}>
-                <MaterialCommunityIcons name="magnify" size={14} color="#D97706" />
-                <Text style={[styles.pillText, { color: '#D97706' }]}>
-                  {parseElements(tagContent, depth)}
-                </Text>
-              </TouchableOpacity>
-            );
-            break;
-          case 'ul':
-            const listItems = tagContent.match(/<li[^>]*>([\s\S]*?)<\/li>/g) || [];
-            result.push(
-              <View key={keyIndex++} style={{ marginLeft: depth === 0 ? 0 : 16, marginBottom: 8 }}>
-                {listItems.map((item, idx) => {
-                  // Extract content and nested lists
-                  const itemContent = item.replace(/<\/?li[^>]*>/g, '').trim();
-                  const nestedListMatch = itemContent.match(/<ul[\s\S]*?<\/ul>/);
-                  const textContent = itemContent.replace(/<ul[\s\S]*?<\/ul>/g, '').trim();
-                  
-                  return (
-                    <View key={idx}>
-                      {textContent && (
-                        <View style={{ flexDirection: 'row', marginBottom: 4 }}>
-                          <Text style={[styles.messageText, { marginRight: 8, marginTop: 2 }]}>•</Text>
-                          <View style={{ flex: 1 }}>
-                            <Text style={styles.messageText}>
-                              {parseElements(textContent, depth)}
-                            </Text>
-                          </View>
-                        </View>
-                      )}
-                      {nestedListMatch && (
-                        <View style={{ marginLeft: 12, marginBottom: 8 }}>
-                          {parseElements(nestedListMatch[0], depth + 1)}
-                        </View>
-                      )}
-                    </View>
-                  );
-                })}
-              </View>
-            );
-            break;
-          case 'table':
-            const rows = tagContent.match(/<tr[^>]*>([\s\S]*?)<\/tr>/g) || [];
-            
-            // Calculate max width needed for each column
-            const columnWidths: number[] = [];
-            rows.forEach((row) => {
-              const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g) || [];
-              cells.forEach((cell, idx) => {
-                const cellContent = cell.replace(/<\/?t[dh][^>]*>/g, '').trim();
-                const contentLength = cellContent.length;
-                const estimatedWidth = Math.min(Math.max(contentLength * 6, 100), 250); // min 100, max 250
-                columnWidths[idx] = Math.max(columnWidths[idx] || 0, estimatedWidth);
-              });
-            });
-            
-            result.push(
-              <ScrollView
-                key={keyIndex++}
-                horizontal
-                nestedScrollEnabled={true}
-                showsHorizontalScrollIndicator={true}
-                style={styles.tableScrollView}
-              >
-                <View style={styles.tableContainer}>
-                  {rows.map((row, rowIdx) => {
-                    const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g) || [];
-                    const isHeaderRow = row.includes('<th');
-                    return (
-                      <View key={rowIdx} style={styles.tableRow}>
-                        {cells.map((cell, cellIdx) => {
-                          const cellContent = cell.replace(/<\/?t[dh][^>]*>/g, '').trim();
-                          return (
-                            <View
-                              key={cellIdx}
-                              style={[
-                                styles.tableCell,
-                                isHeaderRow && styles.tableHeaderCell,
-                                cellIdx === 0 && styles.tableFirstColumn,
-                                { width: columnWidths[cellIdx] },
-                              ]}
-                            >
-                              <Text
-                                style={[
-                                  styles.tableCellText,
-                                  isHeaderRow && styles.tableHeaderText,
-                                ]}
-                              >
-                                {parseElements(cellContent, depth)}
-                              </Text>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    );
-                  })}
-                </View>
-              </ScrollView>
-            );
-            break;
-          default:
-            if (tagContent) {
-              result.push(...parseElements(tagContent, depth));
-            }
-        }
-      }
-
-      return result;
-    };
-
-    return <>{parseElements(html)}</>;
-  };
-
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || inputText.trim();
     if (!textToSend || isLoading) return;
@@ -532,20 +475,33 @@ export default function Chatbot() {
       // Debug: Log the request being sent
       console.log('Sending chat request with question:', questionWithContext);
       
-      // Call backend API
-      const response: any = await AIEndpoint.askChat(questionWithContext);
-      
-      // Handle both lowercase and uppercase 'answer' property
-      const answerText = response.answer || response.Answer || "Sorry, I couldn't process that.";
-      
+      // Create AI message with streaming content
+      const aiMessageId = (Date.now() + 1).toString();
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: answerText || "Sorry, I couldn't process that.",
+        id: aiMessageId,
+        text: '',
         isUser: false,
         timestamp: new Date(),
       };
       
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Use streaming API
+      await AIEndpoint.askChatStream(questionWithContext, (chunk: string) => {
+        console.log('ChatBot received chunk:', chunk);
+        // Update the AI message with streamed content
+        setMessages(prev => {
+          const updated = prev.map(msg => 
+            msg.id === aiMessageId 
+              ? { ...msg, text: msg.text + chunk }
+              : msg
+          );
+          const aiMsg = updated.find(m => m.id === aiMessageId);
+          console.log('Updated AI message text:', aiMsg?.text);
+          return updated;
+        });
+      });
+      
       setIsLoading(false);
     } catch (error: any) {
       console.error("Error sending message:", error);
@@ -592,6 +548,9 @@ export default function Chatbot() {
   };
 
   const renderMessage = ({ item }: { item: Message }) => {
+    // Debug: log what we're rendering
+    console.log('Rendering message:', item.id, 'isUser:', item.isUser, 'text length:', item.text?.length);
+    
     return (
       <View
         style={[
@@ -599,7 +558,7 @@ export default function Chatbot() {
           item.isUser ? styles.userMessage : styles.aiMessage,
         ]}
       >
-        <View style={styles.messageBubbleWrapper}>
+        <View style={item.isUser ? styles.userBubbleWrapper : styles.messageBubbleWrapper}>
           <View
             style={[
               styles.messageBubble,
@@ -613,10 +572,12 @@ export default function Chatbot() {
                 {highlightKeywords(item.text)}
               </Text>
             ) : (
-              parseHtmlResponse(item.text)
+              <View style={styles.aiMessageContent}>
+                {parseHtmlResponse(item.text || '')}
+              </View>
             )}
           </View>
-          {!item.isUser && (
+          {!item.isUser && item.text && item.text.trim() !== '' && (
             <View style={styles.messageActionsContainer}>
               <TouchableOpacity
                 style={styles.messageActionIcon}
@@ -833,7 +794,7 @@ export default function Chatbot() {
                 renderItem={({ item }) => (
                   <View style={styles.savedMessageCard}>
                     <View style={styles.savedMessageContent}>
-                      <View>
+                      <View style={styles.aiMessageContent}>
                         {parseHtmlResponse(item.messageText)}
                       </View>
                       <View style={styles.savedMessageActions}>
@@ -902,13 +863,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
     backgroundColor: '#F7F7F7',
-    ...Platform.select({
-      web: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-    }),
   },
   header: {
     paddingTop: 60,
@@ -1008,13 +962,9 @@ const styles = StyleSheet.create({
     paddingTop: 120,
     paddingBottom: 100,
     flexGrow: 1,
-    ...Platform.select({
-      web: {
-        maxWidth: 768,
-        marginHorizontal: 'auto',
-        width: '100%',
-      },
-    }),
+    maxWidth: 768,
+    width: '100%',
+    marginHorizontal: 'auto',
   },
   messageContainer: {
     flexDirection: "row",
@@ -1032,6 +982,9 @@ const styles = StyleSheet.create({
   messageBubbleWrapper: {
     flex: 1,
   },
+  userBubbleWrapper: {
+    maxWidth: '90%',
+  },
   messageBubble: {
     width: "100%",
     paddingHorizontal: 16,
@@ -1048,7 +1001,7 @@ const styles = StyleSheet.create({
   },
   userBubble: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 100,
+    borderRadius: 25,
   },
   aiBubble: {
     backgroundColor: 'transparent',
@@ -1064,30 +1017,74 @@ const styles = StyleSheet.create({
     color: theme.textColor,
     lineHeight: 20,
   },
-  pillText: {
-    fontSize: 13,
-    fontFamily: theme.bold,
-    marginLeft: 6,
+  aiMessageContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 4,
   },
   foodPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    gap: 4,
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#D1FAE5',
+    borderRadius: 16,
+    marginVertical: 2,
+  },
+  foodPillText: {
+    fontSize: 13,
+    fontFamily: theme.medium,
+    color: '#15803D',
   },
   exercisePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    gap: 4,
+    backgroundColor: '#FFEDD5',
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: '#FFFBEB',
+    borderRadius: 16,
+    marginVertical: 2,
+  },
+  exercisePillText: {
+    fontSize: 13,
+    fontFamily: theme.medium,
+    color: '#C2410C',
+  },
+  h1Text: {
+    fontSize: 20,
+    fontFamily: theme.bold,
+    color: theme.textColor,
+    marginVertical: 8,
+    width: '100%',
+  },
+  listContainer: {
+    marginVertical: 4,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginVertical: 2,
+  },
+  tableContainer: {
+    marginVertical: 8,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FEF3C7',
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  tableCell: {
+    flex: 1,
+    padding: 8,
+    borderRightWidth: 1,
+    borderRightColor: '#E5E7EB',
   },
   messageActionsContainer: {
     flexDirection: 'row',
@@ -1124,13 +1121,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    ...Platform.select({
-      web: {
-        width: '100%',
-        maxWidth: 768,
-        alignSelf: 'center',
-      },
-    }),
+    maxWidth: 768,
+    marginHorizontal: 'auto',
   },
   inputContainer: {
     paddingHorizontal: 16,
@@ -1189,50 +1181,6 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     opacity: 0.3,
-  },
-  tableScrollView: {
-    marginTop: 8,
-    marginBottom: 8,
-    width: '100%',
-  },
-  tableContainer: {
-    borderWidth: 1,
-    borderColor: "rgba(100, 100, 100, 0.3)",
-    borderRadius: 8,
-    overflow: "hidden",
-    backgroundColor: 'rgba(250, 250, 250, 0.5)',
-    minWidth: '100%',
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(100, 100, 100, 0.2)",
-  },
-  tableCell: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRightWidth: 1,
-    borderRightColor: "rgba(100, 100, 100, 0.2)",
-    justifyContent: "center",
-    alignItems: 'flex-start',
-  },
-  tableHeaderCell: {
-    backgroundColor: "rgba(200, 200, 200, 0.3)",
-    paddingVertical: 10,
-  },
-  tableFirstColumn: {
-    backgroundColor: "rgba(200, 200, 200, 0.15)",
-  },
-  tableCellText: {
-    fontSize: 11,
-    fontFamily: theme.regular,
-    color: theme.textColor,
-    lineHeight: 14,
-  },
-  tableHeaderText: {
-    fontFamily: theme.bold,
-    fontSize: 12,
-    color: theme.textColor,
   },
   // Modal styles
   modalContainer: {

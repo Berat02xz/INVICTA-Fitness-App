@@ -77,7 +77,13 @@ builder.Services.AddScoped<IConsumedMealService, ConsumedMealService>();
 builder.Services.AddScoped<IConsumedMealRepository, ConsumedMealRepository>();
 
 
+void LogStartupMessage(WebApplication app)
+{
+    app.Logger.LogInformation("App started, this is a logger test.");
+}
+
 var app = builder.Build();
+LogStartupMessage(app);
 
 // Middleware pipeline
 app.UseSwaggerSetup();

@@ -51,7 +51,6 @@ const OnboardingComplete = () => {
   useEffect(() => {
     const initializeUser = async () => {
       try {
-        saveSelection("gender", "male");
         saveSelection("app_name", "Invicta");
         console.log("Saving gender and app_name to answers");
       } catch (error) {
