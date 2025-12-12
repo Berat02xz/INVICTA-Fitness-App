@@ -4,8 +4,8 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-// const BACKEND_URL = 'https://invicta-backend-dbhycqc7dndwfyf9.westeurope-01.azurewebsites.net';
-   const BACKEND_URL = 'https://localhost:44326';
+  const BACKEND_URL = 'https://invicta-backend-dbhycqc7dndwfyf9.westeurope-01.azurewebsites.net';
+//const BACKEND_URL = 'https://localhost:44326';
 
 let token: string | null = null;
 

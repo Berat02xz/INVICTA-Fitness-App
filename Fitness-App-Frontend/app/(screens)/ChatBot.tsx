@@ -266,118 +266,170 @@ export default function Chatbot() {
   };
 
   // Parse HTML response and render styled components
-  const parseHtmlResponse = (html: string) => {
-    if (!html) return null;
-    
-    const elements: React.ReactNode[] = [];
-    let key = 0;
-    
-    // Regex to match tags we care about
-    const tagRegex = /<(food|exercise|b|i|p|ul|li|table|tr|td|h1)>([\s\S]*?)<\/\1>|([^<]+)/gi;
-    
-    let match;
-    while ((match = tagRegex.exec(html)) !== null) {
-      const [, tagName, content, plainText] = match;
-      
-      if (plainText) {
-        // Plain text outside tags
-        const trimmed = plainText.trim();
-        if (trimmed) {
-          elements.push(<Text key={key++} style={styles.messageText}>{plainText}</Text>);
-        }
-      } else if (tagName && content) {
-        const tag = tagName.toLowerCase();
-        
-        switch (tag) {
-          case 'food':
-            elements.push(
-              <TouchableOpacity 
-                key={key++} 
-                style={styles.foodPill}
-                activeOpacity={0.7}
-                onPress={() => {/* TODO: Search functionality */}}
-              >
-                <MaterialCommunityIcons name="magnify" size={14} color="#15803D" />
-                <Text style={styles.foodPillText}>{content.trim()}</Text>
-              </TouchableOpacity>
-            );
+  type HtmlNode = { type: 'text'; value: string } | { type: 'element'; tag: string; children: HtmlNode[] };
+
+  const parseHtmlToNodes = (html: string): HtmlNode[] => {
+    const allowedTags = new Set(['food', 'exercise', 'b', 'i', 'p', 'ul', 'li', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'h1', 'span', 'br']);
+    const root: { type: 'element'; tag: 'root'; children: HtmlNode[] } = { type: 'element', tag: 'root', children: [] };
+    const stack: Array<{ type: 'element'; tag: string; children: HtmlNode[] }> = [root];
+
+    const tagTokenRegex = /<\/?\s*([a-zA-Z0-9]+)(?:\s[^>]*?)?\s*\/?\s*>/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    const pushText = (text: string) => {
+      if (!text) return;
+      stack[stack.length - 1].children.push({ type: 'text', value: text });
+    };
+
+    while ((match = tagTokenRegex.exec(html)) !== null) {
+      const token = match[0];
+      const tag = (match[1] || '').toLowerCase();
+      const index = match.index;
+
+      pushText(html.slice(lastIndex, index));
+      lastIndex = index + token.length;
+
+      const isClosing = /^\//.test(token.slice(1));
+      const isSelfClosing = /\/?>\s*$/.test(token) && (tag === 'br' || token.includes('/>'));
+
+      if (!allowedTags.has(tag)) {
+        // Treat unknown tags as text instead of skipping
+        pushText(token);
+        continue;
+      }
+
+      if (isSelfClosing) {
+        if (tag === 'br') pushText('\n');
+        continue;
+      }
+
+      if (!isClosing) {
+        const node: HtmlNode = { type: 'element', tag, children: [] };
+        stack[stack.length - 1].children.push(node);
+        stack.push(node as any);
+      } else {
+        for (let i = stack.length - 1; i > 0; i--) {
+          if (stack[i].tag === tag) {
+            stack.splice(i);
             break;
-          case 'exercise':
-            elements.push(
-              <TouchableOpacity 
-                key={key++} 
-                style={styles.exercisePill}
-                activeOpacity={0.7}
-                onPress={() => {/* TODO: Search functionality */}}
-              >
-                <MaterialCommunityIcons name="magnify" size={14} color="#C2410C" />
-                <Text style={styles.exercisePillText}>{content.trim()}</Text>
-              </TouchableOpacity>
-            );
-            break;
-          case 'b':
-            elements.push(<Text key={key++} style={[styles.messageText, { fontFamily: theme.bold }]}>{content}</Text>);
-            break;
-          case 'i':
-            elements.push(<Text key={key++} style={[styles.messageText, { fontStyle: 'italic' }]}>{content}</Text>);
-            break;
-          case 'h1':
-            elements.push(
-              <Text key={key++} style={styles.h1Text}>
-                {parseHtmlResponse(content)}
-              </Text>
-            );
-            break;
-          case 'p':
-            elements.push(
-              <Text key={key++} style={[styles.messageText, { marginBottom: 8 }]}>
-                {parseHtmlResponse(content)}
-              </Text>
-            );
-            break;
-          case 'li':
-            elements.push(
-              <View key={key++} style={styles.listItem}>
-                <Text style={styles.messageText}>• </Text>
-                <Text style={[styles.messageText, { flex: 1 }]}>{parseHtmlResponse(content)}</Text>
-              </View>
-            );
-            break;
-          case 'ul':
-            elements.push(
-              <View key={key++} style={styles.listContainer}>
-                {parseHtmlResponse(content)}
-              </View>
-            );
-            break;
-          case 'table':
-            elements.push(
-              <View key={key++} style={styles.tableContainer}>
-                {parseHtmlResponse(content)}
-              </View>
-            );
-            break;
-          case 'tr':
-            elements.push(
-              <View key={key++} style={styles.tableRow}>
-                {parseHtmlResponse(content)}
-              </View>
-            );
-            break;
-          case 'td':
-            elements.push(
-              <View key={key++} style={styles.tableCell}>
-                <Text style={styles.messageText}>{parseHtmlResponse(content)}</Text>
-              </View>
-            );
-            break;
-          default:
-            elements.push(<Text key={key++} style={styles.messageText}>{content}</Text>);
+          }
         }
       }
     }
-    
-    return elements.length > 0 ? elements : <Text style={styles.messageText}>{html}</Text>;
+
+    pushText(html.slice(lastIndex));
+    return root.children;
+  };
+
+  const collectText = (nodes: HtmlNode[]): string => {
+    return nodes.map(n => (n.type === 'text' ? n.value : collectText(n.children))).join('');
+  };
+
+  const renderHtmlNodes = (nodes: HtmlNode[], keyPrefix: string, isInTable: boolean = false): React.ReactNode[] => {
+    let keyCounter = 0;
+    const nextKey = () => `${keyPrefix}-${keyCounter++}`;
+
+    const out: React.ReactNode[] = [];
+    for (const node of nodes) {
+      if (node.type === 'text') {
+        if (!node.value) continue;
+        const normalized = node.value.replace(/\s+/g, ' ');
+        if (!normalized.trim()) continue;
+        out.push(<Text key={nextKey()} style={isInTable ? styles.tableText : styles.messageText}>{normalized}</Text>);
+        continue;
+      }
+
+      const tag = node.tag;
+      const children = node.children;
+
+      switch (tag) {
+        case 'food':
+          out.push(
+            <TouchableOpacity key={nextKey()} style={styles.foodPill} activeOpacity={0.7} onPress={() => {}}>
+              <MaterialCommunityIcons name="magnify" size={14} color="#15803D" />
+              <Text style={styles.foodPillText}>{collectText(children).trim()}</Text>
+            </TouchableOpacity>
+          );
+          break;
+        case 'exercise':
+          out.push(
+            <TouchableOpacity key={nextKey()} style={styles.exercisePill} activeOpacity={0.7} onPress={() => {}}>
+              <MaterialCommunityIcons name="magnify" size={14} color="#C2410C" />
+              <Text style={styles.exercisePillText}>{collectText(children).trim()}</Text>
+            </TouchableOpacity>
+          );
+          break;
+        case 'h1':
+          out.push(
+            <View key={nextKey()} style={styles.h1Container}>
+              <Text style={styles.h1Text}>{collectText(children).trim()}</Text>
+            </View>
+          );
+          break;
+        case 'p':
+          out.push(
+            <View key={nextKey()} style={styles.paragraph}>
+              <View style={styles.inlineWrap}>{renderHtmlNodes(children, nextKey(), isInTable)}</View>
+            </View>
+          );
+          break;
+        case 'ul':
+          out.push(<View key={nextKey()} style={styles.listContainer}>{renderHtmlNodes(children, nextKey(), isInTable)}</View>);
+          break;
+        case 'li':
+          out.push(
+            <View key={nextKey()} style={styles.listItem}>
+              <Text style={isInTable ? styles.tableText : styles.messageText}>• </Text>
+              <View style={styles.inlineWrap}>{renderHtmlNodes(children, nextKey(), isInTable)}</View>
+            </View>
+          );
+          break;
+        case 'table':
+          out.push(
+            <ScrollView key={nextKey()} horizontal showsHorizontalScrollIndicator={false} style={styles.tableScrollView}>
+              <View style={styles.tableContainer}>{renderHtmlNodes(children, nextKey(), true)}</View>
+            </ScrollView>
+          );
+          break;
+        case 'thead':
+        case 'tbody':
+          out.push(...renderHtmlNodes(children, nextKey(), isInTable));
+          break;
+        case 'tr':
+          out.push(<View key={nextKey()} style={styles.tableRow}>{renderHtmlNodes(children, nextKey(), isInTable)}</View>);
+          break;
+        case 'td':
+        case 'th':
+          out.push(
+            <View key={nextKey()} style={[styles.tableCell, tag === 'th' ? styles.tableHeaderCell : null]}>
+              <View style={styles.inlineWrap}>{renderHtmlNodes(children, nextKey(), isInTable)}</View>
+            </View>
+          );
+          break;
+        case 'b':
+          out.push(<Text key={nextKey()} style={[isInTable ? styles.tableText : styles.messageText, { fontFamily: theme.bold }]}>{collectText(children)}</Text>);
+          break;
+        case 'i':
+          out.push(<Text key={nextKey()} style={[isInTable ? styles.tableText : styles.messageText, { fontStyle: 'italic' }]}>{collectText(children)}</Text>);
+          break;
+        case 'span':
+          out.push(<Text key={nextKey()} style={isInTable ? styles.tableText : styles.messageText}>{collectText(children)}</Text>);
+          break;
+        default:
+          out.push(...renderHtmlNodes(children, nextKey(), isInTable));
+      }
+    }
+
+    return out;
+  };
+
+  const parseHtmlResponse = (html: string) => {
+    if (!html) return null;
+    const nodes = parseHtmlToNodes(html);
+    const rendered = renderHtmlNodes(nodes, 'html');
+    // Wrap root-level content in inline container to allow mixed inline elements
+    return rendered.length ? <View style={styles.inlineWrap}>{rendered}</View> : <Text style={styles.messageText}>{html}</Text>;
   };
 
   const loadSavedMessages = async () => {
@@ -779,7 +831,7 @@ export default function Chatbot() {
             <View style={styles.modalContent}>
               <View style={styles.modalDragIndicator} />
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Saved Messages</Text>
+                <Text style={styles.modalTitle}>Saved</Text>
                 <TouchableOpacity
                   onPress={() => setShowSavedMessages(false)}
                   style={styles.modalCloseButton}
@@ -862,7 +914,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#F7F7F7',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     paddingTop: 60,
@@ -887,35 +939,27 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FAFAFA',
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 80,
-    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.15)',
   },
   planPill: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#ffffffff",
+    backgroundColor: '#FAFAFA',
     borderWidth: 1,
-    borderColor: '#ffcfcfff',
+    borderColor: 'rgba(0, 0, 0, 0.15)',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 80,
-    elevation: 8,
   },
   planText: {
     fontSize: 14,
     fontFamily: theme.medium,
-    color: '#e65f20ff',
+    color: '#000000',
   },
   emptyContainer: {
     flex: 1,
@@ -1017,11 +1061,22 @@ const styles = StyleSheet.create({
     color: theme.textColor,
     lineHeight: 20,
   },
+  tableText: {
+    fontSize: 13,
+    fontFamily: theme.regular,
+    color: theme.textColor,
+    lineHeight: 16,
+  },
   aiMessageContent: {
+    flexDirection: 'column',
+    gap: 6,
+  },
+  inlineWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: 4,
+    width: '100%',
   },
   foodPill: {
     flexDirection: 'row',
@@ -1029,7 +1084,7 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: '#DCFCE7',
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 16,
     marginVertical: 2,
   },
@@ -1044,7 +1099,7 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: '#FFEDD5',
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 16,
     marginVertical: 2,
   },
@@ -1053,12 +1108,24 @@ const styles = StyleSheet.create({
     fontFamily: theme.medium,
     color: '#C2410C',
   },
-  h1Text: {
-    fontSize: 20,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-    marginVertical: 8,
+  h1Container: {
     width: '100%',
+    marginTop: 12,
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#E5E7EB',
+  },
+  h1Text: {
+    fontSize: 22,
+    fontFamily: theme.bold,
+    color: '#111827',
+    letterSpacing: -0.4,
+    lineHeight: 28,
+  },
+  paragraph: {
+    width: '100%',
+    marginVertical: 4,
   },
   listContainer: {
     marginVertical: 4,
@@ -1068,12 +1135,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginVertical: 2,
   },
-  tableContainer: {
+  tableScrollView: {
     marginVertical: 8,
+  },
+  tableContainer: {
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
   },
   tableRow: {
     flexDirection: 'row',
@@ -1082,9 +1152,21 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     flex: 1,
-    padding: 8,
+    minWidth: 100,
+    maxWidth: 200,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     borderRightWidth: 1,
     borderRightColor: '#E5E7EB',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  tableHeaderCell: {
+    backgroundColor: '#F9FAFB',
+  },
+  tableHeaderText: {
+    fontFamily: theme.bold,
+    color: '#374151',
   },
   messageActionsContainer: {
     flexDirection: 'row',
@@ -1147,7 +1229,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.10,
-    shadowRadius: 150,
+    shadowRadius: 60,
     elevation: 8,
     gap: 12,
   },
@@ -1168,7 +1250,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.10,
-    shadowRadius: 150,
+    shadowRadius: 60,
     elevation: 8,
   },
   sendButton: {
@@ -1223,9 +1305,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FAFAFA',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.5)',
   },
   savedMessagesList: {
     padding: 20,

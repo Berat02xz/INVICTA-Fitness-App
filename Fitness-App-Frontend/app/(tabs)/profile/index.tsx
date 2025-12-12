@@ -336,243 +336,263 @@ export default function Profile() {
     }
   };
 
+  const getInitials = (name?: string) => {
+    const trimmed = (name || "").trim();
+    if (!trimmed) return "?";
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] ?? "";
+    const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
+    return (first + last).toUpperCase() || "?";
+  };
+
+  const formatHeightValue = () => {
+    const raw = userData?.height;
+    if (raw === null || raw === undefined || raw === "") return "—";
+
+    if (userData?.unit === "metric") {
+      return `${raw} cm`;
+    }
+
+    const inchesTotal = parseFloat(raw);
+    if (!Number.isFinite(inchesTotal)) return "—";
+    const feet = Math.floor(inchesTotal / 12);
+    const inches = Math.round(inchesTotal % 12);
+    return `${feet} ft ${inches} in`;
+  };
+
+  const formatWeightValue = () => {
+    const w = userData?.weight;
+    if (w === null || w === undefined || Number.isNaN(w)) return "—";
+    return `${w} ${userData?.unit === "metric" ? "kg" : "lbs"}`;
+  };
+
+  const formatBmiValue = () => {
+    const bmi = userData?.bmi;
+    if (bmi === null || bmi === undefined || !Number.isFinite(bmi)) return "—";
+    const bmiNumber = Number(bmi);
+    const label =
+      bmiNumber < 18.5
+        ? "Underweight"
+        : bmiNumber < 25
+          ? "Normal"
+          : bmiNumber < 30
+            ? "Overweight"
+            : "Obese";
+    return `${bmiNumber.toFixed(1)} · ${label}`;
+  };
+
+  const SettingsRow = ({
+    iconName,
+    iconBg,
+    iconColor,
+    label,
+    value,
+    onPress,
+    showChevron = true,
+    isDestructive = false,
+  }: {
+    iconName: any;
+    iconBg: string;
+    iconColor: string;
+    label: string;
+    value?: string;
+    onPress?: () => void;
+    showChevron?: boolean;
+    isDestructive?: boolean;
+  }) => {
+    const Row = onPress ? TouchableOpacity : View;
+    return (
+      <Row style={styles.row} onPress={onPress as any} activeOpacity={0.7}>
+        <View style={[styles.rowIcon, { backgroundColor: iconBg }]}>
+          <Ionicons name={iconName} size={18} color={iconColor} />
+        </View>
+        <View style={styles.rowMiddle}>
+          <Text style={[styles.rowLabel, isDestructive && { color: theme.error }]}>{label}</Text>
+          {!!value && <Text style={styles.rowValue} numberOfLines={1}>{value}</Text>}
+        </View>
+        {showChevron ? (
+          <Ionicons name="chevron-forward" size={18} color={theme.textColorSecondary} />
+        ) : null}
+      </Row>
+    );
+  };
+
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Top Header Section */}
-      <View style={styles.headerSection}>
-        <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Hey, {userData?.name?.split(" ")[0]}!</Text>
-          <Text style={styles.greetingSubtitle}>{userData?.email}</Text>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.profileCard}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{getInitials(userData?.name)}</Text>
         </View>
-
-        {/* Pills Row */}
-        <View style={styles.pillsRow}>
-          {/* Rank Pill */}
-          <View style={styles.rankPill}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: "#FEF3C7", justifyContent: "center", alignItems: "center" }}>
-              <Ionicons name="trophy" size={16} color="#D97706" />
-            </View>
-            <View style={styles.rankPillContent}>
-              <Text style={styles.rankPillLabel}>Rank</Text>
-              <Text style={styles.rankPillValue}>Elite</Text>
-            </View>
-            <Text style={styles.rankPillPoints}>2,450 pts</Text>
-          </View>
-
-          {/* Plan Pill */}
-          <View style={styles.planPill}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: userData?.role === "PREMIUM" ? "#FEF3C7" : "#F3F4F6", justifyContent: "center", alignItems: "center" }}>
-              <Ionicons name={userData?.role === "PREMIUM" ? "diamond" : "wallet-outline"} size={16} color={userData?.role === "PREMIUM" ? "#D97706" : "#6B7280"} />
-            </View>
-            <Text style={styles.planPillText}>
-              {userData?.role === "PREMIUM" ? "Premium" : "Free Plan"}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Stats Grid */}
-      <Text style={styles.sectionTitleTop}>Health Metrics</Text>
-      <View style={styles.statsGrid}>
-        {/* Weight, Height, Age - Horizontal Row */}
-        <View style={styles.statsGridTop}>
-          {/* Weight Card */}
-          <TouchableOpacity
-            style={styles.statCardCompact}
-            onPress={() => {
-              setAdjustedWeight(userData?.weight);
-              setWeightModalVisible(true);
-            }}
-          >
-            <View style={[styles.statIconBg, { backgroundColor: "#FEE2E2" }]}>
-              <Ionicons name="scale-outline" size={18} color="#EF4444" />
-            </View>
-            <Text style={styles.statLabelModern}>Weight</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
-              <Text style={styles.statValueModern}>{userData?.weight}</Text>
-              <Text style={styles.statUnitModern}>{userData?.unit === "metric" ? "kg" : "lbs"}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
-          </TouchableOpacity>
-
-          {/* Height Card */}
-          <TouchableOpacity
-            style={styles.statCardCompact}
-            onPress={() => {
-              setAdjustedHeight(parseFloat(userData?.height) || 0);
-              if (userData?.unit === "imperial") {
-                const feet = Math.floor(parseFloat(userData?.height) / 12);
-                const inches = Math.round(parseFloat(userData?.height) % 12);
-                setAdjustedHeightFeet(feet);
-                setAdjustedHeightInches(inches);
-              }
-              setHeightEditMode(false);
-              setHeightModalVisible(true);
-            }}
-          >
-            <View style={[styles.statIconBg, { backgroundColor: "#D1FAE5" }]}>
-              <Ionicons name="resize-outline" size={18} color="#059669" />
-            </View>
-            <Text style={styles.statLabelModern}>Height</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
-              {userData?.unit === "metric" ? (
-                <>
-                  <Text style={styles.statValueModern}>{userData?.height}</Text>
-                  <Text style={styles.statUnitModern}>cm</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.statValueModern}>{Math.floor(parseFloat(userData?.height) / 12)}</Text>
-                  <Text style={styles.statUnitModern}>ft</Text>
-                  <Text style={styles.statValueModern}>{Math.round(parseFloat(userData?.height) % 12)}</Text>
-                  <Text style={styles.statUnitModern}>in</Text>
-                </>
-              )}
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
-          </TouchableOpacity>
-
-          {/* Age Card */}
-          <TouchableOpacity
-            style={styles.statCardCompact}
-            onPress={() => {
-              setAdjustedAge(userData?.age);
-              setAgeModalVisible(true);
-            }}
-          >
-            <View style={[styles.statIconBg, { backgroundColor: "#FEF3C7" }]}>
-              <Ionicons name="calendar-outline" size={18} color="#D97706" />
-            </View>
-            <Text style={styles.statLabelModern}>Age</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
-              <Text style={styles.statValueModern}>{userData?.age}</Text>
-              <Text style={styles.statUnitModern}>yrs</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* BMI Card - Full Width Below */}
-        <View style={styles.statCardModern}>
-          <View style={[styles.statIconBg, { backgroundColor: "#DBEAFE" }]}>
-            <Ionicons name="pulse-outline" size={18} color="#3B82F6" />
-          </View>
-          <View style={styles.statContent}>
-            <Text style={styles.statLabelModern}>BMI</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-              <Text style={styles.statValueModern}>{userData?.bmi?.toFixed(1)}</Text>
-              <View style={{ backgroundColor: userData?.bmi < 18.5 ? "#FEE2E2" : userData?.bmi < 25 ? "#D1FAE5" : userData?.bmi < 30 ? "#FEF3C7" : "#FEE2E2", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-                <Text style={{ fontSize: 11, fontFamily: theme.medium, color: userData?.bmi < 18.5 ? "#EF4444" : userData?.bmi < 25 ? "#059669" : userData?.bmi < 30 ? "#D97706" : "#EF4444" }}>
-                  {userData?.bmi < 18.5 ? "Underweight" : userData?.bmi < 25 ? "Normal" : userData?.bmi < 30 ? "Overweight" : "Obese"}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View style={{ backgroundColor: "#F3F4F6", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
-            <Text style={{ fontSize: 11, color: "#6B7280", fontFamily: theme.medium }}>Auto</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Fitness Settings */}
-      <Text style={styles.sectionTitle}>Fitness Settings</Text>
-
-      <TouchableOpacity
-        style={styles.settingCardModern}
-        onPress={() => setFitnessLevelModalVisible(true)}
-      >
-        <View style={[styles.iconCircle, { backgroundColor: "#FEE2E2" }]}>
-          <Ionicons name="barbell-outline" size={20} color="#EF4444" />
-        </View>
-        <View style={styles.settingMiddle}>
-          <Text style={styles.settingTitleModern}>Fitness Level</Text>
-          <Text style={styles.settingValueModern}>{userData?.fitnessLevel || "Not set"}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.settingCardModern}
-        onPress={() => setEquipmentModalVisible(true)}
-      >
-        <View style={[styles.iconCircle, { backgroundColor: "#D1FAE5" }]}>
-          <Ionicons name="fitness-outline" size={20} color="#059669" />
-        </View>
-        <View style={styles.settingMiddle}>
-          <Text style={styles.settingTitleModern}>Equipment Access</Text>
-          <Text style={styles.settingValueModern}>{userData?.equipmentAccess || "Not set"}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.settingCardModern}
-        onPress={() => setCalorieModalVisible(true)}
-      >
-        <View style={[styles.iconCircle, { backgroundColor: "#FEF3C7" }]}>
-          <Ionicons name="flame-outline" size={20} color="#D97706" />
-        </View>
-        <View style={styles.settingMiddle}>
-          <Text style={styles.settingTitleModern}>Daily Calories</Text>
-          <Text style={styles.settingValueModern}>{userData?.caloricIntake} cal</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-      </TouchableOpacity>
-
-      {/* Account Settings */}
-      <Text style={styles.sectionTitle}>Account</Text>
-
-      <View style={styles.settingCardModern}>
-        <View style={[styles.iconCircle, { backgroundColor: "#DBEAFE" }]}>
-          <Ionicons name="options-outline" size={20} color="#3B82F6" />
-        </View>
-        <View style={styles.settingMiddle}>
-          <Text style={styles.settingTitleModern}>Measurement Unit</Text>
-          <Text style={styles.settingValueModern}>
-            {userData?.unit === "metric" ? "Metric (kg, cm)" : "Imperial (lbs, in)"}
+        <View style={styles.profileMeta}>
+          <Text style={styles.profileName} numberOfLines={1}>
+            {userData?.name || "Profile"}
+          </Text>
+          <Text style={styles.profileEmail} numberOfLines={1}>
+            {userData?.email || ""}
           </Text>
         </View>
-        <UnitSwitch
-          unit={userData?.unit === "metric" ? "metric" : "imperial"}
-          onSelect={handleUpdateUnit}
-          metricLabel="kg"
-          imperialLabel="lbs"
+        <View
+          style={[
+            styles.planBadge,
+            userData?.role === "PREMIUM" ? styles.planBadgePremium : styles.planBadgeFree,
+          ]}
+        >
+          <Ionicons
+            name={userData?.role === "PREMIUM" ? "diamond" : "wallet-outline"}
+            size={16}
+            color={userData?.role === "PREMIUM" ? theme.warning : theme.textColorSecondary}
+          />
+          <Text
+            style={[
+              styles.planBadgeText,
+              userData?.role === "PREMIUM" ? { color: theme.warning } : { color: theme.textColorSecondary },
+            ]}
+          >
+            {userData?.role === "PREMIUM" ? "Premium" : "Free"}
+          </Text>
+        </View>
+      </View>
+
+      <Text style={styles.sectionHeader}>Health</Text>
+      <View style={styles.sectionCard}>
+        <SettingsRow
+          iconName="scale-outline"
+          iconBg={theme.errorLight}
+          iconColor={theme.error}
+          label="Weight"
+          value={formatWeightValue()}
+          onPress={() => {
+            setAdjustedWeight(userData?.weight);
+            setWeightModalVisible(true);
+          }}
+        />
+        <View style={styles.separator} />
+        <SettingsRow
+          iconName="resize-outline"
+          iconBg={theme.successLight}
+          iconColor={theme.success}
+          label="Height"
+          value={formatHeightValue()}
+          onPress={() => {
+            setAdjustedHeight(parseFloat(userData?.height) || 0);
+            if (userData?.unit === "imperial") {
+              const inchesTotal = parseFloat(userData?.height) || 0;
+              const feet = Math.floor(inchesTotal / 12);
+              const inches = Math.round(inchesTotal % 12);
+              setAdjustedHeightFeet(feet);
+              setAdjustedHeightInches(inches);
+            }
+            setHeightEditMode(false);
+            setHeightModalVisible(true);
+          }}
+        />
+        <View style={styles.separator} />
+        <SettingsRow
+          iconName="calendar-outline"
+          iconBg={theme.warningLight}
+          iconColor={theme.warning}
+          label="Age"
+          value={userData?.age ? `${userData?.age} yrs` : "—"}
+          onPress={() => {
+            setAdjustedAge(userData?.age);
+            setAgeModalVisible(true);
+          }}
+        />
+        <View style={styles.separator} />
+        <SettingsRow
+          iconName="pulse-outline"
+          iconBg={theme.infoLight}
+          iconColor={theme.info}
+          label="BMI"
+          value={formatBmiValue()}
+          showChevron={false}
         />
       </View>
 
-      <TouchableOpacity style={styles.settingCardModern}>
-        <View style={[styles.iconCircle, { backgroundColor: "#F3E8FF" }]}>
-          <Ionicons name="diamond-outline" size={20} color="#9333EA" />
-        </View>
-        <View style={styles.settingMiddle}>
-          <Text style={styles.settingTitleModern}>Subscription</Text>
-          <Text style={styles.settingValueModern}>
-            {userData?.role === "PREMIUM" ? "Premium · $9.99/mo" : "Free Plan"}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-      </TouchableOpacity>
+      <Text style={styles.sectionHeader}>Fitness</Text>
+      <View style={styles.sectionCard}>
+        <SettingsRow
+          iconName="barbell-outline"
+          iconBg={theme.errorLight}
+          iconColor={theme.error}
+          label="Fitness Level"
+          value={userData?.fitnessLevel || "Not set"}
+          onPress={() => setFitnessLevelModalVisible(true)}
+        />
+        <View style={styles.separator} />
+        <SettingsRow
+          iconName="fitness-outline"
+          iconBg={theme.successLight}
+          iconColor={theme.success}
+          label="Equipment Access"
+          value={userData?.equipmentAccess || "Not set"}
+          onPress={() => setEquipmentModalVisible(true)}
+        />
+        <View style={styles.separator} />
+        <SettingsRow
+          iconName="flame-outline"
+          iconBg={theme.warningLight}
+          iconColor={theme.warning}
+          label="Daily Calories"
+          value={userData?.caloricIntake ? `${userData?.caloricIntake} cal` : "—"}
+          onPress={() => setCalorieModalVisible(true)}
+        />
+      </View>
 
-      {/* Logout */}
-      <TouchableOpacity style={[styles.settingCardModern, { marginTop: 8 }]} onPress={handleLogout}>
-        <View style={[styles.iconCircle, { backgroundColor: "#FEE2E2" }]}>
-          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+      <Text style={styles.sectionHeader}>Preferences</Text>
+      <View style={styles.sectionCard}>
+        <View style={styles.row}>
+          <View style={[styles.rowIcon, { backgroundColor: theme.infoLight }]}>
+            <Ionicons name="options-outline" size={18} color={theme.info} />
+          </View>
+          <View style={styles.rowMiddle}>
+            <Text style={styles.rowLabel}>Measurement Unit</Text>
+            <Text style={styles.rowValue} numberOfLines={1}>
+              {userData?.unit === "metric" ? "Metric (kg, cm)" : "Imperial (lbs, in)"}
+            </Text>
+          </View>
+          <UnitSwitch
+            unit={userData?.unit === "metric" ? "metric" : "imperial"}
+            onSelect={handleUpdateUnit}
+            metricLabel="kg"
+            imperialLabel="lbs"
+          />
         </View>
-        <View style={styles.settingMiddle}>
-          <Text style={[styles.settingTitleModern, { color: "#EF4444" }]}>Sign Out</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#EF4444" />
-      </TouchableOpacity>
+      </View>
 
-      {/* Footer */}
+      <Text style={styles.sectionHeader}>Account</Text>
+      <View style={styles.sectionCard}>
+        <SettingsRow
+          iconName="diamond-outline"
+          iconBg={theme.warningLight}
+          iconColor={theme.warning}
+          label="Subscription"
+          value={userData?.role === "PREMIUM" ? "Premium" : "Free Plan"}
+          showChevron={false}
+        />
+        <View style={styles.separator} />
+        <SettingsRow
+          iconName="log-out-outline"
+          iconBg={theme.errorLight}
+          iconColor={theme.error}
+          label="Sign Out"
+          onPress={handleLogout}
+          isDestructive
+        />
+      </View>
+
       <View style={styles.footer}>
         <Text style={styles.footerApp}>INVICTA Fitness</Text>
         <Text style={styles.footerVersion}>Version {VERSION}</Text>
@@ -970,15 +990,131 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    backgroundColor: theme.backgroundTertiary,
+  },
+  content: {
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxl,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: theme.backgroundTertiary,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: theme.spacing.md,
   },
   loadingText: {
     fontSize: theme.fontSize.lg,
     fontFamily: theme.semibold,
     color: theme.textColor,
     textAlign: "center",
+  },
+  profileCard: {
+    backgroundColor: theme.backgroundColor,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.border,
+    padding: theme.spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: theme.backgroundSecondary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: theme.spacing.md,
+  },
+  avatarText: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.bold,
+    color: theme.textColor,
+  },
+  profileMeta: {
+    flex: 1,
+    gap: 2,
+  },
+  profileName: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.bold,
+    color: theme.textColor,
+  },
+  profileEmail: {
+    fontSize: theme.fontSize.sm,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+  },
+  planBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 1,
+    borderColor: theme.border,
+    gap: 6,
+  },
+  planBadgePremium: {
+    backgroundColor: theme.warningLight,
+  },
+  planBadgeFree: {
+    backgroundColor: theme.backgroundSecondary,
+  },
+  planBadgeText: {
+    fontSize: theme.fontSize.xs,
+    fontFamily: theme.semibold,
+  },
+  sectionHeader: {
+    fontSize: theme.fontSize.xs,
+    fontFamily: theme.semibold,
+    color: theme.textColorSecondary,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  sectionCard: {
+    backgroundColor: theme.backgroundColor,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.border,
+    overflow: "hidden",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+  },
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rowMiddle: {
+    flex: 1,
+    marginLeft: 12,
+    gap: 2,
+  },
+  rowLabel: {
+    fontSize: theme.fontSize.md,
+    fontFamily: theme.semibold,
+    color: theme.textColor,
+  },
+  rowValue: {
+    fontSize: theme.fontSize.sm,
+    fontFamily: theme.regular,
+    color: theme.textColorSecondary,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: theme.border,
+    marginLeft: 58,
   },
   headerSection: {
     marginBottom: 28,
@@ -1205,12 +1341,12 @@ const styles = StyleSheet.create({
   footerApp: {
     fontSize: theme.fontSize.sm,
     fontFamily: theme.semibold,
-    color: "#374151",
+    color: theme.textColor,
   },
   footerVersion: {
     fontSize: 11,
     fontFamily: theme.regular,
-    color: "#9CA3AF",
+    color: theme.textColorSecondary,
   },
   modalOverlay: {
     flex: 1,
@@ -1218,7 +1354,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.backgroundColor,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -1233,28 +1369,28 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontFamily: theme.bold,
-    color: "#111827",
+    color: theme.textColor,
     flex: 1,
   },
   closeButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: theme.backgroundSecondary,
     justifyContent: "center",
     alignItems: "center",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: theme.border,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: theme.fontSize.md,
     fontFamily: theme.regular,
-    color: "#111827",
+    color: theme.textColor,
     marginBottom: 16,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: theme.backgroundTertiary,
   },
   weightAdjustContainer: {
     gap: 16,
@@ -1263,7 +1399,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: theme.backgroundTertiary,
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 16,
@@ -1276,12 +1412,12 @@ const styles = StyleSheet.create({
   weightValue: {
     fontSize: 36,
     fontFamily: theme.bold,
-    color: "#111827",
+    color: theme.textColor,
   },
   weightUnit: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.regular,
-    color: "#6B7280",
+    color: theme.textColorSecondary,
     marginBottom: 4,
   },
   adjustButtonsRow: {
@@ -1293,22 +1429,22 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
+    borderColor: theme.border,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.backgroundColor,
   },
   adjustBtnActive: {
-    backgroundColor: "#111827",
-    borderColor: "#111827",
+    backgroundColor: theme.textColor,
+    borderColor: theme.textColor,
   },
   adjustBtnText: {
     fontSize: theme.fontSize.xxl,
     fontFamily: theme.bold,
-    color: "#374151",
+    color: theme.textColor,
   },
   adjustBtnTextActive: {
-    color: "#FFFFFF",
+    color: theme.backgroundColor,
   },
   modalButtons: {
     flexDirection: "row",
@@ -1320,36 +1456,36 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: theme.border,
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: theme.backgroundTertiary,
   },
   cancelBtnText: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.semibold,
-    color: "#374151",
+    color: theme.textColor,
   },
   confirmBtn: {
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: "#111827",
+    backgroundColor: theme.primary,
     alignItems: "center",
   },
   confirmBtnText: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.bold,
-    color: "#FFFFFF",
+    color: theme.backgroundColor,
   },
   modalOption: {
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
     marginBottom: 6,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: theme.backgroundTertiary,
   },
   modalOptionSelected: {
-    backgroundColor: "#111827",
+    backgroundColor: theme.textColor,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 12,
@@ -1358,16 +1494,16 @@ const styles = StyleSheet.create({
   modalOptionText: {
     fontSize: theme.fontSize.md,
     fontFamily: theme.medium,
-    color: "#374151",
+    color: theme.textColor,
   },
   modalOptionSubtext: {
     fontSize: 12,
     fontFamily: theme.regular,
-    color: "#6B7280",
+    color: theme.textColorSecondary,
     marginTop: 2,
   },
   ratePill: {
-    backgroundColor: "#059669",
+    backgroundColor: theme.success,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -1377,11 +1513,11 @@ const styles = StyleSheet.create({
   ratePillText: {
     fontSize: 11,
     fontFamily: theme.medium,
-    color: "#FFFFFF",
+    color: theme.backgroundColor,
   },
   modalOptionTextSelected: {
     fontFamily: theme.semibold,
-    color: "#FFFFFF",
+    color: theme.backgroundColor,
   },
 });
 
