@@ -1,5 +1,6 @@
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import * as Clipboard from 'expo-clipboard';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -59,15 +60,15 @@ const GREETING_VARIANTS = [
   () => `What can I help with?`,
   () => `How can I assist you?`,
   () => `What can I do for you?`,
+  () => `How may I help you today?`,
+  () => `What would you like to know?`,
 ];
 
-const SUGGESTED_QUESTIONS = [
-  "15 min recipes",
-  "Easy breakfast",
-  "Make a personalized workout plan",
-  "Healthy snacks",
-  "Weight loss tips",
-  "High protein meals",
+const AI_VIDEOS = [
+  require('@/assets/videos/blue.mp4'),
+  require('@/assets/videos/brand_ai.mp4'),
+  require('@/assets/videos/violet.mp4'),
+  require('@/assets/videos/green.mp4'),
 ];
 
 
@@ -89,6 +90,19 @@ export default function Chatbot() {
   const [subscriptionPlan, setSubscriptionPlan] = useState("Free");
   const [greetingMessage, setGreetingMessage] = useState("What can I help with?");
   const [randomSuggestions, setRandomSuggestions] = useState<typeof GREETING_SUGGESTIONS>([]);
+  // Pick one random video on mount and keep it for the session
+  const selectedVideo = useRef(AI_VIDEOS[Math.floor(Math.random() * AI_VIDEOS.length)]).current;
+  const videoPlayer = useVideoPlayer(selectedVideo, (player) => {
+    player.loop = true;
+    player.muted = true;
+    player.play();
+  });
+  // Separate video player for loading indicator
+  const loadingVideoPlayer = useVideoPlayer(selectedVideo, (player) => {
+    player.loop = true;
+    player.muted = true;
+    player.staysActiveInBackground = true;
+  });
   const flatListRef = useRef<FlatList>(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
   const thinkingOpacity = useRef(new Animated.Value(0.4)).current;
@@ -96,6 +110,8 @@ export default function Chatbot() {
   // Load user data and handle back button/gesture
   useFocusEffect(
     React.useCallback(() => {
+      let mounted = true;
+      
       const loadUserData = async () => {
         try {
           const user = await GetUserDetails();
@@ -115,6 +131,17 @@ export default function Chatbot() {
         }
       };
 
+      // Always ensure video plays when screen comes into focus
+      videoPlayer.loop = true;
+      videoPlayer.muted = true;
+      
+      // Small delay to ensure video is ready on web
+      setTimeout(() => {
+        if (mounted) {
+          videoPlayer.play();
+        }
+      }, 100);
+
       loadUserData();
 
       const onBackPress = () => {
@@ -124,8 +151,13 @@ export default function Chatbot() {
 
       const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-      return () => subscription.remove();
-    }, [])
+      return () => {
+        mounted = false;
+        subscription.remove();
+        // Pause when leaving screen to ensure clean state on return
+        videoPlayer.pause();
+      };
+    }, [videoPlayer])
   );
 
   useEffect(() => {
@@ -729,11 +761,20 @@ export default function Chatbot() {
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <FadeTranslate order={0}>
+                  <VideoView
+                    player={videoPlayer}
+                    style={styles.greetingVideo}
+                    nativeControls={false}
+                    contentFit="contain"
+                    playsInline
+                  />
+                </FadeTranslate>
+                <FadeTranslate order={1}>
                   <Text style={styles.greetingText}>{greetingMessage}</Text>
                 </FadeTranslate>
                 <View style={styles.greetingSuggestionsGrid}>
                   {randomSuggestions.map((suggestion, index) => (
-                    <FadeTranslate key={index} order={index + 1}>
+                    <FadeTranslate key={index} order={index + 2}>
                       <TouchableOpacity
                         style={styles.greetingSuggestionPill}
                         onPress={() => sendMessage(suggestion.text)}
@@ -751,20 +792,16 @@ export default function Chatbot() {
               isLoading ? (
                 <View style={styles.loadingContainer}>
                   <View style={styles.resultsLabelContainer}>
-                    <Animated.View
-                      style={{
-                        transform: [
-                          {
-                            rotate: spinAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ['0deg', '360deg'],
-                            }),
-                          },
-                        ],
+                    <VideoView
+                      player={loadingVideoPlayer}
+                      style={styles.loadingVideo}
+                      nativeControls={false}
+                      contentFit="contain"
+                      playsInline
+                      onFirstFrameRender={() => {
+                        loadingVideoPlayer.play();
                       }}
-                    >
-                      <MaterialCommunityIcons name="sync" size={16} color={theme.textColor} />
-                    </Animated.View>
+                    />
                     <Animated.Text style={[styles.resultsText, { opacity: thinkingOpacity }]}>Thinking</Animated.Text>
                   </View>
                 </View>
@@ -968,6 +1005,11 @@ const styles = StyleSheet.create({
     paddingVertical: 100,
     paddingHorizontal: 20,
   },
+  greetingVideo: {
+    width: 180,
+    height: 180,
+    marginBottom: 20,
+  },
   greetingText: {
     fontSize: 25,
     fontFamily: theme.medium,
@@ -1018,6 +1060,7 @@ const styles = StyleSheet.create({
   userMessage: {
     justifyContent: "flex-end",
     alignSelf: "flex-end",
+    maxWidth: '90%',
   },
   aiMessage: {
     justifyContent: "flex-start",
@@ -1027,10 +1070,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   userBubbleWrapper: {
-    maxWidth: '90%',
+    maxWidth: '100%',
+    alignSelf: 'flex-end',
   },
   messageBubble: {
-    width: "100%",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
@@ -1187,6 +1230,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 12,
     paddingHorizontal: 16,
+  },
+  loadingVideo: {
+    width: 24,
+    height: 24,
   },
   resultsLabelContainer: {
     flexDirection: 'row',

@@ -46,6 +46,7 @@
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.9",
     "expo-updates": "~0.28.16",
+    "expo-video": "^3.0.15",
     "expo-web-browser": "~14.2.0",
     "jwt-decode": "^4.0.0",
     "moti": "^0.30.0",

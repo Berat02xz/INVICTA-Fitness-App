@@ -28,7 +28,7 @@ const Gender = () => {
 
           <ButtonOnboarding
             text="Male"
-            rightImage={require("@/assets/icons/onboarding/male.png")}
+            rightImage={require("@/assets/icons/onboarding/Male.png")}
             onClickContinue
             forQuestion="gender"
             order={0}
@@ -38,7 +38,7 @@ const Gender = () => {
           />
           <ButtonOnboarding
             text="Female"
-            rightImage={require("@/assets/icons/onboarding/female.png")}
+            rightImage={require("@/assets/icons/onboarding/Female.png")}
             onClickContinue
             forQuestion="gender"
             order={1}
