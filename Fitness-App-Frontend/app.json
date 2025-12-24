@@ -4,7 +4,7 @@
     "slug": "invictus",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/Invicta_Icon.png",
+    "icon": "./assets/images/android/play_store_512.png",
     "scheme": "fitfe",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,8 +13,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/ic_launcher_foreground.png",
-        "backgroundColor": "#FF2605"
+        "foregroundImage": "./assets/images/android/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+        "backgroundColor": "#FB0903"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.berat02xz.invictus"
@@ -22,7 +22,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/web/favicon.ico"
     },
     "plugins": [
       "expo-router",
@@ -30,7 +30,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/Splash_Screen.png",
-          "imageWidth": 200,
+          "imageWidth": 150,
           "resizeMode": "contain",
           "backgroundColor": "#FF2605"
         }
