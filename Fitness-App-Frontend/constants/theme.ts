@@ -9,9 +9,9 @@ export const theme = {
   semibold: 'Bold',
 
   // Colors - Light Theme
-  primary: '#FB0903', // Orange primary color
+  primary: '#AAFB05', // Orange primary color
   primaryLight: '#bb9d99ff',
-  primaryDark: '#E64A19',
+  primaryDark: '#19250D',
   
   backgroundColor: '#FFFFFF', // White background
   backgroundSecondary: '#E6E6E6', // Light gray for cards

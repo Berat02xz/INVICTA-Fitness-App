@@ -39,21 +39,21 @@ const NUTRITION_KEYWORDS = ["meal", "nutrition", "food", "recipes", "eat", "diet
 const FITNESS_KEYWORDS = ["fitness", "workout", "gym", "exercise", "training", "muscle", "cardio", "strength", "run", "lift", "weight"];
 
 const GREETING_SUGGESTIONS = [
-  { icon: "clock-fast", text: "15 min meals table", color: "#22C55E" },
-  { icon: "dumbbell", text: "Workout plan table", color: "#EF4444" },
+  { icon: "clock-fast", text: "15 min meals", color: "#22C55E" },
+  { icon: "dumbbell", text: "Workout plan", color: "#EF4444" },
   { icon: "chef-hat", text: "Quick breakfast", color: "#F97316" },
-  { icon: "fire", text: "How to burn calories fast", color: "#EF4444" },
-  { icon: "food-apple", text: "Healthy snacks for me", color: "#22C55E" },
+  { icon: "fire", text: "How to burn calories", color: "#EF4444" },
+  { icon: "food-apple", text: "Healthy snacks", color: "#22C55E" },
   { icon: "weight-lifter", text: "How to Build muscle", color: "#3B82F6" },
-  { icon: "run-fast", text: "Cardio tips for me", color: "#F97316" },
-  { icon: "food-drumstick", text: "High protein food table", color: "#A855F7" },
-  { icon: "scale-bathroom", text: "Lose weight plan for me", color: "#EC4899" },
+  { icon: "run-fast", text: "Cardio tips", color: "#F97316" },
+  { icon: "food-drumstick", text: "High protein food", color: "#A855F7" },
+  { icon: "scale-bathroom", text: "Lose weight plan", color: "#EC4899" },
   { icon: "yoga", text: "Stretching properly", color: "#14B8A6" },
-  { icon: "food-variant", text: "Meal prep for me", color: "#22C55E" },
+  { icon: "food-variant", text: "Meal prep", color: "#22C55E" },
   { icon: "lightning-bolt", text: "Pre-workout tips list", color: "#FBBF24" },
   { icon: "sleep", text: "Recovery tips", color: "#6366F1" },
   { icon: "water", text: "Hydration importance", color: "#0EA5E9" },
-  { icon: "arm-flex", text: "Arm workout table", color: "#EF4444" },
+  { icon: "arm-flex", text: "Arm workout", color: "#EF4444" },
 ];
 
 const GREETING_VARIANTS = [
@@ -101,7 +101,6 @@ export default function Chatbot() {
   const loadingVideoPlayer = useVideoPlayer(selectedVideo, (player) => {
     player.loop = true;
     player.muted = true;
-    player.staysActiveInBackground = true;
   });
   const flatListRef = useRef<FlatList>(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
@@ -155,7 +154,12 @@ export default function Chatbot() {
         mounted = false;
         subscription.remove();
         // Pause when leaving screen to ensure clean state on return
-        videoPlayer.pause();
+        try {
+          videoPlayer.pause();
+        } catch (error) {
+          // Video player may already be released
+          console.log('Video player cleanup skipped:', error);
+        }
       };
     }, [videoPlayer])
   );

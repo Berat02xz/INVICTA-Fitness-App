@@ -38,7 +38,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Slot />
         <Toast />
