@@ -10,15 +10,9 @@ interface QuestionOnboardingProps {
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function QuestionOnboarding({ question, undertext }: QuestionOnboardingProps) {
-  // Font size logic
-  let questionFontSize = 27;
-  if (Platform.OS === "web") {
-    questionFontSize = screenWidth > 768 ? 30 : 30; // Desktop web vs mobile web
-  }
-
   return (
-    <View>
-      <Text style={[styles.questionText, { fontSize: questionFontSize }]}>
+    <View style={styles.container}>
+      <Text style={styles.questionText}>
         {question}
       </Text>
       {undertext && <Text style={styles.undertext}>{undertext}</Text>}
@@ -27,12 +21,18 @@ export default function QuestionOnboarding({ question, undertext }: QuestionOnbo
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    paddingHorizontal: 20,
+  },
   questionText: {
-    fontFamily: theme.semibold,
-    color: theme.textColor,
+    fontFamily: 'ExtraBold',
+    fontSize: 30,
+    color: '#FFFFFF',
     textAlign: "center",
     alignSelf: "center",
-    maxWidth: "90%",
+    maxWidth: "100%",
+    flexWrap: 'wrap',
   },
   undertext: {
     marginTop: 10,

@@ -32,7 +32,7 @@ interface ButtonOnboardingProps {
 }
 
 const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
-  height = 65,
+  height = 63,
   imageSrc,
   rightImage,
   text,
@@ -125,8 +125,8 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
           styles.button,
           {
             height: height,
-            borderColor: selected ? theme.primary : "transparent",
-            backgroundColor: selected ? theme.primary : theme.buttonsolid,
+            borderColor: "transparent",
+            backgroundColor: selected ? theme.answerBackgroundSelected : theme.answerBackground,
           },
           style,
         ]}
@@ -137,7 +137,7 @@ const ButtonOnboarding: React.FC<ButtonOnboardingProps> = ({
             <MaterialCommunityIcons 
               name="plus" 
               size={24} 
-              color={selected ? "#FFFFFF" : theme.primary}
+              color="#FFFFFF"
             />
           </Animated.View>
         )}
@@ -181,10 +181,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderRadius: 20,
-    backgroundColor: theme.buttonsolid,
+    marginBottom: 14,
+    borderWidth: 0,
+    borderRadius: 30,
+    backgroundColor: theme.answerBackground,
     gap: 14,
     width: 330,
     alignSelf: "center",
@@ -204,13 +204,13 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    width: 30,
-    height: 31,
+    width: 35,
+    height: 35,
     marginRight: 10,
   },
   rightImage: {
-    width: 35,
-    height: 36,
+    width: 40,
+    height: 40,
     marginRight: 10,
   },
   plusIcon: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    color: theme.textColor,
+    color: "#FFFFFF",
     fontSize: 18,
     fontFamily: theme.medium,
     textAlign: "left",
@@ -242,13 +242,13 @@ const styles = StyleSheet.create({
   },
   undertext: {
     fontSize: 12,
-    color: theme.textColorSecondary,
+    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 3,
     textAlign: "left",
   },
   selectedUndertext: {
     fontSize: 12,
-    color: "#FFFFFF",
+    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 3,
     textAlign: "left",
   },

@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
@@ -36,11 +35,9 @@ const TopBar = () => {
     <View style={styles.wrapper}>
       <FadeTranslate order={1}>
       <View style={styles.topRow}>
-        <View style={styles.backIconCircle}>
-          <TouchableOpacity onPress={goBack} style={styles.iconButton}>
-            <Ionicons name="arrow-back-outline" size={25} color={theme.textColor} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={goBack} style={styles.iconButton}>
+          <Text style={styles.backButtonText}>{'<'}</Text>
+        </TouchableOpacity>
 
         <View style={styles.progressContainer}>
           <Animated.View
@@ -61,33 +58,36 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     gap: 12,
+    maxWidth: 768,
+    width: '100%',
+    alignSelf: 'center',
   },
 
   iconButton: {
-    padding: 10,
-  },
-  backIconCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    backgroundColor: "#f3f3f3ff",
     justifyContent: "center",
     alignItems: "center",
+  },
+  backButtonText: {
+    fontFamily: 'ExtraBold',
+    fontSize: 40,
+    color: '#FFFFFF',
+    lineHeight: 45,
   },
 
   progressContainer: {
     flex: 1,
-    height: 5,
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: 30,
+    maxWidth: 600,
+    height: 10,
+    backgroundColor: 'rgba(217, 217, 217, 0.2)',
+    borderRadius: 8.5,
     overflow: "hidden",
   },
   progressFill: {
-    height: 5,
+    height: 10,
     backgroundColor: theme.primary,
-    borderRadius: 30,
+    borderRadius: 8.5,
   },
 });
 

@@ -22,7 +22,6 @@ const HowMuchWater = () => {
       return {
         title: "You drink less than 60% of users!",
         message: "Staying hydrated is key to your fitness journey. Let's work together to improve this habit.",
-        color: "#ACE6FF",
       };
     }
     // Low-medium water intake
@@ -30,7 +29,6 @@ const HowMuchWater = () => {
       return {
         title: "You need to hydrate more!",
         message: "You drink less than 50% of users. Let's aim to increase your water intake.",
-        color: "#ACE6FF",
       };
     }
     // Medium-high water intake
@@ -38,7 +36,6 @@ const HowMuchWater = () => {
       return {
         title: "You drink more than 50% of users!",
         message: "Keeping hydrated is very important for cleaning your body.",
-        color: "#ACE6FF",
       };
     }
     // High water intake
@@ -46,7 +43,6 @@ const HowMuchWater = () => {
       return {
         title: "Hydration Champion!",
         message: "Amazing commitment! You're setting a great example. Let's maximize those efforts.",
-        color: "#ACE6FF",
       };
     }
     return null;
@@ -108,7 +104,6 @@ const HowMuchWater = () => {
               backgroundColor={theme.primary}
               onPress={goForward}
               hasMoreInfo={true}
-              moreInfoColor={infoMessage.color}
               moreInfoTitle={infoMessage.title}
               moreInfoImageSource={require("@/assets/icons/onboarding/water.png")}
               moreInfoText={infoMessage.message}

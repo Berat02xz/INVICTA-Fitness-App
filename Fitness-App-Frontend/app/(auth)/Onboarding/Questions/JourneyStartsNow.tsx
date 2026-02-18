@@ -87,7 +87,7 @@ export default function JourneyStartsNow() {
                     emoji="💪"
                     title="Muscle Progress"
                     text="In 3 months, expect noticeable gains in strength and tone."
-                    backgroundColor="#E8F5E9"
+                    backgroundColor={theme.deepPrimary}
                   />
                 </FadeTranslate>
                 <FadeTranslate order={3}>
@@ -95,7 +95,7 @@ export default function JourneyStartsNow() {
                     emoji="🔥"
                     title={`${caloriesTarget || "Calorie Target"}`}
                     text={`${displayedCalories} calories per day to stay on track`}
-                    backgroundColor="#FFF3E0"
+                    backgroundColor={theme.deepPrimary}
                   />
                 </FadeTranslate>
                 <FadeTranslate order={4}>
@@ -103,7 +103,7 @@ export default function JourneyStartsNow() {
                     emoji="📅"
                     title="Target Date"
                     text={`You'll crush your goal by ${animatedDateString}`}
-                    backgroundColor="#E3F2FD"
+                    backgroundColor={theme.deepPrimary}
                   />
                 </FadeTranslate>
                 <FadeTranslate order={5}>
@@ -111,7 +111,7 @@ export default function JourneyStartsNow() {
                     emoji="🍽️"
                     title="Workout & Diet"
                     text="Initial Daily Caloric Intake based on your goals"
-                    backgroundColor="#FCE4EC"
+                    backgroundColor={theme.deepPrimary}
                   />
                 </FadeTranslate>
               </View>
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   cardsContainer: {
     marginTop: 30,
     marginBottom: 20,
-    gap: 15,
+    gap: 4,
   },
   bottom: {
     alignItems: "center",
@@ -181,7 +181,8 @@ const styles = StyleSheet.create({
   sloganRegular: {
     fontSize: 16,
     fontFamily: theme.light,
-    color: theme.textColorSecondary,
+    color: "#FFFFFF",
+    opacity: 0.8,
     textAlign: "center",
     marginTop: 20,
     lineHeight: 24,

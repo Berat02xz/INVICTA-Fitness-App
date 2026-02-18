@@ -105,18 +105,18 @@ export default function Reviews() {
                 <ProgressChart
                   data={{
                     labels: [""],
-                    data: [[displayedPercentage / 100]] as any,
+                    data: [displayedPercentage / 100],
                   }}
                   width={280}
                   height={280}
                   radius={80}
-                  strokeWidth={8}
+                  strokeWidth={15}
                   chartConfig={{
                     backgroundColor: theme.backgroundColor,
                     backgroundGradientFrom: theme.backgroundColor,
                     backgroundGradientTo: theme.backgroundColor,
                     color: () => theme.primary,
-                    strokeWidth: 8,
+                    strokeWidth: 15,
                     barPercentage: 0.5,
                     propsForBackgroundLines: {
                       stroke: "#E0E0E0",
@@ -132,11 +132,6 @@ export default function Reviews() {
                 {displayedPercentage}%
               </Animated.Text>
             </View>
-          </FadeTranslate>
-
-          {/* Subtext */}
-          <FadeTranslate order={2}>
-            <Text style={styles.subtextText}>trusted by thousands.</Text>
           </FadeTranslate>
 
           {/* Reviews Display */}
@@ -177,7 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   headerText: {
-    fontSize: 25,
+    fontSize: 35,
     fontFamily: theme.semibold,
     color: theme.primary,
     textAlign: "center",

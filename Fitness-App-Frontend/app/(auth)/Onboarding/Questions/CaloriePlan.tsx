@@ -51,7 +51,7 @@ const DesiredTargetWeight = () => {
               undertext={`${plan.caloriesPerDay} kcal/day`}
               badgeText={plan.rate}
               order={index+1}
-              height={80}
+              height={63}
               textSize={16}
               onClick={() => {
                 setSelectedPlan(plan.type);
@@ -88,7 +88,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   noteText: {
-    color: "#888",
+    color: "#ffffff",
+    opacity: 0.7,
     fontSize: 13,
     textAlign: "center",
     paddingHorizontal: 10,

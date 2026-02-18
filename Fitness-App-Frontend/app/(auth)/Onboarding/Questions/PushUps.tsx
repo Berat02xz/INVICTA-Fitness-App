@@ -10,10 +10,17 @@ import { useOnboarding } from "../NavigationService";
 
 const PushUps = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const { goForward } = useOnboarding();
+  const { goForward, saveSelection } = useOnboarding();
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
+  };
+
+  const handleContinue = () => {
+    if (selectedOption) {
+      saveSelection("PushUps", selectedOption);
+      goForward();
+    }
   };
 
   const getInfoMessage = () => {
@@ -22,7 +29,6 @@ const PushUps = () => {
       return {
         title: "Dont Worry!",
         message: "Every rep counts. We'll build your strength step by step. You've got this!",
-        color: "#D0FFAC",
       };
     }
     // Intermediate
@@ -30,7 +36,6 @@ const PushUps = () => {
       return {
         title: "Good Foundation!",
         message: "Let's push your limits and reach new milestones.",
-        color: "#D0FFAC",
       };
     }
     // Advanced
@@ -38,7 +43,6 @@ const PushUps = () => {
       return {
         title: "Good Foundation!",
         message: "Keep building on this momentum for peak performance.",
-        color: "#D0FFAC",
       };
     }
     // Gym Enthusiast
@@ -46,7 +50,6 @@ const PushUps = () => {
       return {
         title: "Great Foundation!",
         message: "Let's take you to the next level.",
-        color: "#D0FFAC",
       };
     }
     return null;
@@ -107,9 +110,8 @@ const PushUps = () => {
             <ButtonFit
               title="Continue"
               backgroundColor={theme.primary}
-              onPress={goForward}
+              onPress={handleContinue}
               hasMoreInfo={true}
-              moreInfoColor={infoMessage.color}
               moreInfoTitle={infoMessage.title}
               moreInfoImageSource={require("@/assets/icons/onboarding/workout.png")}
               moreInfoText={infoMessage.message}

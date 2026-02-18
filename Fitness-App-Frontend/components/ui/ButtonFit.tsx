@@ -27,7 +27,7 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
     isLoading = false,
     loadingText = "Loading...",
     hasMoreInfo = false,
-    moreInfoColor = "#C8E6C9",
+    moreInfoColor = theme.deepPrimary,
     moreInfoTitle = "Info",
     moreInfoIcon = "information",
     moreInfoText = "Additional information",
@@ -71,7 +71,7 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
                             <MaterialCommunityIcons 
                                 name={moreInfoIcon as any} 
                                 size={32} 
-                                color="#333" 
+                                color="#FFFFFF" 
                                 style={styles.infoIcon}
                             />
                         )}
@@ -138,8 +138,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     infoCardWrapper: {
-        width: 332,
-        borderRadius: 20,
+        width: 330,
+        borderRadius: 30,
         padding: 12,
         paddingBottom: 10,
     },
@@ -162,25 +162,25 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     infoTitle: {
-        color: '#333',
+        color: '#FFFFFF',
         fontSize: 16,
         fontFamily: theme.medium,
         marginBottom: 4,
     },
     infoUndertext: {
-        color: '#000000ff',
+        color: '#FFFFFF',
         fontSize: 13,
         fontFamily: theme.light,
         lineHeight: 18,
     },
     button: {
-        height: 62,
-        borderRadius: 20,
+        height: 63,
+        borderRadius: 30,
         alignItems: 'center',
         justifyContent: 'center',
     },
     standaloneButton: {
-        width: 337,
+        width: 330,
     },
     infoButton: {
         width: '100%',
@@ -197,8 +197,8 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     text: {
-        color: theme.textColorTertiary,
-        fontSize: 16,
+        color: '#000000',
+        fontSize: 20,
         fontFamily: theme.medium,
     },
 });

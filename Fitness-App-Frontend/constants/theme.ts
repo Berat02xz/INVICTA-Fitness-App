@@ -13,11 +13,14 @@ export const theme = {
   primaryLight: '#bb9d99ff',
   primaryDark: '#19250D',
   
-  backgroundColor: '#FFFFFF', // White background
+  backgroundColor: '#000000', // Black background
   backgroundSecondary: '#E6E6E6', // Light gray for cards
   backgroundTertiary: '#FAFAFA', // Slightly darker for contrast
   
-  textColor: '#333232ff', // Dark text for readability
+  answerBackground: '#062B0A', // Dark green for unselected answers
+  answerBackgroundSelected: '#00A713', // Bright green for selected answers
+  
+  textColor: '#FFFFFF', // White text
   textColorSecondary: '#757575', // Gray for secondary text
   textColorTertiary: '#ffffffff', // Light gray for disabled/subtle text
   
@@ -27,7 +30,7 @@ export const theme = {
   // Backward compatibility
   buttonBorder: '#E0E0E0',
   buttonsolid: '#E6E6E6',
-  deepPrimary: '#E64A19',
+  deepPrimary: '#062B0A', // Dark green for info cards
   
   success: '#4CAF50',
   successLight: '#E8F5E9',

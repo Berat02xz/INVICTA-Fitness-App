@@ -23,7 +23,7 @@ const LastTimeHappyBodyImage = () => {
       return {
         title: "60% of users feel the same way!",
         message: "You are not alone, many share your feelings!",
-        color: "#FFACAC",
+        color: "#062B0A",
       };
     }
     // High confidence option
@@ -31,7 +31,7 @@ const LastTimeHappyBodyImage = () => {
       return {
         title: "Great Foundation!",
         message: "Keep building on this momentum. We'll help you reach your goals!",
-        color: "#D0FFAC",
+        color: "#062B0A",
       };
     }
     return null;

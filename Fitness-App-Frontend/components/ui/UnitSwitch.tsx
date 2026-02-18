@@ -52,7 +52,7 @@ const UnitSwitch: React.FC<UnitSwitchProps> = ({
 const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: "row",
-    backgroundColor: theme.backgroundSecondary,
+    backgroundColor: theme.deepPrimary,
     borderRadius: 20,
     alignSelf: "center",
     height: 33,
@@ -81,13 +81,13 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 15,
-    color: "rgba(0, 0, 0, 0.5)",
-    fontFamily: theme.regular,
+    color: "rgba(255, 255, 255, 0.5)",
+    fontFamily: theme.bold,
   },
   selectedText: {
     fontSize: 15,
-    color: "#FFFFFF",
-    fontFamily: theme.regular,
+    color: "#000000",
+    fontFamily: theme.bold,
   },
 });
 

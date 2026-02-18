@@ -24,7 +24,6 @@ export const OnboardingScreens = [
   "JourneyStartsNow",
   "Reviews",
   "AccessToEquipment",
-  "WhatYouGet",
   "OnboardingComplete",
 ];
 

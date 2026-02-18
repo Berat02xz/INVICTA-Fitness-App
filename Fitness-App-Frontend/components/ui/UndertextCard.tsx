@@ -13,9 +13,9 @@ interface UndertextCardProps {
 const UndertextCard: React.FC<UndertextCardProps> = ({
   emoji,
   title,
-  titleColor = "#000000",
+  titleColor = "#FFFFFF",
   text,
-  backgroundColor = "#ACFFB8",
+  backgroundColor = theme.deepPrimary,
 }) => {
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: theme.medium,
     marginBottom: 4,
-    color: theme.textColor,
+    color: "#FFFFFF",
   },
   text: {
     fontFamily: theme.light,
     textAlign: "left",
-    color: theme.textColor,
+    color: "#FFFFFF",
     fontSize: 12,
     lineHeight: 18,
   },
