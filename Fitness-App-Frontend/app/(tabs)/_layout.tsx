@@ -20,6 +20,7 @@ export default function AppLayout() {
   return (
     <View style={{ flex: 1, flexDirection: isLargeScreen ? "row" : "column" }}>
       <Tab.Navigator
+        initialRouteName="workout"
         tabBar={props =>
           isLargeScreen
             ? <TabBar {...props} vertical />
@@ -31,22 +32,22 @@ export default function AppLayout() {
         }}
       >
         <Tab.Screen
-          name="Workout"
+          name="workout"
           component={WorkoutScreen}
           options={{ tabBarLabel: "Workout" }}
         />
         <Tab.Screen
-          name="Nutrition"
+          name="nutrition"
           component={NutritionScreen}
           options={{ tabBarLabel: "Nutrition" }}
         />
         <Tab.Screen
-          name="Chatbot"
+          name="chatbot"
           component={ChatbotScreen}
           options={{ tabBarLabel: "Chatbot" }}
         />
         <Tab.Screen
-          name="Profile"
+          name="profile"
           component={ProfileScreen}
           options={{ tabBarLabel: "Profile" }}
         />

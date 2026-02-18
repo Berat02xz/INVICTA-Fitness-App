@@ -17,28 +17,28 @@ const ICON_COLOR_SELECTED = '#FFFFFF';
 const ICON_COLOR_UNSELECTED = '#999999';
 
 export const icon = {
-  Workout: (props: any) => (
+  workout: (props: any) => (
     <Ionicons
       name={props.focused ? "barbell" : "barbell-outline"}
       size={25}
       color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
-  Nutrition: (props: any) => (
+  nutrition: (props: any) => (
     <Ionicons
       name={props.focused ? "restaurant" : "restaurant-outline"}
       size={25}
       color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
-  Chatbot: (props: any) => (
+  chatbot: (props: any) => (
     <Ionicons
       name={props.focused ? "chatbubbles" : "chatbubbles-outline"}
       size={25}
       color={props.focused ? ICON_COLOR_SELECTED : ICON_COLOR_UNSELECTED}
     />
   ),
-  Profile: (props: any) => (
+  profile: (props: any) => (
     <Ionicons
       name={props.focused ? "person" : "person-outline"}
       size={25}

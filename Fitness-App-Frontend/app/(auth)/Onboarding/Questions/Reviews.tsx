@@ -45,23 +45,26 @@ export default function Reviews() {
   const { goForward } = useOnboarding();
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [displayedPercentage, setDisplayedPercentage] = useState(0);
-  const percentageAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   // Animate progress and percentage to 100% over 10 seconds
   useEffect(() => {
-    Animated.timing(percentageAnim, {
-      toValue: 100,
-      duration: 10000,
-      useNativeDriver: false,
-    }).start();
+    const duration = 10000; // 10 seconds
+    const fps = 60;
+    const frames = duration / (1000 / fps);
+    const increment = 100 / frames;
+    let currentValue = 0;
 
-    // Update displayed percentage
-    const id = percentageAnim.addListener(({ value }) => {
-      setDisplayedPercentage(Math.round(value));
-    });
+    const interval = setInterval(() => {
+      currentValue += increment;
+      if (currentValue >= 100) {
+        currentValue = 100;
+        clearInterval(interval);
+      }
+      setDisplayedPercentage(Math.round(currentValue));
+    }, 1000 / fps);
 
-    return () => percentageAnim.removeListener(id);
+    return () => clearInterval(interval);
   }, []);
 
   // Auto-change reviews every 3 seconds with fade transition
@@ -112,9 +115,9 @@ export default function Reviews() {
                   radius={80}
                   strokeWidth={15}
                   chartConfig={{
-                    backgroundColor: theme.backgroundColor,
-                    backgroundGradientFrom: theme.backgroundColor,
-                    backgroundGradientTo: theme.backgroundColor,
+                    backgroundColor: "transparent",
+                    backgroundGradientFrom: "transparent",
+                    backgroundGradientTo: "transparent",
                     color: () => theme.primary,
                     strokeWidth: 15,
                     barPercentage: 0.5,

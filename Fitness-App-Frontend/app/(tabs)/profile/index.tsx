@@ -14,16 +14,18 @@ import { User } from "@/models/User";
 import { database } from "@/database/database";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { removeToken } from "@/api/AxiosInstance";
+import { LogoutUser } from "@/api/UserDataEndpoint";
 import calculateBMI from "@/utils/CalculateBMI";
 import { getCaloriePlans } from "@/utils/GetCaloriePlans";
 import UnitSwitch from "@/components/ui/UnitSwitch";
+import { useProStatus } from "@/hooks/useProStatus";
 
 const VERSION = "1.0.0";
 
 export default function Profile() {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { isPro, loading: proLoading } = useProStatus();
   const [weightModalVisible, setWeightModalVisible] = useState(false);
   const [adjustedWeight, setAdjustedWeight] = useState(0);
   const [weightEditMode, setWeightEditMode] = useState(false);
@@ -97,8 +99,7 @@ export default function Profile() {
         text: "Logout",
         style: "destructive",
         onPress: async () => {
-          removeToken();
-          router.push("/(auth)/login");
+          await LogoutUser();
         },
       },
     ]);
@@ -446,21 +447,21 @@ export default function Profile() {
         <View
           style={[
             styles.planBadge,
-            userData?.role === "PREMIUM" ? styles.planBadgePremium : styles.planBadgeFree,
+            isPro ? styles.planBadgePremium : styles.planBadgeFree,
           ]}
         >
           <Ionicons
-            name={userData?.role === "PREMIUM" ? "diamond" : "wallet-outline"}
+            name={isPro ? "diamond" : "wallet-outline"}
             size={16}
-            color={userData?.role === "PREMIUM" ? theme.warning : theme.textColorSecondary}
+            color={isPro ? theme.warning : theme.textColorSecondary}
           />
           <Text
             style={[
               styles.planBadgeText,
-              userData?.role === "PREMIUM" ? { color: theme.warning } : { color: theme.textColorSecondary },
+              isPro ? { color: theme.warning } : { color: theme.textColorSecondary },
             ]}
           >
-            {userData?.role === "PREMIUM" ? "Premium" : "Free"}
+            {isPro ? "PRO" : "Free"}
           </Text>
         </View>
       </View>
@@ -579,8 +580,9 @@ export default function Profile() {
           iconBg={theme.warningLight}
           iconColor={theme.warning}
           label="Subscription"
-          value={userData?.role === "PREMIUM" ? "Premium" : "Free Plan"}
-          showChevron={false}
+          value={isPro ? "PRO" : "Free Plan"}
+          showChevron={!isPro}
+          onPress={!isPro ? () => router.push("/(auth)/SubscriptionCheck") : undefined}
         />
         <View style={styles.separator} />
         <SettingsRow

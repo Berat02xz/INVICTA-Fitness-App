@@ -6,6 +6,7 @@ import {
   UploadUserInformation,
   DeleteUser,
 } from "@/api/UserDataEndpoint";
+import RevenueCatService from "@/api/RevenueCatService";
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
@@ -90,9 +91,22 @@ const OnboardingComplete = () => {
       await FetchUserInformationAndStore(userId);
       console.log("✅ User data fetched and stored successfully");
 
+      // Step 4: Identify user with RevenueCat
+      console.log("📱 Identifying user with RevenueCat...");
+      try {
+        await RevenueCatService.identifyUser(userId, {
+          name: Name,
+          email: Email,
+        });
+        console.log("✅ RevenueCat user identified successfully");
+      } catch (revenueCatError) {
+        // Don't fail registration if RevenueCat fails
+        console.warn("⚠️ RevenueCat identification failed:", revenueCatError);
+      }
+
       // Success → move forward
       goForward();
-      router.push("/(tabs)/workout");
+      router.push("/(auth)/SubscriptionCheck");
     } catch (error) {
       console.error("Submission error:", error);
       if (userId) {

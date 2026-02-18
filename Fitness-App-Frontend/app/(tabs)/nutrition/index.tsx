@@ -468,7 +468,7 @@ export default function NutritionScreen() {
               <View style={styles.actionButtonWrapper}>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => router.push("../(screens)/ChatBot")}
+                  onPress={() => router.push("../chatbot")}
                   activeOpacity={0.7}
                 >
                   <Ionicons name="sparkles-outline" size={22} color={theme.textColor} />

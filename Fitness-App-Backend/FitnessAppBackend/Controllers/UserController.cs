@@ -3,6 +3,7 @@ using FitnessAppBackend.Model.DTO;
 using FitnessAppBackend.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 namespace FitnessAppBackend.Controllers
@@ -164,6 +165,38 @@ namespace FitnessAppBackend.Controllers
             return Ok("User deleted successfully.");
         }
 
+        [Authorize]
+        [HttpPost("UpdateRole")]
+        public async Task<IActionResult> UpdateRole([FromBody] UpdateRoleRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrWhiteSpace(request.Role))
+            {
+                return BadRequest("UserId and Role are required.");
+            }
+
+            if (!Guid.TryParse(request.UserId, out var userId))
+            {
+                return BadRequest("Invalid UserId format.");
+            }
+
+            try
+            {
+                var user = await _userService.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                user.Role = request.Role;
+                await _userService.UpdateAsync(user);
+
+                return Ok(new { message = "Role updated successfully", role = user.Role });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error updating role: {ex.Message}");
+            }
+        }
 
 
     }

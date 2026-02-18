@@ -1,6 +1,7 @@
 import { setToken } from "@/api/AxiosInstance";
-import { Login, FetchUserInformationAndStore, FetchUserMealsAndStore } from "@/api/UserDataEndpoint";
+import { Login, FetchUserInformationAndStore, FetchUserMealsAndStore, GetUserDetails } from "@/api/UserDataEndpoint";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
+import RevenueCatService from "@/api/RevenueCatService";
 import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -73,6 +74,21 @@ export const LoginScreen = () => {
             await FetchUserInformationAndStore(userId);
             console.log("✅ User data fetched and stored successfully");
             
+            // Identify user with RevenueCat and pass user attributes
+            try {
+              console.log("📱 Identifying user with RevenueCat...");
+              // Get user details to pass as attributes
+              const userDetails = await GetUserDetails();
+              await RevenueCatService.identifyUser(userId, {
+                email: userDetails?.email,
+                name: userDetails?.name,
+              });
+              console.log("✅ RevenueCat user identified with attributes");
+            } catch (revenueCatError) {
+              console.warn("⚠️ RevenueCat identification failed:", revenueCatError);
+              // Don't block login if RevenueCat fails
+            }
+            
             // Fetch and store user meals
             try {
               console.log("🍽️ Fetching user meals...");
@@ -88,7 +104,7 @@ export const LoginScreen = () => {
           // Don't block login if user data fetch fails
         }
         
-        router.push("/(tabs)/workout");
+        router.push("/(auth)/SubscriptionCheck");
       }
     } catch (error: any) {
       console.error("Submission error:", error);

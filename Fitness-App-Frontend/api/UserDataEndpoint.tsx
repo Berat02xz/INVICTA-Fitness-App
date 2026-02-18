@@ -1,5 +1,6 @@
 import axiosInstance from '@/api/AxiosInstance';
 import { removeToken, setToken } from '@/api/AxiosInstance';
+import RevenueCatService from '@/api/RevenueCatService';
 import database from '@/database/database';
 import { router } from 'expo-router';
 import { User } from '@/models/User';
@@ -45,7 +46,47 @@ export const UploadUserInformation = async ({
     throw error;
   }
 };
-
+/**
+ * Update user role to PRO after successful purchase
+ * Updates both backend database and local WatermelonDB
+ */
+export const UpdateUserRoleToPro = async (userId: string): Promise<void> => {
+  try {
+    console.log('💾 Updating user role to PRO for userId:', userId);
+    
+    // Update backend database
+    try {
+      console.log('🌐 Sending POST to backend to update role...');
+      const response = await axiosInstance.post('/api/User/UpdateRole', {
+        userId,
+        role: 'PRO',
+      });
+      console.log('✅ Backend role updated successfully:', response.data);
+    } catch (backendError) {
+      console.error('❌ Failed to update role in backend:', backendError);
+      // Don't throw - still update local DB even if backend fails
+    }
+    
+    // Update local WatermelonDB
+    console.log('💾 Updating local WatermelonDB...');
+    const user = await User.getUserDetails(database);
+    
+    if (user) {
+      await database.write(async () => {
+        await user.update((u) => {
+          u.role = 'PRO';
+        });
+      });
+      console.log('✅ Local database role updated to PRO');
+    } else {
+      console.warn('⚠️ User not found in local database');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error updating user role to PRO:', error);
+    throw error;
+  }
+};
 export const FetchUserInformationAndStore = async (userId: string) => {
   try {
     console.log("📡 Making API call to fetch user information...");
@@ -277,11 +318,45 @@ export const Login = async (
 };
 
 export const LogoutUser = async () => {
-  await database.write(async () => {
-    await database.unsafeResetDatabase();
-  });
-  await removeToken();
-  router.push('/');
+  try {
+    console.log('🚪 Starting logout process...');
+    
+    // Logout from RevenueCat
+    try {
+      console.log('📱 Logging out from RevenueCat...');
+      await RevenueCatService.logout();
+      console.log('✅ RevenueCat logout successful');
+    } catch (error) {
+      console.warn('⚠️ RevenueCat logout failed:', error);
+      // Continue with logout even if RevenueCat fails
+    }
+    
+    // Clear local database
+    try {
+      console.log('💾 Resetting local database...');
+      await database.write(async () => {
+        await database.unsafeResetDatabase();
+      });
+      console.log('✅ Database reset successful');
+    } catch (error) {
+      console.warn('⚠️ Database reset failed:', error);
+    }
+    
+    // Remove token
+    console.log('🔑 Removing token...');
+    await removeToken();
+    console.log('✅ Token removed');
+    
+    // Navigate to welcome screen with replace to prevent back navigation
+    console.log('🔄 Navigating to welcome screen...');
+    router.replace("/(auth)/WelcomeScreen");
+    console.log('✅ Logout complete');
+  } catch (error) {
+    console.error('❌ Logout error:', error);
+    // Force navigation even if something failed
+    await removeToken();
+    router.replace("/(auth)/WelcomeScreen");
+  }
 };
 
 export const DeleteUser = async (userId: string) => {
@@ -292,3 +367,5 @@ export const DeleteUser = async (userId: string) => {
     console.error('Error deleting user:', error);
   }
 };
+
+
