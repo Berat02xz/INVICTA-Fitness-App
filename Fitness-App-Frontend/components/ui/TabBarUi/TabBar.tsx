@@ -12,9 +12,8 @@ import Animated, {
 import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
 
-const ACTIVE_CIRCLE = theme.primary;
-const ICON_COLOR_SELECTED = '#FFFFFF';
-const ICON_COLOR_UNSELECTED = '#999999';
+const ICON_COLOR_SELECTED = '#000000';       // black on lime circle
+const ICON_COLOR_UNSELECTED = 'rgba(255,255,255,0.35)'; // ghosted white
 
 export const icon = {
   workout: (props: any) => (
@@ -59,6 +58,17 @@ export function TabBar({
   const circleSize = 64;
 
   const tabPositionX = useSharedValue(0);
+  const tabBarTranslateY = useSharedValue(0);
+
+  const isChatbot = state.routes[state.index]?.name === "chatbot";
+
+  // Slide tab bar off-screen when on chatbot, back when leaving
+  useEffect(() => {
+    tabBarTranslateY.value = withSpring(isChatbot ? 120 : 0, {
+      damping: 18,
+      stiffness: 120,
+    });
+  }, [isChatbot]);
 
   const onTabbarLayout = (e: LayoutChangeEvent) => {
     setDimensions({
@@ -79,13 +89,18 @@ export function TabBar({
     transform: [{ translateX: tabPositionX.value }],
   }));
 
+  const tabBarSlideStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: tabBarTranslateY.value }],
+    opacity: tabBarTranslateY.value < 60 ? 1 : 0,
+  }));
+
   return (
-    <View style={styles.tabBarWrapper} onLayout={onTabbarLayout}>
+    <Animated.View style={[styles.tabBarWrapper, tabBarSlideStyle]} onLayout={onTabbarLayout}>
       <BlurView
         experimentalBlurMethod="dimezisBlurView"
         blurReductionFactor={1}
-        intensity={80}
-        tint="light"
+        intensity={50}
+        tint="dark"
         style={styles.tabBar}
       >
         {/* Glass effect border */}
@@ -148,7 +163,7 @@ export function TabBar({
           );
         })}
       </BlurView>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -165,28 +180,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    // dark glass base — deepPrimary tinted so the lime circle pops
+    backgroundColor: "rgba(6, 14, 6, 0.72)",
     paddingVertical: 14,
     borderRadius: 100,
-    shadowColor: "#000000",
+    shadowColor: theme.deepPrimary,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0,
+    shadowRadius: 20,
+    elevation: 2,
     width: 333,
-    height: 75,
+    height: 76,
     overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.07)",  // faint lime outline
   },
   glassBorder: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 100,
-    borderWidth: 1.5,
-    borderTopColor: 'rgba(255, 255, 255, 1)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.9)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.4)',
-    borderRightColor: 'rgba(255, 255, 255, 0.4)',
+    borderWidth: 1,
+    // top/left highlight gives glassy depth on dark surface
+    borderTopColor: 'rgba(255, 255, 255, 0.14)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.07)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.12)',
+    borderRightColor: 'rgba(0, 0, 0, 0.20)',
     zIndex: 2,
   },
   circle: {

@@ -1,6 +1,8 @@
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import * as Clipboard from 'expo-clipboard';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Paywall } from '@/components/ui/RevenueCat/Paywall';
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -21,6 +23,7 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { router, useFocusEffect } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { GetUserDetails } from "@/api/UserDataEndpoint";
 import { Meal } from "@/models/Meals";
 import database from "@/database/database";
@@ -80,6 +83,7 @@ const THINKING_MESSAGES = [
 ];
 
 export default function Chatbot() {
+  const navigation = useNavigation() as any;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -88,6 +92,9 @@ export default function Chatbot() {
   const [savedMessages, setSavedMessages] = useState<SavedMessage[]>([]);
   const [savedMessageIds, setSavedMessageIds] = useState<Set<string>>(new Set());
   const [subscriptionPlan, setSubscriptionPlan] = useState("Free");
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [dailyMessageCount, setDailyMessageCount] = useState(0);
+  const FREE_DAILY_LIMIT = 10;
   const [greetingMessage, setGreetingMessage] = useState("What can I help with?");
   const [randomSuggestions, setRandomSuggestions] = useState<typeof GREETING_SUGGESTIONS>([]);
   // Pick one random video on mount and keep it for the session
@@ -143,8 +150,29 @@ export default function Chatbot() {
 
       loadUserData();
 
+      // Load today's message count from storage
+      const loadDailyCount = async () => {
+        try {
+          const today = new Date().toISOString().split('T')[0];
+          const stored = await AsyncStorage.getItem('chatbot_daily_count');
+          if (stored) {
+            const { date, count } = JSON.parse(stored);
+            if (date === today) {
+              setDailyMessageCount(count);
+            } else {
+              // New day — reset
+              await AsyncStorage.setItem('chatbot_daily_count', JSON.stringify({ date: today, count: 0 }));
+              setDailyMessageCount(0);
+            }
+          }
+        } catch (e) {
+          console.log('Failed to load daily count', e);
+        }
+      };
+      loadDailyCount();
+
       const onBackPress = () => {
-        router.replace("/(tabs)/workout");
+        navigation.navigate("workout");
         return true;
       };
 
@@ -536,6 +564,13 @@ export default function Chatbot() {
     const textToSend = messageText || inputText.trim();
     if (!textToSend || isLoading) return;
 
+    // Enforce daily limit for FREE users
+    const isFree = subscriptionPlan === 'FREE' || subscriptionPlan === 'Free';
+    if (isFree && dailyMessageCount >= FREE_DAILY_LIMIT) {
+      setShowPaywall(true);
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       text: textToSend,
@@ -547,6 +582,17 @@ export default function Chatbot() {
     setInputText("");
     setIsLoading(true);
     Keyboard.dismiss();
+
+    // Increment daily count for free users
+    const isFreeUser = subscriptionPlan === 'FREE' || subscriptionPlan === 'Free';
+    if (isFreeUser) {
+      const newCount = dailyMessageCount + 1;
+      setDailyMessageCount(newCount);
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        await AsyncStorage.setItem('chatbot_daily_count', JSON.stringify({ date: today, count: newCount }));
+      } catch (e) { /* ignore */ }
+    }
 
     try {
       // Detect message category and get contextual data
@@ -678,22 +724,14 @@ export default function Chatbot() {
                 }}
                 activeOpacity={0.7}
               >
-                <MaterialCommunityIcons 
-                  name="content-copy" 
-                  size={18} 
-                  color="#9CA3AF"
-                />
+                <MaterialCommunityIcons name="content-copy" size={18} color="#48484A" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.messageActionIcon}
                 onPress={() => handleShareMessage(item)}
                 activeOpacity={0.7}
               >
-                <MaterialCommunityIcons 
-                  name="share-variant-outline" 
-                  size={18} 
-                  color="#9CA3AF"
-                />
+                <MaterialCommunityIcons name="share-variant-outline" size={18} color="#48484A" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.messageActionIcon}
@@ -703,7 +741,7 @@ export default function Chatbot() {
                 <MaterialCommunityIcons 
                   name={savedMessageIds.has(item.id) ? "bookmark" : "bookmark-outline"} 
                   size={18} 
-                  color={savedMessageIds.has(item.id) ? "#6366F1" : "#9CA3AF"}
+                  color={savedMessageIds.has(item.id) ? theme.primary : "#48484A"}
                 />
               </TouchableOpacity>
             </View>
@@ -725,17 +763,25 @@ export default function Chatbot() {
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.headerButton}
-              onPress={() => router.replace("/(tabs)/workout")}
+              onPress={() => navigation.navigate("workout")}
               activeOpacity={0.7}
             >
-              <MaterialCommunityIcons name="arrow-left" size={24} color="#6B7280" />
+              <MaterialCommunityIcons name="arrow-left" size={24} color="#8E8E93" />
             </TouchableOpacity>
             
             {subscriptionPlan && (
-              <View style={styles.planPill}>
-                <MaterialCommunityIcons name="star-four-points" size={14} color="#e65f20ff" />
-                <Text style={styles.planText}>{subscriptionPlan === "FREE" ? "Get Premium" : "Unlimited Plan"}</Text>
-              </View>
+              <TouchableOpacity
+                style={[styles.planPill, (subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') && styles.planPillFree]}
+                onPress={() => (subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') ? setShowPaywall(true) : null}
+                activeOpacity={(subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') ? 0.7 : 1}
+              >
+                <MaterialCommunityIcons name="star-four-points" size={14} color={theme.primary} />
+                <Text style={styles.planText}>
+                  {(subscriptionPlan === 'FREE' || subscriptionPlan === 'Free')
+                    ? `${FREE_DAILY_LIMIT - dailyMessageCount}/${FREE_DAILY_LIMIT} left`
+                    : 'Unlimited'}
+                </Text>
+              </TouchableOpacity>
             )}
             
             <View style={styles.headerRightIcons}>
@@ -747,7 +793,7 @@ export default function Chatbot() {
                 <MaterialCommunityIcons 
                   name="bookmark-outline" 
                   size={24} 
-                  color="#6B7280" 
+                  color="#8E8E93" 
                 />
               </TouchableOpacity>
             </View>
@@ -824,7 +870,7 @@ export default function Chatbot() {
                 <MaterialCommunityIcons 
                   name="camera-outline" 
                   size={22} 
-                  color="#6B7280"
+                  color="#8E8E93"
                 />
               </TouchableOpacity>
 
@@ -832,7 +878,7 @@ export default function Chatbot() {
                 <TextInput
                   style={styles.input}
                   placeholder="Ask me anything..."
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#48484A"
                   value={inputText}
                   onChangeText={setInputText}
                   multiline={false}
@@ -842,13 +888,13 @@ export default function Chatbot() {
                 <TouchableOpacity
                   style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
                   onPress={() => sendMessage()}
-                  disabled={!inputText.trim() || isLoading}
+                  disabled={!inputText.trim() || isLoading || ((subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') && dailyMessageCount >= FREE_DAILY_LIMIT)}
                 activeOpacity={0.8}
               >
                 <MaterialCommunityIcons
                   name="arrow-up"
                   size={20}
-                  color="#FFFFFF"
+                  color="#000000"
                 />
               </TouchableOpacity>
             </View>
@@ -877,7 +923,7 @@ export default function Chatbot() {
                   onPress={() => setShowSavedMessages(false)}
                   style={styles.modalCloseButton}
                 >
-                  <MaterialCommunityIcons name="close" size={20} color="#6B7280" />
+                  <MaterialCommunityIcons name="close" size={20} color="#8E8E93" />
                 </TouchableOpacity>
               </View>
               
@@ -906,7 +952,7 @@ export default function Chatbot() {
                             }}
                             activeOpacity={0.7}
                           >
-                            <MaterialCommunityIcons name="content-copy" size={16} color="#9CA3AF" />
+                            <MaterialCommunityIcons name="content-copy" size={16} color="#48484A" />
                           </TouchableOpacity>
                           <TouchableOpacity
                             style={styles.savedActionIcon}
@@ -919,14 +965,14 @@ export default function Chatbot() {
                             }}
                             activeOpacity={0.7}
                           >
-                            <MaterialCommunityIcons name="share-variant-outline" size={16} color="#9CA3AF" />
+                            <MaterialCommunityIcons name="share-variant-outline" size={16} color="#48484A" />
                           </TouchableOpacity>
                           <TouchableOpacity
                             style={styles.savedActionIcon}
                             onPress={() => deleteSavedMessage(item.id)}
                             activeOpacity={0.7}
                           >
-                            <MaterialCommunityIcons name="trash-can-outline" size={16} color="#9CA3AF" />
+                            <MaterialCommunityIcons name="trash-can-outline" size={16} color="#FF453A" />
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -937,7 +983,7 @@ export default function Chatbot() {
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                   <View style={styles.emptyModalContainer}>
-                    <MaterialCommunityIcons name="bookmark-outline" size={48} color="#D1D5DB" />
+                    <MaterialCommunityIcons name="bookmark-outline" size={48} color="#2C2C2E" />
                     <Text style={styles.emptyText}>No saved messages yet</Text>
                     <Text style={styles.emptySubtext}>Save messages to access them later</Text>
                   </View>
@@ -947,16 +993,45 @@ export default function Chatbot() {
           </View>
         </Modal>
       </View>
+
+      <Paywall
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onPurchaseCompleted={() => {
+          setShowPaywall(false);
+          setSubscriptionPlan('PRO');
+        }}
+        onRestoreCompleted={() => {
+          setShowPaywall(false);
+          setSubscriptionPlan('PRO');
+        }}
+      />
     </>
   );
 }
+
+// ── Design tokens (mirrors app-wide dark system) ─────────────────────────────
+const C = {
+  bg:        "#141414",
+  card:      "#1C1C1E",
+  cardAlt:   "#242426",
+  border:    "#2C2C2E",
+  primary:   theme.primary,        // #AAFB05
+  deep:      theme.deepPrimary,    // #062B0A
+  text:      "#FFFFFF",
+  sub:       "#8E8E93",
+  muted:     "#48484A",
+  userBubble: "#1C1C1E",           // like ChatGPT dark: user msg = slightly elevated card
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: C.bg,
   },
+
+  // ── Header ─────────────────────────────────────────────────────────────────
   header: {
     paddingTop: 60,
     paddingBottom: 16,
@@ -980,28 +1055,34 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: C.cardAlt,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.15)',
+    borderColor: C.border,
   },
   planPill: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: C.deep,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.15)',
+    borderColor: 'rgba(170,251,5,0.3)',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  planText: {
-    fontSize: 14,
-    fontFamily: theme.medium,
-    color: '#000000',
+  planPillFree: {
+    borderColor: 'rgba(170,251,5,0.25)',
+    backgroundColor: C.deep,
   },
+  planText: {
+    fontSize: 13,
+    fontFamily: theme.medium,
+    color: C.primary,
+  },
+
+  // ── Empty / greeting state ─────────────────────────────────────────────────
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -1015,11 +1096,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   greetingText: {
-    fontSize: 25,
-    fontFamily: theme.medium,
-    color: '#111827',
+    fontSize: 26,
+    fontFamily: theme.semibold,
+    color: C.text,
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 28,
+    letterSpacing: -0.5,
   },
   greetingSuggestionsGrid: {
     flexDirection: 'row',
@@ -1033,24 +1115,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 24,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    backgroundColor: '#FFFFFF',
+    borderColor: C.border,
+    backgroundColor: C.card,
   },
   greetingSuggestionText: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: theme.medium,
     textAlign: 'center',
-    color: '#374151',
+    color: C.text,
   },
+
+  // ── Messages list ──────────────────────────────────────────────────────────
   messagesList: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     paddingTop: 120,
-    paddingBottom: 180,
+    paddingBottom: 100,
     flexGrow: 1,
     maxWidth: 768,
     width: '100%',
@@ -1064,7 +1148,7 @@ const styles = StyleSheet.create({
   userMessage: {
     justifyContent: "flex-end",
     alignSelf: "flex-end",
-    maxWidth: '90%',
+    maxWidth: '85%',
   },
   aiMessage: {
     justifyContent: "flex-start",
@@ -1081,37 +1165,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 100,
-    elevation: 3,
   },
   messageBubbleWide: {
     width: "100%",
   },
+  // User bubble: slightly lighter card with subtle lime left-border accent — ChatGPT-style
   userBubble: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 25,
+    backgroundColor: C.card,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: C.border,
   },
   aiBubble: {
     backgroundColor: 'transparent',
-    borderBottomLeftRadius: 4,
     borderWidth: 0,
-    borderColor: 'transparent',
-    shadowColor: 'transparent',
     elevation: 0,
   },
   messageText: {
     fontSize: 15,
     fontFamily: theme.regular,
-    color: theme.textColor,
-    lineHeight: 20,
+    color: C.text,
+    lineHeight: 22,
   },
   tableText: {
     fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColor,
+    color: C.text,
     lineHeight: 16,
   },
   aiMessageContent: {
@@ -1125,50 +1204,58 @@ const styles = StyleSheet.create({
     gap: 4,
     width: '100%',
   },
+
+  // Semantic pills — food/exercise — dark tinted
   foodPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: 'rgba(48,209,88,0.15)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 16,
     marginVertical: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(48,209,88,0.3)',
   },
   foodPillText: {
     fontSize: 13,
     fontFamily: theme.medium,
-    color: '#15803D',
+    color: '#30D158',
   },
   exercisePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFEDD5',
+    backgroundColor: 'rgba(255,159,10,0.15)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 16,
     marginVertical: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255,159,10,0.3)',
   },
   exercisePillText: {
     fontSize: 13,
     fontFamily: theme.medium,
-    color: '#C2410C',
+    color: '#FF9F0A',
   },
+
+  // Typography inside AI bubbles
   h1Container: {
     width: '100%',
     marginTop: 12,
-    marginBottom: 12,
+    marginBottom: 10,
     paddingBottom: 8,
-    borderBottomWidth: 2,
-    borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
   },
   h1Text: {
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: theme.bold,
-    color: '#111827',
+    color: C.text,
     letterSpacing: -0.4,
-    lineHeight: 28,
+    lineHeight: 26,
   },
   paragraph: {
     width: '100%',
@@ -1182,20 +1269,22 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginVertical: 2,
   },
+
+  // Tables
   tableScrollView: {
     marginVertical: 8,
   },
   tableContainer: {
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: C.border,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: C.card,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: C.border,
   },
   tableCell: {
     flex: 1,
@@ -1204,21 +1293,23 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
+    borderRightColor: C.border,
     justifyContent: 'center',
     overflow: 'hidden',
   },
   tableHeaderCell: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: C.cardAlt,
   },
   tableHeaderText: {
     fontFamily: theme.bold,
-    color: '#374151',
+    color: C.sub,
   },
+
+  // Message action icons (copy/share/bookmark)
   messageActionsContainer: {
     flexDirection: 'row',
-    gap: 16,
-    marginTop: 8,
+    gap: 14,
+    marginTop: 6,
     alignItems: 'center',
     paddingLeft: 4,
   },
@@ -1228,8 +1319,10 @@ const styles = StyleSheet.create({
   boldKeyword: {
     fontSize: 14,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: C.primary,
   },
+
+  // Loading
   loadingContainer: {
     alignItems: "flex-start",
     paddingVertical: 12,
@@ -1247,8 +1340,10 @@ const styles = StyleSheet.create({
   resultsText: {
     fontSize: 14,
     fontFamily: theme.medium,
-    color: theme.textColor,
+    color: C.sub,
   },
+
+  // ── Input bar ──────────────────────────────────────────────────────────────
   inputContainerWrapper: {
     position: 'absolute',
     bottom: 0,
@@ -1256,15 +1351,19 @@ const styles = StyleSheet.create({
     right: 0,
     maxWidth: 768,
     marginHorizontal: 'auto',
+    // subtle top fade so messages don't hard-cut behind input
+    backgroundColor: C.bg,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
   },
   inputContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 110,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 28,
     backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   inputContainerKeyboardOpen: {
     paddingBottom: 10,
@@ -1276,56 +1375,53 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     paddingHorizontal: 16,
     paddingVertical: 9,
-    backgroundColor: '#FFFFFF',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 60,
-    elevation: 8,
-    gap: 12,
+    backgroundColor: C.card,
+    borderWidth: 1,
+    borderColor: C.border,
+    gap: 10,
   },
   input: {
     flex: 1,
     fontSize: 15,
     fontFamily: theme.regular,
-    color: theme.textColor,
+    color: C.text,
     paddingVertical: 0,
   } as any,
   cameraButton: {
-    width: 48,
-    height: 48,
+    width: 46,
+    height: 46,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 60,
-    elevation: 8,
+    borderRadius: 23,
+    backgroundColor: C.cardAlt,
+    borderWidth: 1,
+    borderColor: C.border,
   },
   sendButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#000000',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: C.primary,
     justifyContent: "center",
     alignItems: "center",
   },
   sendButtonDisabled: {
-    opacity: 0.3,
+    opacity: 0.25,
   },
-  // Modal styles
+
+  // ── Saved messages modal ───────────────────────────────────────────────────
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   modalContent: {
     height: '85%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: C.card,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
+    borderWidth: 1,
+    borderColor: C.border,
     width: '100%',
     maxWidth: 768,
     paddingTop: 8,
@@ -1334,7 +1430,7 @@ const styles = StyleSheet.create({
   modalDragIndicator: {
     width: 40,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: C.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 12,
@@ -1350,27 +1446,29 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontFamily: theme.semibold,
-    color: '#111827',
+    color: C.text,
   },
   modalCloseButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: C.cardAlt,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.5)',
+    borderColor: C.border,
   },
   savedMessagesList: {
     padding: 20,
     paddingTop: 8,
   },
   savedMessageCard: {
-    marginBottom: 12,
+    marginBottom: 10,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: C.cardAlt,
+    borderWidth: 1,
+    borderColor: C.border,
   },
   savedMessageContent: {
     padding: 16,
@@ -1390,14 +1488,14 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   savedMessageDate: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: theme.regular,
-    color: '#9CA3AF',
+    color: C.muted,
   },
   savedMessageText: {
     fontSize: 15,
     fontFamily: theme.regular,
-    color: '#374151',
+    color: C.text,
     lineHeight: 22,
   },
   emptyModalContainer: {
@@ -1409,14 +1507,14 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 17,
     fontFamily: theme.semibold,
-    color: '#6B7280',
+    color: C.sub,
     textAlign: 'center',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
     fontFamily: theme.regular,
-    color: '#9CA3AF',
+    color: C.muted,
     textAlign: 'center',
     marginTop: 4,
   },

@@ -1,102 +1,95 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from "react-native";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { GetUserDetails } from "@/api/UserDataEndpoint";
 import { Meal } from "@/models/Meals";
 import database from "@/database/database";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
-import Svg, { Circle, Text as SvgText } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import ConfettiCannon from "react-native-confetti-cannon";
 
-const { width } = Dimensions.get("window");
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const D = {
+  bg:      "#141414",
+  card:    "#1C1C1E",
+  card2:   "#242426",
+  border:  "#2C2C2E",
+  primary: theme.primary,         // #AAFB05 lime
+  primaryDim: "rgba(170,251,5,0.12)",
+  text:    "#FFFFFF",
+  sub:     "#8E8E93",
+  muted:   "#3A3A3C",
+  protein: "#4E9FFF",
+  carbs:   "#FFB340",
+  fats:    "#34C759",
+};
 
-const DEFAULT_MACRO_SPLIT = {
-  protein: 0.3,
-  carbs: 0.4,
-  fats: 0.3,
-} as const;
+const DEFAULT_MACRO_SPLIT = { protein: 0.3, carbs: 0.4, fats: 0.3 } as const;
 
-function clamp01(value: number) {
-  if (!isFinite(value) || isNaN(value)) return 0;
-  return Math.min(1, Math.max(0, value));
+function clamp01(v: number) {
+  if (!isFinite(v) || isNaN(v)) return 0;
+  return Math.min(1, Math.max(0, v));
 }
 
-function ProgressRing({
-  progress,
-  size,
-  strokeWidth,
-  color,
-  showPercent,
-  centerIcon,
+// ─── Circular ring ────────────────────────────────────────────────────────────
+function Ring({
+  progress, size, stroke, color, children,
 }: {
-  progress: number;
-  size: number;
-  strokeWidth: number;
-  color: string;
-  showPercent?: boolean;
-  centerIcon?: React.ReactNode;
+  progress: number; size: number; stroke: number; color: string; children?: React.ReactNode;
 }) {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
   const p = clamp01(progress);
-  const dashOffset = circumference * (1 - p);
-  const percentLabel = `${Math.round(p * 100)}%`;
-
   return (
-    <View style={[styles.ringWrap, { width: size, height: size }]}>
+    <View style={{ width: size, height: size }}>
       <Svg width={size} height={size}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={theme.border}
-          strokeWidth={strokeWidth}
-          fill="transparent"
-        />
+        <Circle cx={size/2} cy={size/2} r={r} stroke={D.border} strokeWidth={stroke} fill="transparent" />
         {p > 0 && (
           <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
+            cx={size/2} cy={size/2} r={r}
+            stroke={color} strokeWidth={stroke} strokeLinecap="round"
             fill="transparent"
-            strokeDasharray={`${circumference} ${circumference}`}
-            strokeDashoffset={dashOffset}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            strokeDasharray={`${circ} ${circ}`}
+            strokeDashoffset={circ * (1 - p)}
+            transform={`rotate(-90 ${size/2} ${size/2})`}
           />
         )}
-        {showPercent && (
-          <SvgText
-            x={size / 2}
-            y={size / 2 + 5}
-            fontSize={Math.max(11, Math.round(size * 0.16))}
-            fontFamily={theme.semibold}
-            fill={theme.textColor}
-            textAnchor="middle"
-          >
-            {percentLabel}
-          </SvgText>
-        )}
       </Svg>
-      {centerIcon ? <View style={styles.ringCenter}>{centerIcon}</View> : null}
+      {children && (
+        <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>{children}</View>
+        </View>
+      )}
     </View>
   );
 }
+
+// ─── Thin progress bar ────────────────────────────────────────────────────────
+function Bar({ progress, color }: { progress: number; color: string }) {
+  return (
+    <View style={barSt.track}>
+      <View style={[barSt.fill, { width: `${Math.min(clamp01(progress)*100,100)}%` as any, backgroundColor: color }]} />
+    </View>
+  );
+}
+const barSt = StyleSheet.create({
+  track: { height: 4, borderRadius: 2, backgroundColor: D.border, overflow: "hidden" },
+  fill:  { height: 4, borderRadius: 2 },
+});
 
 export default function NutritionScreen() {
   const [userData, setUserData] = useState<any>(null);
   const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekSuccessData, setWeekSuccessData] = useState<boolean[]>([]);
-  const isSuccessfulDay = weekSuccessData[new Date().getDay()];
+  const isSuccessfulDay = weekSuccessData[new Date().getDay()] ?? false;
 
   useEffect(() => {
     fetchData();
+
   }, []);
 
   const fetchData = async () => {
@@ -107,11 +100,9 @@ export default function NutritionScreen() {
 
       const meals = await Meal.getTodayMeals(database, userId!);
       setTodayMeals(meals);
-
-      // Fetch success data for the week
       await fetchWeekSuccessData(userId!);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -120,945 +111,598 @@ export default function NutritionScreen() {
   const fetchWeekSuccessData = async (userId: string) => {
     try {
       const today = new Date();
-      const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - currentDay); // Go to Sunday of this week
-
-      const successData: boolean[] = [];
+      const start = new Date(today);
+      start.setDate(today.getDate() - today.getDay());
+      const data: boolean[] = [];
       for (let i = 0; i < 7; i++) {
-        const date = new Date(startOfWeek);
-        date.setDate(startOfWeek.getDate() + i);
-        const isSuccess = await Meal.DaySuccesfulCalorieIntake(database, userId, date);
-        successData.push(isSuccess);
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        data.push(await Meal.DaySuccesfulCalorieIntake(database, userId, d));
       }
-      setWeekSuccessData(successData);
-    } catch (error) {
-      console.error("Error fetching week success data:", error);
-      setWeekSuccessData([false, false, false, false, false, false, false]);
+      setWeekSuccessData(data);
+    } catch {
+      setWeekSuccessData(Array(7).fill(false));
     }
   };
 
   const getWeekDays = () => {
     const today = new Date();
-    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - currentDay); // Go to Sunday of this week
-
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      const isFuture = date > today;
-      days.push({
-        dayName: date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
-        dayNumber: date.getDate(),
-        isToday: date.toDateString() === today.toDateString(),
-        isFuture: isFuture,
-      });
-    }
-    return days;
-  };
-
-  const getCurrentDateString = () => {
-    const today = new Date();
-    const dayName = today.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
-    const month = today.toLocaleDateString("en-US", { month: "long" });
-    const day = today.getDate();
-    return { dayName, month, day };
-  };
-
-  const calculateTotals = () => {
-    return todayMeals.reduce(
-      (acc, meal) => {
-        acc.calories += meal.calories;
-        acc.protein += meal.protein;
-        acc.carbs += meal.carbohydrates;
-        acc.fats += meal.fats;
-        return acc;
-      },
-      { calories: 0, protein: 0, carbs: 0, fats: 0 }
-    );
-  };
-
-  const totals = calculateTotals();
-  const targetCalories = userData?.caloricIntake || 2000;
-  const caloricDeficit = userData?.caloricDeficit || "Maintain weight";
-
-  const caloriesLeft = Math.max(0, Math.round(targetCalories - totals.calories));
-
-  const proteinTargetG = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.protein) / 4);
-  const carbsTargetG = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.carbs) / 4);
-  const fatsTargetG = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.fats) / 9);
-
-  const proteinLeftG = Math.max(0, Math.round(proteinTargetG - totals.protein));
-  const carbsLeftG = Math.max(0, Math.round(carbsTargetG - totals.carbs));
-  const fatsLeftG = Math.max(0, Math.round(fatsTargetG - totals.fats));
-
-  // Get dynamic message based on calorie intake
-  const getCalorieMessage = () => {
-    if (totals.calories === 0) {
-      return { text: "Start logging", emoji: "🍽️", color: theme.textColorSecondary };
-    } else if (totals.calories > targetCalories * 1.2) {
-      // Way over (20% more than target)
-      return { text: "Over limit", emoji: "⚠️", color: theme.error };
-    } else if (totals.calories > targetCalories) {
-      // Just over target
-      return { text: "Slightly over", emoji: "ℹ️", color: theme.warning };
-    } else if (totals.calories >= targetCalories * 0.8) {
-      // Within good range (80-100% of target)
-      return { text: "On track!", emoji: "✅", color: theme.success };
-    } else {
-      // Under target
-      return { text: "Keep going", emoji: "📈", color: theme.textColorSecondary };
-    }
-  };
-
-  const calorieMessage = getCalorieMessage();
-
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay());
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return {
+        dayName:   d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
+        dayNumber: d.getDate(),
+        isToday:   d.toDateString() === today.toDateString(),
+        isFuture:  d > today,
+      };
     });
   };
 
-  const getMealEmojiAndColor = (meal: Meal, index: number) => {
-    const palette = [theme.infoLight, theme.successLight, theme.warningLight, theme.errorLight];
-    const color = palette[index % palette.length];
-    const fallbackEmoji = "🍽️";
-    return {
-      emoji: meal.oneEmoji || fallbackEmoji,
-      color,
-    };
-  };
-
-  // Generate weight projection for 30 days based on caloric deficit
-  const generateWeightData = () => {
-    try {
-      if (!userData?.weight || isNaN(userData.weight) || !isFinite(userData.weight)) {
-        return [];
-      }
-
-      const currentWeight = parseFloat(String(userData.weight));
-      if (currentWeight <= 0) {
-        return [];
-      }
-
-      const caloricDeficit = parseFloat(String(userData.caloricDeficit || 0));
-      if (isNaN(caloricDeficit)) {
-        return [];
-      }
-
-      const unit = userData.unit || "metric";
-      
-      // Calculate daily weight loss based on unit
-      let dailyWeightLoss = 0;
-      if (unit === "imperial") {
-        // For imperial (lbs): 1 pound = 3500 calories
-        dailyWeightLoss = caloricDeficit / 3500;
-      } else {
-        // For metric (kg): 1 kg = 7700 calories
-        dailyWeightLoss = caloricDeficit / 7700;
-      }
-      
-      // Ensure dailyWeightLoss is valid
-      if (isNaN(dailyWeightLoss) || !isFinite(dailyWeightLoss)) {
-        dailyWeightLoss = 0;
-      }
-      
-      const data = [];
-      for (let day = 0; day <= 30; day++) {
-        const projectedWeight = currentWeight - (dailyWeightLoss * day);
-        const validWeight = Math.max(projectedWeight, currentWeight * 0.5);
-        
-        // Ensure each value is a valid number
-        if (!isNaN(validWeight) && isFinite(validWeight) && validWeight > 0) {
-          data.push(parseFloat(validWeight.toFixed(2)));
-        } else {
-          data.push(currentWeight);
-        }
-      }
-      
-      return data.length > 2 ? data : [];
-    } catch (error) {
-      console.error("Error generating weight data:", error);
-      return [];
+  const getStreak = () => {
+    const todayIdx = new Date().getDay();
+    let streak = 0;
+    for (let i = todayIdx; i >= 0; i--) {
+      if (weekSuccessData[i]) streak++;
+      else break;
     }
+    return streak;
   };
 
-  const weightData = generateWeightData();
+  const formatTime = (ts: number) =>
+    new Date(ts).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+
+  const getMealAccent = (index: number) => {
+    const accents = [D.protein, D.carbs, D.fats, "#FF6B6B", "#C77DFF"];
+    return accents[index % accents.length];
+  };
+
+  const totals = todayMeals.reduce(
+    (a, m) => ({ calories: a.calories + m.calories, protein: a.protein + m.protein, carbs: a.carbs + m.carbohydrates, fats: a.fats + m.fats }),
+    { calories: 0, protein: 0, carbs: 0, fats: 0 }
+  );
+
+  const targetCalories = userData?.caloricIntake || 2000;
+  const caloriesLeft   = Math.max(0, Math.round(targetCalories - totals.calories));
+  const calPct         = clamp01(totals.calories / targetCalories);
+
+  const proteinTarget = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.protein) / 4);
+  const carbsTarget   = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.carbs) / 4);
+  const fatsTarget    = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.fats) / 9);
+
+  const today = new Date();
+  const dateLabel = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const streak = getStreak();
+
+  const motivationLabel = () => {
+    if (totals.calories === 0) return "Start logging your meals!";
+    if (calPct >= 1.2)         return "Over your limit — dial it back 💪";
+    if (calPct >= 0.9)         return "Almost at your goal!";
+    if (calPct >= 0.6)         return "You're crushing it!";
+    return "Keep going, you've got this!";
+  };
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={[s.container, { alignItems: "center", justifyContent: "center" }]}>
+        <Text style={{ color: D.sub, fontFamily: theme.medium }}>Loading…</Text>
       </View>
     );
   }
 
+  const weekDays = getWeekDays();
+
   return (
-    <View style={styles.container}>
-      {isSuccessfulDay && <ConfettiCannon count={10} origin={{ x: -10, y: 0 }} />}
+    <View style={s.container}>
+      {isSuccessfulDay && <ConfettiCannon count={12} origin={{ x: -10, y: 0 }} />}
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={s.scroll}
+        contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerSpace} />
+        <View style={s.headerSpace} />
 
+        {/* ── Header ── */}
         <FadeTranslate order={0}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Nutrition</Text>
-            <View style={styles.headerSubtitleRow}>
-              <Text style={styles.headerSubtitle}>
-                <Text style={styles.headerSubtitleStrong}>{getCurrentDateString().dayName}</Text>
-                <Text style={styles.headerSubtitleRest}>, {getCurrentDateString().month} {getCurrentDateString().day}</Text>
+          <View style={s.header}>
+            <Text style={s.headerDate}>{dateLabel.toUpperCase()}</Text>
+            <Text style={s.headerTitle}>Nutrition</Text>
+          </View>
+        </FadeTranslate>
+
+        {/* ── Stats strip  (lime icon circles, like reference) ── */}
+        <FadeTranslate order={1}>
+          <View style={s.statsRow}>
+            <View style={s.statTile}>
+              <View style={s.statIconCircle}>
+                <Ionicons name="flame" size={18} color={D.primary} />
+              </View>
+              <Text style={s.statValue}>{streak}</Text>
+              <Text style={s.statLabel}>Day streak</Text>
+            </View>
+            <View style={s.statDivider} />
+            <View style={s.statTile}>
+              <View style={s.statIconCircle}>
+                <Ionicons name="restaurant" size={17} color={D.primary} />
+              </View>
+              <Text style={s.statValue}>{todayMeals.length}</Text>
+              <Text style={s.statLabel}>Meals today</Text>
+            </View>
+            <View style={s.statDivider} />
+            <View style={s.statTile}>
+              <View style={s.statIconCircle}>
+                <Ionicons name="trophy" size={17} color={D.primary} />
+              </View>
+              <Text style={s.statValue}>{Math.round(calPct * 100)}%</Text>
+              <Text style={s.statLabel}>Goal hit</Text>
+            </View>
+          </View>
+        </FadeTranslate>
+
+        {/* ── Weekly calendar (individual card cells, like reference) ── */}
+        <FadeTranslate order={2}>
+          <View style={s.calendarRow}>
+            {weekDays.map((day, i) => {
+              const isSuccess = weekSuccessData[i];
+              const isToday   = day.isToday;
+              const isFuture  = day.isFuture;
+              return (
+                <View
+                  key={i}
+                  style={[
+                    s.calDayCard,
+                    isToday   && s.calDayCardToday,
+                    isSuccess && !isToday && s.calDayCardSuccess,
+                    isFuture  && s.calDayCardFuture,
+                  ]}
+                >
+                  {/* dots above day number */}
+                  <View style={s.dotsRow}>
+                    {isSuccess ? (
+                      <>
+                        <View style={[s.dot, s.dotActive]} />
+                        <View style={[s.dot, s.dotActive]} />
+                        <View style={[s.dot, s.dotActive]} />
+                      </>
+                    ) : isToday ? (
+                      <>
+                        <View style={[s.dot, s.dotActive]} />
+                        <View style={[s.dot, s.dotActive]} />
+                        <View style={[s.dot, s.dotActive]} />
+                      </>
+                    ) : (
+                      <View style={[s.dot, { backgroundColor: isFuture ? "transparent" : D.muted }]} />
+                    )}
+                  </View>
+                  <Text style={[s.calDayName, isToday && s.calDayNameToday, isFuture && s.calTextFuture]}>
+                    {day.dayName.slice(0, 3)}
+                  </Text>
+                  <Text style={[s.calDayNum, isToday && s.calDayNumToday, isFuture && s.calTextFuture]}>
+                    {day.dayNumber}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </FadeTranslate>
+
+        {/* ── "Keep it up!" progress banner (reference style: 3-zone horizontal) ── */}
+        <FadeTranslate order={3}>
+          <View style={s.keepCard}>
+            {/* Left zone: ring visual */}
+            <View style={s.keepLeft}>
+              <Ring progress={calPct} size={86} stroke={8} color={D.primary}>
+                <Ionicons name="flame" size={22} color={D.primary} />
+              </Ring>
+              <Text style={s.keepCalNum}>{Math.round(totals.calories)}</Text>
+              <Text style={s.keepCalSub}>kcal eaten</Text>
+            </View>
+
+            {/* Center zone: motivation text + dots */}
+            <View style={s.keepCenter}>
+              <Text style={s.keepTitle}>Keep it up!</Text>
+              <Text style={s.keepSub}>
+                {streak > 0
+                  ? `${streak} day${streak > 1 ? "s" : ""} in a row!`
+                  : motivationLabel()}
               </Text>
-              <View style={styles.statusPill}>
-                <Text style={[styles.statusPillText, { color: calorieMessage.color }]}>
-                  {calorieMessage.emoji} {calorieMessage.text}
-                </Text>
+              <Text style={s.keepRemain}>
+                <Text style={s.keepRemainBig}>{caloriesLeft}</Text>
+                {" "}kcal left
+              </Text>
+              {/* Progress dots */}
+              <View style={s.keepDots}>
+                {Array.from({ length: 8 }, (_, i) => {
+                  const filled = i < Math.round(calPct * 8);
+                  return (
+                    <View
+                      key={i}
+                      style={[
+                        s.keepDot,
+                        filled ? s.keepDotFilled : null,
+                        i === Math.round(calPct * 8) - 1 && filled ? s.keepDotCurrent : null,
+                      ]}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Right zone: large lime trophy icon bleeding off edge */}
+            <View style={s.keepRight}>
+              <View style={s.keepTrophyWrap}>
+                <Ionicons name="trophy" size={72} color={D.primary} style={{ opacity: 0.9 }} />
               </View>
             </View>
           </View>
         </FadeTranslate>
 
-        {/* Weekly Calendar */}
-        <FadeTranslate order={1}>
-          <View style={[styles.card, styles.cardPadded]}>
-            <View style={styles.weekContainer}>
-              {getWeekDays().map((day, index) => {
-                const isSuccess = weekSuccessData[index];
-                const isToday = day.isToday;
-                const isFuture = day.isFuture;
-                
-                return (
-                  <View
-                    key={index}
-                    style={[
-                      styles.dayItem,
-                      isToday && styles.dayItemToday,
-                      !isSuccess && !isToday && !isFuture && styles.dayItemUnsuccessful,
-                      isSuccess && !isToday && !isFuture && styles.dayItemSuccessful,
-                      isFuture && styles.dayItemFuture,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.dayNumber,
-                        isToday && styles.dayNumberToday,
-                        !isSuccess && !isToday && !isFuture && styles.dayNumberUnsuccessful,
-                        isFuture && styles.dayNumberFuture,
-                      ]}
-                    >
-                      {day.dayNumber}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.dayName,
-                        isToday && styles.dayNameToday,
-                        !isSuccess && !isToday && !isFuture && styles.dayNameUnsuccessful,
-                        isFuture && styles.dayNameFuture,
-                      ]}
-                    >
-                      {day.dayName}
+        {/* ── Macros card ── */}
+        <FadeTranslate order={4}>
+          <View style={s.macrosCard}>
+            <View style={s.macroItem}>
+              <View style={s.macroLabelRow}>
+                <View style={[s.macroDot, { backgroundColor: D.protein }]} />
+                <Text style={s.macroName}>Protein</Text>
+                <Text style={s.macroVal}>{Math.round(totals.protein)}<Text style={s.macroG}>g</Text></Text>
+              </View>
+              <Bar progress={proteinTarget > 0 ? totals.protein / proteinTarget : 0} color={D.protein} />
+              <Text style={s.macroTarget}>{proteinTarget}g goal</Text>
+            </View>
+            <View style={s.macroDivider} />
+            <View style={s.macroItem}>
+              <View style={s.macroLabelRow}>
+                <View style={[s.macroDot, { backgroundColor: D.carbs }]} />
+                <Text style={s.macroName}>Carbs</Text>
+                <Text style={s.macroVal}>{Math.round(totals.carbs)}<Text style={s.macroG}>g</Text></Text>
+              </View>
+              <Bar progress={carbsTarget > 0 ? totals.carbs / carbsTarget : 0} color={D.carbs} />
+              <Text style={s.macroTarget}>{carbsTarget}g goal</Text>
+            </View>
+            <View style={s.macroDivider} />
+            <View style={s.macroItem}>
+              <View style={s.macroLabelRow}>
+                <View style={[s.macroDot, { backgroundColor: D.fats }]} />
+                <Text style={s.macroName}>Fat</Text>
+                <Text style={s.macroVal}>{Math.round(totals.fats)}<Text style={s.macroG}>g</Text></Text>
+              </View>
+              <Bar progress={fatsTarget > 0 ? totals.fats / fatsTarget : 0} color={D.fats} />
+              <Text style={s.macroTarget}>{fatsTarget}g goal</Text>
+            </View>
+          </View>
+        </FadeTranslate>
+
+        {/* ── Primary CTA: Full lime "Scan" card (like reference's lime card) ── */}
+        <FadeTranslate order={5}>
+          <TouchableOpacity
+            style={s.scanCard}
+            onPress={() => router.push("../(screens)/ScanMeal")}
+            activeOpacity={0.82}
+          >
+            {/* Big icon bleeding left edge */}
+            <View style={s.scanIconWrap}>
+              <Ionicons name="scan-circle" size={100} color="rgba(0,0,0,0.18)" />
+            </View>
+            <View style={s.scanTextCol}>
+              <Text style={s.scanTitle}>Scan your meal</Text>
+              <Text style={s.scanSub}>Snap a photo to instantly log macros & calories</Text>
+              <View style={s.scanBtn}>
+                <Text style={s.scanBtnText}>Open Camera</Text>
+                <Ionicons name="arrow-forward" size={14} color={D.primary} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </FadeTranslate>
+
+        {/* ── Secondary: Search food pill ── */}
+        <FadeTranslate order={6}>
+          <TouchableOpacity style={s.searchCard} activeOpacity={0.8}>
+            <View style={s.searchLeft}>
+              <View style={s.searchIconCircle}>
+                <Ionicons name="search" size={18} color={D.primary} />
+              </View>
+              <View>
+                <Text style={s.searchTitle}>Search food</Text>
+                <Text style={s.searchSub}>Find any food and log it manually</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={D.sub} />
+          </TouchableOpacity>
+        </FadeTranslate>
+
+        {/* ── Today's meals ── */}
+        {todayMeals.length > 0 && (
+          <FadeTranslate order={7}>
+            <View style={s.mealsSectionHeader}>
+              <Text style={s.sectionLabel}>TODAY'S MEALS</Text>
+              <View style={s.totalPill}>
+                <Text style={s.totalPillText}>{Math.round(totals.calories)} kcal total</Text>
+              </View>
+            </View>
+            <View style={s.mealsContainer}>
+              {todayMeals.map((meal, i) => (
+                <View key={meal.id} style={s.mealRow}>
+                  <View style={[s.mealStripe, { backgroundColor: getMealAccent(i) }]} />
+                  <View style={s.mealIconCircle}>
+                    <Text style={s.mealEmoji}>{meal.oneEmoji ?? "🍽️"}</Text>
+                  </View>
+                  <View style={s.mealInfo}>
+                    <Text style={s.mealName} numberOfLines={1}>{meal.mealName}</Text>
+                    <Text style={s.mealMacros}>
+                      P {Math.round(meal.protein)}g · C {Math.round(meal.carbohydrates)}g · F {Math.round(meal.fats)}g
                     </Text>
                   </View>
-                );
-              })}
-            </View>
-          </View>
-        </FadeTranslate>
-
-        {/* Total Calories Header */}
-        <FadeTranslate order={2}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOverline}>Calories</Text>
-          </View>
-
-          <View style={[styles.card, styles.cardPadded, styles.summaryCard]}>
-            <View style={styles.caloriesSummaryRow}>
-              <View style={styles.caloriesSummaryLeft}>
-                <Text style={styles.caloriesLeftValue}>{caloriesLeft}</Text>
-                <Text style={styles.caloriesLeftLabel}>Calories left</Text>
-              </View>
-              <ProgressRing
-                progress={targetCalories > 0 ? totals.calories / targetCalories : 0}
-                size={86}
-                strokeWidth={10}
-                color={theme.primary}
-                showPercent={false}
-                centerIcon={<Ionicons name="flame" size={18} color={theme.textColorSecondary} />}
-              />
-            </View>
-          </View>
-
-          <View style={styles.macroCardsGrid}>
-            <View style={[styles.card, styles.macroSmallCard]}>
-              <Text style={styles.macroSmallValue}>{proteinLeftG}g</Text>
-              <Text style={styles.macroSmallLabel}>Protein left</Text>
-              <View style={styles.macroRingRow}>
-                <ProgressRing
-                  progress={proteinTargetG > 0 ? totals.protein / proteinTargetG : 0}
-                  size={56}
-                  strokeWidth={8}
-                  color={theme.info}
-                  showPercent={false}
-                  centerIcon={<Ionicons name="fitness" size={14} color={theme.textColorSecondary} />}
-                />
-              </View>
-            </View>
-
-            <View style={[styles.card, styles.macroSmallCard]}>
-              <Text style={styles.macroSmallValue}>{carbsLeftG}g</Text>
-              <Text style={styles.macroSmallLabel}>Carbs left</Text>
-              <View style={styles.macroRingRow}>
-                <ProgressRing
-                  progress={carbsTargetG > 0 ? totals.carbs / carbsTargetG : 0}
-                  size={56}
-                  strokeWidth={8}
-                  color={theme.warning}
-                  showPercent={false}
-                  centerIcon={<Ionicons name="leaf" size={14} color={theme.textColorSecondary} />}
-                />
-              </View>
-            </View>
-
-            <View style={[styles.card, styles.macroSmallCard]}>
-              <Text style={styles.macroSmallValue}>{fatsLeftG}g</Text>
-              <Text style={styles.macroSmallLabel}>Fat left</Text>
-              <View style={styles.macroRingRow}>
-                <ProgressRing
-                  progress={fatsTargetG > 0 ? totals.fats / fatsTargetG : 0}
-                  size={56}
-                  strokeWidth={8}
-                  color={theme.success}
-                  showPercent={false}
-                  centerIcon={<Ionicons name="water" size={14} color={theme.textColorSecondary} />}
-                />
-              </View>
-            </View>
-          </View>
-        </FadeTranslate>
-
-        {/* Action Buttons */}
-        <FadeTranslate order={3}>
-          <View style={[styles.card, styles.cardPadded, styles.actionsCard]}>
-            <View style={styles.actionButtons}>
-              <View style={styles.actionButtonWrapper}>
-                <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
-                  <Ionicons name="search-outline" size={22} color={theme.textColor} />
-                </TouchableOpacity>
-                <Text style={styles.actionButtonText}>Search</Text>
-              </View>
-
-              <View style={styles.actionButtonWrapper}>
-                <TouchableOpacity
-                  style={styles.actionButton}
-                  onPress={() => router.push("../(screens)/ScanMeal")}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="scan-outline" size={22} color={theme.textColor} />
-                </TouchableOpacity>
-                <Text style={styles.actionButtonText}>Scan</Text>
-              </View>
-
-              <View style={styles.actionButtonWrapper}>
-                <TouchableOpacity
-                  style={styles.actionButton}
-                  onPress={() => router.push("../chatbot")}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="sparkles-outline" size={22} color={theme.textColor} />
-                </TouchableOpacity>
-                <Text style={styles.actionButtonText}>Coach</Text>
-              </View>
-
-              <View style={styles.actionButtonWrapper}>
-                <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
-                  <Ionicons name="scale-outline" size={22} color={theme.textColor} />
-                </TouchableOpacity>
-                <Text style={styles.actionButtonText}>Weight</Text>
-              </View>
-            </View>
-          </View>
-        </FadeTranslate>
-
-        {/* Divider */}
-        <View style={styles.divider} />
-
-        {/* Today's Meals Section */}
-        {todayMeals.length > 0 && (
-          <>
-            <FadeTranslate order={7}>
-              <Text style={styles.sectionTitle}>Today's Meals</Text>
-            </FadeTranslate>
-
-            <View style={styles.mealsContainer}>
-              {todayMeals.map((meal, index) => {
-                const { emoji, color } = getMealEmojiAndColor(meal, index);
-                return (
-                  <FadeTranslate key={meal.id} order={8 + index}>
-                    <View style={styles.mealRow}>
-                      <View style={[styles.mealEmojiCircle, { backgroundColor: color }]}>
-                        <Text style={styles.mealEmoji}>{emoji}</Text>
-                      </View>
-                      <View style={styles.mealInfo}>
-                        <Text style={styles.mealName}>{meal.mealName}</Text>
-                        <Text style={styles.mealMacros}>
-                          🥩 {Math.round(meal.protein)}g • 🍞{" "}
-                          {Math.round(meal.carbohydrates)}g • 🥑{" "}
-                          {Math.round(meal.fats)}g
-                        </Text>
-                      </View>
-                      <View style={styles.mealRight}>
-                        <Text style={styles.mealTime}>{formatTime(meal.createdAt)}</Text>
-                        <Text style={styles.mealCalories}>
-                          {meal.calories} kcal
-                        </Text>
-                      </View>
-                    </View>
-                  </FadeTranslate>
-                );
-              })}
-            </View>
-          </>
-        )}
-
-        {todayMeals.length === 0 && (
-          <FadeTranslate order={7}>
-            <View style={[styles.card, styles.cardPadded, styles.emptyMealsCard]}>
-              <Text style={styles.emptyMealsTitle}>No meals logged yet</Text>
-              <Text style={styles.emptyMealsSubtitle}>
-                Scan a meal or add one to see calories and macros here.
-              </Text>
+                  <View style={s.mealRight}>
+                    <Text style={s.mealCal}>{meal.calories}</Text>
+                    <Text style={s.mealCalUnit}>kcal</Text>
+                    <Text style={s.mealTime}>{formatTime(meal.createdAt)}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
           </FadeTranslate>
         )}
 
-        {/* Bottom Padding */}
-        <View style={styles.bottomPadding} />
+        {todayMeals.length === 0 && (
+          <FadeTranslate order={7}>
+            <View style={s.emptyCard}>
+              <Ionicons name="restaurant-outline" size={38} color={D.muted} />
+              <Text style={s.emptyTitle}>No meals logged yet</Text>
+              <Text style={s.emptySub}>Use Scan or Search above to start logging.</Text>
+            </View>
+          </FadeTranslate>
+        )}
+
+        <View style={s.bottomPad} />
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.backgroundTertiary,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
-  headerSpace: {
-    height: 24,
-  },
-  loadingText: {
-    color: theme.textColor,
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.medium,
-    textAlign: "center",
-    marginTop: 100,
-  },
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const s = StyleSheet.create({
+  // Scaffold
+  container:     { flex: 1, backgroundColor: D.bg },
+  scroll:        { flex: 1 },
+  scrollContent: { paddingHorizontal: 16, paddingBottom: 20 },
+  headerSpace:   { height: 16 },
+  bottomPad:     { height: 80 },
 
-  header: {
-    marginBottom: 16,
-    marginTop: 6,
-  },
-  headerTitle: {
-    fontSize: 34,
-    fontFamily: theme.black,
-    color: theme.textColor,
-    letterSpacing: -0.8,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 15,
-    flexShrink: 1,
-  },
-  headerSubtitleRow: {
+  // Header
+  header:      { marginBottom: 18, marginTop: 4 },
+  headerDate:  { fontSize: 11, fontFamily: theme.semibold, color: D.sub, letterSpacing: 1.2, marginBottom: 2 },
+  headerTitle: { fontSize: 34, fontFamily: theme.black, color: D.text, letterSpacing: -0.8 },
+
+  // ── Stats strip ──────────────────────────────────────────────────────────
+  statsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  headerSubtitleStrong: {
-    fontFamily: theme.semibold,
-    color: theme.textColor,
-  },
-  headerSubtitleRest: {
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-
-  card: {
-    backgroundColor: theme.backgroundColor,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: D.card,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: theme.border,
-    shadowColor: theme.shadowDark,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
-  },
-  cardPadded: {
-    padding: 14,
-  },
-
-  ringWrap: {
-    position: "relative",
-  },
-  ringCenter: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  // Weekly Calendar
-  weekContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  dayItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: theme.backgroundTertiary,
-    borderWidth: 1,
-    borderColor: theme.border,
-  },
-  dayItemToday: {
-    backgroundColor: theme.primary,
-    borderColor: theme.primary,
-  },
-  dayItemSuccessful: {
-    backgroundColor: theme.backgroundTertiary,
-    borderWidth: 1.5,
-    borderStyle: "dashed",
-    borderColor: theme.success,
-  },
-  dayItemUnsuccessful: {
-    backgroundColor: theme.backgroundTertiary,
-    borderWidth: 1.5,
-    borderStyle: "dashed",
-    borderColor: theme.borderDark,
-  },
-  dayItemFuture: {
-    backgroundColor: theme.backgroundTertiary,
-    opacity: 0.7,
-  },
-  dayNumber: {
-    fontSize: 16,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-    marginBottom: 2,
-  },
-  dayNumberToday: {
-    color: theme.textColorTertiary,
-  },
-  dayNumberUnsuccessful: {
-    color: theme.textColorSecondary,
-  },
-  dayName: {
-    fontSize: 10,
-    fontFamily: theme.medium,
-    color: theme.textColorSecondary,
-    textTransform: "uppercase",
-    letterSpacing: 0.3,
-  },
-  dayNameToday: {
-    color: 'rgba(255,255,255,0.85)',
-  },
-  dayNameUnsuccessful: {
-    color: theme.textColorSecondary,
-  },
-  dayNumberFuture: {
-    color: theme.borderDark,
-  },
-  dayNameFuture: {
-    color: theme.borderDark,
-  },
-
-  // Calories Header
-  caloriesHeaderTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  sectionHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-    marginTop: 6,
-  },
-  sectionOverline: {
-    fontSize: 13,
-    fontFamily: theme.semibold,
-    color: theme.textColorSecondary,
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
-  },
-  statusPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.backgroundSecondary,
-    borderWidth: 1,
-    borderColor: theme.border,
-    flexShrink: 0,
-  },
-  statusPillText: {
-    fontSize: 12,
-    fontFamily: theme.medium,
-  },
-  planText: {
-    marginTop: 2,
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-  planTextStrong: {
-    fontFamily: theme.semibold,
-    color: theme.textColor,
-  },
-  caloriePlanLabel: {
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: "#6B7280",
-  },
-  caloriePlanValue: {
-    fontSize: 13,
-    fontFamily: theme.semibold,
-    color: "#111827",
-  },
-  caloriesValueRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-    position: "relative",
-  },
-  caloriesValue: {
-    fontSize: 44,
-    fontFamily: theme.black,
-    color: theme.textColor,
-    flex: 1,
-    letterSpacing: -1,
-  },
-  caloriesTarget: {
-    fontSize: 20,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-  caloriesUnit: {
-    fontSize: 16,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-  summaryCard: {
+    borderColor: D.border,
     paddingVertical: 18,
-    paddingHorizontal: 18,
+    marginBottom: 12,
   },
-  caloriesSummaryRow: {
+  statTile:       { flex: 1, alignItems: "center", gap: 4 },
+  statDivider:    { width: 1, backgroundColor: D.border },
+  statIconCircle: {
+    width: 38, height: 38, borderRadius: 19,
+    backgroundColor: D.primaryDim,
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 2,
+  },
+  statValue: { fontSize: 20, fontFamily: theme.black, color: D.text, letterSpacing: -0.6 },
+  statLabel: { fontSize: 11, fontFamily: theme.medium, color: D.sub },
+
+  // ── Calendar (individual cards like reference) ───────────────────────────
+  calendarRow: {
+    flexDirection: "row",
+    gap: 5,
+    marginBottom: 12,
+  },
+  calDayCard: {
+    flex: 1,
+    backgroundColor: D.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: D.border,
+    alignItems: "center",
+    paddingVertical: 10,
+    gap: 3,
+  },
+  calDayCardToday:   { borderColor: D.primary, backgroundColor: D.primaryDim },
+  calDayCardSuccess: { borderColor: D.fats,    backgroundColor: "rgba(52,199,89,0.10)" },
+  calDayCardFuture:  { opacity: 0.35 },
+  dotsRow:   { flexDirection: "row", gap: 2, height: 7, alignItems: "center", marginBottom: 1 },
+  dot:       { width: 4, height: 4, borderRadius: 2, backgroundColor: D.muted },
+  dotActive: { backgroundColor: D.primary },
+  calDayName:     { fontSize: 9,  fontFamily: theme.semibold, color: D.sub, textTransform: "uppercase", letterSpacing: 0.3 },
+  calDayNameToday:{ color: D.primary },
+  calDayNum:      { fontSize: 15, fontFamily: theme.bold, color: D.text },
+  calDayNumToday: { color: D.primary },
+  calTextFuture:  { color: D.muted },
+
+  // ── "Keep it up" banner (3-zone, like reference) ─────────────────────────
+  keepCard: {
+    flexDirection: "row",
+    backgroundColor: D.card,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: D.border,
+    marginBottom: 12,
+    overflow: "hidden",
+    minHeight: 148,
+  },
+  keepLeft: {
+    width: 110,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    paddingVertical: 18,
+    paddingLeft: 14,
+    borderRightWidth: 1,
+    borderRightColor: D.border,
+  },
+  keepCalNum:  { fontSize: 22, fontFamily: theme.black, color: D.primary, letterSpacing: -0.8 },
+  keepCalSub:  { fontSize: 10, fontFamily: theme.medium, color: D.sub },
+  keepCenter:  { flex: 1, justifyContent: "center", paddingHorizontal: 16, gap: 5 },
+  keepTitle:   { fontSize: 18, fontFamily: theme.black, color: D.text, letterSpacing: -0.4 },
+  keepSub:     { fontSize: 12, fontFamily: theme.medium, color: D.sub, lineHeight: 17 },
+  keepRemain:  { fontSize: 12, fontFamily: theme.medium, color: D.sub },
+  keepRemainBig: { fontSize: 16, fontFamily: theme.bold, color: D.primary },
+  keepDots:    { flexDirection: "row", gap: 5, alignItems: "center", marginTop: 2 },
+  keepDot:     { width: 7, height: 7, borderRadius: 4, backgroundColor: D.muted },
+  keepDotFilled:  { backgroundColor: D.primary },
+  keepDotCurrent: {
+    width: 20, height: 7, borderRadius: 4,
+    backgroundColor: D.primary,
+  },
+  keepRight: {
+    width: 72,
+    alignItems: "flex-end",
+    justifyContent: "flex-end",
+    overflow: "hidden",
+  },
+  keepTrophyWrap: {
+    marginBottom: -8,
+    marginRight: -12,
+  },
+
+  // ── Macros card ───────────────────────────────────────────────────────────
+  macrosCard: {
+    flexDirection: "row",
+    backgroundColor: D.card,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: D.border,
+    paddingVertical: 16,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+  },
+  macroItem:     { flex: 1 },
+  macroDivider:  { width: 1, backgroundColor: D.border, marginHorizontal: 12 },
+  macroLabelRow: { flexDirection: "row", alignItems: "center", gap: 4, marginBottom: 8 },
+  macroDot:      { width: 7, height: 7, borderRadius: 4 },
+  macroName:     { flex: 1, fontSize: 10, fontFamily: theme.semibold, color: D.sub, textTransform: "uppercase", letterSpacing: 0.5 },
+  macroVal:      { fontSize: 15, fontFamily: theme.bold, color: D.text, letterSpacing: -0.3 },
+  macroG:        { fontSize: 11, fontFamily: theme.regular, color: D.sub },
+  macroTarget:   { fontSize: 10, fontFamily: theme.regular, color: D.muted, marginTop: 5 },
+
+  // ── Full lime "Scan" card (like reference's lime CTA card) ────────────────
+  scanCard: {
+    backgroundColor: D.primary,
+    borderRadius: 22,
+    flexDirection: "row",
+    alignItems: "center",
+    overflow: "hidden",
+    marginBottom: 10,
+    minHeight: 130,
+  },
+  scanIconWrap: {
+    width: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: 4,
+    alignSelf: "stretch",
+  },
+  scanTextCol:  { flex: 1, paddingVertical: 22, paddingRight: 18, gap: 6 },
+  scanTitle:    { fontSize: 20, fontFamily: theme.black, color: "#000000", letterSpacing: -0.5 },
+  scanSub:      { fontSize: 12, fontFamily: theme.medium, color: "rgba(0,0,0,0.55)", lineHeight: 17 },
+  scanBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#000000",
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    alignSelf: "flex-start",
+    marginTop: 4,
+  },
+  scanBtnText: { fontSize: 13, fontFamily: theme.semibold, color: D.primary },
+
+  // ── Secondary search card ─────────────────────────────────────────────────
+  searchCard: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  caloriesSummaryLeft: {
-    flex: 1,
-    paddingRight: 12,
-  },
-  caloriesLeftValue: {
-    fontSize: 38,
-    fontFamily: theme.black,
-    color: theme.textColor,
-    letterSpacing: -0.8,
-    marginBottom: 2,
-  },
-  caloriesLeftLabel: {
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-
-  macroCardsGrid: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
-    marginBottom: 18,
-  },
-  macroSmallCard: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-  },
-  macroSmallValue: {
-    fontSize: 18,
-    fontFamily: theme.semibold,
-    color: theme.textColor,
-    letterSpacing: -0.2,
-    marginBottom: 2,
-  },
-  macroSmallLabel: {
-    fontSize: 12,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-  macroRingRow: {
-    marginTop: 10,
-    alignItems: "flex-end",
-  },
-
-  // Action Buttons
-  actionsCard: {
-    marginTop: 6,
-    marginBottom: 6,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  actionButtonWrapper: {
-    flex: 1,
-    alignItems: "center",
-  },
-  actionButton: {
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.card,
     borderRadius: 18,
-    width: 64,
-    height: 64,
-    alignItems: "center",
-    justifyContent: "center",
     borderWidth: 1,
-    borderColor: theme.border,
-    marginBottom: 8,
+    borderColor: D.border,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 22,
   },
-  actionButtonText: {
-    color: theme.textColorSecondary,
+  searchLeft:       { flexDirection: "row", alignItems: "center", gap: 14 },
+  searchIconCircle: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: D.primaryDim,
+    alignItems: "center", justifyContent: "center",
+  },
+  searchTitle: { fontSize: 15, fontFamily: theme.semibold, color: D.text },
+  searchSub:   { fontSize: 12, fontFamily: theme.regular, color: D.sub, marginTop: 1 },
+
+  // Section label
+  sectionLabel: {
     fontSize: 11,
-    fontFamily: theme.medium,
-    textAlign: "center",
-  },
-
-  // Divider
-  divider: {
-    height: 1,
-    backgroundColor: theme.border,
-    marginVertical: 18,
-  },
-
-  // Section Title
-  sectionTitle: {
-    fontSize: 13,
     fontFamily: theme.semibold,
-    color: theme.textColorSecondary,
-    marginBottom: 14,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    color: D.sub,
+    letterSpacing: 1,
+    marginBottom: 10,
+    marginLeft: 2,
   },
 
-  // Today's Meals
-  mealsContainer: {
-    marginBottom: 24,
+  // ── Meals section header + list ───────────────────────────────────────────
+  mealsSectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
+  totalPill: {
+    backgroundColor: D.card2,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: D.border,
   },
+  totalPillText: { fontSize: 11, fontFamily: theme.medium, color: D.primary },
 
-  emptyMealsCard: {
-    marginBottom: 24,
-  },
-  emptyMealsTitle: {
-    fontSize: 16,
-    fontFamily: theme.semibold,
-    color: theme.textColor,
-    marginBottom: 6,
-  },
-  emptyMealsSubtitle: {
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-    lineHeight: 18,
-  },
+  mealsContainer: { gap: 8, marginBottom: 10 },
   mealRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: theme.backgroundColor,
+    backgroundColor: D.card,
     borderRadius: 16,
-    padding: 14,
-    marginBottom: 10,
     borderWidth: 1,
-    borderColor: theme.border,
-  },
-  mealEmojiCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 14,
-  },
-  mealEmoji: {
-    fontSize: 22,
-  },
-  mealInfo: {
-    flex: 1,
-  },
-  mealName: {
-    fontSize: 15,
-    fontFamily: theme.semibold,
-    color: theme.textColor,
-    marginBottom: 4,
-  },
-  mealMacros: {
-    fontSize: 12,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-  },
-  mealRight: {
-    alignItems: "flex-end",
-  },
-  mealTime: {
-    fontSize: 11,
-    fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-    marginBottom: 4,
-  },
-  mealCalories: {
-    fontSize: 15,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-  },
-
-  bottomPadding: {
-    height: 60,
-  },
-
-  // Info Grid (if needed)
-  infoGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 24,
-  },
-  gridCard: {
-    width: "48%",
-  },
-  infoCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 0,
-    height: 160,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  infoCardTitle: {
-    fontSize: 13,
-    fontFamily: theme.semibold,
-    color: "#9CA3AF",
-    marginBottom: 12,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  circleContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  macrosContainer: {
-    flex: 1,
-    justifyContent: "space-around",
-    paddingVertical: 8,
-  },
-  macroItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  macroItemCentered: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 8,
-  },
-  macroEmoji: {
-    fontSize: 20,
-  },
-  macroValue: {
-    fontSize: 15,
-    fontFamily: theme.semibold,
-    color: "#111827",
-  },
-  burnedContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  burnedValue: {
-    fontSize: 18,
-    fontFamily: theme.bold,
-    color: "#111827",
-  },
-  burnedUnit: {
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: "#6B7280",
-  },
-  chartContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: D.border,
+    paddingRight: 14,
+    paddingVertical: 12,
     overflow: "hidden",
   },
-  chart: {
-    marginLeft: -20,
-    marginRight: -20,
-  },
-  hiddenText: {
-    fontSize: 18,
-    fontFamily: theme.bold,
-    color: "#9CA3AF",
-  },
-  noDataText: {
-    fontSize: 14,
-    fontFamily: theme.regular,
-    color: "#D1D5DB",
-  },
-  comingSoonCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 40,
+  mealStripe:     { width: 3, height: "100%", marginRight: 12 },
+  mealIconCircle: { width: 42, height: 42, borderRadius: 12, backgroundColor: D.card2, alignItems: "center", justifyContent: "center", marginRight: 12 },
+  mealEmoji:   { fontSize: 20 },
+  mealInfo:    { flex: 1 },
+  mealName:    { fontSize: 14, fontFamily: theme.semibold, color: D.text, marginBottom: 3 },
+  mealMacros:  { fontSize: 11, fontFamily: theme.regular, color: D.sub },
+  mealRight:   { alignItems: "flex-end" },
+  mealCal:     { fontSize: 16, fontFamily: theme.bold, color: D.primary, letterSpacing: -0.3 },
+  mealCalUnit: { fontSize: 10, fontFamily: theme.regular, color: D.sub },
+  mealTime:    { fontSize: 10, fontFamily: theme.regular, color: D.muted, marginTop: 2 },
+
+  // ── Empty state ───────────────────────────────────────────────────────────
+  emptyCard: {
+    backgroundColor: D.card,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: D.border,
+    padding: 32,
     alignItems: "center",
-    borderWidth: 0,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    gap: 8,
+    marginBottom: 16,
   },
-  comingSoonText: {
-    fontSize: 14,
-    fontFamily: theme.semibold,
-    color: "#6B7280",
-  },
+  emptyTitle: { fontSize: 15, fontFamily: theme.semibold, color: D.text },
+  emptySub:   { fontSize: 12, fontFamily: theme.regular, color: D.sub, textAlign: "center", lineHeight: 18 },
 });
+
+

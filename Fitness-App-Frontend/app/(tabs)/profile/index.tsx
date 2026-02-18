@@ -408,11 +408,11 @@ export default function Profile() {
           <Ionicons name={iconName} size={18} color={iconColor} />
         </View>
         <View style={styles.rowMiddle}>
-          <Text style={[styles.rowLabel, isDestructive && { color: theme.error }]}>{label}</Text>
+          <Text style={[styles.rowLabel, isDestructive && { color: "#FF453A" }]}>{label}</Text>
           {!!value && <Text style={styles.rowValue} numberOfLines={1}>{value}</Text>}
         </View>
         {showChevron ? (
-          <Ionicons name="chevron-forward" size={18} color={theme.textColorSecondary} />
+          <Ionicons name="chevron-forward" size={18} color="#48484A" />
         ) : null}
       </Row>
     );
@@ -453,12 +453,12 @@ export default function Profile() {
           <Ionicons
             name={isPro ? "diamond" : "wallet-outline"}
             size={16}
-            color={isPro ? theme.warning : theme.textColorSecondary}
+            color={isPro ? "#FF9F0A" : "#8E8E93"}
           />
           <Text
             style={[
               styles.planBadgeText,
-              isPro ? { color: theme.warning } : { color: theme.textColorSecondary },
+              isPro ? { color: "#FF9F0A" } : { color: "#8E8E93" },
             ]}
           >
             {isPro ? "PRO" : "Free"}
@@ -470,8 +470,8 @@ export default function Profile() {
       <View style={styles.sectionCard}>
         <SettingsRow
           iconName="scale-outline"
-          iconBg={theme.errorLight}
-          iconColor={theme.error}
+          iconBg="rgba(255,69,58,0.18)"
+          iconColor="#FF453A"
           label="Weight"
           value={formatWeightValue()}
           onPress={() => {
@@ -482,8 +482,8 @@ export default function Profile() {
         <View style={styles.separator} />
         <SettingsRow
           iconName="resize-outline"
-          iconBg={theme.successLight}
-          iconColor={theme.success}
+          iconBg="rgba(48,209,88,0.18)"
+          iconColor="#30D158"
           label="Height"
           value={formatHeightValue()}
           onPress={() => {
@@ -502,8 +502,8 @@ export default function Profile() {
         <View style={styles.separator} />
         <SettingsRow
           iconName="calendar-outline"
-          iconBg={theme.warningLight}
-          iconColor={theme.warning}
+          iconBg="rgba(255,159,10,0.18)"
+          iconColor="#FF9F0A"
           label="Age"
           value={userData?.age ? `${userData?.age} yrs` : "—"}
           onPress={() => {
@@ -514,8 +514,8 @@ export default function Profile() {
         <View style={styles.separator} />
         <SettingsRow
           iconName="pulse-outline"
-          iconBg={theme.infoLight}
-          iconColor={theme.info}
+          iconBg="rgba(10,132,255,0.18)"
+          iconColor="#0A84FF"
           label="BMI"
           value={formatBmiValue()}
           showChevron={false}
@@ -526,8 +526,8 @@ export default function Profile() {
       <View style={styles.sectionCard}>
         <SettingsRow
           iconName="barbell-outline"
-          iconBg={theme.errorLight}
-          iconColor={theme.error}
+          iconBg="rgba(255,69,58,0.18)"
+          iconColor="#FF453A"
           label="Fitness Level"
           value={userData?.fitnessLevel || "Not set"}
           onPress={() => setFitnessLevelModalVisible(true)}
@@ -535,8 +535,8 @@ export default function Profile() {
         <View style={styles.separator} />
         <SettingsRow
           iconName="fitness-outline"
-          iconBg={theme.successLight}
-          iconColor={theme.success}
+          iconBg="rgba(48,209,88,0.18)"
+          iconColor="#30D158"
           label="Equipment Access"
           value={userData?.equipmentAccess || "Not set"}
           onPress={() => setEquipmentModalVisible(true)}
@@ -544,8 +544,8 @@ export default function Profile() {
         <View style={styles.separator} />
         <SettingsRow
           iconName="flame-outline"
-          iconBg={theme.warningLight}
-          iconColor={theme.warning}
+          iconBg="rgba(255,159,10,0.18)"
+          iconColor="#FF9F0A"
           label="Daily Calories"
           value={userData?.caloricIntake ? `${userData?.caloricIntake} cal` : "—"}
           onPress={() => setCalorieModalVisible(true)}
@@ -555,8 +555,8 @@ export default function Profile() {
       <Text style={styles.sectionHeader}>Preferences</Text>
       <View style={styles.sectionCard}>
         <View style={styles.row}>
-          <View style={[styles.rowIcon, { backgroundColor: theme.infoLight }]}>
-            <Ionicons name="options-outline" size={18} color={theme.info} />
+          <View style={[styles.rowIcon, { backgroundColor: "rgba(10,132,255,0.18)" }]}>
+            <Ionicons name="options-outline" size={18} color="#0A84FF" />
           </View>
           <View style={styles.rowMiddle}>
             <Text style={styles.rowLabel}>Measurement Unit</Text>
@@ -577,8 +577,8 @@ export default function Profile() {
       <View style={styles.sectionCard}>
         <SettingsRow
           iconName="diamond-outline"
-          iconBg={theme.warningLight}
-          iconColor={theme.warning}
+          iconBg="rgba(255,159,10,0.18)"
+          iconColor="#FF9F0A"
           label="Subscription"
           value={isPro ? "PRO" : "Free Plan"}
           showChevron={!isPro}
@@ -587,8 +587,8 @@ export default function Profile() {
         <View style={styles.separator} />
         <SettingsRow
           iconName="log-out-outline"
-          iconBg={theme.errorLight}
-          iconColor={theme.error}
+          iconBg="rgba(255,69,58,0.18)"
+          iconColor="#FF453A"
           label="Sign Out"
           onPress={handleLogout}
           isDestructive
@@ -989,111 +989,134 @@ export default function Profile() {
   );
 }
 
+// Design tokens for the dark profile screen
+const D = {
+  bg: "#141414",          // page background
+  card: "#1C1C1E",        // iOS-style grouped card background
+  cardAlt: "#242426",     // slightly elevated surface
+  border: "#2C2C2E",      // subtle separator
+  primary: theme.primary, // #AAFB05 lime green
+  deepPrimary: theme.deepPrimary, // #062B0A
+  text: "#FFFFFF",
+  textSub: "#8E8E93",     // iOS secondary label
+  textTertiary: "#48484A",
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.bg,
   },
   content: {
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 100,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.bg,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: theme.spacing.md,
   },
   loadingText: {
-    fontSize: theme.fontSize.lg,
+    fontSize: 16,
     fontFamily: theme.semibold,
-    color: theme.textColor,
-    textAlign: "center",
+    color: D.text,
   },
+
+  // ── Profile header card ───────────────────────────────────────────────
   profileCard: {
-    backgroundColor: theme.backgroundColor,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
-    borderColor: theme.border,
-    padding: theme.spacing.md,
+    backgroundColor: D.card,
+    borderRadius: 20,
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: D.border,
   },
   avatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: theme.backgroundSecondary,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: D.deepPrimary,
+    borderWidth: 2,
+    borderColor: D.primary,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: theme.spacing.md,
+    marginRight: 14,
   },
   avatarText: {
-    fontSize: theme.fontSize.lg,
+    fontSize: 20,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: D.primary,
   },
   profileMeta: {
     flex: 1,
-    gap: 2,
+    gap: 3,
   },
   profileName: {
-    fontSize: theme.fontSize.lg,
+    fontSize: 18,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: D.text,
+    letterSpacing: -0.3,
   },
   profileEmail: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: D.textSub,
   },
   planBadge: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: 20,
+    gap: 5,
     borderWidth: 1,
-    borderColor: theme.border,
-    gap: 6,
   },
   planBadgePremium: {
-    backgroundColor: theme.warningLight,
+    backgroundColor: "rgba(255,180,0,0.12)",
+    borderColor: "rgba(255,180,0,0.35)",
   },
   planBadgeFree: {
-    backgroundColor: theme.backgroundSecondary,
+    backgroundColor: D.cardAlt,
+    borderColor: D.border,
   },
   planBadgeText: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.semibold,
+    letterSpacing: 0.3,
   },
+
+  // ── Section headers ───────────────────────────────────────────────────
   sectionHeader: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 11,
     fontFamily: theme.semibold,
-    color: theme.textColorSecondary,
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
+    color: D.textSub,
+    marginTop: 28,
+    marginBottom: 8,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+    marginLeft: 4,
   },
+
+  // ── Grouped settings card (iOS style) ─────────────────────────────────
   sectionCard: {
-    backgroundColor: theme.backgroundColor,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: D.card,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: theme.border,
+    borderColor: D.border,
     overflow: "hidden",
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
+    paddingVertical: 13,
     paddingHorizontal: 14,
   },
   rowIcon: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -1104,263 +1127,87 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   rowLabel: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.semibold,
-    color: theme.textColor,
+    fontSize: 15,
+    fontFamily: theme.medium,
+    color: D.text,
   },
   rowValue: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 13,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: D.textSub,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: theme.border,
-    marginLeft: 58,
+    backgroundColor: D.border,
+    marginLeft: 60,
   },
-  headerSection: {
-    marginBottom: 28,
-    gap: 16,
-  },
-  greetingContainer: {
-    gap: 4,
-  },
-  greeting: {
-    fontSize: 28,
-    fontFamily: theme.bold,
-    color: "#111827",
-    letterSpacing: -0.5,
-  },
-  greetingSubtitle: {
-    fontSize: theme.fontSize.sm,
-    fontFamily: theme.regular,
-    color: "#6B7280",
-  },
-  pillsRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  rankPill: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 0,
-    borderColor: "transparent",
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  rankPillContent: {
-    flex: 1,
-    gap: 2,
-  },
-  rankPillLabel: {
-    fontSize: 11,
-    fontFamily: theme.medium,
-    color: "#9CA3AF",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  rankPillValue: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.bold,
-    color: "#111827",
-  },
-  rankPillPoints: {
-    fontSize: 11,
-    fontFamily: theme.semibold,
-    color: "#6B7280",
-  },
-  planPill: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 0,
-    borderColor: "transparent",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  planPillText: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.semibold,
-    color: "#111827",
-  },
-  sectionTitleTop: {
-    fontSize: 13,
-    fontFamily: theme.semibold,
-    color: "#9CA3AF",
-    marginBottom: 12,
-    marginTop: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  statsGrid: {
-    flexDirection: "column",
-    gap: 12,
-    marginBottom: 20,
-  },
-  statsGridTop: {
-    flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-between",
-  },
-  statCardCompact: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    borderWidth: 0,
-    borderColor: "transparent",
-    padding: 12,
-    alignItems: "center",
-    gap: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statCardModern: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    borderWidth: 0,
-    borderColor: "transparent",
-    padding: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statIconBg: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  statContent: {
-    flex: 1,
-    gap: 2,
-  },
-  statLabelModern: {
-    fontSize: 12,
-    fontFamily: theme.medium,
-    color: "#9CA3AF",
-  },
-  statValueModern: {
-    fontSize: theme.fontSize.lg,
-    fontFamily: theme.bold,
-    color: "#111827",
-  },
-  statUnitModern: {
-    fontSize: 11,
-    fontFamily: theme.regular,
-    color: "#9CA3AF",
-  },
-  smallEditBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: theme.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontFamily: theme.semibold,
-    color: "#9CA3AF",
-    marginBottom: 12,
-    marginTop: 20,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  settingCardModern: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    borderWidth: 0,
-    borderColor: "transparent",
-    padding: 14,
-    marginBottom: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  settingMiddle: {
-    flex: 1,
-    gap: 2,
-  },
-  settingTitleModern: {
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.semibold,
-    color: "#111827",
-  },
-  settingValueModern: {
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: "#6B7280",
-  },
-  logoutCardModern: {
-    marginTop: 12,
-    borderColor: "transparent",
-    justifyContent: "space-between",
-  },
+
+  // ── Unused legacy styles (kept to avoid breakage) ─────────────────────
+  headerSection: { marginBottom: 28, gap: 16 },
+  greetingContainer: { gap: 4 },
+  greeting: { fontSize: 28, fontFamily: theme.bold, color: D.text, letterSpacing: -0.5 },
+  greetingSubtitle: { fontSize: 14, fontFamily: theme.regular, color: D.textSub },
+  pillsRow: { flexDirection: "row", gap: 10 },
+  rankPill: { flex: 1, backgroundColor: D.card, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 10 },
+  rankPillContent: { flex: 1, gap: 2 },
+  rankPillLabel: { fontSize: 11, fontFamily: theme.medium, color: D.textSub, textTransform: "uppercase", letterSpacing: 0.5 },
+  rankPillValue: { fontSize: 15, fontFamily: theme.bold, color: D.text },
+  rankPillPoints: { fontSize: 11, fontFamily: theme.semibold, color: D.textSub },
+  planPill: { backgroundColor: D.card, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 8 },
+  planPillText: { fontSize: 15, fontFamily: theme.semibold, color: D.text },
+  sectionTitleTop: { fontSize: 11, fontFamily: theme.semibold, color: D.textSub, marginBottom: 12, marginTop: 8, textTransform: "uppercase", letterSpacing: 0.5 },
+  statsGrid: { flexDirection: "column", gap: 12, marginBottom: 20 },
+  statsGridTop: { flexDirection: "row", gap: 12, justifyContent: "space-between" },
+  statCardCompact: { flex: 1, backgroundColor: D.card, borderRadius: 16, padding: 12, alignItems: "center", gap: 6 },
+  statCardModern: { backgroundColor: D.card, borderRadius: 16, padding: 14, flexDirection: "row", alignItems: "center", gap: 12 },
+  statIconBg: { width: 36, height: 36, borderRadius: 10, justifyContent: "center", alignItems: "center" },
+  statContent: { flex: 1, gap: 2 },
+  statLabelModern: { fontSize: 12, fontFamily: theme.medium, color: D.textSub },
+  statValueModern: { fontSize: 17, fontFamily: theme.bold, color: D.text },
+  statUnitModern: { fontSize: 11, fontFamily: theme.regular, color: D.textSub },
+  smallEditBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: D.primary, justifyContent: "center", alignItems: "center" },
+  sectionTitle: { fontSize: 11, fontFamily: theme.semibold, color: D.textSub, marginBottom: 12, marginTop: 20, textTransform: "uppercase", letterSpacing: 0.5 },
+  settingCardModern: { backgroundColor: D.card, borderRadius: 16, padding: 14, marginBottom: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  iconCircle: { width: 40, height: 40, borderRadius: 12, justifyContent: "center", alignItems: "center" },
+  settingMiddle: { flex: 1, gap: 2 },
+  settingTitleModern: { fontSize: 15, fontFamily: theme.semibold, color: D.text },
+  settingValueModern: { fontSize: 13, fontFamily: theme.regular, color: D.textSub },
+  logoutCardModern: { marginTop: 12, justifyContent: "space-between" },
+
+  // ── Footer ────────────────────────────────────────────────────────────
   footer: {
     alignItems: "center",
-    marginVertical: 40,
-    marginBottom: 60,
-    gap: 6,
+    marginTop: 36,
+    marginBottom: 20,
+    gap: 4,
   },
   footerApp: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 13,
     fontFamily: theme.semibold,
-    color: theme.textColor,
+    color: D.textSub,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
   },
   footerVersion: {
     fontSize: 11,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: D.textTertiary,
   },
+
+  // ── Modals ────────────────────────────────────────────────────────────
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: "rgba(0,0,0,0.65)",
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: theme.backgroundColor,
+    backgroundColor: "#1C1C1E",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
-    paddingBottom: 44,
+    paddingBottom: 48,
+    borderTopWidth: 1,
+    borderColor: D.border,
   },
   modalHeader: {
     flexDirection: "row",
@@ -1371,28 +1218,28 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: D.text,
     flex: 1,
   },
   closeButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: theme.backgroundSecondary,
+    backgroundColor: D.cardAlt,
     justifyContent: "center",
     alignItems: "center",
   },
   input: {
     borderWidth: 1,
-    borderColor: theme.border,
+    borderColor: D.border,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: theme.fontSize.md,
+    fontSize: 15,
     fontFamily: theme.regular,
-    color: theme.textColor,
+    color: D.text,
     marginBottom: 16,
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.cardAlt,
   },
   weightAdjustContainer: {
     gap: 16,
@@ -1401,10 +1248,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.cardAlt,
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 16,
+    borderWidth: 1,
+    borderColor: D.border,
   },
   weightDisplayContent: {
     flexDirection: "row",
@@ -1412,15 +1261,16 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   weightValue: {
-    fontSize: 36,
+    fontSize: 40,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: D.primary,
+    letterSpacing: -1,
   },
   weightUnit: {
-    fontSize: theme.fontSize.md,
+    fontSize: 15,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
-    marginBottom: 4,
+    color: D.textSub,
+    marginBottom: 6,
   },
   adjustButtonsRow: {
     flexDirection: "row",
@@ -1428,25 +1278,25 @@ const styles = StyleSheet.create({
   },
   adjustBtn: {
     flex: 1,
-    height: 52,
+    height: 54,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: theme.border,
+    borderColor: D.border,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: theme.backgroundColor,
+    backgroundColor: D.cardAlt,
   },
   adjustBtnActive: {
-    backgroundColor: theme.textColor,
-    borderColor: theme.textColor,
+    backgroundColor: D.primary,
+    borderColor: D.primary,
   },
   adjustBtnText: {
-    fontSize: theme.fontSize.xxl,
+    fontSize: 26,
     fontFamily: theme.bold,
-    color: theme.textColor,
+    color: D.text,
   },
   adjustBtnTextActive: {
-    color: theme.backgroundColor,
+    color: "#000",
   },
   modalButtons: {
     flexDirection: "row",
@@ -1455,71 +1305,76 @@ const styles = StyleSheet.create({
   },
   cancelBtn: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: 15,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: theme.border,
+    borderColor: D.border,
     alignItems: "center",
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.cardAlt,
   },
   cancelBtnText: {
-    fontSize: theme.fontSize.md,
+    fontSize: 15,
     fontFamily: theme.semibold,
-    color: theme.textColor,
+    color: D.textSub,
   },
   confirmBtn: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: 15,
     borderRadius: 14,
-    backgroundColor: theme.primary,
+    backgroundColor: D.primary,
     alignItems: "center",
   },
   confirmBtnText: {
-    fontSize: theme.fontSize.md,
+    fontSize: 15,
     fontFamily: theme.bold,
-    color: theme.backgroundColor,
+    color: "#000000",
   },
   modalOption: {
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
     marginBottom: 6,
-    backgroundColor: theme.backgroundTertiary,
+    backgroundColor: D.cardAlt,
+    borderWidth: 1,
+    borderColor: D.border,
   },
   modalOptionSelected: {
-    backgroundColor: theme.textColor,
+    backgroundColor: D.deepPrimary,
+    borderWidth: 1,
+    borderColor: D.primary,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 12,
     marginBottom: 6,
   },
   modalOptionText: {
-    fontSize: theme.fontSize.md,
+    fontSize: 15,
     fontFamily: theme.medium,
-    color: theme.textColor,
+    color: D.text,
   },
   modalOptionSubtext: {
     fontSize: 12,
     fontFamily: theme.regular,
-    color: theme.textColorSecondary,
+    color: D.textSub,
     marginTop: 2,
   },
   ratePill: {
-    backgroundColor: theme.success,
+    backgroundColor: "rgba(170,251,5,0.15)",
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    marginTop: 0,
     alignSelf: "flex-start",
+    borderWidth: 1,
+    borderColor: "rgba(170,251,5,0.3)",
   },
   ratePillText: {
     fontSize: 11,
     fontFamily: theme.medium,
-    color: theme.backgroundColor,
+    color: D.primary,
   },
   modalOptionTextSelected: {
     fontFamily: theme.semibold,
-    color: theme.backgroundColor,
+    color: D.primary,
   },
 });
 
