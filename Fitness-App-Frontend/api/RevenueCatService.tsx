@@ -5,6 +5,7 @@ import Purchases, {
   PurchasesPackage,
   PurchasesStoreTransaction,
 } from 'react-native-purchases';
+import { Platform } from 'react-native';
 import { REVENUECAT_CONFIG, ENTITLEMENTS } from '@/constants/revenueCat';
 import database from '@/database/database';
 import { User } from '@/models/User';
@@ -117,12 +118,14 @@ class RevenueCatService {
     try {
       // Check RevenueCat subscription
       let hasRevenueCatPro = false;
-      try {
-        const customerInfo = await Purchases.getCustomerInfo();
-        hasRevenueCatPro = customerInfo.entitlements.active[ENTITLEMENTS.PRO] !== undefined;
-        console.log('🔍 RevenueCat PRO status:', hasRevenueCatPro);
-      } catch (revenueCatError) {
-        console.warn('⚠️ Failed to check RevenueCat PRO status:', revenueCatError);
+      if (Platform.OS !== 'web') {
+        try {
+          const customerInfo = await Purchases.getCustomerInfo();
+          hasRevenueCatPro = customerInfo.entitlements.active[ENTITLEMENTS.PRO] !== undefined;
+          console.log('🔍 RevenueCat PRO status:', hasRevenueCatPro);
+        } catch (revenueCatError) {
+          console.warn('⚠️ Failed to check RevenueCat PRO status:', revenueCatError);
+        }
       }
       
       // Check WatermelonDB Role field
@@ -151,7 +154,11 @@ class RevenueCatService {
   /**
    * Get current customer info
    */
-  async getCustomerInfo(): Promise<CustomerInfo> {
+  async getCustomerInfo(): Promise<CustomerInfo | null> {
+    if (Platform.OS === 'web') {
+      console.log('🌐 RevenueCat not available on web');
+      return null;
+    }
     try {
       const customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;

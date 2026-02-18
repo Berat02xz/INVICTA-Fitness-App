@@ -1,7 +1,6 @@
 import ButtonOnboarding from "@/components/ui/Onboarding/AnswerOnboarding";
 import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
-import { theme } from "@/constants/theme";
 import { getCaloriePlans, calculateBMR } from "@/utils/GetCaloriePlans";
 import calculateCaloriesPerDay from "@/utils/CalculateCaloriesPerDay";
 import React, { useEffect, useState } from "react";
@@ -9,7 +8,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 
-const DesiredTargetWeight = () => {
+const CaloriePlan = () => {
   const { goForward, answers, saveSelection } = useOnboarding();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
@@ -111,4 +110,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DesiredTargetWeight;
+export default CaloriePlan;

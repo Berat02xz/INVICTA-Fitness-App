@@ -19,7 +19,7 @@ export const useProStatus = () => {
       const proActive = await RevenueCatService.isProActive();
       const info = await RevenueCatService.getCustomerInfo();
       setIsPro(proActive);
-      setCustomerInfo(info);
+      if (info) setCustomerInfo(info);
     } catch (error) {
       console.error('Error checking PRO status:', error);
       setIsPro(false);

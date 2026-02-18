@@ -3,11 +3,9 @@ import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useOnboarding } from "../NavigationService";
 
 
 const DietFollow = () => {
-  const { goForward } = useOnboarding();
 
   return (
     <>
