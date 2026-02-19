@@ -1,4 +1,5 @@
 import axiosInstance from "./AxiosInstance";
+import { Platform } from "react-native";
 
 export const AIEndpoint = {
   uploadMeal: async (
@@ -8,19 +9,49 @@ export const AIEndpoint = {
     const formData = new FormData();
     formData.append("UserId", userId);
     
-    formData.append("MealImage", {
-      uri: mealImageFile.uri,
-      name: mealImageFile.name || 'meal.jpg',
-      type: mealImageFile.type || 'image/jpeg',
-    } as any);
+    if (Platform.OS === "web") {
+      try {
+        // Fetch the blob from the URI
+        const res = await fetch(mealImageFile.uri);
+        const blob = await res.blob();
+        formData.append("MealImage", blob, mealImageFile.name || 'meal.jpg');
+      } catch (e) {
+        console.error("Failed to convert URI to Blob on web", e);
+        throw e;
+      }
+    } else {
+      formData.append("MealImage", {
+        uri: mealImageFile.uri,
+        name: mealImageFile.name || 'meal.jpg',
+        type: mealImageFile.type || 'image/jpeg',
+      } as any);
+    }
     
     try {
-      const response = await axiosInstance.post('/api/AI/UploadMeal', formData, {
+      const config = {
         headers: { 
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': Platform.OS === 'web' ? 'multipart/form-data' : 'multipart/form-data',
         },
         timeout: 20000, 
-      });
+      };
+      
+      if (Platform.OS === 'web') {
+        // On web, we need to let the browser set the Content-Type with the boundary
+        // by deleting the Content-Type header from the instance defaults for this request
+        // However, axios instance defaults are merged. 
+        // A common trick is to use transformRequest to modify headers
+        
+        // But simpler: just use a new axios instance or fetch for this specific call on web?
+        // Or try setting it to undefined/false.
+        // Actually, if we pass a FormData body, axios usually deletes the Content-Type header if it's not set.
+        // But we have a default.
+        
+        // Let's try setting it to null to remove the default
+        // @ts-ignore
+        config.headers['Content-Type'] = null; 
+      }
+
+      const response = await axiosInstance.post('/api/AI/UploadMeal', formData, config);
       
       console.log('AI Response:', response.data);
       return response.data;

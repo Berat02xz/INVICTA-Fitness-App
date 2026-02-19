@@ -1,19 +1,16 @@
 import React from "react";
-import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Animated, Platform } from "react-native";
+import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Animated, Platform, Image, Dimensions } from "react-native";
 import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "@/constants/theme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+
+const { width } = Dimensions.get("window");
 
 type MealResult = {
   type: "Meal";
   ShortMealName: string;
-  CaloriesAmount: number;
-  Protein: number;
-  Carbs: number;
-  Fat: number;
-  HealthScoreOutOf10: number;
-  MealQuality: string;
 };
 
 type MenuResult = {
@@ -40,6 +37,7 @@ type ScanResult = MealResult | MenuResult | FridgeResult;
 interface ScanResultModalProps {
   visible: boolean;
   result: ScanResult | null;
+  imageUri?: string;
   onClose: () => void;
   fadeAnim: Animated.Value;
 }
@@ -47,105 +45,121 @@ interface ScanResultModalProps {
 const ScanResultModal: React.FC<ScanResultModalProps> = ({
   visible,
   result,
+  imageUri,
   onClose,
   fadeAnim,
 }) => {
   if (!result) return null;
 
   const renderMealResult = (meal: MealResult) => {
-    // Parse quality string into pills - split on any non-alphanumeric character
-    const qualityString = meal.MealQuality || '';
-    // Split on any character that is not a letter, number, or space
-    const allPills = qualityString
-      .split(/[^a-zA-Z0-9\s]+/)
-      .map(item => item.trim())
-      .filter(Boolean);
+    const qualityTags = meal.MealQuality
+      ? meal.MealQuality.split(/[^a-zA-Z0-9\s]+/).map(t => t.trim()).filter(Boolean)
+      : [];
+
+    // Calculate percentages for visual bars (assuming arbitrary daily goals for visualization: P:150, C:200, F:70)
+    // In a real app, these should come from user goals.
+    const pFill = Math.min((meal.Protein / 40) * 100, 100); 
+    const cFill = Math.min((meal.Carbs / 50) * 100, 100);
+    const fFill = Math.min((meal.Fat / 20) * 100, 100);
 
     return (
-      <View style={styles.content}>
-        {/* Header */}
-        <FadeTranslate order={0}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{meal.ShortMealName}</Text>
-          </View>
-        </FadeTranslate>
+      <View style={{ width: "100%" }}>
+        {/* Top Image Section */}
+        <View style={styles.imageContainer}>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.foodImage} />
+          ) : (
+            <View style={[styles.foodImage, { backgroundColor: "#333", alignItems: "center", justifyContent: "center" }]}>
+                <Text style={{fontSize: 60}}>{meal.OneEmoji || "🍽️"}</Text>
+            </View>
+          )}
+          <View style={styles.imageOverlay} />
+          <LinearGradient 
+              colors={['transparent', 'rgba(0,0,0,0.9)']}
+              style={styles.titleOverlay}
+          >
+             <FadeTranslate order={0}>
+                <Text style={styles.mealTitle} numberOfLines={2}>{meal.ShortMealName}</Text>
+             </FadeTranslate>
+          </LinearGradient>
+        </View>
 
-        {/* Calories Badge */}
-        <FadeTranslate order={1}>
-          <View style={styles.caloriesBadge}>
-            <Text style={styles.caloriesText}>{meal.CaloriesAmount} kcal</Text>
-          </View>
-        </FadeTranslate>
-
-        {/* Macros and Health Score Row */}
-        <FadeTranslate order={2}>
-          <View style={styles.statsRow}>
-            {/* Macros */}
-            <View style={styles.macroItem}>
-              <Text style={styles.macroEmoji}>💪</Text>
-              <Text style={styles.macroValue}>{meal.Protein}g</Text>
-              <Text style={styles.macroLabel}>Protein</Text>
-            </View>
-            <View style={styles.macroItem}>
-              <Text style={styles.macroEmoji}>🍞</Text>
-              <Text style={styles.macroValue}>{meal.Carbs}g</Text>
-              <Text style={styles.macroLabel}>Carbs</Text>
-            </View>
-            <View style={styles.macroItem}>
-              <Text style={styles.macroEmoji}>🧈</Text>
-              <Text style={styles.macroValue}>{meal.Fat}g</Text>
-              <Text style={styles.macroLabel}>Fat</Text>
-            </View>
-            
-            {/* Health Score */}
-            <View style={styles.macroItem}>
-              <Text style={styles.macroEmoji}>❤️</Text>
-              <Text style={styles.macroValue}>{meal.HealthScoreOutOf10}/10</Text>
-              <Text style={styles.macroLabel}>Health</Text>
-            </View>
-          </View>
-        </FadeTranslate>
-
-        {/* Quality Analysis Pills */}
-        <View style={styles.qualitySection}>
-          <View style={styles.pillsContainer}>
-            {allPills.map((pill, idx) => (
-              <FadeTranslate key={idx} order={3 + idx * 0.5}>
-                <View style={styles.pill}>
-                  <Text style={styles.pillText}>
-                    {pill}
-                  </Text>
+        <View style={styles.cardContent}>
+           {/* Primary Stat: Calories */}
+           <FadeTranslate order={1}>
+                <View style={styles.mainStatRow}>
+                    <View style={styles.calLimit}>
+                        <Ionicons name="flame" size={24} color={theme.primary} />
+                        <Text style={styles.calValue}>{meal.CaloriesAmount}</Text>
+                        <Text style={styles.calLabel}>kcal</Text>
+                    </View>
+                    
+                    {/* Health Score Pill */}
+                    <View style={styles.healthScoreContainer}>
+                        <View style={[styles.scoreBadge, { 
+                            backgroundColor: meal.HealthScoreOutOf10 >= 7 ? theme.primary : 
+                                            meal.HealthScoreOutOf10 >= 4 ? "#FFA500" : "#FF453A"
+                        }]}>
+                            <Text style={styles.scoreValue}>{meal.HealthScoreOutOf10}</Text>
+                        </View>
+                        <Text style={styles.scoreLabel}>Health Score</Text>
+                    </View>
                 </View>
-              </FadeTranslate>
-            ))}
-          </View>
+           </FadeTranslate>
+
+           {/* Macros Grid */}
+           <FadeTranslate order={2} translateYFrom={20}>
+               <View style={styles.macrosContainer}>
+                   <MacroCard label="Protein" value={`${meal.Protein}g`} fill={pFill} color="#64D2FF" icon="fitness-outline" />
+                   <MacroCard label="Carbs" value={`${meal.Carbs}g`} fill={cFill} color="#BF5AF2" icon="leaf-outline" />
+                   <MacroCard label="Fat" value={`${meal.Fat}g`} fill={fFill} color="#FF9F0A" icon="water-outline" />
+               </View>
+           </FadeTranslate>
+
+            {/* Tags / Quality */}
+            <FadeTranslate order={3} translateYFrom={20}>
+                <View style={styles.tagsContainer}>
+                    {qualityTags.map((tag, i) => (
+                        <View key={i} style={styles.tagPill}>
+                            <Text style={styles.tagText}>{tag}</Text>
+                        </View>
+                    ))}
+                </View>
+            </FadeTranslate>
+            
+            {/* Description / Analysis (Placeholder if needed, or omitted if not provided) */}
         </View>
       </View>
     );
   };
 
-  const renderMenuResult = (menu: MenuResult) => (
-    <View style={styles.content}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.emoji}>📋</Text>
-        <Text style={styles.title}>Menu Items</Text>
+  const MacroCard = ({ label, value, fill, color, icon }: any) => (
+      <View style={styles.macroCard}>
+          <View style={styles.macroHeader}>
+             <Ionicons name={icon} size={14} color={color} style={{opacity: 0.8}} />
+             <Text style={[styles.macroLabel, {color}]}>{label}</Text>
+          </View>
+          <Text style={styles.macroValue}>{value}</Text>
+          <View style={styles.progressBarBg}>
+              <View style={[styles.progressBarFill, { width: `${fill}%`, backgroundColor: color }]} />
+          </View>
       </View>
+  );
 
-      {/* Menu Items */}
-      <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
+  const renderMenuResult = (menu: MenuResult) => (
+    <View style={styles.textResultContainer}>
+      <View style={styles.headerSimple}>
+        <Text style={styles.emojiSimple}>📋</Text>
+        <Text style={styles.titleSimple}>Detected Menu</Text>
+      </View>
+      <ScrollView style={styles.scrollList} showsVerticalScrollIndicator={false}>
         {menu.Meals.map((item, idx) => (
           <View key={idx} style={styles.listItem}>
-            <View style={styles.listItemHeader}>
-              <Text style={styles.listItemName}>{item.MenuName}</Text>
-              <View style={styles.caloriesBadgeSmall}>
-                <Text style={styles.caloriesTextSmall}>{item.Calories} kcal</Text>
-              </View>
+            <View style={styles.rowBetween}>
+                <Text style={styles.itemName}>{item.MenuName}</Text>
+                <Text style={styles.itemCals}>{item.Calories} kcal</Text>
             </View>
-            <Text style={styles.ingredientsText}>
-              🥦 {item.Ingredients.slice(0, 3).join(" • ")}
-              {item.Ingredients.length > 3 && "..."}
-            </Text>
+            <Text style={styles.itemIngredients}>{item.Ingredients.join(" • ")}</Text>
           </View>
         ))}
       </ScrollView>
@@ -153,31 +167,23 @@ const ScanResultModal: React.FC<ScanResultModalProps> = ({
   );
 
   const renderFridgeResult = (fridge: FridgeResult) => (
-    <View style={styles.content}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.emoji}>🧊</Text>
-        <Text style={styles.title}>Recipe Suggestions</Text>
+    <View style={styles.textResultContainer}>
+      <View style={styles.headerSimple}>
+        <Text style={styles.emojiSimple}>🧊</Text>
+        <Text style={styles.titleSimple}>Fridge Ideas</Text>
       </View>
-
-      {/* Recipe Items */}
-      <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollList} showsVerticalScrollIndicator={false}>
         {fridge.Meals.map((item, idx) => (
           <View key={idx} style={styles.listItem}>
-            <View style={styles.listItemHeader}>
-              <Text style={styles.listItemName}>{item.Meal}</Text>
-              <View style={styles.caloriesBadgeSmall}>
-                <Text style={styles.caloriesTextSmall}>{item.Calories} kcal</Text>
-              </View>
+            <View style={styles.rowBetween}>
+                <Text style={styles.itemName}>{item.Meal}</Text>
+                <View style={styles.timeTag}>
+                     <Ionicons name="time-outline" size={12} color="#AAA" />
+                     <Text style={styles.timeText}>{item.TimeToMake}</Text>
+                </View>
             </View>
-            <Text style={styles.ingredientsText}>
-              🥦 {item.Ingredients.slice(0, 3).join(" • ")}
-              {item.Ingredients.length > 3 && "..."}
-            </Text>
-            <View style={styles.timeRow}>
-              <Text style={styles.timeIcon}>⏱️</Text>
-              <Text style={styles.timeText}>{item.TimeToMake}</Text>
-            </View>
+            <Text style={styles.itemCals}>{item.Calories} kcal</Text>
+            <Text style={styles.itemIngredients}>{item.Ingredients.join(", ")}</Text>
           </View>
         ))}
       </ScrollView>
@@ -192,42 +198,32 @@ const ScanResultModal: React.FC<ScanResultModalProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
-        <Animated.View style={[styles.modalContainer, { opacity: fadeAnim }]}>
-          {Platform.OS === "android" ? (
-            <View style={[styles.blurContainer, styles.solidBackground]}>
-              {result.type === "Meal" && renderMealResult(result)}
-              {result.type === "Menu" && renderMenuResult(result)}
-              {result.type === "Fridge" && renderFridgeResult(result)}
+         {/* Background Blur */}
+         <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />
 
-              {/* Close Button */}
-              <FadeTranslate order={8} translateYFrom={30}>
-                <Pressable style={styles.closeButton} onPress={onClose}>
-                  <View style={styles.buttonContent}>
-                    <MaterialCommunityIcons name="cloud-upload" size={20} color="#fff" />
-                    <Text style={styles.closeButtonText}>Save & Close</Text>
-                  </View>
-                </Pressable>
-              </FadeTranslate>
+         <Pressable style={styles.backdrop} onPress={onClose} />
+         
+         <Animated.View style={[
+             styles.modalContainer, 
+             { opacity: fadeAnim, transform: [{ scale: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1] }) }] }
+         ]}>
+            <View style={styles.innerContainer}>
+                {result.type === "Meal" && renderMealResult(result)}
+                {result.type === "Menu" && renderMenuResult(result)}
+                {result.type === "Fridge" && renderFridgeResult(result)}
+                
+                {/* Action Buttons */}
+                <View style={styles.actionRow}>
+                   <Pressable style={styles.secondaryBtn} onPress={onClose}>
+                       <Text style={styles.secondaryBtnText}>Retry</Text>
+                   </Pressable>
+                   <Pressable style={styles.primaryBtn} onPress={onClose}>
+                       <Text style={styles.primaryBtnText}>Log Food</Text>
+                       <Ionicons name="arrow-forward" size={18} color="black" />
+                   </Pressable>
+                </View>
             </View>
-          ) : (
-            <BlurView intensity={80} tint="dark" style={styles.blurContainer}>
-              {result.type === "Meal" && renderMealResult(result)}
-              {result.type === "Menu" && renderMenuResult(result)}
-              {result.type === "Fridge" && renderFridgeResult(result)}
-
-              {/* Close Button */}
-              <FadeTranslate order={8} translateYFrom={30}>
-                <Pressable style={styles.closeButton} onPress={onClose}>
-                  <View style={styles.buttonContent}>
-                    <MaterialCommunityIcons name="cloud-upload" size={20} color="#fff" />
-                    <Text style={styles.closeButtonText}>Save & Close</Text>
-                  </View>
-                </Pressable>
-              </FadeTranslate>
-            </BlurView>
-          )}
-        </Animated.View>
+         </Animated.View>
       </View>
     </Modal>
   );
@@ -238,275 +234,268 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    // backgroundColor: "rgba(0,0,0,0.5)", // handled by BlurView
   },
   backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject,
   },
   modalContainer: {
-    width: "90%",
+    width: width * 0.9,
     maxWidth: 400,
-    maxHeight: "80%",
+    backgroundColor: "#1C1C1E",
     borderRadius: 24,
     overflow: "hidden",
-  },
-  blurContainer: {
-    borderRadius: 24,
-    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.15)",
+    borderColor: "rgba(255,255,255,0.1)",
   },
-  solidBackground: {
+  innerContainer: {
+    // padding handled by children
+  },
+  
+  // -- Meal Render Styles --
+  imageContainer: {
+    height: 200,
+    width: "100%",
     backgroundColor: "#000",
+    position: "relative",
   },
-  content: {
-    alignItems: "center",
-  },
-  scrollContent: {
+  foodImage: {
     width: "100%",
-    maxHeight: 400,
+    height: "100%",
+    resizeMode: "cover",
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 12,
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    // gradient?
   },
-  emoji: {
-    fontSize: 56,
-    marginBottom: 12,
+  titleOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    paddingBottom: 24,
+    // Gradient handled by LinearGradient component
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
+  mealTitle: {
+    fontSize: 26,
+    fontFamily: theme.bold,
+    color: "#FFFFFF",
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
-  caloriesBadge: {
-    backgroundColor: theme.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 16,
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
+  cardContent: {
+      padding: 20,
   },
-  caloriesText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+  
+  // Stats
+  mainStatRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 24,
+      backgroundColor: "#2C2C2E",
+      borderRadius: 16,
+      padding: 16,
   },
-  statsRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-    marginBottom: 16,
-    gap: 8,
+  calLimit: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: 4,
   },
-  macrosGrid: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-    marginBottom: 24,
-    gap: 12,
+  calValue: {
+      fontSize: 32,
+      fontFamily: theme.bold,
+      color: "#FFF",
+      lineHeight: 36,
   },
-  macroItem: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 12,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+  calLabel: {
+      fontSize: 16,
+      fontFamily: theme.medium,
+      color: theme.primary,
+      marginBottom: 6,
   },
-  macroEmoji: {
-    fontSize: 20,
-    marginBottom: 4,
+  healthScoreContainer: {
+      alignItems: "center",
   },
-  macroValue: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 2,
+  scoreBadge: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
+  },
+  scoreValue: {
+      fontSize: 18,
+      fontFamily: theme.bold,
+      color: "#FFF",
+  },
+  scoreLabel: {
+      fontSize: 10,
+      color: "#888",
+      fontFamily: theme.medium,
+  },
+
+  // Macros
+  macrosContainer: {
+      flexDirection: "row",
+      gap: 12,
+      marginBottom: 24,
+  },
+  macroCard: {
+      flex: 1,
+      backgroundColor: "#2C2C2E",
+      borderRadius: 12,
+      padding: 12,
+  },
+  macroHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      marginBottom: 8,
   },
   macroLabel: {
-    fontSize: 10,
-    color: "#aaa",
+      fontSize: 12,
+      fontFamily: theme.medium,
   },
-  healthSection: {
-    width: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+  macroValue: {
+      fontSize: 16,
+      fontFamily: theme.bold,
+      color: "#FFF",
+      marginBottom: 8,
   },
-  healthHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
+  progressBarBg: {
+      height: 4,
+      backgroundColor: "rgba(255,255,255,0.1)",
+      borderRadius: 2,
+      overflow: "hidden",
   },
-  healthLabel: {
-    fontSize: 14,
-    color: "#bbb",
-    fontWeight: "500",
+  progressBarFill: {
+      height: "100%",
+      borderRadius: 2,
   },
-  healthScore: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+
+  // Tags
+  tagsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginBottom: 10,
   },
-  progressBar: {
-    height: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderRadius: 6,
-    overflow: "hidden",
-    marginBottom: 8,
+  tagPill: {
+      backgroundColor: "rgba(255,255,255,0.1)",
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.05)",
   },
-  progressFill: {
-    height: "100%",
-    backgroundColor: theme.primary,
-    borderRadius: 6,
+  tagText: {
+      fontSize: 12,
+      color: "#DDD",
+      fontFamily: theme.medium,
   },
-  qualitySection: {
-    width: "100%",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+
+  // Actions
+  actionRow: {
+      flexDirection: "row",
+      padding: 20,
+      paddingTop: 0,
+      gap: 12,
   },
-  qualityAnalysis: {
-    marginTop: 12,
+  secondaryBtn: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: "#444",
+      alignItems: "center",
+      justifyContent: "center",
   },
-  qualityLabel: {
-    fontSize: 13,
-    color: theme.primary,
-    fontWeight: "700",
-    marginBottom: 8,
-    textTransform: "capitalize",
+  secondaryBtnText: {
+      color: "#FFF",
+      fontSize: 16,
+      fontFamily: theme.bold,
   },
-  pillsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
+  primaryBtn: {
+      flex: 2,
+      backgroundColor: theme.primary,
+      paddingVertical: 14,
+      borderRadius: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
   },
-  pill: {
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.15)",
+  primaryBtnText: {
+      color: "#000",
+      fontSize: 16,
+      fontFamily: theme.bold,
   },
-  primaryPill: {
-    backgroundColor: theme.primary,
-    borderColor: theme.primary,
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+
+  // -- Menu / Fridge Styles (Simple) --
+  textResultContainer: {
+      padding: 24,
+      maxHeight: 500,
   },
-  pillText: {
-    fontSize: 11,
-    color: "#ddd",
-    fontWeight: "500",
+  headerSimple: {
+      alignItems: "center",
+      marginBottom: 20,
   },
-  primaryPillText: {
-    color: "#fff",
-    fontWeight: "700",
+  emojiSimple: {
+      fontSize: 48,
+      marginBottom: 10,
   },
-  qualityText: {
-    fontSize: 14,
-    color: theme.primary,
-    fontWeight: "600",
-    textAlign: "center",
+  titleSimple: {
+      fontSize: 22,
+      color: "#FFF",
+      fontFamily: theme.bold,
+  },
+  scrollList: {
+      maxHeight: 300,
   },
   listItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: theme.primary,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+      backgroundColor: "#2C2c2E",
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 10,
   },
-  listItemHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
+  rowBetween: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 4,
   },
-  listItemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-    flex: 1,
-    marginRight: 8,
+  itemName: {
+      color: "#FFF",
+      fontFamily: theme.bold,
+      fontSize: 16,
+      flex: 1,
   },
-  caloriesBadgeSmall: {
-    backgroundColor: theme.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  itemCals: {
+      color: theme.primary,
+      fontFamily: theme.bold,
   },
-  caloriesTextSmall: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
+  itemIngredients: {
+      color: "#AAA",
+      fontSize: 13,
+      lineHeight: 18,
   },
-  ingredientsText: {
-    fontSize: 14,
-    color: "#ccc",
-    lineHeight: 20,
-  },
-  timeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 8,
-    padding: 8,
-    alignSelf: "flex-start",
-  },
-  timeIcon: {
-    fontSize: 14,
-    marginRight: 6,
+  timeTag: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
   },
   timeText: {
-    fontSize: 13,
-    color: "#fff",
-    fontWeight: "500",
-  },
-  closeButton: {
-    backgroundColor: theme.primary,
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: "center",
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  buttonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+      color: "#AAA",
+      fontSize: 12,
   },
 });
 

@@ -1,6 +1,7 @@
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import * as Clipboard from 'expo-clipboard';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Paywall } from '@/components/ui/RevenueCat/Paywall';
 import React, { useState, useRef, useEffect } from "react";
@@ -21,6 +22,7 @@ import {
   Share,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { theme } from "@/constants/theme";
 import { router, useFocusEffect } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
@@ -68,10 +70,7 @@ const GREETING_VARIANTS = [
 ];
 
 const AI_VIDEOS = [
-  require('@/assets/videos/blue.mp4'),
-  require('@/assets/videos/brand_ai.mp4'),
-  require('@/assets/videos/violet.mp4'),
-  require('@/assets/videos/green.mp4'),
+  require('@/assets/videos/AI.mp4'),
 ];
 
 
@@ -172,7 +171,7 @@ export default function Chatbot() {
       loadDailyCount();
 
       const onBackPress = () => {
-        navigation.navigate("workout");
+        navigation.navigate("nutrition");
         return true;
       };
 
@@ -763,24 +762,41 @@ export default function Chatbot() {
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.headerButton}
-              onPress={() => navigation.navigate("workout")}
+              onPress={() => navigation.navigate("nutrition")}
               activeOpacity={0.7}
             >
-              <MaterialCommunityIcons name="arrow-left" size={24} color="#8E8E93" />
+              <BlurView intensity={40} tint="dark" experimentalBlurMethod="dimezisBlurView" blurReductionFactor={1} style={styles.glassButtonBlur}>
+                <MaterialCommunityIcons name="arrow-left" size={24} color="#8E8E93" />
+              </BlurView>
             </TouchableOpacity>
             
             {subscriptionPlan && (
               <TouchableOpacity
-                style={[styles.planPill, (subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') && styles.planPillFree]}
+                style={[
+                    styles.planPill, 
+                    (subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') && styles.planPillFree
+                ]}
                 onPress={() => (subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') ? setShowPaywall(true) : null}
                 activeOpacity={(subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') ? 0.7 : 1}
               >
-                <MaterialCommunityIcons name="star-four-points" size={14} color={theme.primary} />
-                <Text style={styles.planText}>
-                  {(subscriptionPlan === 'FREE' || subscriptionPlan === 'Free')
-                    ? `${FREE_DAILY_LIMIT - dailyMessageCount}/${FREE_DAILY_LIMIT} left`
-                    : 'Unlimited'}
-                </Text>
+                {(subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') ? (
+                    <View style={{ alignItems: 'center', gap: 2 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                             <MaterialCommunityIcons name="star-four-points" size={12} color={theme.primary} />
+                             <Text style={styles.planText}>
+                                {`${FREE_DAILY_LIMIT - dailyMessageCount}/${FREE_DAILY_LIMIT} left`}
+                             </Text>
+                        </View>
+                        <Text style={{ fontSize: 10, fontFamily: theme.medium, color: theme.primary, opacity: 0.8 }}>
+                            Get Unlimited
+                        </Text>
+                    </View>
+                ) : (
+                    <>
+                        <MaterialCommunityIcons name="star-four-points" size={14} color={theme.primary} />
+                        <Text style={styles.planText}>Unlimited</Text>
+                    </>
+                )}
               </TouchableOpacity>
             )}
             
@@ -790,11 +806,13 @@ export default function Chatbot() {
                 onPress={toggleSavedMessages}
                 activeOpacity={0.7}
               >
-                <MaterialCommunityIcons 
-                  name="bookmark-outline" 
-                  size={24} 
-                  color="#8E8E93" 
-                />
+                <BlurView intensity={40} tint="dark" experimentalBlurMethod="dimezisBlurView" blurReductionFactor={1} style={styles.glassButtonBlur}>
+                  <MaterialCommunityIcons 
+                    name="bookmark-outline" 
+                    size={24} 
+                    color="#8E8E93" 
+                  />
+                </BlurView>
               </TouchableOpacity>
             </View>
           </View>
@@ -826,12 +844,14 @@ export default function Chatbot() {
                   {randomSuggestions.map((suggestion, index) => (
                     <FadeTranslate key={index} order={index + 2}>
                       <TouchableOpacity
-                        style={styles.greetingSuggestionPill}
                         onPress={() => sendMessage(suggestion.text)}
                         activeOpacity={0.7}
+                        style={styles.greetingPillWrapper}
                       >
-                        <MaterialCommunityIcons name={suggestion.icon as any} size={18} color={suggestion.color} />
-                        <Text style={styles.greetingSuggestionText}>{suggestion.text}</Text>
+                         <View style={[styles.greetingPillContainer, { borderColor: suggestion.color + '30', backgroundColor: suggestion.color + '10' }]}>
+                            <MaterialCommunityIcons name={suggestion.icon as any} size={18} color={suggestion.color} />
+                            <Text style={styles.greetingPillText}>{suggestion.text}</Text>
+                         </View>
                       </TouchableOpacity>
                     </FadeTranslate>
                   ))}
@@ -867,37 +887,38 @@ export default function Chatbot() {
                 onPress={() => router.push("/(screens)/ScanMeal")}
                 activeOpacity={0.7}
               >
-                <MaterialCommunityIcons 
-                  name="camera-outline" 
-                  size={22} 
-                  color="#8E8E93"
-                />
+                  <MaterialCommunityIcons 
+                    name="camera-outline" 
+                    size={24} 
+                    color="#D1D1D6"
+                  />
               </TouchableOpacity>
 
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
                   placeholder="Ask me anything..."
-                  placeholderTextColor="#48484A"
+                  placeholderTextColor="#636366"
                   value={inputText}
                   onChangeText={setInputText}
-                  multiline={false}
-                  maxLength={500}
+                  multiline={true} // Enable multiline
+                  maxLength={1000}
+                  underlineColorAndroid="transparent"
                 />
 
                 <TouchableOpacity
                   style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
                   onPress={() => sendMessage()}
                   disabled={!inputText.trim() || isLoading || ((subscriptionPlan === 'FREE' || subscriptionPlan === 'Free') && dailyMessageCount >= FREE_DAILY_LIMIT)}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons
-                  name="arrow-up"
-                  size={20}
-                  color="#000000"
-                />
-              </TouchableOpacity>
-            </View>
+                  activeOpacity={0.8}
+                >
+                  <MaterialCommunityIcons
+                    name={isLoading ? "stop" : "arrow-up"}
+                    size={20}
+                    color="#000000"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -1012,7 +1033,7 @@ export default function Chatbot() {
 
 // ── Design tokens (mirrors app-wide dark system) ─────────────────────────────
 const C = {
-  bg:        "#141414",
+  bg:        "#000000",
   card:      "#1C1C1E",
   cardAlt:   "#242426",
   border:    "#2C2C2E",
@@ -1055,26 +1076,38 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: C.cardAlt,
+    overflow: 'hidden',
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  glassButtonBlur: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(6,14,6,0.55)',
   },
   planPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 24,
     backgroundColor: C.deep,
     borderWidth: 1,
     borderColor: 'rgba(170,251,5,0.3)',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    minHeight: 40,
   },
   planPillFree: {
     borderColor: 'rgba(170,251,5,0.25)',
-    backgroundColor: C.deep,
+    backgroundColor: C.deep, // Reverted to greenish deep primary
+    flexDirection: 'column', 
+    alignItems: 'center',
+    paddingVertical: 6,
+    gap: 0,
   },
   planText: {
     fontSize: 13,
@@ -1094,6 +1127,8 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     marginBottom: 20,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   greetingText: {
     fontSize: 26,
@@ -1109,24 +1144,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     width: '100%',
-    rowGap: 10,
+    paddingBottom: 20,
+    maxWidth: 600, // Limit width to keep pills centered nicely
+    alignSelf: 'center',
   },
-  greetingSuggestionPill: {
+  greetingPillWrapper: {
+    // No specific wrapper style needed for pills in flexwrap
+  },
+  greetingPillContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: C.border,
-    backgroundColor: C.card,
+    // Background and border colors set dynamically
   },
-  greetingSuggestionText: {
-    fontSize: 13,
+  greetingPillText: {
+    fontSize: 14,
     fontFamily: theme.medium,
-    textAlign: 'center',
-    color: C.text,
+    color: '#E5E5EA',
   },
 
   // ── Messages list ──────────────────────────────────────────────────────────
@@ -1142,13 +1180,12 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     flexDirection: "row",
-    marginBottom: 16,
-    alignItems: "flex-start",
+    marginBottom: 24,
+    width: '100%',
   },
   userMessage: {
     justifyContent: "flex-end",
     alignSelf: "flex-end",
-    maxWidth: '85%',
   },
   aiMessage: {
     justifyContent: "flex-start",
@@ -1156,30 +1193,27 @@ const styles = StyleSheet.create({
   },
   messageBubbleWrapper: {
     flex: 1,
+    maxWidth: '100%',
   },
   userBubbleWrapper: {
-    maxWidth: '100%',
-    alignSelf: 'flex-end',
+    maxWidth: '85%',
   },
   messageBubble: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 20,
+    borderRadius: 24,
   },
   messageBubbleWide: {
     width: "100%",
   },
-  // User bubble: slightly lighter card with subtle lime left-border accent — ChatGPT-style
   userBubble: {
-    backgroundColor: C.card,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: C.border,
+    backgroundColor: '#2C2C2E',
+    borderBottomRightRadius: 4,
   },
   aiBubble: {
     backgroundColor: 'transparent',
-    borderWidth: 0,
-    elevation: 0,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   messageText: {
     fontSize: 15,
@@ -1284,129 +1318,143 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: C.border,
+    borderBottomColor: '#3A3A3C',
   },
   tableCell: {
     flex: 1,
-    minWidth: 100,
-    maxWidth: 200,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderRightWidth: 1,
-    borderRightColor: C.border,
+    borderRightColor: '#3A3A3C',
     justifyContent: 'center',
-    overflow: 'hidden',
+    minWidth: 120, // Ensure readable width for scrolling
   },
   tableHeaderCell: {
-    backgroundColor: C.cardAlt,
+    backgroundColor: '#2C2C2E',
   },
   tableHeaderText: {
     fontFamily: theme.bold,
-    color: C.sub,
+    color: '#E5E5EA',
+    fontSize: 14,
+  },
+  tableText: {
+    fontSize: 14,
+    fontFamily: theme.regular,
+    color: '#D1D1D6',
+    lineHeight: 20,
   },
 
   // Message action icons (copy/share/bookmark)
   messageActionsContainer: {
     flexDirection: 'row',
-    gap: 14,
-    marginTop: 6,
+    gap: 16,
+    marginTop: 8,
     alignItems: 'center',
-    paddingLeft: 4,
+    paddingLeft: 2,
+    opacity: 0.8,
   },
   messageActionIcon: {
-    padding: 4,
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.05)', 
   },
   boldKeyword: {
     fontSize: 14,
     fontFamily: theme.bold,
-    color: C.primary,
+    color: theme.primary,
   },
 
   // Loading
   loadingContainer: {
     alignItems: "flex-start",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
   },
   loadingVideo: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   resultsLabelContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   resultsText: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: theme.medium,
-    color: C.sub,
+    color: '#8E8E93',
   },
 
   // ── Input bar ──────────────────────────────────────────────────────────────
   inputContainerWrapper: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 0, 
     left: 0,
     right: 0,
-    maxWidth: 768,
-    marginHorizontal: 'auto',
-    // subtle top fade so messages don't hard-cut behind input
-    backgroundColor: C.bg,
-    borderTopWidth: 1,
-    borderTopColor: C.border,
+    backgroundColor: 'transparent', 
+    zIndex: 100,
+    paddingHorizontal: 20, // Increased horizontal padding
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
+    paddingTop: 10,
   },
   inputContainer: {
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 28,
-    backgroundColor: 'transparent',
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    alignItems: 'center', // Changed from flex-end to center to align camera button
+    gap: 12,
+    maxWidth: 600, // Reduced width
+    width: '100%',
+    alignSelf: 'center',
   },
   inputContainerKeyboardOpen: {
-    paddingBottom: 10,
+    paddingBottom: Platform.OS === 'ios' ? 10 : 0, 
   },
   inputWrapper: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 26,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    backgroundColor: C.card,
+    borderRadius: 22, // Slightly smaller radius
+    paddingLeft: 16,
+    paddingRight: 4, 
+    paddingVertical: 2, // Minimal vertical padding
+    backgroundColor: "#1C1C1E", 
     borderWidth: 1,
-    borderColor: C.border,
-    gap: 10,
+    borderColor: "#2C2C2E",
+    minHeight: 44, // Reduced height
   },
   input: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 15, // Slightly smaller font
     fontFamily: theme.regular,
-    color: C.text,
-    paddingVertical: 0,
+    color: "#FFF",
+    paddingTop: Platform.OS === 'ios' ? 12 : 8,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 8, 
+    paddingRight: 8,
+    maxHeight: 35, 
+    textAlignVertical: 'center',
+    outlineStyle: 'none', // Remove web focus border
   } as any,
   cameraButton: {
-    width: 46,
-    height: 46,
+    width: 44, 
+    height: 44,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 23,
-    backgroundColor: C.cardAlt,
+    borderRadius: 22,
+    backgroundColor: "#1C1C1E",
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: "#2C2C2E",
   },
   sendButton: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: C.primary,
+    backgroundColor: "#FFF", 
     justifyContent: "center",
     alignItems: "center",
   },
   sendButtonDisabled: {
-    opacity: 0.25,
+    backgroundColor: "#3A3A3C",
   },
 
   // ── Saved messages modal ───────────────────────────────────────────────────

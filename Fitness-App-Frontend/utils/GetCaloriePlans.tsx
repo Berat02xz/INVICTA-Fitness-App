@@ -25,9 +25,14 @@ export function calculateBMR({
   if (unit === "imperial") {
     weightKg = weight * 0.453592;
     if (typeof height === "string") {
-      const [feet, inches] = height.split("'").map((part) => parseInt(part.trim(), 10));
-      const totalInches = (feet || 0) * 12 + (inches || 0);
-      heightCm = totalInches * 2.54;
+      if (height.includes("'")) {
+        const [feet, inches] = height.split("'").map((part) => parseInt(part.trim(), 10));
+        const totalInches = (feet || 0) * 12 + (inches || 0);
+        heightCm = totalInches * 2.54;
+      } else {
+        const val = parseFloat(height);
+        heightCm = val * 2.54;
+      }
     } else {
       heightCm = height * 2.54;
     }

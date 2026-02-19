@@ -16,16 +16,16 @@ import { theme } from '@/constants/theme';
 
 const { width, height } = Dimensions.get("window");
 
-// Circle colors - beautiful pastel colors
+// Circle colors - dark theme with lime primary and deep green glows
 const circleColors = [
-  '#FFB3BA', // Pastel pink
-  '#FFDFBA', // Pastel peach
-  '#FFFFBA', // Pastel yellow
-  '#BAFFC9', // Pastel mint green
-  '#BAE1FF', // Pastel blue
-  '#E0BBE4', // Pastel lavender
-  '#FFC9DE', // Pastel rose
-  '#C7CEEA', // Pastel periwinkle
+  '#AAFB05', // lime primary — hero glow
+  '#062B0A', // deep primary dark green
+  '#3A7C00', // dark lime mid
+  '#1A4D0A', // forest green
+  '#AAFB05', // lime primary — secondary glow
+  '#0A2204', // near-black green
+  '#6BBF00', // warm lime variant
+  '#062B0A', // deep primary repeat
 ];
 
 interface BlurredBackgroundProps {
@@ -38,9 +38,9 @@ interface BlurredBackgroundProps {
 
 export default function BlurredBackground({ 
   children, 
-  intensity = Platform.OS === 'android' ? 150 : 20,
-  tint = 'light',
-  circleBlur = 120,
+  intensity = Platform.OS === 'android' ? 90 : 55,
+  tint = 'dark',
+  circleBlur = 140,
   animationSpeed = 1
 }: BlurredBackgroundProps) {
   // Simple shared values for circle positions - centered vertically in a horizontal line
@@ -62,35 +62,20 @@ export default function BlurredBackground({
     const startMovement = () => {
       const baseSpeed = 3000 / animationSpeed;
       
-      circle1X.value = withRepeat(
-        withTiming(circle1X.value + 50, { duration: baseSpeed }),
-        -1,
-        true
-      );
+      circle1X.value = withRepeat(withTiming(circle1X.value + 55, { duration: baseSpeed }), -1, true);
+      circle1Y.value = withRepeat(withTiming(circle1Y.value + 70, { duration: baseSpeed * 1.3 }), -1, true);
 
-      circle2X.value = withRepeat(
-        withTiming(circle2X.value - 40, { duration: baseSpeed * 0.9 }),
-        -1,
-        true
-      );
+      circle2X.value = withRepeat(withTiming(circle2X.value - 45, { duration: baseSpeed * 0.9 }), -1, true);
+      circle2Y.value = withRepeat(withTiming(circle2Y.value - 60, { duration: baseSpeed * 1.1 }), -1, true);
 
-      circle3X.value = withRepeat(
-        withTiming(circle3X.value + 60, { duration: baseSpeed * 1.1 }),
-        -1,
-        true
-      );
+      circle3X.value = withRepeat(withTiming(circle3X.value + 65, { duration: baseSpeed * 1.1 }), -1, true);
+      circle3Y.value = withRepeat(withTiming(circle3Y.value + 50, { duration: baseSpeed * 0.95 }), -1, true);
 
-      circle4X.value = withRepeat(
-        withTiming(circle4X.value - 45, { duration: baseSpeed * 0.85 }),
-        -1,
-        true
-      );
+      circle4X.value = withRepeat(withTiming(circle4X.value - 50, { duration: baseSpeed * 0.85 }), -1, true);
+      circle4Y.value = withRepeat(withTiming(circle4Y.value + 80, { duration: baseSpeed * 1.15 }), -1, true);
 
-      circle5X.value = withRepeat(
-        withTiming(circle5X.value + 35, { duration: baseSpeed * 1.2 }),
-        -1,
-        true
-      );
+      circle5X.value = withRepeat(withTiming(circle5X.value + 40, { duration: baseSpeed * 1.2 }), -1, true);
+      circle5Y.value = withRepeat(withTiming(circle5Y.value - 55, { duration: baseSpeed * 1.05 }), -1, true);
     };
 
     startMovement();
@@ -183,7 +168,7 @@ export default function BlurredBackground({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundColor,
+    backgroundColor: '#000000',
   },
   circlesContainer: {
     position: 'absolute',
@@ -196,8 +181,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 800,
     height: 800,
-    borderRadius: 100,
-    opacity: 0.4,
+    borderRadius: 400,
+    opacity: 0.65,
   },
   blurContainer: {
     flex: 1,

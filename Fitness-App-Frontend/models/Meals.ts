@@ -98,8 +98,11 @@ static async DaySuccesfulCalorieIntake(database: Database, userId: string, date?
   // If meals exist, check if total calories are within ±20% of target
   const user = await database.get<User>("user").query(Q.where("user_id", userId)).fetch();
   const caloricIntake = user[0]?.caloricIntake || 0;
-  const totalCalories = await Meal.DaySumCalories(database, userId, targetDate);
-  const lowerBound = caloricIntake * 0.9; // 10% below target
+  // Calculate total calories using the meals we already fetched or helper
+  const totalCalories = meals.reduce((acc, m) => acc + m.calories, 0);
+  
+  // 70% of goal met
+  const lowerBound = caloricIntake * 0.7; 
   return totalCalories > 0 && totalCalories >= lowerBound;
 }
 

@@ -4,6 +4,7 @@ import { getUserIdFromToken } from "@/api/TokenDecoder";
 import RevenueCatService from "@/api/RevenueCatService";
 import { theme } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "react-native";
 import { router } from "expo-router";
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -14,12 +15,156 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
+  Platform,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import BlurredBackground from "@/components/ui/BlurredBackground";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const { width } = Dimensions.get("window");
+
+// ── Design tokens ──────────────────────────────────────────────────
+const C = {
+  bg:      "#000000",
+  card:    "#1C1C1E",
+  cardAlt: "#242426",
+  border:  "#2C2C2E",
+  primary: theme.primary,   // #AAFB05
+  text:    "#FFFFFF",
+  sub:     "#8E8E93",
+  muted:   "#48484A",
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingBottom: Platform.OS === 'ios' ? 48 : 32,
+    alignItems: 'center',
+  },
+  contentWrapper: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 480,
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: Platform.OS === 'ios' ? 48 : 32,
+  },
+  centerSection: {
+    paddingBottom: 32,
+  },
+
+  // ── Header ──────────────────────────────────────────────────────────
+  headerContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  logoImage: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 30,
+    fontFamily: theme.bold,
+    color: C.text,
+    textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 15,
+    fontFamily: theme.regular,
+    color: C.sub,
+    textAlign: 'center',
+  },
+
+  // ── Form fields ──────────────────────────────────────────────────────
+  formContainer: {
+    gap: 16,
+    marginTop: 40,
+  },
+  fieldWrapper: {
+    gap: 8,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    fontFamily: theme.medium,
+    color: C.sub,
+    letterSpacing: 0.3,
+    marginLeft: 4,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: C.card,
+    borderColor: C.border,
+    borderWidth: 1,
+    borderRadius: 30,
+    height: 52,
+    paddingHorizontal: 14,
+    gap: 10,
+  },
+  inputIcon: {
+    opacity: 0.7,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: theme.regular,
+    color: C.text,
+    paddingVertical: 0,
+    outlineStyle: 'none',
+  } as any,
+  eyeIcon: {
+    padding: 4,
+  },
+
+  // ── Bottom / CTA ─────────────────────────────────────────────────────
+  bottomSection: {
+    alignItems: 'center',
+    gap: 20,
+  },
+  loginButton: {
+    backgroundColor: C.primary,
+    borderRadius: 30,
+    height: 54,
+    width: width - 48,
+    maxWidth: 400,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: C.primary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  loadingIcon: {},
+  loginButtonText: {
+    color: '#000000',
+    fontSize: 16,
+    fontFamily: theme.bold,
+  },
+  signupText: {
+    color: C.sub,
+    fontSize: 14,
+    fontFamily: theme.regular,
+    textAlign: 'center',
+  },
+  signupTextHighlight: {
+    color: C.primary,
+    fontFamily: theme.medium,
+  },
+});
 
 export const LoginScreen = () => {
   const [Email, setEmail] = useState<string>("");
@@ -125,189 +270,111 @@ export const LoginScreen = () => {
   return (
     <BlurredBackground intensity={100} circleBlur={50} animationSpeed={1.5}>
       <View style={styles.container}>
-        {/* Title */}
-        <View style={styles.titleContainer}>
+        <View style={styles.contentWrapper}>
+        {/* Header + Form centered */}
+        <View style={styles.centerSection}>
+
+        {/* Header */}
+        <View style={styles.headerContainer}>
           <FadeTranslate order={1}>
-            <Text style={styles.title}>Welcome Back!</Text>
+            <Image
+              source={require('@/assets/images/InvictaLogo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+          </FadeTranslate>
+          <FadeTranslate order={2}>
+            <Text style={styles.title}>Welcome back</Text>
+          </FadeTranslate>
+          <FadeTranslate order={3}>
+            <Text style={styles.subtitle}>Sign in to continue your journey</Text>
           </FadeTranslate>
         </View>
 
         {/* Form */}
         <View style={styles.formContainer}>
-          <FadeTranslate order={2}>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail-outline"
-              size={24}
-              color={theme.textColor}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor={theme.buttonBorder}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              value={Email}
-              onChangeText={setEmail}
-            />
-          </View>
+          <FadeTranslate order={4}>
+            <View style={styles.fieldWrapper}>
+              <Text style={styles.fieldLabel}>Email</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail-outline" size={18} color="#48484A" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="you@example.com"
+                  placeholderTextColor="#48484A"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  value={Email}
+                  onChangeText={setEmail}
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+            </View>
           </FadeTranslate>
-          <FadeTranslate order={3}>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={24}
-              color={theme.textColor}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              secureTextEntry={!showPassword}
-              placeholder="Password"
-              placeholderTextColor={theme.buttonBorder}
-              autoCapitalize="none"
-              autoComplete="password"
-              value={Password}
-              onChangeText={setPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={24}
-                color={theme.textColor}
-              />
-            </TouchableOpacity>
-          </View>
+
+          <FadeTranslate order={5}>
+            <View style={styles.fieldWrapper}>
+              <Text style={styles.fieldLabel}>Password</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed-outline" size={18} color="#48484A" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  secureTextEntry={!showPassword}
+                  placeholder="••••••••"
+                  placeholderTextColor="#48484A"
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  value={Password}
+                  onChangeText={setPassword}
+                  underlineColorAndroid="transparent"
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                  <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={18} color="#8E8E93" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </FadeTranslate>
         </View>
-          
+
+        </View> {/* end centerSection */}
+
         {/* Bottom Section */}
         <View style={styles.bottomSection}>
-          <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-            onPress={handleSubmit}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <View style={styles.loadingContainer}>
-                <Animated.View style={[
-                  styles.loadingIcon,
-                  { transform: [{ rotate: rotateInterpolate }] }
-                ]}>
-                  <Ionicons name="sync-outline" size={20} color="white" />
-                </Animated.View>
-                <Text style={styles.loginButtonText}>Logging in...</Text>
-              </View>
-            ) : (
-              <Text style={styles.loginButtonText}>Log In</Text>
-            )}
-          </TouchableOpacity>
+          <FadeTranslate order={6}>
+            <TouchableOpacity
+              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+              onPress={handleSubmit}
+              disabled={isLoading}
+              activeOpacity={0.85}
+            >
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <Animated.View style={[styles.loadingIcon, { transform: [{ rotate: rotateInterpolate }] }]}>
+                    <Ionicons name="sync-outline" size={18} color="#000000" />
+                  </Animated.View>
+                  <Text style={styles.loginButtonText}>Signing in...</Text>
+                </View>
+              ) : (
+                <Text style={styles.loginButtonText}>Sign In</Text>
+              )}
+            </TouchableOpacity>
+          </FadeTranslate>
 
-          <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")}>
-            <Text style={styles.signupText}>You don't have an account?</Text>
-          </TouchableOpacity>
+          <FadeTranslate order={7}>
+            <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")} activeOpacity={0.7}>
+              <Text style={styles.signupText}>
+                Don't have an account?{" "}
+                <Text style={styles.signupTextHighlight}>Get started</Text>
+              </Text>
+            </TouchableOpacity>
+          </FadeTranslate>
         </View>
+
+        </View> {/* end contentWrapper */}
       </View>
-      
     </BlurredBackground>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  titleContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: theme.fontSize.xxxl,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-    textAlign: 'center',
-  },
-  formContainer: {
-    width: width - 32,
-    maxWidth: 350,
-    gap: 20,
-    marginBottom: 40,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.backgroundColor,
-    borderColor: theme.border,
-    borderWidth: 1,
-    borderRadius: 12,
-    width: '100%',
-  },
-  inputIcon: {
-    marginLeft: 12,
-    marginRight: 5,
-    opacity: 0.6,
-  },
-  input: {
-    flex: 1,
-    height: theme.buttonHeight.lg,
-    paddingHorizontal: 12,
-    fontSize: theme.fontSize.lg,
-    fontFamily: theme.regular,
-    color: theme.textColor,
-  },
-  eyeIcon: {
-    padding: 10,
-  },
-  bottomSection: {
-    position: 'absolute',
-    bottom: 0,
-    width: width - 32,
-    padding: 20,
-    paddingBottom: 40,
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 16,
-  },
-  loginButton: {
-    backgroundColor: theme.primary,
-    paddingVertical: 14,
-    width: 333,
-    height: theme.buttonHeight.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.borderRadius.full,
-    marginBottom: 15,
-  },
-  loginButtonDisabled: {
-    opacity: 0.7,
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingIcon: {
-    marginRight: 8,
-  },
-  loginButtonText: {
-    color: '#ffffff',
-    fontSize: theme.fontSize.lg,
-    fontFamily: theme.bold,
-  },
-  signupText: {
-    color: theme.textColor,
-    fontSize: theme.fontSize.sm,
-    fontFamily: theme.medium,
-    textDecorationLine: 'underline',
-  },
-});
 
 export default LoginScreen;

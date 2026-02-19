@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
@@ -64,9 +65,8 @@ export function TabBar({
 
   // Slide tab bar off-screen when on chatbot, back when leaving
   useEffect(() => {
-    tabBarTranslateY.value = withSpring(isChatbot ? 120 : 0, {
-      damping: 18,
-      stiffness: 120,
+    tabBarTranslateY.value = withTiming(isChatbot ? 120 : 0, {
+      duration: 1000,
     });
   }, [isChatbot]);
 
