@@ -101,12 +101,9 @@ export default function Chatbot() {
   const videoPlayer = useVideoPlayer(selectedVideo, (player) => {
     player.loop = true;
     player.muted = true;
-    player.play();
-  });
-  // Separate video player for loading indicator
-  const loadingVideoPlayer = useVideoPlayer(selectedVideo, (player) => {
-    player.loop = true;
-    player.muted = true;
+    if (Platform.OS === 'web') {
+       player.play();
+    }
   });
   const flatListRef = useRef<FlatList>(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
@@ -137,15 +134,20 @@ export default function Chatbot() {
       };
 
       // Always ensure video plays when screen comes into focus
-      videoPlayer.loop = true;
-      videoPlayer.muted = true;
-      
-      // Small delay to ensure video is ready on web
-      setTimeout(() => {
-        if (mounted) {
-          videoPlayer.play();
-        }
-      }, 100);
+      if (videoPlayer) {
+          videoPlayer.loop = true;
+          videoPlayer.muted = true;
+          // Small delay to ensure video is ready on web
+           if(Platform.OS === 'web'){
+               setTimeout(() => {
+                if (mounted) {
+                  videoPlayer.play();
+                }
+              }, 100);
+           } else {
+               videoPlayer.play();
+           }
+      }
 
       loadUserData();
 
@@ -181,12 +183,11 @@ export default function Chatbot() {
         mounted = false;
         subscription.remove();
         // Pause when leaving screen to ensure clean state on return
-        try {
-          videoPlayer.pause();
-        } catch (error) {
-          // Video player may already be released
-          console.log('Video player cleanup skipped:', error);
-        }
+        // try {
+        //   videoPlayer.pause();
+        // } catch (error) {
+        //   console.log('Video player cleanup skipped:', error);
+        // }
       };
     }, [videoPlayer])
   );
@@ -410,7 +411,7 @@ export default function Chatbot() {
         case 'food':
           out.push(
             <TouchableOpacity key={nextKey()} style={styles.foodPill} activeOpacity={0.7} onPress={() => {}}>
-              <MaterialCommunityIcons name="magnify" size={14} color="#15803D" />
+              <MaterialCommunityIcons name="magnify" size={12} color="#15803D" />
               <Text style={styles.foodPillText}>{collectText(children).trim()}</Text>
             </TouchableOpacity>
           );
@@ -418,7 +419,7 @@ export default function Chatbot() {
         case 'exercise':
           out.push(
             <TouchableOpacity key={nextKey()} style={styles.exercisePill} activeOpacity={0.7} onPress={() => {}}>
-              <MaterialCommunityIcons name="magnify" size={14} color="#C2410C" />
+              <MaterialCommunityIcons name="magnify" size={12} color="#C2410C" />
               <Text style={styles.exercisePillText}>{collectText(children).trim()}</Text>
             </TouchableOpacity>
           );
@@ -765,7 +766,7 @@ export default function Chatbot() {
               onPress={() => navigation.navigate("nutrition")}
               activeOpacity={0.7}
             >
-              <BlurView intensity={40} tint="dark" experimentalBlurMethod="dimezisBlurView" blurReductionFactor={1} style={styles.glassButtonBlur}>
+              <BlurView intensity={40} tint="dark" experimentalBlurMethod={Platform.OS === 'ios' ? 'dimezisBlurView' : undefined} blurReductionFactor={1} style={styles.glassButtonBlur}>
                 <MaterialCommunityIcons name="arrow-left" size={24} color="#8E8E93" />
               </BlurView>
             </TouchableOpacity>
@@ -806,7 +807,7 @@ export default function Chatbot() {
                 onPress={toggleSavedMessages}
                 activeOpacity={0.7}
               >
-                <BlurView intensity={40} tint="dark" experimentalBlurMethod="dimezisBlurView" blurReductionFactor={1} style={styles.glassButtonBlur}>
+                <BlurView intensity={40} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'none' : 'dimezisBlurView'} blurReductionFactor={1} style={styles.glassButtonBlur}>
                   <MaterialCommunityIcons 
                     name="bookmark-outline" 
                     size={24} 
@@ -861,19 +862,15 @@ export default function Chatbot() {
             ListFooterComponent={
               isLoading ? (
                 <View style={styles.loadingContainer}>
-                  <View style={styles.resultsLabelContainer}>
-                    <VideoView
-                      player={loadingVideoPlayer}
-                      style={styles.loadingVideo}
-                      nativeControls={false}
-                      contentFit="contain"
-                      playsInline
-                      onFirstFrameRender={() => {
-                        loadingVideoPlayer.play();
-                      }}
-                    />
-                    <Animated.Text style={[styles.resultsText, { opacity: thinkingOpacity }]}>Thinking</Animated.Text>
-                  </View>
+                  <VideoView
+                    player={videoPlayer}
+                    style={styles.loadingVideo}
+                    nativeControls={false}
+                    contentFit="contain"
+                    allowsFullscreen={false}
+                    allowsPictureInPicture={false}
+                  />
+                  <Animated.Text style={[styles.resultsText, { opacity: thinkingOpacity }]}>Thinking</Animated.Text>
                 </View>
               ) : null
             }
@@ -1245,15 +1242,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     backgroundColor: 'rgba(48,209,88,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
     marginVertical: 2,
     borderWidth: 1,
     borderColor: 'rgba(48,209,88,0.3)',
   },
   foodPillText: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: theme.medium,
     color: '#30D158',
   },
@@ -1262,15 +1259,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     backgroundColor: 'rgba(255,159,10,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
     marginVertical: 2,
     borderWidth: 1,
     borderColor: 'rgba(255,159,10,0.3)',
   },
   exercisePillText: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: theme.medium,
     color: '#FF9F0A',
   },
@@ -1321,13 +1318,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#3A3A3C',
   },
   tableCell: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    width: 110, // Reduced width for more columns
+    paddingVertical: 8, // Reduced padding
+    paddingHorizontal: 8,
     borderRightWidth: 1,
     borderRightColor: '#3A3A3C',
     justifyContent: 'center',
-    minWidth: 120, // Ensure readable width for scrolling
   },
   tableHeaderCell: {
     backgroundColor: '#2C2C2E',
@@ -1335,13 +1331,13 @@ const styles = StyleSheet.create({
   tableHeaderText: {
     fontFamily: theme.bold,
     color: '#E5E5EA',
-    fontSize: 14,
+    fontSize: 11, // Smaller font
   },
   tableText: {
-    fontSize: 14,
+    fontSize: 11, // Smaller font
     fontFamily: theme.regular,
     color: '#D1D1D6',
-    lineHeight: 20,
+    lineHeight: 14, // Smaller line height
   },
 
   // Message action icons (copy/share/bookmark)
@@ -1366,9 +1362,11 @@ const styles = StyleSheet.create({
 
   // Loading
   loadingContainer: {
-    alignItems: "flex-start",
+    flexDirection: 'row', // Align video and text horizontally
+    alignItems: "center", // Vertically center them
     paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
+    gap: 12, // Add some space between video and text
   },
   loadingVideo: {
     width: 28,

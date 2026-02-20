@@ -10,6 +10,7 @@ import WorkoutScreen from "./workout/index";
 import NutritionScreen from "./nutrition/index";
 import ProfileScreen from "./profile/index";
 import { TabBar } from "@/components/ui/TabBarUi/TabBar";
+import { theme } from "@/constants/theme";
 
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +19,7 @@ export default function AppLayout() {
   const isLargeScreen = width > 1400;
 
   return (
-    <View style={{ flex: 1, flexDirection: isLargeScreen ? "row" : "column" }}>
+    <View style={{ flex: 1, flexDirection: isLargeScreen ? "row" : "column", backgroundColor: theme.backgroundColor }}>
       <Tab.Navigator
         initialRouteName="workout"
         tabBar={props =>
@@ -26,6 +27,7 @@ export default function AppLayout() {
             ? <TabBar {...props} vertical />
             : <TabBar {...props} />
         }
+        sceneContainerStyle={{ backgroundColor: theme.backgroundColor }}
         screenOptions={{
           headerShown: false,
           animation: "shift",

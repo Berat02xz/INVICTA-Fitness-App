@@ -1,42 +1,93 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import { router } from "expo-router";
-import { LogoutUser } from "@/api/UserDataEndpoint";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
+import { User } from "@/models/User";
+import database from "@/database/database";
 import { useProStatus } from "@/hooks/useProStatus";
 
+// Design Tokens matching the rest of the app
+const D = {
+  bg: "#000000",
+  primary: "#AAFB05",
+  text: "#FFFFFF",
+  sub: "#666666",
+  card: "#121212",
+  cardAlt: "#1C1C1E",
+};
+
 export default function Workout() {
-  const { isPro, loading } = useProStatus();
+  const insets = useSafeAreaInsets();
+  const { isPro } = useProStatus();
+  const [userData, setUserData] = useState<any>({ name: "User" });
+  const [greeting, setGreeting] = useState<string>("Hello");
+
+  useEffect(() => {
+    loadUserData();
+    determineGreeting();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const user = await User.getUserDetails(database);
+      if (user) {
+        setUserData(user);
+      }
+    } catch (e) {
+      console.log("Error loading user for workout screen", e);
+    }
+  };
+
+  const determineGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 5) setGreeting("Good Night");
+    else if (hour < 12) setGreeting("Good Morning");
+    else if (hour < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome to the Workout Screen!</Text>
+    <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       
-      {/* Show PRO badge if user has PRO */}
-      {isPro && (
-        <View style={styles.proBadge}>
-          <Text style={styles.proBadgeText}>⭐ PRO Member</Text>
+      {/* --- Top Bar --- */}
+      <View style={styles.topBar}>
+        <View style={styles.leftSection}>
+            <TouchableOpacity style={styles.avatarContainer} onPress={() => router.push("/(tabs)/profile")}>
+                <Text style={styles.avatarText}>{userData.name?.substring(0, 2).toUpperCase()}</Text>
+            </TouchableOpacity>
+            <View>
+                <Text style={styles.greetingText}>{greeting},</Text>
+                <Text style={styles.userName}>{userData.name}</Text>
+            </View>
         </View>
-      )}
-      
-      {/* Show upgrade button if not PRO */}
-      {!isPro && !loading && (
+
         <TouchableOpacity 
-          onPress={() => router.push("/(auth)/SubscriptionCheck")} 
-          style={styles.upgradeButton} 
-          activeOpacity={0.7}
+            style={[styles.pill, isPro ? styles.proPill : styles.freePill]} 
+            onPress={() => !isPro && router.push("/(auth)/SubscriptionCheck")}
+            activeOpacity={0.8}
         >
-          <Text style={styles.upgradeButtonText}>🚀 Upgrade to PRO</Text>
+            <Ionicons 
+                name={isPro ? "star" : "lock-closed"} 
+                size={12} 
+                color={isPro ? "#000" : "#FFF"} 
+                style={{marginRight: 4}} 
+            />
+            <Text style={[styles.pillText, !isPro && { color: "#FFF" }]}>
+                {isPro ? "PRO" : "FREE"}
+            </Text>
         </TouchableOpacity>
-      )}
-      
-      <TouchableOpacity 
-        onPress={() => LogoutUser()} 
-        style={styles.logoutButton} 
-        activeOpacity={0.7}
-      >
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Placeholder for future workout content */}
+        <View style={styles.emptyState}>
+            <Ionicons name="barbell-outline" size={48} color={D.cardAlt} />
+            <Text style={styles.emptyText}>Your workout plan will appear here.</Text>
+        </View>
+      </ScrollView>
+
     </View>
   );
 }
@@ -44,51 +95,79 @@ export default function Workout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: D.bg,
+  },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: theme.backgroundColor,
-  },
-  text: {
-    fontSize: theme.fontSize.xl,
-    fontFamily: theme.bold,
-    color: theme.textColor,
-    marginBottom: theme.spacing.lg,
-  },
-  proBadge: {
-    backgroundColor: theme.primary,
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginBottom: theme.spacing.lg,
+    marginBottom: 20,
   },
-  proBadgeText: {
-    color: '#000',
-    fontSize: theme.fontSize.md,
+  leftSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  avatarContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: D.cardAlt,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  avatarText: {
     fontFamily: theme.bold,
+    color: "#FFF",
+    fontSize: 16,
   },
-  upgradeButton: {
-    backgroundColor: theme.primary,
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.md,
+  greetingText: {
+    fontFamily: theme.medium,
+    color: D.sub,
+    fontSize: 12,
   },
-  upgradeButtonText: {
-    color: '#000',
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.semibold,
+  userName: {
+    fontFamily: theme.bold,
+    color: "#FFF",
+    fontSize: 16,
   },
-  logoutButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: theme.primary,
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  logoutButtonText: {
-    color: theme.primary,
-    fontSize: theme.fontSize.md,
-    fontFamily: theme.semibold,
+  proPill: {
+    backgroundColor: D.primary,
+  },
+  freePill: {
+    backgroundColor: "#222",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  pillText: {
+    fontFamily: theme.bold,
+    fontSize: 12,
+    color: "#000",
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  emptyState: {
+    alignItems: "center",
+    marginTop: 100,
+  },
+  emptyText: {
+    color: D.sub,
+    fontFamily: theme.medium,
+    marginTop: 10,
   },
 });

@@ -37,16 +37,18 @@ export async function CheckToken() {
   token = await Storage.getItem('token');
   if (!token || token === 'null') {
     console.log("Token is null or undefined, redirecting to Welcome");
-    router.push("/(auth)/WelcomeScreen");
+    router.replace("/(auth)/WelcomeScreen");
   } else {
-    router.push('/(tabs)/workout');
+    // Check if we are already in tabs to avoid loop/pushing context on top
+    // However, replace is generally safe to reset the current stack item
+    router.replace('/(tabs)/workout');
   }
 }
 
 export async function GetToken(): Promise<string | null> {
   if (!token || token === 'null') {
     console.log("Token is null or undefined, redirecting to Welcome");
-    router.push("/(auth)/WelcomeScreen");
+    router.replace("/(auth)/WelcomeScreen");
     return null;
   }
   return token;

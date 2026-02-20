@@ -15,6 +15,7 @@ import * as Linking from "expo-linking";
 import { getCaloriePlans } from "@/utils/GetCaloriePlans";
 import { LogoutUser } from "@/api/UserDataEndpoint";
 import UnitSwitch from "@/components/ui/UnitSwitch"; // Importing UnitSwitch
+import DevMenu from "@/components/Testing/DevMenu";
 
 const VERSION = "1.0.0";
 
@@ -290,7 +291,7 @@ export default function Profile() {
         {/* -- Header Reference Style -- */}
         <View style={s.headerRow}>
             <View style={s.headerLeft}>
-                <TouchableOpacity><Ionicons name="settings-sharp" size={24} color="#FFF" /></TouchableOpacity>
+                <DevMenu />
                 <TouchableOpacity><Ionicons name="notifications" size={24} color="#FFF" /></TouchableOpacity>
             </View>
             <View style={s.coinPill}>

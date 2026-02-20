@@ -91,7 +91,7 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
                                     styles.loadingIcon,
                                     { transform: [{ rotate: rotateInterpolate }] }
                                 ]}>
-                                    <Ionicons name="sync-outline" size={20} color={theme.textColor} />
+                                    <Ionicons name="sync-outline" size={20} color="#000" />
                                 </Animated.View>
                                 <Text style={styles.text}>{loadingText}</Text>
                             </View>
@@ -119,7 +119,7 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
                                 styles.loadingIcon,
                                 { transform: [{ rotate: rotateInterpolate }] }
                             ]}>
-                                <Ionicons name="sync-outline" size={20} color={theme.textColor} />
+                                <Ionicons name="sync-outline" size={20} color="#000" />
                             </Animated.View>
                             <Text style={styles.text}>{loadingText}</Text>
                         </View>

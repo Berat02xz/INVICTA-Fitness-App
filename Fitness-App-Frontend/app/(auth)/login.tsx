@@ -249,7 +249,7 @@ export const LoginScreen = () => {
           // Don't block login if user data fetch fails
         }
         
-        router.push("/(auth)/SubscriptionCheck");
+        router.replace("/(auth)/SubscriptionCheck");
       }
     } catch (error: any) {
       console.error("Submission error:", error);

@@ -117,7 +117,84 @@ export const AIEndpoint = {
       const url = `${baseURL}/api/AI/AskChat`;
       
       console.log('Streaming to:', url);
-      
+
+      // Common logic to process chunks
+      let buffer = '';
+      const processBuffer = (chunk: string, callback: (chunk: string) => void) => {
+        buffer += chunk;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine) continue;
+          
+          console.log('Processing line:', trimmedLine);
+
+          let jsonStr = trimmedLine;
+          if (trimmedLine.startsWith('data: ')) {
+            jsonStr = trimmedLine.substring(6);
+          }
+          
+          if (!jsonStr.startsWith('{')) {
+            console.log('Skipping non-JSON line:', jsonStr);
+            continue;
+          }
+
+          try {
+            const jsonData = JSON.parse(jsonStr);
+            
+            if (jsonData.type === 'response.output_text.delta' && jsonData.delta) {
+              console.log('>>> DELTA TEXT:', jsonData.delta);
+              callback(jsonData.delta);
+            }
+            
+            if (jsonData.type === 'response.completed') {
+              console.log('>>> STREAM FINISHED');
+            }
+          } catch (parseError) {
+            console.log('JSON parse error for line:', jsonStr, parseError);
+          }
+        }
+      };
+
+      if (Platform.OS !== 'web') {
+        // Native implementation using XMLHttpRequest which handles streaming better on RN
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', url);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          xhr.setRequestHeader('ngrok-skip-browser-warning', 'true');
+          
+          let lastIndex = 0;
+
+          xhr.onprogress = () => {
+             // On Android/iOS xhr.responseText grows
+             const response = xhr.responseText;
+             const newContent = response.substring(lastIndex);
+             lastIndex = response.length;
+             processBuffer(newContent, onChunk);
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve({ answer: 'Stream completed' });
+            } else {
+              reject(new Error(`HTTP ${xhr.status}: ${xhr.responseText}`));
+            }
+          };
+
+          xhr.onerror = (e) => {
+            console.error('XHR Error:', e);
+            reject(new Error('Network request failed'));
+          };
+
+          xhr.send(JSON.stringify({ Question: question }));
+        });
+      }
+
+      // Web implementation
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -142,10 +219,8 @@ export const AIEndpoint = {
 
       console.log('Stream response received, processing...');
       
-      // Read the stream using ReadableStream API
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
-      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -155,65 +230,8 @@ export const AIEndpoint = {
           break;
         }
 
-        // Decode chunk and append to buffer
         const chunk = decoder.decode(value, { stream: true });
-        console.log('Raw chunk received:', chunk);
-        buffer += chunk;
-
-        // Try to parse complete JSON objects from buffer
-        // Backend sends JSON objects separated by newlines
-        const lines = buffer.split('\n');
-        // Keep the last potentially incomplete line in buffer
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          const trimmedLine = line.trim();
-          if (!trimmedLine) continue;
-          
-          console.log('Processing line:', trimmedLine);
-
-          // Handle SSE format with "data: " prefix
-          let jsonStr = trimmedLine;
-          if (trimmedLine.startsWith('data: ')) {
-            jsonStr = trimmedLine.substring(6);
-          }
-          
-          // Skip non-JSON lines
-          if (!jsonStr.startsWith('{')) {
-            console.log('Skipping non-JSON line:', jsonStr);
-            continue;
-          }
-
-          try {
-            const jsonData = JSON.parse(jsonStr);
-            console.log('Parsed JSON type:', jsonData.type);
-            
-            // Check for text delta chunks
-            if (jsonData.type === 'response.output_text.delta' && jsonData.delta) {
-              console.log('>>> DELTA TEXT:', jsonData.delta);
-              onChunk(jsonData.delta);
-            }
-            
-            // Check for completed text (contains full HTML)
-            if (jsonData.type === 'response.output_text.done' && jsonData.text) {
-              console.log('>>> COMPLETE TEXT:', jsonData.text);
-              // Don't send - already sent via deltas
-            }
-            
-            // Check for completion
-            if (jsonData.type === 'response.completed') {
-              console.log('>>> STREAM FINISHED');
-              return { answer: 'Stream completed' };
-            }
-          } catch (parseError) {
-            console.log('JSON parse error for line:', jsonStr, parseError);
-          }
-        }
-      }
-
-      // Process any remaining buffer content
-      if (buffer.trim()) {
-        console.log('Processing remaining buffer:', buffer);
+        processBuffer(chunk, onChunk);
       }
 
       return { answer: 'Stream completed' };

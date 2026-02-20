@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, View, Platform, Animated, Text, Dimensions } from "react-native";
+import { ScrollView, StyleSheet, View, Platform, Animated, Text, Easing, TextInput } from "react-native";
 import ReviewCard from "@/components/ui/Onboarding/ReviewCard";
 import SolidBackground from "@/components/ui/SolidBackground";
 import ButtonFit from "@/components/ui/ButtonFit";
 import { theme } from "@/constants/theme";
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
-import { ProgressChart } from "react-native-chart-kit";
+import Svg, { Circle, G } from "react-native-svg";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedText = Animated.createAnimatedComponent(TextInput);
+
 const reviews = [
   {
     name: "Matt Young",
@@ -44,27 +48,43 @@ const reviews = [
 export default function Reviews() {
   const { goForward } = useOnboarding();
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
-  const [displayedPercentage, setDisplayedPercentage] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  const [showButton, setShowButton] = useState(false);
+  const textInputRef = useRef<TextInput>(null);
 
-  // Animate progress and percentage to 100% over 10 seconds
+  // Circle config
+  const size = 280;
+  const strokeWidth = 15;
+  const radius = 80; // Match previous implementation radius
+  const circumference = 2 * Math.PI * radius;
+
+  // Animate progress to 100% over 10 seconds
   useEffect(() => {
-    const duration = 10000; // 10 seconds
-    const fps = 60;
-    const frames = duration / (1000 / fps);
-    const increment = 100 / frames;
-    let currentValue = 0;
-
-    const interval = setInterval(() => {
-      currentValue += increment;
-      if (currentValue >= 100) {
-        currentValue = 100;
-        clearInterval(interval);
+    // Listener for text update
+    const listenerId = progressAnim.addListener(({ value }) => {
+      const percentage = Math.round(value * 100);
+      if (textInputRef.current) {
+        textInputRef.current.setNativeProps({
+          text: `${percentage}%`,
+        });
       }
-      setDisplayedPercentage(Math.round(currentValue));
-    }, 1000 / fps);
+    });
 
-    return () => clearInterval(interval);
+    Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: 10000,
+      easing: Easing.linear,
+      useNativeDriver: false, // SVG props require JS driver with standard Animated
+    }).start(({ finished }) => {
+      if (finished) {
+        setShowButton(true);
+      }
+    });
+
+    return () => {
+      progressAnim.removeListener(listenerId);
+    };
   }, []);
 
   // Auto-change reviews every 3 seconds with fade transition
@@ -89,6 +109,11 @@ export default function Reviews() {
     return () => clearInterval(interval);
   }, [fadeAnim]);
 
+  const strokeDashoffset = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [circumference, 0],
+  });
+
   return (
     <>
       <SolidBackground />
@@ -105,35 +130,39 @@ export default function Reviews() {
           <FadeTranslate order={1}>
             <View style={styles.circleContainer}>
               <View style={styles.progressChartWrapper}>
-                <ProgressChart
-                  data={{
-                    labels: [""],
-                    data: [displayedPercentage / 100],
-                  }}
-                  width={280}
-                  height={280}
-                  radius={80}
-                  strokeWidth={15}
-                  chartConfig={{
-                    backgroundColor: "transparent",
-                    backgroundGradientFrom: "transparent",
-                    backgroundGradientTo: "transparent",
-                    color: () => theme.primary,
-                    strokeWidth: 15,
-                    barPercentage: 0.5,
-                    propsForBackgroundLines: {
-                      stroke: "#E0E0E0",
-                      strokeWidth: 8,
-                    },
-                    decimalPlaces: 0,
-                  }}
-                  hideLegend
-                  style={styles.progressChart}
-                />
+                <Svg width={size} height={size}>
+                  <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+                    {/* Background Circle */}
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#E0E0E0"
+                      strokeWidth={8} // Thinner background track as per original design? Original had 8
+                      fill="transparent"
+                    />
+                    {/* Progress Circle */}
+                    <AnimatedCircle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke={theme.primary}
+                      strokeWidth={strokeWidth}
+                      fill="transparent"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      strokeLinecap="round"
+                    />
+                  </G>
+                </Svg>
               </View>
-              <Animated.Text style={styles.percentageText}>
-                {displayedPercentage}%
-              </Animated.Text>
+              {/* Use TextInput for high performance updates without re-renders */}
+              <AnimatedText
+                ref={textInputRef}
+                style={styles.percentageText}
+                editable={false}
+                defaultValue="0%"
+              />
             </View>
           </FadeTranslate>
 
@@ -148,13 +177,15 @@ export default function Reviews() {
         </View>
 
         <View style={styles.bottom}>
-          <FadeTranslate order={50} duration={1000} >
-            <ButtonFit
-              title="Continue"
-              backgroundColor={theme.primary}
-              onPress={goForward}
-            />
-          </FadeTranslate>
+          {showButton && (
+            <FadeTranslate order={0} duration={500} animated={true}>
+              <ButtonFit
+                title="Continue"
+                backgroundColor={theme.primary}
+                onPress={goForward}
+              />
+            </FadeTranslate>
+          )}
         </View>
       </View>
     </>
@@ -199,6 +230,9 @@ const styles = StyleSheet.create({
     fontSize: 38,
     fontFamily: theme.bold,
     color: theme.textColor,
+    textAlign: 'center',
+    width: '100%',
+    padding: 0,
   },
   subtextText: {
     fontSize: 20,

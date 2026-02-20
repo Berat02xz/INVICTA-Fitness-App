@@ -7,6 +7,8 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { ActivityIndicator, View, StatusBar, Platform } from "react-native";
 import { theme } from "@/constants/theme";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ThemeProvider, DarkTheme } from "@react-navigation/native";
+import * as SystemUI from 'expo-system-ui';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -22,6 +24,14 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    // Set background color asap to prevent white flash
+    const setBackground = async () => {
+        if (Platform.OS === 'android') {
+            await SystemUI.setBackgroundColorAsync("black");
+        }
+    };
+    setBackground();
+
     if (fontsLoaded) {
       (async () => {
         await RevenueCatService.initialize();
@@ -32,18 +42,28 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.primary }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.backgroundColor }}>
         <ActivityIndicator size="large" color="#000" />
       </View>
     );
   }
 
+  const navTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: theme.backgroundColor,
+    },
+  };
+
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Slot />
-        <Toast />
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
+        <ThemeProvider value={navTheme}>
+          <Slot />
+          <Toast />
+        </ThemeProvider>
       </GestureHandlerRootView>
     </>
   );

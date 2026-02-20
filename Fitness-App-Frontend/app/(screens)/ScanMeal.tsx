@@ -266,13 +266,7 @@ export default function ScanScreen() {
           </BlurView>
         </Pressable>
         
-        {isProcessing && (
-            <View style={styles.statusPill}>
-                <BlurView intensity={30} tint="dark" style={styles.blurPill}>
-                    <Text style={styles.statusText}>Analyzing...</Text>
-                </BlurView>
-            </View>
-        )}
+        {/* Status Pill Removed */}
 
         <View style={styles.countPill}>
             <BlurView intensity={30} tint="dark" style={styles.blurPillCount}>
