@@ -1,6 +1,9 @@
 ﻿import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import React, { useCallback, useState, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ImageBackground, Dimensions } from "react-native";
+import { User } from "@/models/User";
+import { useProStatus } from "@/hooks/useProStatus";
+import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { GetUserDetails } from "@/api/UserDataEndpoint";
@@ -12,6 +15,7 @@ import FadeTranslate from "@/components/ui/FadeTranslate";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import UserDTO from "@/models/DTO/UserDTO";
+import { Pedometer } from "expo-sensors";
 
 // --- Design tokens ------------------------------------------------------------
 const D = {
@@ -154,11 +158,67 @@ function SegmentedCircularProgress({
 // --- Component ----------------------------------------------------------------
 export default function NutritionScreen() {
   const insets = useSafeAreaInsets();
+  const { isPro } = useProStatus();
   const [userData, setUserData] = useState<UserDTO | null>(null);
+  const [localUser, setLocalUser] = useState<any>({ name: "User" });
+  const [greeting, setGreeting] = useState("Hello");
   const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekSuccessData, setWeekSuccessData] = useState<boolean[]>([]);
   const isSuccessfulDay = weekSuccessData[new Date().getDay()] ?? false;
+
+  // Pedometer state
+  const [pedometerAvailable, setPedometerAvailable] = useState(false);
+  const [pedometerSteps, setPedometerSteps] = useState(0);
+
+  // Pedometer effect
+  useEffect(() => {
+    let sub: { remove: () => void } | null = null;
+    let base = 0;
+
+    (async () => {
+      const ok = await Pedometer.isAvailableAsync();
+      setPedometerAvailable(ok);
+      if (!ok) return;
+
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      try {
+        const r = await Pedometer.getStepCountAsync(start, new Date());
+        base = r.steps;
+        setPedometerSteps(base);
+      } catch { /* not supported on all platforms */ }
+
+      sub = Pedometer.watchStepCount((r) => {
+        setPedometerSteps(base + r.steps);
+      });
+    })();
+
+    return () => { sub?.remove(); };
+  }, []);
+
+  // Load local user + greeting
+  useEffect(() => {
+    (async () => {
+      try {
+        const u = await User.getUserDetails(database);
+        if (u) setLocalUser(u);
+      } catch {}
+    })();
+    const h = new Date().getHours();
+    if (h < 5) setGreeting("Good Night");
+    else if (h < 12) setGreeting("Good Morning");
+    else if (h < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
+  }, []);
+
+  // Compute user level from total meals logged
+
+  const getPedometerCalories = () => {
+    const w = userData?.weight ?? 70;
+    const wKg = userData?.unit === "imperial" ? w * 0.453592 : w;
+    return Math.round(pedometerSteps * (wKg / 70) * 0.04);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -259,6 +319,7 @@ export default function NutritionScreen() {
   
   const weekDays = getWeekDays();
   const streak = getStreak(); // Dummy streaks for now if logic is complex
+  const userLevel = Math.max(1, Math.floor(todayMeals.length / 2) + streak + 1);
 
   // Macros
   const proteinTarget = Math.round((targetCalories * DEFAULT_MACRO_SPLIT.protein) / 4);
@@ -275,17 +336,54 @@ export default function NutritionScreen() {
 
   return (
     <View style={s.container}>
+      {/* Top Background Image */}
+      <Image
+        source={require("@/assets/icons/backgrounds/TopBackground.png")}
+        style={s.topBgImage}
+        resizeMode="cover"
+      />
+      <ExpoLinearGradient
+        colors={["transparent", D.bg]}
+        style={s.topBgGradient}
+      />
+
       {isSuccessfulDay && <ConfettiCannon count={12} origin={{ x: -10, y: 0 }} />}
       <ScrollView style={s.scroll} contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 10 }]} showsVerticalScrollIndicator={false}>
         
         {/* Top Bar */}
         <FadeTranslate order={0}>
           <View style={s.topBar}>
-             <Text style={s.screenTitle}>Nutrition</Text>
-             {/* Coins Badge (Replaced Avatar) */}
-             <View style={s.coinPill}>
-                <FontAwesome5 name="coins" size={14} color="#FFD700" />
-                <Text style={s.coinText}>20,710</Text>
+            <View style={s.topBarLeft}>
+              <TouchableOpacity
+                style={s.avatarWrap}
+                onPress={() => router.push("/(tabs)/profile")}
+              >
+                <Text style={s.avatarText}>
+                  {localUser.name?.substring(0, 2).toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+              <View>
+                <Text style={s.greetingText}>{greeting},</Text>
+                <Text style={s.userName}>{localUser.name}</Text>
+              </View>
+            </View>
+
+            <View style={s.topBarRight}>
+              {/* Level badge */}
+              <View style={s.levelBadge}>
+                <View style={s.levelIconWrap}>
+                  <Ionicons name="flash" size={12} color="#000" />
+                </View>
+                <Text style={s.levelText}>Lvl {userLevel}</Text>
+              </View>
+
+              {/* Streak pill */}
+              {streak > 0 && (
+                <View style={s.streakPill}>
+                  <Text style={s.streakEmoji}>🔥</Text>
+                  <Text style={s.streakText}>{streak}</Text>
+                </View>
+              )}
             </View>
           </View>
         </FadeTranslate>
@@ -417,6 +515,46 @@ export default function NutritionScreen() {
           </View>
         </FadeTranslate>
 
+        {/* Pedometer Card */}
+        {pedometerAvailable && (
+          <FadeTranslate order={0.6}>
+            <TouchableOpacity
+              style={s.pedometerCard}
+              activeOpacity={0.8}
+              onPress={() => router.push("../(screens)/Pedometer")}
+            >
+              <ImageBackground
+                source={require("@/assets/icons/backgrounds/image 74.png")}
+                style={s.pedometerBg}
+                imageStyle={s.pedometerBgImage}
+                resizeMode="cover"
+              >
+                <View style={s.pedometerOverlay} />
+
+                {/* Expand icon top-right */}
+                <View style={s.pedometerExpandBtn}>
+                  <Ionicons name="expand-outline" size={18} color="rgba(255,255,255,0.7)" />
+                </View>
+
+                <View style={s.pedometerContent}>
+                  {/* Steps */}
+                  <View style={s.pedometerMainRow}>
+                    <FontAwesome5 name="walking" size={20} color={D.primary} />
+                    <Text style={s.pedometerSteps}>{pedometerSteps.toLocaleString()}</Text>
+                    <Text style={s.pedometerStepsUnit}>steps</Text>
+                  </View>
+
+                  {/* Calories */}
+                  <View style={s.pedometerSubRow}>
+                    <Ionicons name="flame" size={14} color="#FF6B35" />
+                    <Text style={s.pedometerCals}>{getPedometerCalories()} kcal burned</Text>
+                  </View>
+                </View>
+              </ImageBackground>
+            </TouchableOpacity>
+          </FadeTranslate>
+        )}
+
         {/* Actions Row (Scan / Search) */}
         <FadeTranslate order={1}>
             <View style={s.actionsRow}>
@@ -430,7 +568,7 @@ export default function NutritionScreen() {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={s.actionCard} onPress={() => { /* TODO: Search */ }}>
+                <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/SearchFood")}>
                     <View style={[s.actionIconBox, { backgroundColor: "#333" }]}>
                          <Ionicons name="search" size={24} color="#FFF" />
                     </View>
@@ -509,6 +647,22 @@ export default function NutritionScreen() {
 
 const s = StyleSheet.create({
   container:     { flex: 1, backgroundColor: D.bg },
+  topBgImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 1,
+    opacity: 0.4,
+  },
+  topBgGradient: {
+    position: "absolute",
+    top: Dimensions.get("window").height * 1,
+    left: 0,
+    right: 0,
+    height: Dimensions.get("window").height * 1,
+  },
   scroll:        { flex: 1 },
   scrollContent: { 
     paddingHorizontal: 20, 
@@ -518,15 +672,73 @@ const s = StyleSheet.create({
     alignSelf: "center",
   },
   
-  topBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20, marginTop: 8 },
-  screenTitle: { fontSize: 24, fontFamily: theme.black, color: D.text },
-  
-  coinPill: { 
-    flexDirection: "row", alignItems: "center", gap: 6, 
-    backgroundColor: D.card2, borderRadius: 20, 
-    paddingHorizontal: 12, paddingVertical: 8, 
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 8,
   },
-  coinText: { fontSize: 13, fontFamily: theme.bold, color: D.text },
+  topBarLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  avatarWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: D.card2,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  avatarText: { fontFamily: theme.bold, color: "#FFF", fontSize: 16 },
+  greetingText: { fontFamily: theme.medium, color: D.sub, fontSize: 12 },
+  userName: { fontFamily: theme.bold, color: "#FFF", fontSize: 16 },
+  topBarRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  levelBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: D.primaryDim,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  levelIconWrap: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: D.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  levelText: {
+    fontSize: 13,
+    fontFamily: theme.bold,
+    color: D.primary,
+  },
+  streakPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(255,149,0,0.12)",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  streakEmoji: { fontSize: 13 },
+  streakText: {
+    fontSize: 13,
+    fontFamily: theme.bold,
+    color: "#FF9500",
+  },
   
   // Hero
   heroContainer: { 
@@ -622,6 +834,67 @@ const s = StyleSheet.create({
   macroBarFill: { height: "100%", borderRadius: 4 },
 
   
+  // Pedometer Card
+  pedometerCard: {
+    marginBottom: 20,
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  pedometerBg: {
+    width: "100%",
+  },
+  pedometerBgImage: {
+    borderRadius: 20,
+  },
+  pedometerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    borderRadius: 20,
+  },
+  pedometerExpandBtn: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+  pedometerContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+  },
+  pedometerMainRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 10,
+    marginBottom: 6,
+  },
+  pedometerSteps: {
+    fontSize: 32,
+    fontFamily: theme.black,
+    color: "#FFFFFF",
+    letterSpacing: -1,
+  },
+  pedometerStepsUnit: {
+    fontSize: 14,
+    fontFamily: theme.medium,
+    color: "rgba(255,255,255,0.5)",
+  },
+  pedometerSubRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  pedometerCals: {
+    fontSize: 13,
+    fontFamily: theme.semibold,
+    color: "rgba(255,255,255,0.6)",
+  },
+
   // Calendar - Ref style: Dark background for items, solid color for active
   calendarRow: { flexDirection: "row", justifyContent: "space-between", gap: 8, marginBottom: 30 },
   calDay: { 

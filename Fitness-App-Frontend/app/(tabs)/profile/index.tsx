@@ -1,15 +1,18 @@
 
-import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, Alert, Image, KeyboardAvoidingView, Platform } from "react-native";
-import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, Alert, Image, KeyboardAvoidingView, Platform, Dimensions } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { theme } from "@/constants/theme";
 import UserDTO from "@/models/DTO/UserDTO";
 import { User } from "@/models/User";
+import { Meal } from "@/models/Meals";
 import database from "@/database/database";
 import CalculateBMI from "@/utils/CalculateBMI";
 import { useProStatus } from "@/hooks/useProStatus";
+import { getUserIdFromToken } from "@/api/TokenDecoder";
 import Constants from "expo-constants";
 import * as Linking from "expo-linking";
 import { getCaloriePlans } from "@/utils/GetCaloriePlans";
@@ -53,6 +56,9 @@ export default function Profile() {
   const [equipmentModalVisible, setEquipmentModalVisible] = useState(false);
   const [calorieModalVisible, setCalorieModalVisible] = useState(false);
   const [caloriePlans, setCaloriePlans] = useState<any[]>([]);
+  const [greeting, setGreeting] = useState("Hello");
+  const [streak, setStreak] = useState(0);
+  const [totalMeals, setTotalMeals] = useState(0);
 
   const fitnessLevels = ["Beginner", "Intermediate", "Advanced", "Gym Enthusiast"];
   const equipmentOptions = [
@@ -61,9 +67,46 @@ export default function Profile() {
     { label: "Gym Access", value: "Gym Access" },
   ];
 
+  const userLevel = Math.max(1, Math.floor(totalMeals / 2) + streak + 1);
+
   useEffect(() => {
     loadUserData();
+    const h = new Date().getHours();
+    if (h < 5) setGreeting("Good Night");
+    else if (h < 12) setGreeting("Good Morning");
+    else if (h < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      (async () => {
+        try {
+          const userId = await getUserIdFromToken();
+          if (!userId) return;
+          const meals = await Meal.getTodayMeals(database, userId);
+          if (active) setTotalMeals(meals.length);
+
+          const today = new Date();
+          const currentDay = today.getDay();
+          const diff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+          const monday = new Date(today);
+          monday.setDate(diff);
+          let s = 0;
+          for (let i = currentDay; i >= 0; i--) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const ok = await Meal.DaySuccesfulCalorieIntake(database, userId, d);
+            if (ok) s++;
+            else if (i !== currentDay) break;
+          }
+          if (active) setStreak(s);
+        } catch (e) { console.log(e); }
+      })();
+      return () => { active = false; };
+    }, [])
+  );
 
   const loadUserData = async () => {
     try {
@@ -286,18 +329,42 @@ export default function Profile() {
 
   return (
     <View style={s.container}>
+      {/* Top Background Image */}
+      <Image
+        source={require("@/assets/icons/backgrounds/TopBackground.png")}
+        style={s.topBgImage}
+        resizeMode="cover"
+      />
+      <LinearGradient
+        colors={["transparent", D.bg]}
+        style={s.topBgGradient}
+      />
+
       <ScrollView contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 10 }]} showsVerticalScrollIndicator={false}>
         
-        {/* -- Header Reference Style -- */}
-        <View style={s.headerRow}>
-            <View style={s.headerLeft}>
+        {/* -- Top Bar -- */}
+        <View style={s.topBar}>
+            <View style={s.topBarLeft}>
                 <DevMenu />
-                <TouchableOpacity><Ionicons name="notifications" size={24} color="#FFF" /></TouchableOpacity>
+                <TouchableOpacity>
+                   <Ionicons name="notifications-outline" size={24} color="#FFF" />
+                </TouchableOpacity>
             </View>
-            <View style={s.coinPill}>
-                <FontAwesome5 name="coins" size={14} color="#FFD700" />
-                <Text style={s.coinText}>20,710.00</Text>
-                <TouchableOpacity style={s.plusBtn}><Ionicons name="add" size={16} color="#000" /></TouchableOpacity>
+            <View style={s.topBarRight}>
+                {/* Level badge */}
+                <View style={s.levelBadge}>
+                    <View style={s.levelIconWrap}>
+                        <Ionicons name="flash" size={12} color="#000" />
+                    </View>
+                    <Text style={s.levelText}>Lvl {userLevel}</Text>
+                </View>
+                {/* Streak pill */}
+                {streak > 0 && (
+                    <View style={s.streakPill}>
+                        <Text style={s.streakEmoji}>🔥</Text>
+                        <Text style={s.streakText}>{streak}</Text>
+                    </View>
+                )}
             </View>
         </View>
 
@@ -590,6 +657,23 @@ const SimpleModal = ({visible, onClose, title, children}:any) => (
 
 const s = StyleSheet.create({
     container: { flex: 1, backgroundColor: D.bg },
+    topBgImage: {
+      position: "absolute" as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      width: Dimensions.get("window").width,
+      height: Dimensions.get("window").height * 1,
+      opacity: 0.4,
+    },
+    topBgGradient: {
+      position: "absolute" as const,
+      top: Dimensions.get("window").height * 1,
+      left: 0,
+      right: 0,
+      height: Dimensions.get("window").height * 1,
+      zIndex: 1,
+    },
     scrollContent: { 
         paddingHorizontal: 20, 
         paddingBottom: 100,
@@ -599,16 +683,35 @@ const s = StyleSheet.create({
     },
     center: { flex:1, alignItems:"center", justifyContent:"center", backgroundColor:D.bg},
 
-    // Header
-    headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-    headerLeft: { flexDirection: "row", gap: 15 },
-    coinPill: { 
-        flexDirection: "row", alignItems: "center", gap: 8, 
-        backgroundColor: "#1A1A1A", borderRadius: 20, 
-        paddingLeft: 12, paddingRight: 4, paddingVertical: 4
+    // Header / Top Bar
+    topBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20, marginTop: 8 },
+    topBarLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+    avatarWrap: {
+        width: 44, height: 44, borderRadius: 22,
+        backgroundColor: D.cardAlt, alignItems: "center", justifyContent: "center",
+        borderWidth: 1, borderColor: "#333",
     },
-    coinText: { fontSize: 13, fontFamily: theme.bold, color: D.text },
-    plusBtn: { width: 24, height: 24, borderRadius: 12, backgroundColor: D.primary, alignItems: "center", justifyContent: "center" },
+    avatarTextSmall: { fontFamily: theme.bold, color: "#FFF", fontSize: 16 },
+    greetingText: { fontFamily: theme.medium, color: D.sub, fontSize: 12 },
+    topBarName: { fontFamily: theme.bold, color: "#FFF", fontSize: 16 },
+    topBarRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+    levelBadge: {
+        flexDirection: "row", alignItems: "center", gap: 6,
+        backgroundColor: "rgba(170,251,5,0.15)", borderRadius: 20,
+        paddingHorizontal: 12, paddingVertical: 7,
+    },
+    levelIconWrap: {
+        width: 20, height: 20, borderRadius: 10,
+        backgroundColor: D.primary, alignItems: "center", justifyContent: "center",
+    },
+    levelText: { fontSize: 13, fontFamily: theme.bold, color: D.primary },
+    streakPill: {
+        flexDirection: "row", alignItems: "center", gap: 4,
+        backgroundColor: "rgba(255,149,0,0.12)", borderRadius: 20,
+        paddingHorizontal: 10, paddingVertical: 7,
+    },
+    streakEmoji: { fontSize: 13 },
+    streakText: { fontSize: 13, fontFamily: theme.bold, color: "#FF9500" },
 
     // Avatar Area
     profileHeader: { alignItems: "center", marginBottom: 24 },

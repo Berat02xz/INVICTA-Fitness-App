@@ -14,6 +14,10 @@ import { theme } from "@/constants/theme";
 
 const Tab = createBottomTabNavigator();
 
+// Persists across remounts so the correct tab is restored when
+// navigating back from a (screens) route.
+let lastActiveTab = "workout";
+
 export default function AppLayout() {
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 1400;
@@ -21,7 +25,7 @@ export default function AppLayout() {
   return (
     <View style={{ flex: 1, flexDirection: isLargeScreen ? "row" : "column", backgroundColor: theme.backgroundColor }}>
       <Tab.Navigator
-        initialRouteName="workout"
+        initialRouteName={lastActiveTab}
         tabBar={props =>
           isLargeScreen
             ? <TabBar {...props} vertical />
@@ -31,6 +35,14 @@ export default function AppLayout() {
         screenOptions={{
           headerShown: false,
           animation: "shift",
+        }}
+        screenListeners={{
+          state: (e) => {
+            const state = e.data?.state;
+            if (state) {
+              lastActiveTab = state.routes[state.index]?.name ?? "workout";
+            }
+          },
         }}
       >
         <Tab.Screen

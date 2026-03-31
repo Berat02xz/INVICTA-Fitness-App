@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import ConditionalBlurView from './ConditionalBlurView';
 
 interface GlassEffectProps {
   children: React.ReactNode;
   intensity?: number;
   tint?: 'light' | 'dark' | 'default';
-  style?: ViewStyle | ViewStyle[];
+  style?: StyleProp<ViewStyle>;
   variant?: 'button' | 'pill' | 'card' | 'custom';
 }
 

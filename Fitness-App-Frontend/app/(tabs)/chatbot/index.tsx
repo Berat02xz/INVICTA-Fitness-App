@@ -32,6 +32,8 @@ import database from "@/database/database";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { AIEndpoint } from "@/api/AIEndpoint";
 import { SavedMessage } from "@/models/SavedMessage";
+import { ExerciseApi } from "@/api/ExerciseApi";
+import { Linking } from "react-native";
 
 interface Message {
   id: string;
@@ -81,9 +83,12 @@ const THINKING_MESSAGES = [
   "Analyzing your data...",
 ];
 
+// Persist chat messages across component remounts (e.g. navigating to ExerciseDetail and back)
+let _cachedMessages: Message[] = [];
+
 export default function Chatbot() {
   const navigation = useNavigation() as any;
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(_cachedMessages);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -108,6 +113,11 @@ export default function Chatbot() {
   const flatListRef = useRef<FlatList>(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
   const thinkingOpacity = useRef(new Animated.Value(0.4)).current;
+
+  // Keep module-level cache in sync with messages state
+  useEffect(() => {
+    _cachedMessages = messages;
+  }, [messages]);
 
   // Load user data and handle back button/gesture
   useFocusEffect(
@@ -416,14 +426,36 @@ export default function Chatbot() {
             </TouchableOpacity>
           );
           break;
-        case 'exercise':
+        case 'exercise': {
+          const exerciseName = collectText(children).trim();
+          const handleExercisePillPress = async () => {
+            try {
+              const { exercises } = await ExerciseApi.searchExercises(exerciseName, 1);
+              if (exercises.length > 0) {
+                const ex = exercises[0];
+                router.push({
+                  pathname: "/(screens)/ExerciseDetail",
+                  params: {
+                    exerciseId: ex.exerciseId,
+                    name: ex.name,
+                    gifUrl: ex.gifUrl || "",
+                  },
+                });
+              } else {
+                Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exerciseName + " exercise")}`);
+              }
+            } catch {
+              Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exerciseName + " exercise")}`);
+            }
+          };
           out.push(
-            <TouchableOpacity key={nextKey()} style={styles.exercisePill} activeOpacity={0.7} onPress={() => {}}>
+            <TouchableOpacity key={nextKey()} style={styles.exercisePill} activeOpacity={0.7} onPress={handleExercisePillPress}>
               <MaterialCommunityIcons name="magnify" size={12} color="#C2410C" />
-              <Text style={styles.exercisePillText}>{collectText(children).trim()}</Text>
+              <Text style={styles.exercisePillText}>{exerciseName}</Text>
             </TouchableOpacity>
           );
           break;
+        }
         case 'h1':
           out.push(
             <View key={nextKey()} style={styles.h1Container}>
