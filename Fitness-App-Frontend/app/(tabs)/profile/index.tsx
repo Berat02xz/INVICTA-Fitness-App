@@ -19,6 +19,7 @@ import { getCaloriePlans } from "@/utils/GetCaloriePlans";
 import { LogoutUser } from "@/api/UserDataEndpoint";
 import UnitSwitch from "@/components/ui/UnitSwitch"; // Importing UnitSwitch
 import DevMenu from "@/components/Testing/DevMenu";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const VERSION = "1.0.0";
 
@@ -343,128 +344,151 @@ export default function Profile() {
       <ScrollView contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 10 }]} showsVerticalScrollIndicator={false}>
         
         {/* -- Top Bar -- */}
-        <View style={s.topBar}>
-            <View style={s.topBarLeft}>
-                <DevMenu />
-                <TouchableOpacity>
-                   <Ionicons name="notifications-outline" size={24} color="#FFF" />
-                </TouchableOpacity>
-            </View>
-            <View style={s.topBarRight}>
-                {/* Level badge */}
-                <View style={s.levelBadge}>
-                    <View style={s.levelIconWrap}>
-                        <Ionicons name="flash" size={12} color="#000" />
-                    </View>
-                    <Text style={s.levelText}>Lvl {userLevel}</Text>
+        <FadeTranslate order={0}>
+            <View style={s.topBar}>
+                <View style={s.topBarLeft}>
+                    <DevMenu />
+                    <TouchableOpacity>
+                       <Ionicons name="notifications-outline" size={24} color="#FFF" />
+                    </TouchableOpacity>
                 </View>
-                {/* Streak pill */}
-                {streak > 0 && (
-                    <View style={s.streakPill}>
-                        <Text style={s.streakEmoji}>🔥</Text>
-                        <Text style={s.streakText}>{streak}</Text>
-                    </View>
-                )}
+                <View style={s.topBarRight}>
+                    {/* Level badge */}
+                    <TouchableOpacity 
+                      style={s.levelBadge}
+                      activeOpacity={0.8}
+                      onPress={() => router.push("/(screens)/Roadmap")}
+                    >
+                        <View style={s.levelIconWrap}>
+                            <Ionicons name="flash" size={12} color="#000" />
+                        </View>
+                        <Text style={s.levelText}>Lvl {userLevel}</Text>
+                    </TouchableOpacity>
+                    {/* Streak pill */}
+                    {streak > 0 && (
+                        <View style={s.streakPill}>
+                            <Text style={s.streakEmoji}>🔥</Text>
+                            <Text style={s.streakText}>{streak}</Text>
+                        </View>
+                    )}
+                </View>
             </View>
-        </View>
+        </FadeTranslate>
 
         {/* -- Avatar & Profile Info -- */}
-        <View style={s.profileHeader}>
-            <View style={s.avatarContainer}>
-                {/* Dashed Ring */}
-                <View style={s.dashRing} />
-                <View style={s.avatarCircle}>
-                   <Text style={s.avatarInitials}>{userData?.name?.substring(0,2).toUpperCase()}</Text>
+        <FadeTranslate order={0.1} delay={50}>
+            <View style={s.profileHeader}>
+                <View style={s.avatarContainer}>
+                    {/* Dashed Ring */}
+                    <View style={s.dashRing} />
+                    <View style={s.avatarCircle}>
+                       <Text style={s.avatarInitials}>{userData?.name?.substring(0,2).toUpperCase()}</Text>
+                    </View>
                 </View>
-            </View>
-            <Text style={s.userName}>{userData?.name || "User"}</Text>
-            <Text style={s.userHandle}>@{userData?.email?.split("@")[0] || "handle"}</Text>
-        </View>
-
-        {/* -- 3 Stats Row (Clickable) -- */}
-        <View style={s.statsRow}>
-            <TouchableOpacity style={s.statItem} onPress={() => setWeightModalVisible(true)}>
-                <Ionicons name="scale-outline" size={20} color={D.primary} style={{marginBottom:4}} />
-                <Text style={s.statVal}>{formatWeight()}</Text>
-                <Text style={s.statLabel}>Weight {userData?.unit === "metric" ? "(kg)" : "(lbs)"}</Text>
-            </TouchableOpacity>
-            <View style={s.vertDiv} />
-            <TouchableOpacity style={s.statItem} onPress={() => {
-                // Pre-fill
-                if (userData.unit === "imperial") {
-                    const total = parseFloat(userData.height);
-                    setAdjustedHeightFeet(Math.floor(total/12));
-                    setAdjustedHeightInches(Math.round(total%12));
-                } else {
-                    setAdjustedHeightCm(parseFloat(userData.height));
-                }
-                setHeightModalVisible(true);
-            }}>
-                <Ionicons name="resize-outline" size={20} color={D.primary} style={{marginBottom:4}}/>
-                <Text style={s.statVal}>{formatHeight()}</Text>
-                <Text style={s.statLabel}>Height</Text>
-            </TouchableOpacity>
-            <View style={s.vertDiv} />
-            <TouchableOpacity style={s.statItem} onPress={() => {
-                setAdjustedAge(userData.age);
-                setAgeModalVisible(true);
-            }}>
-                <Ionicons name="calendar-outline" size={20} color={D.primary} style={{marginBottom:4}} />
-                <Text style={s.statVal}>{userData?.age} yrs</Text>
-                <Text style={s.statLabel}>Age</Text>
-            </TouchableOpacity>
-        </View>
-
-        {/* -- "Keep It Up" / Pro Banner (Mimicking the trophy card) -- */}
-        <TouchableOpacity style={s.proCard} onPress={() => !isPro && router.push("/(auth)/SubscriptionCheck")}>
-            <View style={{flex:1}}>
-                <Text style={s.proTitle}>{isPro ? "Premium Active" : "Go Pro"}</Text>
-                <Text style={s.proSub}>{isPro ? "You have access to all features." : "Unlock advanced AI features."}</Text>
-                <View style={s.dotsRow}>
-                    <View style={[s.dot, s.dotActive]} />
-                    <View style={s.dot} /><View style={s.dot} />
+                <View style={s.nameRow}>
+                    <Text style={s.userName}>{userData?.name || "User"}</Text>
+                    {isPro && (
+                        <View style={s.proTag}>
+                            <Ionicons name="star" size={10} color={D.primary} />
+                            <Text style={s.proTagText}>PRO</Text>
+                        </View>
+                    )}
                 </View>
+                <Text style={s.userHandle}>@{userData?.email?.split("@")[0] || "handle"}</Text>
             </View>
-            <Ionicons name="trophy" size={48} color={D.primary} />
-        </TouchableOpacity>
+
+            {/* -- 3 Stats Row (Clickable) -- */}
+            <View style={s.statsRow}>
+                <TouchableOpacity style={s.statItem} onPress={() => setWeightModalVisible(true)}>
+                    <Ionicons name="scale-outline" size={20} color={D.primary} style={{marginBottom:4}} />
+                    <Text style={s.statVal}>{formatWeight()}</Text>
+                    <Text style={s.statLabel}>Weight {userData?.unit === "metric" ? "(kg)" : "(lbs)"}</Text>
+                </TouchableOpacity>
+                <View style={s.vertDiv} />
+                <TouchableOpacity style={s.statItem} onPress={() => {
+                    // Pre-fill
+                    if (userData.unit === "imperial") {
+                        const total = parseFloat(userData.height);
+                        setAdjustedHeightFeet(Math.floor(total/12));
+                        setAdjustedHeightInches(Math.round(total%12));
+                    } else {
+                        setAdjustedHeightCm(parseFloat(userData.height));
+                    }
+                    setHeightModalVisible(true);
+                }}>
+                    <Ionicons name="resize-outline" size={20} color={D.primary} style={{marginBottom:4}}/>
+                    <Text style={s.statVal}>{formatHeight()}</Text>
+                    <Text style={s.statLabel}>Height</Text>
+                </TouchableOpacity>
+                <View style={s.vertDiv} />
+                <TouchableOpacity style={s.statItem} onPress={() => {
+                    setAdjustedAge(userData.age);
+                    setAgeModalVisible(true);
+                }}>
+                    <Ionicons name="calendar-outline" size={20} color={D.primary} style={{marginBottom:4}} />
+                    <Text style={s.statVal}>{userData?.age} yrs</Text>
+                    <Text style={s.statLabel}>Age</Text>
+                </TouchableOpacity>
+            </View>
+        </FadeTranslate>
 
         {/* -- Settings Grid (Replacing Calendar/Friends) -- */}
-        <Text style={s.sectionTitle}>Fitness Details</Text>
-        <View style={s.grid}>
-             <GridItem 
-                icon="barbell" 
-                label="Fitness Level" 
-                value={userData?.fitnessLevel} 
-                onPress={() => setFitnessLevelModalVisible(true)} 
-             />
-             <GridItem 
-                icon="fitness" 
-                label="Equipment" 
-                value={userData?.equipmentAccess} 
-                onPress={() => setEquipmentModalVisible(true)}
-            />
-             <GridItem 
-                icon="flame" 
-                label="Calories" 
-                value={`${userData?.caloricIntake}`} 
-                onPress={() => {
-                    refreshCaloriePlans(userData);
-                    setCalorieModalVisible(true);
-                }} 
-            />
-             <GridItem 
-                icon="body" 
-                label="BMI" 
-                value={userData?.bmi ? Number(userData.bmi).toFixed(1) : "-"} 
-            />
-        </View>
+        <FadeTranslate order={0.2} delay={150}>
+            <Text style={s.sectionTitle}>Fitness Details</Text>
+            <View style={s.grid}>
+                 <GridItem 
+                    icon="barbell" 
+                    label="Fitness Level" 
+                    value={userData?.fitnessLevel} 
+                    onPress={() => setFitnessLevelModalVisible(true)}
+                 />
+                 <GridItem 
+                    icon="fitness" 
+                    label="Equipment" 
+                    value={userData?.equipmentAccess} 
+                    onPress={() => setEquipmentModalVisible(true)}
+                />
+                 <GridItem 
+                    icon="flame" 
+                    label="Calories" 
+                    value={`${userData?.caloricIntake}`} 
+                    onPress={() => {
+                        refreshCaloriePlans(userData);
+                        setCalorieModalVisible(true);
+                    }} 
+                />
+                 <GridItem 
+                    icon="body" 
+                    label="BMI" 
+                    value={userData?.bmi ? Number(userData.bmi).toFixed(1) : "-"} 
+                />
+            </View>
+        </FadeTranslate>
 
-        <Text style={s.sectionTitle}>Account</Text>
-        <TouchableOpacity style={s.logoutRow} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color="#FF453A" />
-            <Text style={s.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
+        <FadeTranslate order={0.3} delay={250}>
+            <Text style={s.sectionTitle}>Account</Text>
+            
+            {isPro ? (
+                <View style={s.proAccountBtn}>
+                    <Ionicons name="star" size={20} color={D.primary} />
+                    <Text style={s.proAccountText}>Pro Member</Text>
+                </View>
+            ) : (
+                <TouchableOpacity 
+                    style={s.upgradeAccountBtn} 
+                    activeOpacity={0.8}
+                    onPress={() => router.push("/(auth)/SubscriptionCheck")}
+                >
+                    <Ionicons name="sparkles" size={20} color="#000" />
+                    <Text style={s.upgradeAccountText}>Upgrade to Pro</Text>
+                </TouchableOpacity>
+            )}
 
+            <TouchableOpacity style={s.logoutRow} onPress={handleLogout}>
+                <Ionicons name="log-out-outline" size={20} color="#FF453A" />
+                <Text style={s.logoutText}>Sign Out</Text>
+            </TouchableOpacity>
+        </FadeTranslate>
       </ScrollView>
 
        {/* -- Modals -- */}
@@ -725,8 +749,27 @@ const s = StyleSheet.create({
         backgroundColor: "#222", alignItems: "center", justifyContent: "center" 
     },
     avatarInitials: { fontSize: 32, fontFamily: theme.bold, color: "#FFF" },
-    userName: { fontSize: 22, fontFamily: theme.bold, color: D.text, marginBottom: 2 },
-    userHandle: { fontSize: 13, fontFamily: theme.medium, color: D.sub },
+    nameRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 2 },
+    userName: { fontSize: 24, fontFamily: theme.black, color: D.text },
+    userHandle: { fontSize: 13, fontFamily: theme.medium, color: D.sub, marginBottom: 12 },
+    proTag: { 
+        paddingHorizontal: 6, 
+        paddingVertical: 2, 
+        borderRadius: 6, 
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: D.primary,
+        backgroundColor: "rgba(170,251,5,0.15)",
+        gap: 2,
+    },
+    proTagText: { 
+        fontSize: 10, 
+        fontFamily: theme.bold, 
+        letterSpacing: 0.5,
+        color: D.primary,
+    },
 
     // Stats Row
     statsRow: { 
@@ -760,6 +803,21 @@ const s = StyleSheet.create({
     gridIconCircle: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#2A2A2A", alignItems: "center", justifyContent: "center" },
     gridLabel: { fontSize: 12, color: D.sub, fontFamily: theme.medium },
     gridValue: { fontSize: 14, color: "#FFF", fontFamily: theme.bold },
+
+    proAccountBtn: {
+        flexDirection: "row", alignItems: "center", gap: 10,
+        backgroundColor: "rgba(170,251,5,0.15)", padding: 16, borderRadius: 16,
+        marginBottom: 12,
+        borderWidth: 1, borderColor: D.primary,
+    },
+    proAccountText: { fontSize: 15, fontFamily: theme.bold, color: D.primary },
+    
+    upgradeAccountBtn: {
+        flexDirection: "row", alignItems: "center", gap: 10,
+        backgroundColor: D.primary, padding: 16, borderRadius: 16,
+        marginBottom: 12,
+    },
+    upgradeAccountText: { fontSize: 15, fontFamily: theme.bold, color: "#000" },
 
     logoutRow: { 
         flexDirection: "row", alignItems: "center", gap: 10, 

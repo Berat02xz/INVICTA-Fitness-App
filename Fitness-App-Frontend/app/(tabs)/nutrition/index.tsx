@@ -350,32 +350,34 @@ export default function NutritionScreen() {
       {isSuccessfulDay && <ConfettiCannon count={12} origin={{ x: -10, y: 0 }} />}
       <ScrollView style={s.scroll} contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 10 }]} showsVerticalScrollIndicator={false}>
         
-        {/* Top Bar */}
+        {/* Top Header matching Workout Page */}
         <FadeTranslate order={0}>
           <View style={s.topBar}>
             <View style={s.topBarLeft}>
               <TouchableOpacity
                 style={s.avatarWrap}
                 onPress={() => router.push("/(tabs)/profile")}
+                activeOpacity={0.8}
               >
                 <Text style={s.avatarText}>
-                  {localUser.name?.substring(0, 2).toUpperCase()}
+                  {localUser.name?.substring(0, 1).toUpperCase()}
                 </Text>
               </TouchableOpacity>
-              <View>
-                <Text style={s.greetingText}>{greeting},</Text>
-                <Text style={s.userName}>{localUser.name}</Text>
-              </View>
+              <Text style={s.greetingText}>{greeting}</Text>
             </View>
 
             <View style={s.topBarRight}>
               {/* Level badge */}
-              <View style={s.levelBadge}>
+              <TouchableOpacity 
+                style={s.levelBadge}
+                activeOpacity={0.8}
+                onPress={() => router.push("/(screens)/Roadmap")}
+              >
                 <View style={s.levelIconWrap}>
                   <Ionicons name="flash" size={12} color="#000" />
                 </View>
                 <Text style={s.levelText}>Lvl {userLevel}</Text>
-              </View>
+              </TouchableOpacity>
 
               {/* Streak pill */}
               {streak > 0 && (
@@ -522,45 +524,47 @@ export default function NutritionScreen() {
         )}
 
         {/* Calendar Strip - No Border Lines */}
-        <FadeTranslate order={0.4}>
-          <View style={s.calendarRow}>
-            {weekDays.map((day, i) => {
-                const isSuccess = weekSuccessData[i] || false;
-                const isPast = day.dayNumber < new Date().getDate(); // Simplified check (might fail month transitions but acceptable for now)
-                
-                return (
-                    <View 
-                        key={i} 
-                        style={[
-                            s.calDay, 
-                            day.isToday && s.calDayActive,
-                            ((!day.isToday && isSuccess) || (isPast && isSuccess)) && { 
-                                backgroundColor: "rgba(170,251,5,0.15)", // Deep primary (dimmed)
-                                borderColor: D.primary,
-                                borderWidth: 0.5
-                            }
-                        ]}
-                    >
-                        <Text style={[
-                            s.calName, 
-                            day.isToday && { color: "#000" },
-                            (!day.isToday && isSuccess) && { color: D.primary }
-                        ]}>
-                            {day.dayName}
-                        </Text>
-                        
-                        <Text style={[
-                            s.calNum, 
-                            day.isToday && { color: "#000" },
-                            (!day.isToday && isSuccess) && { color: D.primary }
-                        ]}>
-                            {day.dayNumber}
-                        </Text>
-                    </View>
-                );
-            })}
-          </View>
-        </FadeTranslate>
+        {todayMeals.length === 0 && (
+          <FadeTranslate order={0.4}>
+            <View style={s.calendarRow}>
+              {weekDays.map((day, i) => {
+                  const isSuccess = weekSuccessData[i] || false;
+                  const isPast = day.dayNumber < new Date().getDate(); // Simplified check (might fail month transitions but acceptable for now)
+                  
+                  return (
+                      <View 
+                          key={i} 
+                          style={[
+                              s.calDay, 
+                              day.isToday && s.calDayActive,
+                              ((!day.isToday && isSuccess) || (isPast && isSuccess)) && { 
+                                  backgroundColor: "rgba(170,251,5,0.15)", // Deep primary (dimmed)
+                                  borderColor: D.primary,
+                                  borderWidth: 0.5
+                              }
+                          ]}
+                      >
+                          <Text style={[
+                              s.calName, 
+                              day.isToday && { color: "#000" },
+                              (!day.isToday && isSuccess) && { color: D.primary }
+                          ]}>
+                              {day.dayName}
+                          </Text>
+                          
+                          <Text style={[
+                              s.calNum, 
+                              day.isToday && { color: "#000" },
+                              (!day.isToday && isSuccess) && { color: D.primary }
+                          ]}>
+                              {day.dayNumber}
+                          </Text>
+                      </View>
+                  );
+              })}
+            </View>
+          </FadeTranslate>
+        )}
 
         {/* Pedometer Card */}
         {pedometerAvailable && (
@@ -725,18 +729,20 @@ const s = StyleSheet.create({
     gap: 12,
   },
   avatarWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: D.card2,
-    alignItems: "center",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: D.primary,
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#333",
+    alignItems: "center",
   },
-  avatarText: { fontFamily: theme.bold, color: "#FFF", fontSize: 16 },
-  greetingText: { fontFamily: theme.medium, color: D.sub, fontSize: 12 },
-  userName: { fontFamily: theme.bold, color: "#FFF", fontSize: 16 },
+  avatarText: { fontFamily: theme.bold, color: "#000", fontSize: 16 },
+  greetingText: {
+    color: '#fff',
+    fontFamily: theme.bold,
+    fontSize: 22,
+    letterSpacing: -0.5,
+  },
   topBarRight: {
     flexDirection: "row",
     alignItems: "center",

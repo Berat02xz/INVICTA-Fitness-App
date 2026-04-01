@@ -92,6 +92,23 @@ export default function WorkoutPlayer() {
   const [exerciseInfo, setExerciseInfo] = useState<ExerciseInfo | null>(null);
   const [infoLoading, setInfoLoading] = useState(false);
 
+  const [showHypeOverlay, setShowHypeOverlay] = useState(true);
+  const hypeOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Keep overlay for 2 seconds, then animate out over 1 second
+    const timer = setTimeout(() => {
+      Animated.timing(hypeOpacity, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowHypeOverlay(false);
+      });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Fetch exercise info & check like status when exercise changes
   useEffect(() => {
     if (currentExercise?.exerciseId) {
@@ -482,8 +499,24 @@ export default function WorkoutPlayer() {
     <View style={{flex: 1, backgroundColor: '#000000'}}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
         
+        {/* HYPE OVERLAY */}
+        {showHypeOverlay && (
+          <Animated.View style={[StyleSheet.absoluteFill, { zIndex: 9999, opacity: hypeOpacity }]}>
+            <BlurView intensity={120} experimentalBlurMethod="dimezisBlurView" tint="dark" style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
+              <FadeTranslate order={0} translateYFrom={20}>
+                <Text style={{ fontFamily: theme.black, fontSize: 44, fontWeight: "900", color: "#fff", textAlign: "center" }}>
+                  Ready to Start?
+                </Text>
+                <Text style={{ fontFamily: theme.bold, fontSize: 18, color: D.primary, textAlign: "center", marginTop: 12 }}>
+                  Let&apos;s get this workout!
+                </Text>
+              </FadeTranslate>
+            </BlurView>
+          </Animated.View>
+        )}
+
         {/* TOP HEADER */}
-        <View style={[styles.topToggleRow, { justifyContent: 'flex-start', paddingHorizontal: 24, gap: 16 }]}>
+        <FadeTranslate order={0} direction="y" translateYFrom={-20} style={[styles.topToggleRow, { justifyContent: 'flex-start', paddingHorizontal: 24, gap: 16 }]}>
            <Pressable onPress={() => router.back()} style={{ zIndex: 10 }}>
               <Ionicons name="chevron-down" size={32} color="#fff" />
            </Pressable>
@@ -515,7 +548,7 @@ export default function WorkoutPlayer() {
                  }} />
              </View>
            </View>
-        </View>
+        </FadeTranslate>
 
         <Animated.View
           style={[
@@ -585,7 +618,7 @@ export default function WorkoutPlayer() {
               }
 
               return (
-                <View style={styles.restContainer}>
+                <FadeTranslate order={0.2} delay={100} style={styles.restContainer}>
                   {socialProofVisible && (
                     <View style={styles.socialProofRow}>
                       <View style={styles.socialAvatarStack}>
@@ -644,12 +677,17 @@ export default function WorkoutPlayer() {
                       </Pressable>
                     </View>
                   </View>
-                </View>
+                </FadeTranslate>
               );
             })()
           ) : (
             currentExercise && (
-              <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+              <FadeTranslate order={0.2} delay={100} style={{ flex: 1 }}>
+              <ScrollView 
+                style={{ flex: 1 }} 
+                contentContainerStyle={{ flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+              >
                 <View style={styles.ytContainer}>
                     {/* ARTWORK */}
                     <View style={styles.ytArtwork}>
@@ -757,6 +795,7 @@ export default function WorkoutPlayer() {
                   )}
                 </View>
               </ScrollView>
+              </FadeTranslate>
             )
           )}
         </Animated.View>
@@ -772,7 +811,10 @@ export default function WorkoutPlayer() {
             if (index === -1) setActiveSheet(null);
           }}
         >
-          <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
+          <BottomSheetScrollView 
+            contentContainerStyle={styles.sheetContent}
+            showsVerticalScrollIndicator={false}
+          >
             {activeSheet === "upNext" && (
               <View>
                 <Text style={styles.sheetTitle}>Up Next in Route</Text>
@@ -1290,12 +1332,6 @@ const styles = StyleSheet.create({
   sheetContent: {
     padding: 24,
   },
-  sheetTitle: {
-    color: D.white,
-    fontSize: 24,
-    fontFamily: theme.bold,
-    marginBottom: 20,
-  },
   sheetExerciseRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1325,52 +1361,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
-  sheetDescText: {
-    color: D.textRef,
-    fontSize: 16,
-    fontFamily: theme.medium,
-    lineHeight: 24,
-  },
   breathingCircle: {
     position: 'absolute',
     borderRadius: 999,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    marginBottom: 4,
-  },
-  stepLineContainer: {
-    width: 36,
-    alignItems: 'center',
-  },
-  stepNumberWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: D.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepNumber: {
-    color: D.bg,
-    fontFamily: theme.bold,
-    fontSize: 13,
-  },
-  stepLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: 'rgba(170,251,5,0.25)',
-    marginVertical: 4,
-  },
-  stepTextContainer: {
-    flex: 1,
-    paddingLeft: 14,
-    paddingBottom: 18,
-  },
-  stepText: {
-    color: D.textRef,
-    fontFamily: theme.medium,
-    fontSize: 15,
-    lineHeight: 22,
   },
 });

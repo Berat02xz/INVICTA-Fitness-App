@@ -128,7 +128,7 @@ export default function SearchFoodScreen() {
         style={s.bgGradient}
       />
       
-      <View style={{ paddingTop: insets.top, flex: 1 }}>
+      <View style={{ paddingTop: insets.top + 10, flex: 1 }}>
         {/* Top bar */}
         <View style={s.topBar}>
           <TouchableOpacity

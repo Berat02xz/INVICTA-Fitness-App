@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { ROUTINES } from "@/constants/workoutRoutines";
+import FadeTranslate from "@/components/ui/FadeTranslate";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -78,27 +79,31 @@ export default function RoutineDetail() {
         <Ionicons name="chevron-back" size={24} color={D.text} />
       </TouchableOpacity>
 
+      {/* Fixed Background Header */}
+      <View style={[s.heroWrap, { position: "absolute", top: 0, left: 0, right: 0 }]}>
+        <LinearGradient
+          colors={routine.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={s.heroGradient}
+        />
+        <Text style={s.heroEmoji}>{routine.emoji}</Text>
+      </View>
+
       <ScrollView
         style={s.scroll}
         contentContainerStyle={[s.scrollContent, { paddingBottom: 100 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        {/* Dynamic Header */}
-        <View style={s.heroWrap}>
-          <LinearGradient
-            colors={routine.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={s.heroGradient}
-          />
-          <Text style={s.heroEmoji}>{routine.emoji}</Text>
-        </View>
+        {/* Transparent Spacer to push the bottom sheet down */}
+        <View style={{ height: SCREEN_W * 0.85 }} />
 
         {/* Content Wrapper */}
         <View style={s.contentWrapper}>
           <View style={s.contentHandle} />
 
+          <FadeTranslate order={0}>
           {/* Top minimal stats */}
           <View style={s.topStatsRow}>
             <View style={s.topStatItem}>
@@ -133,13 +138,16 @@ export default function RoutineDetail() {
               </View>
             ))}
           </View>
+          </FadeTranslate>
 
           {/* Exercises List */}
           <View style={s.exercisesSection}>
+            <FadeTranslate order={0.1}>
             <Text style={s.sectionTitle}>Exercises</Text>
+            </FadeTranslate>
             {routine.exercises.map((ex, i) => (
+              <FadeTranslate key={i} delay={150 + (i * 100)} order={0.2} direction="y" translateYFrom={20}>
               <TouchableOpacity
-                key={i}
                 style={s.exerciseItem}
                 activeOpacity={0.7}
                 onPress={() => handleExercisePress(ex)}
@@ -159,6 +167,7 @@ export default function RoutineDetail() {
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={D.muted} />
               </TouchableOpacity>
+              </FadeTranslate>
             ))}
           </View>
         </View>
@@ -171,10 +180,12 @@ export default function RoutineDetail() {
           style={StyleSheet.absoluteFillObject}
           pointerEvents="none"
         />
-        <TouchableOpacity style={s.startBtn} activeOpacity={0.8} onPress={handleStartRoutine}>
-          <Text style={s.startBtnText}>Start Workout</Text>
-          <Ionicons name="arrow-forward" size={20} color="#000" style={{ marginLeft: 8, marginTop: 2 }} />
-        </TouchableOpacity>
+        <FadeTranslate order={0.4} delay={500} translateYFrom={40} style={{ width: '100%' }}>
+          <TouchableOpacity style={s.startBtn} activeOpacity={0.8} onPress={handleStartRoutine}>
+            <Text style={s.startBtnText}>Start Workout</Text>
+            <Ionicons name="arrow-forward" size={20} color="#000" style={{ marginLeft: 8, marginTop: 2 }} />
+          </TouchableOpacity>
+        </FadeTranslate>
       </View>
     </View>
   );
@@ -278,7 +289,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(79,195,247,0.12)",
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: "rgba(79,195,247,0.3)",
   },
@@ -291,7 +302,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(255,183,77,0.12)",
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: "rgba(255,183,77,0.3)",
   },

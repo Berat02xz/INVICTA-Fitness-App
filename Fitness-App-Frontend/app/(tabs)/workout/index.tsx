@@ -14,6 +14,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { theme } from "@/constants/theme";
 import { User } from "@/models/User";
 import { Meal } from "@/models/Meals";
@@ -247,38 +248,69 @@ export default function Workout() {
               <Text style={s.greetingText}>{greeting}</Text>
             </View>
             <View style={s.headerRight}>
-              <View style={s.levelBadge}>
+              <TouchableOpacity 
+                style={s.levelBadge} 
+                activeOpacity={0.8}
+                onPress={() => router.push("/(screens)/Roadmap")}
+              >
                 <View style={s.levelIconWrap}>
                   <Ionicons name="flash" size={12} color="#000" />
                 </View>
                 <Text style={s.levelText}>Lvl {userLevel}</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </FadeTranslate>
 
         {/* Weekly Activity Area */}
         <FadeTranslate order={0.1}>
-           <View style={s.weekCard}>
-             {weekDays.map((day, i) => {
-               const success = weekSuccessData[i];
-               return (
-                 <View key={i} style={s.weekDayCol}>
-                    <Text style={[s.weekDayLtr, day.isToday && s.weekDayLtrToday]}>{day.dayName.charAt(0)}</Text>
+          <BlurView intensity={70} experimentalBlurMethod="dimezisBlurView" tint="dark" style={s.streakContainer}>
+            <View style={s.streakHeader}>
+              <View style={s.streakLeft}>
+                <View style={s.fireIconWrap}>
+                  <Ionicons name="flame" size={20} color={D.primary} />
+                </View>
+                <View>
+                  <Text style={s.streakTitle}>{streak} Day Streak</Text>
+                  <Text style={s.streakSub}>{streak > 0 ? "You're on fire! Keep it up." : "Let's build that habit!"}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={s.weekCard}>
+              {weekDays.map((day, i) => {
+                const success = weekSuccessData[i];
+                return (
+                  <View 
+                    key={i} 
+                    style={[
+                      s.weekDayCol, 
+                      day.isToday && s.weekDayColToday,
+                      success && s.weekDayColWin
+                    ]}
+                  >
+                    <Text style={[
+                      s.weekDayLtr, 
+                      day.isToday && s.weekDayLtrToday, 
+                      success && s.weekDayLtrWin
+                    ]}>
+                      {day.dayName.charAt(0)}
+                    </Text>
                     <View style={[
-                       s.weekDayDot,
-                       success && s.weekDayDotWin,
-                       !success && day.isToday && s.weekDayDotToday,
+                        s.weekDayDot,
+                        success && s.weekDayDotWin,
+                        !success && day.isToday && s.weekDayDotToday,
                     ]} />
-                 </View>
-               )
-             })}
-           </View>
+                  </View>
+                )
+              })}
+            </View>
+          </BlurView>
         </FadeTranslate>
 
         {/* Routines List */}
         <FadeTranslate order={0.2}>
-          <Text style={s.sectionTitle}>Today's Sets</Text>
+          <Text style={s.sectionTitle}>Today&apos;s Sets</Text>
 
           {/* Routine Type Filter Chips */}
           <ScrollView
@@ -286,17 +318,18 @@ export default function Workout() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={s.chipScroll}
           >
-            {routineFilterPills.map((f) => {
+            {routineFilterPills.map((f, i) => {
               const active = selectedRoutineFilter === f;
               return (
-                <TouchableOpacity
-                  key={f}
-                  onPress={() => setSelectedRoutineFilter(f)}
-                  activeOpacity={0.8}
-                  style={[s.chip, active && s.chipActive]}
-                >
-                  <Text style={[s.chipText, active && s.chipTextActive]}>{f}</Text>
-                </TouchableOpacity>
+                <FadeTranslate key={f} delay={i * 100} order={0.2} direction="x" translateXFrom={15}>
+                  <TouchableOpacity
+                    onPress={() => setSelectedRoutineFilter(f)}
+                    activeOpacity={0.8}
+                    style={[s.chip, active && s.chipActive]}
+                  >
+                    <Text style={[s.chipText, active && s.chipTextActive]}>{f}</Text>
+                  </TouchableOpacity>
+                </FadeTranslate>
               );
             })}
           </ScrollView>
@@ -305,6 +338,7 @@ export default function Workout() {
             <Text style={s.emptyText}>No routines match your filter.</Text>
           ) : (
             <ScrollView
+              key={selectedRoutineFilter}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={s.routinesWheelRow}
@@ -314,54 +348,55 @@ export default function Workout() {
               {filteredRoutines.map((routine, index) => {
                 const isSpecial = index === 0; // The first one acts as the "recommended/special" routine
                 return (
-                  <TouchableOpacity
-                    key={routine.id}
-                    style={[
-                      s.routineCard,
-                      isSpecial && {
-                        borderWidth: 2,
-                        borderColor: D.primary,
-                        shadowColor: D.primary,
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 10,
-                        elevation: 8,
-                      }
-                    ]}
-                    activeOpacity={0.9}
-                    onPress={() => handleRoutinePress(routine)}
-                  >
-                    <LinearGradient
-                      colors={routine.gradient}
-                      style={StyleSheet.absoluteFillObject}
-                      start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                    />
-                    <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.8)']}
-                      style={StyleSheet.absoluteFillObject}
-                    />
-                    <View style={s.routineCardInner}>
-                      <View style={s.routineCardTop}>
-                         <Text style={s.routineCardEmoji}>{routine.emoji}</Text>
-                         <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
-                           <View style={s.routineDiffPill}>
-                             <Text style={s.routineDiffText}>{routine.difficulty}</Text>
-                           </View>
-                         </View>
+                  <FadeTranslate key={routine.id} delay={index * 150} order={0.2} direction="x" translateXFrom={20}>
+                    <TouchableOpacity
+                      style={[
+                        s.routineCard,
+                        isSpecial && {
+                          borderWidth: 2,
+                          borderColor: D.primary,
+                          shadowColor: D.primary,
+                          shadowOffset: { width: 0, height: 4 },
+                          shadowOpacity: 0.3,
+                          shadowRadius: 10,
+                          elevation: 8,
+                        }
+                      ]}
+                      activeOpacity={0.9}
+                      onPress={() => handleRoutinePress(routine)}
+                    >
+                      <LinearGradient
+                        colors={routine.gradient}
+                        style={StyleSheet.absoluteFillObject}
+                        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                      />
+                      <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.8)']}
+                        style={StyleSheet.absoluteFillObject}
+                      />
+                      <View style={s.routineCardInner}>
+                        <View style={s.routineCardTop}>
+                          <Text style={s.routineCardEmoji}>{routine.emoji}</Text>
+                          <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                            <View style={s.routineDiffPill}>
+                              <Text style={s.routineDiffText}>{routine.difficulty}</Text>
+                            </View>
+                          </View>
+                        </View>
+                        <View style={s.routineCardBottom}>
+                          <Text style={s.routineCardTitle} numberOfLines={2}>{routine.name}</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <Text style={s.routineCardSub}>{routine.duration}</Text>
+                            {isSpecial && (
+                              <View style={[s.routineDiffPill, { backgroundColor: D.primary, paddingHorizontal: 6, paddingVertical: 2 }]}>
+                                <Text style={[s.routineDiffText, { color: '#000', fontSize: 9 }]}>RECOMMENDED</Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
                       </View>
-                      <View style={s.routineCardBottom}>
-                         <Text style={s.routineCardTitle} numberOfLines={2}>{routine.name}</Text>
-                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                           <Text style={s.routineCardSub}>{routine.duration}</Text>
-                           {isSpecial && (
-                             <View style={[s.routineDiffPill, { backgroundColor: D.primary, paddingHorizontal: 6, paddingVertical: 2 }]}>
-                               <Text style={[s.routineDiffText, { color: '#000', fontSize: 9 }]}>RECOMMENDED</Text>
-                             </View>
-                           )}
-                         </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                  </FadeTranslate>
                 );
               })}
             </ScrollView>
@@ -378,43 +413,48 @@ export default function Workout() {
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.smChipScroll}>
-             {EXERCISE_EQUIPMENT_FILTERS.map((eq) => {
+             {EXERCISE_EQUIPMENT_FILTERS.map((eq, i) => {
                const active = selectedEquipment === eq.value;
                return (
-                  <TouchableOpacity
-                    key={eq.label}
-                    onPress={() => setSelectedEquipment(eq.value)}
-                    style={[s.smChip, active && s.smChipActive]}
-                    activeOpacity={0.8}
-                  >
-                     <Text style={[s.smChipText, active && s.smChipTextActive]}>{eq.label}</Text>
-                  </TouchableOpacity>
+                  <FadeTranslate key={eq.label} delay={i * 100} order={0.3} direction="x" translateXFrom={15}>
+                    <TouchableOpacity
+                      onPress={() => setSelectedEquipment(eq.value)}
+                      style={[s.smChip, active && s.smChipActive]}
+                      activeOpacity={0.8}
+                    >
+                       <Text style={[s.smChipText, active && s.smChipTextActive]}>{eq.label}</Text>
+                    </TouchableOpacity>
+                  </FadeTranslate>
                )
              })}
           </ScrollView>
+        </FadeTranslate>
 
-          {exercisesLoading ? (
-            <ActivityIndicator style={{marginTop: 40}} color={D.primary} />
-          ) : apiExercises.length === 0 ? (
+        {exercisesLoading ? (
+          <ActivityIndicator style={{marginTop: 40}} color={D.primary} />
+        ) : apiExercises.length === 0 ? (
+          <FadeTranslate order={0.4}>
             <Text style={s.emptyText}>No exercises found.</Text>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={s.albumCoverScroll}
-            >
-               {apiExercises.map(ex => {
-                 const bodyPart = ex.bodyParts[0] ?? "";
-                 return (
+          </FadeTranslate>
+        ) : (
+          <ScrollView
+            key={selectedEquipment}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.albumCoverScroll}
+          >
+             {apiExercises.map((ex, index) => {
+               const bodyPart = ex.bodyParts[0] ?? "";
+               return (
+                 <FadeTranslate key={ex.exerciseId} delay={index * 150} order={0.4} direction="x" translateXFrom={20}>
                    <TouchableOpacity
-                     key={ex.exerciseId}
                      style={s.albumCard}
                      activeOpacity={0.8}
                      onPress={() => router.push({ pathname: "/(screens)/ExerciseDetail", params: { exerciseId: ex.exerciseId } })}
                    >
-                      <View style={s.albumArtWrap}>
-                         {ex.gifUrl ? (
-                           <Image source={{uri: ex.gifUrl}} style={s.albumArt} />
+                     <View style={s.albumArtWrap}>
+                       {ex.gifUrl ? (
+                         <Image source={{uri: ex.gifUrl}} style={s.albumArt} />
                          ) : (
                            <Ionicons name="barbell" size={40} color="#333" />
                          )}
@@ -422,11 +462,12 @@ export default function Workout() {
                       <Text style={s.albumTitle} numberOfLines={1}>{ex.name}</Text>
                       <Text style={s.albumSub} numberOfLines={1}>{ex.equipments[0] ?? bodyPart}</Text>
                    </TouchableOpacity>
+                 </FadeTranslate>
                  );
                })}
             </ScrollView>
           )}
-        </FadeTranslate>
+
       </ScrollView>
     </View>
   );
@@ -537,24 +578,78 @@ const s = StyleSheet.create({
     fontFamily: theme.bold,
   },
 
+  streakContainer: {
+    marginHorizontal: 20,
+    marginBottom: 32,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden',
+  },
+  streakHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  streakLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  fireIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(170,251,5,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  streakTitle: {
+    color: '#fff',
+    fontFamily: theme.bold,
+    fontSize: 18,
+  },
+  streakSub: {
+    color: 'rgba(255,255,255,0.6)',
+    fontFamily: theme.medium,
+    fontSize: 13,
+  },
   weekCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    marginBottom: 32,
   },
   weekDayCol: {
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    gap: 6,
+    width: 38,
+    height: 56,
+    borderRadius: 19,
+    backgroundColor: 'transparent',
+  },
+  weekDayColToday: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  weekDayColWin: {
+    backgroundColor: 'rgba(170,251,5,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(170,251,5,0.3)',
   },
   weekDayLtr: {
-    color: D.sub,
-    fontFamily: theme.medium,
+    color: 'rgba(255,255,255,0.4)',
+    fontFamily: theme.bold,
     fontSize: 13,
   },
   weekDayLtrToday: {
     color: '#fff',
-    fontFamily: theme.bold,
+  },
+  weekDayLtrWin: {
+    color: D.primary,
   },
   weekDayDot: {
     width: 6,
