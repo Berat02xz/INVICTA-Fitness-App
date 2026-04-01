@@ -80,14 +80,17 @@ export default function WorkoutPlayer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentSet, setCurrentSet] = useState(1);
   const [phase, setPhase] = useState<Phase>("exercise");
+  const currentExercise = exercises[currentIndex] ?? null;
+
+  const getExerciseDuration = (ex: any) => ex?.durationSeconds || 300; // fallback to 5mins
+
   const [restTimer, setRestTimer] = useState(0);
+  const [exerciseTimer, setExerciseTimer] = useState(getExerciseDuration(currentExercise));
   const [isPaused, setIsPaused] = useState(false);
   const [totalElapsed, setTotalElapsed] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [exerciseInfo, setExerciseInfo] = useState<ExerciseInfo | null>(null);
   const [infoLoading, setInfoLoading] = useState(false);
-
-  const currentExercise = exercises[currentIndex] ?? null;
 
   // Fetch exercise info & check like status when exercise changes
   useEffect(() => {
@@ -134,27 +137,66 @@ export default function WorkoutPlayer() {
   const [socialProofVisible, setSocialProofVisible] = useState(false);
   const [socialProofAvatars, setSocialProofAvatars] = useState<number[]>([]);
   const [socialProofMessage, setSocialProofMessage] = useState('');
+  
+  // Gamification: Burning Calories
+  const [caloriesBurned, setCaloriesBurned] = useState(0);
+  const fireScaleAnim = useRef(new Animated.Value(1)).current;
+  const fireRotateAnim = useRef(new Animated.Value(0)).current;
 
   const totalExercises = exercises.length;
+  
+  // Keep an up-to-date ref for handleNext to avoid stale closures inside intervals
+  const handleNextRef = useRef<() => void>();
+
+  useEffect(() => {
+    if (phase === "exercise" && !isPaused) {
+      if (exerciseTimer <= 0) return;
+
+      const interval = setInterval(() => {
+        setExerciseTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            // Trigger automatic transition
+            setTimeout(() => {
+                if (handleNextRef.current) handleNextRef.current();
+            }, 0);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [phase, isPaused, exerciseTimer]);
 
   useEffect(() => {
     if (totalExercises > 0) {
+      const currentDur = getExerciseDuration(currentExercise);
       if (phase === "complete") {
         Animated.timing(progressAnim, {
           toValue: 1,
           duration: 1000,
           useNativeDriver: false,
         }).start();
+      } else if (phase === "exercise") {
+        const baseProgress = currentIndex / totalExercises;
+        const segmentProgress = (1 - exerciseTimer / currentDur) / totalExercises;
+        Animated.timing(progressAnim, {
+          toValue: baseProgress + segmentProgress,
+          duration: 1000,
+          useNativeDriver: false,
+        }).start();
       } else {
-        const nextStop = (currentIndex + 1) / totalExercises;
+        const nextStop = currentIndex / totalExercises;
         Animated.timing(progressAnim, {
           toValue: nextStop,
-          duration: 10000,
+          duration: 500,
           useNativeDriver: false,
         }).start();
       }
     }
-  }, [currentIndex, totalExercises, phase]);
+  }, [currentIndex, totalExercises, phase, exerciseTimer]);
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
@@ -256,14 +298,48 @@ export default function WorkoutPlayer() {
     return () => clearInterval(interval);
   }, [phase, restTimer, isPaused]);
 
-  // Total elapsed time
+  // Total elapsed time & Calorie counter
   useEffect(() => {
     if (phase === "complete" || isPaused) return;
+
+    // Start pulsing/wobbling animation for the fire icon while active
+    Animated.loop(
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(fireScaleAnim, { toValue: 1.25, duration: 300, useNativeDriver: true }),
+          Animated.timing(fireScaleAnim, { toValue: 0.9, duration: 350, useNativeDriver: true }),
+          Animated.timing(fireScaleAnim, { toValue: 1.1, duration: 300, useNativeDriver: true }),
+          Animated.timing(fireScaleAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(fireRotateAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+          Animated.timing(fireRotateAnim, { toValue: -1, duration: 600, useNativeDriver: true }),
+          Animated.timing(fireRotateAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+        ])
+      ])
+    ).start();
+
     const interval = setInterval(() => {
       setTotalElapsed((t) => t + 1);
+      
+      const duration = getExerciseDuration(currentExercise);
+      const expected = currentExercise?.expectedCalories || 10;
+      const burnRatePerSecond = expected / duration;
+
+      setCaloriesBurned((c) => +(c + burnRatePerSecond).toFixed(2)); 
     }, 1000);
-    return () => clearInterval(interval);
-  }, [phase, isPaused]);
+    
+    return () => {
+      clearInterval(interval);
+      fireScaleAnim.stopAnimation();
+      fireRotateAnim.stopAnimation();
+    };
+  }, [phase, isPaused, fireScaleAnim, fireRotateAnim]);
+
+  const fireRotationInterpolate = fireRotateAnim.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ['-12deg', '12deg']
+  });
 
   const animateTransition = useCallback(
     (cb: () => void) => {
@@ -324,6 +400,8 @@ export default function WorkoutPlayer() {
       }
     });
   };
+  
+  handleNextRef.current = handleNext;
 
   const handleRestComplete = () => {
     if (!currentExercise) return;
@@ -331,12 +409,15 @@ export default function WorkoutPlayer() {
 
     if (currentSet < currentExercise.sets) {
       animateTransition(() => {
+        setExerciseTimer(getExerciseDuration(currentExercise));
         setCurrentSet((s) => s + 1);
         setPhase("exercise");
       });
     } else {
       animateTransition(() => {
-        setCurrentIndex((i) => i + 1);
+        const nextIdx = currentIndex + 1;
+        setExerciseTimer(getExerciseDuration(exercises[nextIdx]));
+        setCurrentIndex(nextIdx);
         setCurrentSet(1);
         setPhase("exercise");
       });
@@ -345,20 +426,27 @@ export default function WorkoutPlayer() {
 
   const handlePrevious = () => {
     if (phase === "rest") {
+      setExerciseTimer(getExerciseDuration(currentExercise));
       animateTransition(() => {
         setPhase("exercise");
       });
       return;
     }
+    
     if (currentSet > 1) {
+      setExerciseTimer(getExerciseDuration(currentExercise));
       animateTransition(() => setCurrentSet((s) => s - 1));
     } else if (currentIndex > 0) {
       const prevExercise = exercises[currentIndex - 1];
+      setExerciseTimer(getExerciseDuration(prevExercise));
       animateTransition(() => {
         setCurrentIndex((i) => i - 1);
         setCurrentSet(prevExercise.sets);
         setPhase("exercise");
       });
+    } else {
+      // Re-start current if already at beginning
+      setExerciseTimer(getExerciseDuration(currentExercise));
     }
   };
 
@@ -382,18 +470,38 @@ export default function WorkoutPlayer() {
     <View style={{flex: 1, backgroundColor: '#000000'}}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
         
-        {/* TOP TOGGLE */}
-        <View style={styles.topToggleRow}>
-           <Pressable onPress={() => router.back()} style={{ position: 'absolute', left: 24, zIndex: 10 }}>
+        {/* TOP HEADER */}
+        <View style={[styles.topToggleRow, { justifyContent: 'flex-start', paddingHorizontal: 24, gap: 16 }]}>
+           <Pressable onPress={() => router.back()} style={{ zIndex: 10 }}>
               <Ionicons name="chevron-down" size={32} color="#fff" />
            </Pressable>
-           <View style={styles.topToggleContainer}>
-              <View style={styles.toggleActive}>
-                  <Text style={styles.toggleTextActive}>Workout</Text>
-              </View>
-              <View style={styles.toggleInactive}>
-                  <Text style={styles.toggleTextInactive}>Details</Text>
-              </View>
+           
+           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+             {/* TIMER on left */}
+             <View style={[styles.toggleActive, { paddingHorizontal: 16, paddingVertical: 8, height: 'auto', borderRadius: 20 }]}>
+                 <Text style={[styles.toggleTextActive, { fontSize: 16, fontWeight: '700' }]}>{formatTime(exerciseTimer)}</Text>
+             </View>
+
+             {/* PROGRESS BAR beside timer */}
+             <View style={{ flex: 1, height: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 3, position: 'relative', overflow: 'hidden' }}>
+                 {exercises.map((_, i) => {
+                    if (i === 0) return null;
+                    return (
+                      <View key={i} style={{
+                         position: 'absolute',
+                         left: `${(i / totalExercises) * 100}%`,
+                         width: 2, height: '100%',
+                         backgroundColor: '#000000',
+                         zIndex: 2
+                      }} />
+                    )
+                 })}
+                 <Animated.View style={{ 
+                     position: 'absolute', top: 0, bottom: 0, left: 0,
+                     backgroundColor: D.primary,
+                     width: progressWidth 
+                 }} />
+             </View>
            </View>
         </View>
 
@@ -529,88 +637,114 @@ export default function WorkoutPlayer() {
             })()
           ) : (
             currentExercise && (
-              <View style={styles.ytContainer}>
-                  {/* ARTWORK */}
-                  <View style={styles.ytArtwork}>
-                      {currentExercise.gifUrl ? (
-                          <Image 
-                             source={{ uri: currentExercise.gifUrl }} 
-                             style={StyleSheet.absoluteFillObject}
-                             resizeMode="cover"
-                          />
-                      ) : (
-                          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "transparent", alignItems: "center", justifyContent: "center" }]}>
-                              <Ionicons name="barbell-outline" size={100} color="#000000" />
+              <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.ytContainer}>
+                    {/* ARTWORK */}
+                    <View style={styles.ytArtwork}>
+                        {currentExercise.gifUrl ? (
+                            <Image 
+                               source={{ uri: currentExercise.gifUrl }} 
+                               style={StyleSheet.absoluteFillObject}
+                               resizeMode="cover"
+                            />
+                        ) : (
+                            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "transparent", alignItems: "center", justifyContent: "center" }]}>
+                                <Ionicons name="barbell-outline" size={100} color="#000000" />
+                            </View>
+                        )}
+                    </View>
+
+                    <View style={styles.ytLowerHalf}>
+                        {/* REAL-TIME GAMIFIED CALORIES DISPLAY (MOVED BELOW IMAGE) */}
+                        <View style={styles.caloriesBannerContainer}>
+                            <Animated.View style={{ transform: [{ scale: fireScaleAnim }, { rotate: fireRotationInterpolate }] }}>
+                                <Ionicons name="flame" size={24} color="#ff4000" />
+                            </Animated.View>
+                            <Text style={styles.caloriesBannerText}>
+                                {Math.floor(caloriesBurned)} 
+                                <Text style={{fontSize: 16, color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium}}> cal burned</Text>
+                            </Text>
+                        </View>
+
+                        {/* TITLE ROW */}
+                        <View style={styles.ytTitleRow}>
+                            <View style={styles.ytTitleCenter}>
+                                <Text style={styles.ytTitle} numberOfLines={2}>{currentExercise.name}</Text>
+                                <Text style={styles.ytSubtitle} numberOfLines={1}>{currentExercise.category} • Set {currentSet} of {currentExercise.sets}</Text>
+                            </View>
+                            <Pressable onPress={handleToggleLike} style={styles.heartButton}>
+                                <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color={isLiked ? "#ff4000" : "#fff"} />
+                            </Pressable>
+                        </View>
+
+                        {/* CONTROLS */}
+                        <View style={styles.ytControlsRow}>
+                            <Pressable onPress={handlePrevious} disabled={currentIndex === 0 && currentSet === 1} style={styles.controlButton}>
+                                 <Ionicons name="play-skip-back" size={42} color={(currentIndex === 0 && currentSet === 1) ? "rgba(255,255,255,0.3)" : "#fff"} />
+                            </Pressable>
+                            
+                            <Pressable style={styles.ytPlayPause} onPress={() => setIsPaused(!isPaused)}>
+                                 <Ionicons name={isPaused ? "play" : "pause"} size={48} color="#000" />
+                            </Pressable>
+
+                            <Pressable onPress={handleNext} style={styles.controlButton}>
+                                 <Ionicons name="play-skip-forward" size={42} color="#fff" />
+                            </Pressable>
+                        </View>
+
+                        {/* BOTTOM TABS / GUIDE LINK */}
+                        <View style={styles.ytBottomTabs}>
+                            <Pressable onPress={() => handleOpenSheet("upNext")} style={styles.ytBottomTabCenter}>
+                               <Ionicons name="list" size={24} color="rgba(255,255,255,0.6)" style={{ marginBottom: 4 }} />
+                               <Text style={styles.ytBottomTab}>Up Next</Text>
+                            </Pressable>
+                            <View style={styles.ytBottomTabCenter}>
+                               <Ionicons name="book" size={24} color="#fff" style={{ marginBottom: 4 }} />
+                               <Text style={[styles.ytBottomTab, { color: '#fff', fontFamily: theme.bold }]}>Guide</Text>
+                               <View style={styles.ytBottomTabIndicator} />
+                            </View>
+                            <Pressable style={styles.ytBottomTabCenter}>
+                               <Ionicons name="information-circle" size={24} color="rgba(255,255,255,0.6)" style={{ marginBottom: 4 }} />
+                               <Text style={styles.ytBottomTab}>Details</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+
+                {/* INLINE GUIDE BELOW THE PLAYER */}
+                <View style={styles.inlineGuideContainer}>
+                  <Text style={styles.sheetTitle}>Execution Guide</Text>
+                  {infoLoading ? (
+                    <View style={{ alignItems: 'center', marginTop: 30 }}>
+                      <Text style={styles.sheetDescText}>Loading...</Text>
+                    </View>
+                  ) : exerciseInfo?.instructions?.length ? (
+                    exerciseInfo.instructions.map((step, i) => {
+                      let cleaned = step.replace(/^step\s*[:.-]?\s*\d+\s*[:.-]?\s*/i, "").trim();
+                      if (cleaned.length > 0) cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+                      return (
+                        <View key={i} style={styles.stepRow}>
+                          <View style={styles.stepLineContainer}>
+                            <View style={styles.stepNumberWrap}>
+                              <Text style={styles.stepNumber}>{i + 1}</Text>
+                            </View>
+                            {i !== (exerciseInfo.instructions.length - 1) && (
+                              <View style={styles.stepLine} />
+                            )}
                           </View>
-                      )}
-                  </View>
-
-                  <View style={styles.ytLowerHalf}>
-                      {/* TITLE ROW */}
-                      <View style={styles.ytTitleRow}>
-                          <View style={styles.ytTitleCenter}>
-                              <Text style={styles.ytTitle} numberOfLines={1}>{currentExercise.name}</Text>
-                              <Text style={styles.ytSubtitle} numberOfLines={1}>{currentExercise.category} • Set {currentSet} of {currentExercise.sets}</Text>
+                          <View style={styles.stepTextContainer}>
+                            <Text style={styles.stepText}>{cleaned}</Text>
                           </View>
-                          <Pressable onPress={handleToggleLike} style={{ padding: 8 }}>
-                              <Ionicons name={isLiked ? "heart" : "heart-outline"} size={26} color={isLiked ? "#ff4000" : "#fff"} />
-                          </Pressable>
-                      </View>
-
-                      {/* PROGRESS BAR */}
-                      <View style={styles.ytProgressRow}>
-                           <View style={styles.ytProgressBarBg}>
-                                {exercises.map((_, i) => {
-                                   if (i === 0) return null;
-                                   return (
-                                     <View key={i} style={{
-                                        position: 'absolute',
-                                        left: `${(i / totalExercises) * 100}%`,
-                                        width: 6, height: 6, borderRadius: 3, 
-                                        backgroundColor: 'rgba(255,255,255,0.4)',
-                                        marginLeft: -3, zIndex: 1
-                                     }} />
-                                   )
-                                })}
-                                <Animated.View style={[styles.ytProgressBarFill, { width: progressWidth }]} />
-                                <Animated.View style={[styles.ytProgressThumb, { left: progressWidth }]} />
-                           </View>
-                           <View style={styles.ytProgressTimes}>
-                                <Text style={styles.ytTimeText}>{formatTime(totalElapsed)}</Text>
-                                <Text style={styles.ytTimeText}>Set {currentSet}/{currentExercise.sets}</Text>
-                           </View>
-                      </View>
-
-                      {/* CONTROLS */}
-                      <View style={styles.ytControlsRow}>
-                          <Pressable onPress={handlePrevious} disabled={currentIndex === 0 && currentSet === 1} style={{ padding: 8, marginLeft: 'auto', marginRight: 24 }}>
-                               <Ionicons name="play-skip-back" size={38} color={(currentIndex === 0 && currentSet === 1) ? "rgba(255,255,255,0.3)" : "#fff"} />
-                          </Pressable>
-                          
-                          <Pressable style={styles.ytPlayPause} onPress={() => setIsPaused(!isPaused)}>
-                               <Ionicons name={isPaused ? "play" : "pause"} size={42} color="#fff" />
-                          </Pressable>
-
-                          <Pressable onPress={handleNext} style={{ padding: 8, marginLeft: 24, marginRight: 'auto' }}>
-                               <Ionicons name="play-skip-forward" size={38} color="#fff" />
-                          </Pressable>
-                      </View>
-
-                      {/* BOTTOM TABS */}
-                      <View style={styles.ytBottomTabs}>
-                          <Pressable onPress={() => handleOpenSheet("upNext")} style={styles.ytBottomTabCenter}>
-                             <Text style={styles.ytBottomTab}>Up Next</Text>
-                          </Pressable>
-                          <Pressable onPress={() => handleOpenSheet("instruction")} style={styles.ytBottomTabCenter}>
-                             <Text style={[styles.ytBottomTab, { color: '#fff', fontFamily: theme.bold }]}>Instruction</Text>
-                             <View style={styles.ytBottomTabIndicator} />
-                          </Pressable>
-                          <Pressable style={styles.ytBottomTabCenter}>
-                             <Text style={styles.ytBottomTab}>Related</Text>
-                          </Pressable>
-                      </View>
-                  </View>
-              </View>
+                        </View>
+                      );
+                    })
+                  ) : (
+                    <Text style={styles.sheetDescText}>
+                      {currentExercise.description || "Do " + currentExercise.name + " for " + currentExercise.sets + " sets. Focus on proper form and controlled movements."}
+                    </Text>
+                  )}
+                </View>
+              </ScrollView>
             )
           )}
         </Animated.View>
@@ -640,40 +774,6 @@ export default function WorkoutPlayer() {
                 ))}
                 {exercises.slice(currentIndex + 1).length === 0 && (
                   <Text style={styles.sheetEmptyText}>No more exercises in this routine.</Text>
-                )}
-              </View>
-            )}
-            {activeSheet === "instruction" && currentExercise && (
-              <View>
-                <Text style={styles.sheetTitle}>Execution Guide</Text>
-                {infoLoading ? (
-                  <View style={{ alignItems: 'center', marginTop: 30 }}>
-                    <Text style={styles.sheetDescText}>Loading...</Text>
-                  </View>
-                ) : exerciseInfo?.instructions?.length ? (
-                  exerciseInfo.instructions.map((step, i) => {
-                    let cleaned = step.replace(/^step\s*[:.-]?\s*\d+\s*[:.-]?\s*/i, "").trim();
-                    if (cleaned.length > 0) cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
-                    return (
-                      <View key={i} style={styles.stepRow}>
-                        <View style={styles.stepLineContainer}>
-                          <View style={styles.stepNumberWrap}>
-                            <Text style={styles.stepNumber}>{i + 1}</Text>
-                          </View>
-                          {i !== (exerciseInfo.instructions.length - 1) && (
-                            <View style={styles.stepLine} />
-                          )}
-                        </View>
-                        <View style={styles.stepTextContainer}>
-                          <Text style={styles.stepText}>{cleaned}</Text>
-                        </View>
-                      </View>
-                    );
-                  })
-                ) : (
-                  <Text style={styles.sheetDescText}>
-                    {currentExercise.description || "Do " + currentExercise.name + " for " + currentExercise.sets + " sets. Focus on proper form and controlled movements."}
-                  </Text>
                 )}
               </View>
             )}
@@ -763,94 +863,92 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    marginBottom: 30,
+    marginBottom: 20,
+    marginTop: 10,
   },
   ytLowerHalf: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
   },
   ytTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    width: 440,
+    marginBottom: 35,
+    width: 430,
     maxWidth: '100%',
     alignSelf: 'center',
+  },
+  caloriesBannerContainer: {
+    marginBottom: 20,
+    alignSelf: 'center',
+    backgroundColor: '#1C1C1E', // solid modern sleek
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#2A2A2E',
+  },
+  caloriesBannerText: {
+    color: '#fff',
+    fontFamily: theme.bold,
+    fontSize: 20,
+    letterSpacing: 0.5,
   },
   ytTitleCenter: {
     flex: 1,
     alignItems: 'flex-start',
-    marginHorizontal: 16,
+    marginHorizontal: 8,
   },
   ytTitle: {
     color: '#fff',
-    fontSize: 26,
+    fontSize: 28,
     fontFamily: theme.bold,
-    marginBottom: 6,
+    marginBottom: 8,
+    lineHeight: 34,
   },
   ytSubtitle: {
     color: 'rgba(255,255,255,0.6)',
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: theme.medium,
   },
-  ytProgressRow: {
-    marginBottom: 24,
-    marginHorizontal: 16,
-    width: 400,
-    maxWidth: '100%',
-    alignSelf: 'center',
-  },
-  ytProgressBarBg: {
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 2,
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  ytProgressBarFill: {
-    height: 4,
-    backgroundColor: '#fff',
-    borderRadius: 2,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  },
-  ytProgressThumb: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#fff',
-    position: 'absolute',
-    marginLeft: -7,
-  },
-  ytProgressTimes: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  ytTimeText: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: 13,
-    fontFamily: theme.medium,
+  heartButton: {
+    padding: 12,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   ytControlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 0,
-    marginBottom: 24,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 50,
     width: 400,
     maxWidth: '100%',
     alignSelf: 'center',
+    gap: 40,
+  },
+  controlButton: {
+    padding: 12,
   },
   ytPlayPause: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   ytBottomTabs: {
     flexDirection: 'row',
@@ -859,21 +957,90 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'transparent',
     paddingTop: 10,
+    paddingBottom: 25,
   },
   ytBottomTabCenter: {
     alignItems: 'center',
+    justifyContent: 'center',
+    width: 80,
   },
   ytBottomTabIndicator: {
     width: 24,
     height: 3,
     backgroundColor: '#fff',
     borderRadius: 2,
-    marginTop: 6,
+    marginTop: 4,
+    position: 'absolute',
+    bottom: -10,
   },
   ytBottomTab: {
     color: 'rgba(255,255,255,0.6)',
-    fontSize: 15,
+    fontSize: 13,
     fontFamily: theme.medium,
+  },
+  
+  // INLINE GUIDE STYLES
+  inlineGuideContainer: {
+    paddingHorizontal: 24,
+    paddingTop: 30, // Brought up
+    paddingBottom: 60,
+    backgroundColor: D.cardAlt,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: -10, // Bring it exactly below the tabs or slightly overlay
+  },
+  sheetTitle: {
+    color: D.white,
+    fontFamily: theme.bold,
+    fontSize: 22,
+    marginBottom: 30,
+  },
+  sheetDescText: {
+    color: D.textRef,
+    fontFamily: theme.medium,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  stepRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  stepLineContainer: {
+    alignItems: 'center',
+    marginRight: 16,
+    width: 32,
+  },
+  stepNumberWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: D.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  stepNumber: {
+    color: D.bg,
+    fontFamily: theme.bold,
+    fontSize: 14,
+  },
+  stepLine: {
+    width: 2,
+    flex: 1,
+    backgroundColor: 'rgba(170, 251, 5, 0.3)',
+    marginTop: 4,
+    marginBottom: -16,
+  },
+  stepTextContainer: {
+    flex: 1,
+    paddingTop: 4,
+    paddingBottom: 16,
+  },
+  stepText: {
+    color: D.white,
+    fontFamily: theme.medium,
+    fontSize: 16,
+    lineHeight: 24,
   },
 
   // New Rest Screen Styles

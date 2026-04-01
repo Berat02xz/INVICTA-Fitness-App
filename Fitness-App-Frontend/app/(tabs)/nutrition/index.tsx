@@ -388,8 +388,8 @@ export default function NutritionScreen() {
           </View>
         </FadeTranslate>
 
-        {/* Hero Section: Minimal Vertical Stack (Only if calories logged) */}
-        {totals.calories > 0 && (
+        {/* Hero Section: Minimal Vertical Stack */}
+        {todayMeals.length > 0 ? (
           <FadeTranslate order={0.2}>
             <View style={s.heroContainer}>
                 
@@ -470,6 +470,53 @@ export default function NutritionScreen() {
                     </View>
                 </View>
 
+            </View>
+          </FadeTranslate>
+        ) : (
+          <FadeTranslate order={0.2}>
+            <View style={s.emptyHeroContainer}>
+              {/* Background accent */}
+              <ExpoLinearGradient 
+                colors={["rgba(170,251,5,0.08)", "transparent"]} 
+                style={StyleSheet.absoluteFillObject} 
+              />
+              
+              {/* Decorative floating emojis */}
+              <Text style={[s.floatingEmoji, { top: 30, left: 20, transform: [{rotate: '-15deg'}] }]}>🥑</Text>
+              <Text style={[s.floatingEmoji, { top: 40, right: 24, transform: [{rotate: '20deg'}] }]}>🥩</Text>
+              <Text style={[s.floatingEmoji, { bottom: 120, left: 24, transform: [{rotate: '10deg'}], fontSize: 26 }]}>🥗</Text>
+              <Text style={[s.floatingEmoji, { bottom: 130, right: 16, transform: [{rotate: '-25deg'}], fontSize: 28 }]}>🍳</Text>
+
+              <View style={s.emptyTargetBadge}>
+                <Ionicons name="flag" size={14} color={D.primary} />
+                <Text style={s.emptyTargetText}>Daily Goal: {targetCalories} Kcal</Text>
+              </View>
+
+              <View style={s.emptyHeroIconWrap}>
+                 <Ionicons name="fast-food" size={40} color={D.primary} />
+              </View>
+              <Text style={s.emptyHeroTitle}>Ready to fuel up?</Text>
+              <Text style={s.emptyHeroSub}>Log your first meal to see your daily macros and calories breakdown.</Text>
+              
+              <View style={s.emptyHeroActions}>
+                <TouchableOpacity 
+                  style={s.emptyHeroPrimaryBtn} 
+                  onPress={() => router.push("../(screens)/ScanMeal")}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="scan" size={20} color={D.bg} />
+                  <Text style={s.emptyHeroPrimaryBtnText}>Scan Meal</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={s.emptyHeroSecondaryBtn} 
+                  onPress={() => router.push("../(screens)/SearchFood")}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="search" size={20} color={D.primary} />
+                  <Text style={s.emptyHeroSecondaryBtnText}>Search Food</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </FadeTranslate>
         )}
@@ -555,33 +602,35 @@ export default function NutritionScreen() {
           </FadeTranslate>
         )}
 
-        {/* Actions Row (Scan / Search) */}
-        <FadeTranslate order={1}>
-            <View style={s.actionsRow}>
-                <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/ScanMeal")}>
-                    <View style={[s.actionIconBox, { backgroundColor: D.primary }]}>
-                        <Ionicons name="scan" size={24} color="#000" />
-                    </View>
-                    <View>
-                        <Text style={s.actionTitle}>Scan Meal</Text>
-                        <Text style={s.actionSub}>AI Camera</Text>
-                    </View>
-                </TouchableOpacity>
+        {/* Actions Row (Scan / Search) - Only needed here if we have meals, otherwise shown in Hero */}
+        {todayMeals.length > 0 && (
+          <FadeTranslate order={1}>
+              <View style={s.actionsRow}>
+                  <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/ScanMeal")}>
+                      <View style={[s.actionIconBox, { backgroundColor: D.primary }]}>
+                          <Ionicons name="scan" size={24} color="#000" />
+                      </View>
+                      <View>
+                          <Text style={s.actionTitle}>Scan Meal</Text>
+                          <Text style={s.actionSub}>AI Camera</Text>
+                      </View>
+                  </TouchableOpacity>
 
-                <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/SearchFood")}>
-                    <View style={[s.actionIconBox, { backgroundColor: "#333" }]}>
-                         <Ionicons name="search" size={24} color="#FFF" />
-                    </View>
-                    <View>
-                        <Text style={s.actionTitle}>Search Food</Text>
-                        <Text style={s.actionSub}>Database</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-        </FadeTranslate>
+                  <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/SearchFood")}>
+                      <View style={[s.actionIconBox, { backgroundColor: "#333" }]}>
+                           <Ionicons name="search" size={24} color="#FFF" />
+                      </View>
+                      <View>
+                          <Text style={s.actionTitle}>Search Food</Text>
+                          <Text style={s.actionSub}>Database</Text>
+                      </View>
+                  </TouchableOpacity>
+              </View>
+          </FadeTranslate>
+        )}
 
         {/* Meals List - No Borders */}
-        {todayMeals.length > 0 ? (
+        {todayMeals.length > 0 && (
           <FadeTranslate order={2}>
             {/* Header: Label + Meal Count */}
             <View style={s.sectionHeaderRow}>
@@ -626,15 +675,6 @@ export default function NutritionScreen() {
                 );
               })}
             </View>
-          </FadeTranslate>
-        ) : (
-          <FadeTranslate order={2}>
-               {/* Empty State - Just text now since we have buttons above */}
-               <View style={s.emptyState}>
-                   <Ionicons name="nutrition-outline" size={48} color="#333" style={{marginBottom:12}} />
-                   <Text style={{color: D.sub, textAlign: "center"}}>No meals logged today.</Text>
-                   <Text style={{color: D.muted, textAlign: "center", fontSize: 12}}>Use the buttons above to add entries.</Text>
-               </View>
           </FadeTranslate>
         )}
 
@@ -747,6 +787,108 @@ const s = StyleSheet.create({
       marginBottom: 30,
       marginTop: 20,
   },
+
+  emptyHeroContainer: {
+    backgroundColor: D.card2,
+    borderRadius: 32,
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+    overflow: "hidden",
+  },
+  floatingEmoji: {
+    position: "absolute",
+    fontSize: 32,
+    opacity: 0.15,
+  },
+  emptyTargetBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)"
+  },
+  emptyTargetText: {
+    color: D.text,
+    fontFamily: theme.bold,
+    fontSize: 14,
+  },
+  emptyHeroIconWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: "rgba(170,251,5,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: D.primary,
+    borderStyle: "dashed",
+  },
+  emptyHeroTitle: {
+    fontFamily: theme.black,
+    fontSize: 28,
+    color: D.text,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  emptyHeroSub: {
+    fontFamily: theme.medium,
+    fontSize: 15,
+    color: D.sub,
+    textAlign: "center",
+    marginBottom: 32,
+    lineHeight: 22,
+    paddingHorizontal: 16,
+  },
+  emptyHeroActions: {
+    flexDirection: "row",
+    gap: 16,
+    width: "100%",
+  },
+  emptyHeroPrimaryBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: D.primary,
+    paddingVertical: 16,
+    borderRadius: 20,
+  },
+  emptyHeroPrimaryBtnText: {
+    fontFamily: theme.bold,
+    fontSize: 16,
+    color: D.bg,
+  },
+  emptyHeroSecondaryBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: D.primary,
+    paddingVertical: 16,
+    borderRadius: 20,
+  },
+  emptyHeroSecondaryBtnText: {
+    fontFamily: theme.bold,
+    fontSize: 16,
+    color: D.primary,
+  },
+
   minimalLegendRow: {
       flexDirection: "row",
       alignItems: "center",

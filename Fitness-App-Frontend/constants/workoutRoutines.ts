@@ -11,6 +11,8 @@ export interface RoutineExercise {
   category: string;
   gifUrl: string | null;
   description?: string;
+  durationSeconds?: number;
+  expectedCalories?: number;
 }
 
 export interface WorkoutRoutine {
@@ -32,7 +34,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "home_sweat",
     name: "Living Room Burner",
-    emoji: "🔥",
+    emoji: "🏠",
     description: "No equipment, full body calorie crusher from your living room.",
     duration: "25 min",
     difficulty: "Intermediate",
@@ -48,6 +50,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 45,
         category: "Cardio",
         gifUrl: "https://static.exercisedb.dev/media/dK9394r.gif",
+        durationSeconds: 120,    // 2 minutes
+        expectedCalories: 30,    // Hard effort
       },
       {
         name: "Mountain Climbers",
@@ -57,6 +61,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 30,
         category: "Cardio",
         gifUrl: "https://static.exercisedb.dev/media/RJgzwny.gif",
+        durationSeconds: 90,     // 1.5 minutes
+        expectedCalories: 25,
       },
       {
         name: "Close-grip Push-ups",
@@ -66,6 +72,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 60,
         category: "Chest",
         gifUrl: "https://static.exercisedb.dev/media/x6KpKpq.gif",
+        durationSeconds: 150,    // 2.5 minutes
+        expectedCalories: 20,
       },
       {
         name: "Walking Lunges",
@@ -75,6 +83,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 45,
         category: "Legs",
         gifUrl: "https://static.exercisedb.dev/media/IZVHb27.gif",
+        durationSeconds: 180,    // 3 minutes
+        expectedCalories: 25,
       },
       {
         name: "Jumping Jacks (Astride)",
@@ -84,13 +94,15 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 30,
         category: "Cardio",
         gifUrl: "https://static.exercisedb.dev/media/f9lVSSI.gif",
+        durationSeconds: 60,     // 1 minute
+        expectedCalories: 15,
       },
     ],
   },
   {
     id: "core_30day",
     name: "30-Day Core Shred",
-    emoji: "🍫",
+    emoji: "🧊",
     description: "The ultimate ab routine for a shredded core and defined obliques.",
     duration: "15 min",
     difficulty: "Advanced",
@@ -106,6 +118,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 30,
         category: "Abs",
         gifUrl: "https://static.exercisedb.dev/media/TFqbd8t.gif",
+        durationSeconds: 120,
+        expectedCalories: 15,
       },
       {
         name: "Bicycle Crunches",
@@ -115,6 +129,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 30,
         category: "Obliques",
         gifUrl: "https://static.exercisedb.dev/media/tZkGYZ9.gif",
+        durationSeconds: 120,
+        expectedCalories: 18,
       },
       {
         name: "Leg Raises",
@@ -124,6 +140,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 40,
         category: "Abs",
         gifUrl: "https://static.exercisedb.dev/media/I3tsCnC.gif",
+        durationSeconds: 150,
+        expectedCalories: 20,
       },
       {
         name: "Flutter Kicks",
@@ -133,6 +151,8 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 30,
         category: "Abs",
         gifUrl: "https://static.exercisedb.dev/media/UVo2Qs2.gif",
+        durationSeconds: 90,
+        expectedCalories: 15,
       },
       {
         name: "Plank",
@@ -142,13 +162,15 @@ export const ROUTINES: WorkoutRoutine[] = [
         restSeconds: 45,
         category: "Abs",
         gifUrl: "https://static.exercisedb.dev/media/VBAWRPG.gif",
+        durationSeconds: 60,
+        expectedCalories: 10,
       },
     ],
   },
   {
     id: "home_morning",
     name: "Morning Wake-Up Call",
-    emoji: "☀️",
+    emoji: "🌅",
     description: "Quick 10-minute circuit to get your blood flowing and start the day right.",
     duration: "10 min",
     difficulty: "Beginner",
@@ -197,7 +219,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "apartment_legs",
     name: "Apartment Leg Day",
-    emoji: "🦵",
+    emoji: "�",
     description: "Quiet, neighbor-friendly leg routine that still brings the burn.",
     duration: "20 min",
     difficulty: "Beginner",
@@ -304,7 +326,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "full_body_gym",
     name: "Full Body Gym Starter",
-    emoji: "ðŸ’ª",
+    emoji: "🦍",
     description: "Hit all major muscle groups with basic gym equipment. Perfect for beginners entering the gym.",
     duration: "45 min",
     difficulty: "Beginner",
@@ -344,7 +366,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "cardio_mix",
     name: "Cardio Mix",
-    emoji: "🏃‍♂️",
+    emoji: "🫀",
     description: "Get your heart rate up with a mix of gym cardio machines.",
     duration: "30 min",
     difficulty: "Beginner",
@@ -384,7 +406,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "quick_hiit",
     name: "Quick HIIT",
-    emoji: "⚡",
+    emoji: "🐆",
     description: "A fast intense full-body high-intensity interval training session. No equipment needed.",
     duration: "15 min",
     difficulty: "Advanced",
@@ -433,7 +455,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "upper_body_builder",
     name: "Upper Body Builder",
-    emoji: "💪",
+    emoji: "🦾",
     description: "Focus on chest, back, and arms using dumbbells.",
     duration: "40 min",
     difficulty: "Intermediate",
@@ -482,7 +504,7 @@ export const ROUTINES: WorkoutRoutine[] = [
   {
     id: "lower_body_power",
     name: "Lower Body Power",
-    emoji: "🦵",
+    emoji: "�",
     description: "Build leg strength and power.",
     duration: "35 min",
     difficulty: "Intermediate",

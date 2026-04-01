@@ -64,6 +64,9 @@ export default function Workout() {
 
   // Routine filters: difficulty, duration, or equipment name
   const [selectedRoutineFilter, setSelectedRoutineFilter] = useState("All");
+  
+  // Base routines (to be shuffled on open)
+  const [baseRoutines, setBaseRoutines] = useState(ROUTINES);
 
   // Exercise filter: equipment
   const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
@@ -130,7 +133,11 @@ export default function Workout() {
             if (data[i]) s++;
             else if (i !== (currentDay === 0 ? 6 : currentDay - 1)) break;
           }
-          if (active) setStreak(s);
+          if (active) {
+            setStreak(s);
+            // Randomize routines for Today's Set
+            setBaseRoutines([...ROUTINES].sort(() => Math.random() - 0.5));
+          }
         } catch (e) {
           console.log(e);
         }
@@ -195,8 +202,8 @@ export default function Workout() {
   ];
 
   const filteredRoutines = useMemo(() => {
-    if (selectedRoutineFilter === "All") return ROUTINES;
-    return ROUTINES.filter((r) => {
+    if (selectedRoutineFilter === "All") return baseRoutines;
+    return baseRoutines.filter((r) => {
       if (["Beginner", "Intermediate", "Advanced"].includes(selectedRoutineFilter)) {
         return r.difficulty === selectedRoutineFilter;
       }
@@ -302,36 +309,59 @@ export default function Workout() {
               snapToInterval={260 + 16}
               decelerationRate="fast"
             >
-              {filteredRoutines.map((routine) => (
-                <TouchableOpacity
-                  key={routine.id}
-                  style={s.routineCard}
-                  activeOpacity={0.9}
-                  onPress={() => handleRoutinePress(routine)}
-                >
-                  <LinearGradient
-                    colors={routine.gradient}
-                    style={StyleSheet.absoluteFillObject}
-                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.8)']}
-                    style={StyleSheet.absoluteFillObject}
-                  />
-                  <View style={s.routineCardInner}>
-                    <View style={s.routineCardTop}>
-                       <Text style={s.routineCardEmoji}>{routine.emoji}</Text>
-                       <View style={s.routineDiffPill}>
-                         <Text style={s.routineDiffText}>{routine.difficulty}</Text>
-                       </View>
+              {filteredRoutines.map((routine, index) => {
+                const isSpecial = index === 0; // The first one acts as the "recommended/special" routine
+                return (
+                  <TouchableOpacity
+                    key={routine.id}
+                    style={[
+                      s.routineCard,
+                      isSpecial && {
+                        borderWidth: 2,
+                        borderColor: D.primary,
+                        shadowColor: D.primary,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 10,
+                        elevation: 8,
+                      }
+                    ]}
+                    activeOpacity={0.9}
+                    onPress={() => handleRoutinePress(routine)}
+                  >
+                    <LinearGradient
+                      colors={routine.gradient}
+                      style={StyleSheet.absoluteFillObject}
+                      start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                    />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(0,0,0,0.8)']}
+                      style={StyleSheet.absoluteFillObject}
+                    />
+                    <View style={s.routineCardInner}>
+                      <View style={s.routineCardTop}>
+                         <Text style={s.routineCardEmoji}>{routine.emoji}</Text>
+                         <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                           <View style={s.routineDiffPill}>
+                             <Text style={s.routineDiffText}>{routine.difficulty}</Text>
+                           </View>
+                         </View>
+                      </View>
+                      <View style={s.routineCardBottom}>
+                         <Text style={s.routineCardTitle} numberOfLines={2}>{routine.name}</Text>
+                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                           <Text style={s.routineCardSub}>{routine.duration}</Text>
+                           {isSpecial && (
+                             <View style={[s.routineDiffPill, { backgroundColor: D.primary, paddingHorizontal: 6, paddingVertical: 2 }]}>
+                               <Text style={[s.routineDiffText, { color: '#000', fontSize: 9 }]}>RECOMMENDED</Text>
+                             </View>
+                           )}
+                         </View>
+                      </View>
                     </View>
-                    <View style={s.routineCardBottom}>
-                       <Text style={s.routineCardTitle} numberOfLines={2}>{routine.name}</Text>
-                       <Text style={s.routineCardSub}>{routine.duration}</Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ))}
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
           )}
         </FadeTranslate>

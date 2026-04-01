@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ROUTINES, RoutineExercise } from "../../constants/workoutRoutines";
 import { theme } from "../../constants/theme";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import { ExerciseApi, ExerciseInfo } from "../../api/ExerciseApi";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -38,10 +40,15 @@ export default function ExerciseList() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("All");
+  const [apiExercises, setApiExercises] = useState<ExerciseInfo[]>([]);
+  const [apiTotal, setApiTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [muscles, setMuscles] = useState<string[]>(["All"]);
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const allExercises = useMemo(() => {
+  // Local exercises from routines (default "All" view)
+  const localExercises = useMemo(() => {
     const exerciseMap = new Map<string, RoutineExercise>();
-
     ROUTINES.forEach((routine) => {
       routine.exercises.forEach((exercise) => {
         if (!exerciseMap.has(exercise.exerciseId)) {
@@ -49,30 +56,86 @@ export default function ExerciseList() {
         }
       });
     });
-
     return Array.from(exerciseMap.values());
   }, []);
 
-  const muscles = useMemo(() => {
-    const categories = new Set(allExercises.map((exercise) => exercise.category));
-    return ["All", ...Array.from(categories).sort()];
-  }, [allExercises]);
+  // Fetch muscle list from API on mount
+  useEffect(() => {
+    (async () => {
+      const apiMuscles = await ExerciseApi.getMuscles();
+      if (apiMuscles.length > 0) {
+        setMuscles(["All", ...apiMuscles.sort()]);
+      } else {
+        // Fallback to local categories
+        const categories = new Set(localExercises.map((e) => e.category));
+        setMuscles(["All", ...Array.from(categories).sort()]);
+      }
+    })();
+  }, [localExercises]);
+
+  // Fetch exercises from API when muscle filter or search changes
+  const fetchExercises = useCallback(async (muscle: string, searchQuery: string) => {
+    const trimmedQuery = searchQuery.trim();
+
+    // If "All" and no search, use local exercises
+    if (muscle === "All" && !trimmedQuery) {
+      setApiExercises([]);
+      setApiTotal(0);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (trimmedQuery) {
+        // Text search (API searches across name, muscles, equipment, body parts)
+        const { exercises, total } = await ExerciseApi.searchExercises(trimmedQuery, 50);
+        // If a muscle is also selected, filter the search results by that muscle
+        if (muscle !== "All") {
+          const filtered = exercises.filter((e) =>
+            e.targetMuscles.some((m) => m.toLowerCase() === muscle.toLowerCase())
+          );
+          setApiExercises(filtered);
+          setApiTotal(filtered.length);
+        } else {
+          setApiExercises(exercises);
+          setApiTotal(total);
+        }
+      } else {
+        // Muscle filter only
+        const { exercises, total } = await ExerciseApi.getExercisesByMuscle(muscle, 50);
+        setApiExercises(exercises);
+        setApiTotal(total);
+      }
+    } catch {
+      setApiExercises([]);
+      setApiTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Trigger fetch when muscle changes
+  useEffect(() => {
+    fetchExercises(selectedMuscle, query);
+  }, [selectedMuscle]);
+
+  // Debounced search
+  const handleSearchChange = useCallback((text: string) => {
+    setQuery(text);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      fetchExercises(selectedMuscle, text);
+    }, 400);
+  }, [selectedMuscle, fetchExercises]);
+
+  // Determine which exercises to show
+  const isUsingApi = selectedMuscle !== "All" || query.trim().length > 0;
 
   const results = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    return allExercises.filter((exercise) => {
-      if (selectedMuscle !== "All" && exercise.category !== selectedMuscle) {
-        return false;
-      }
-
-      if (normalizedQuery && !exercise.name.toLowerCase().includes(normalizedQuery)) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [allExercises, query, selectedMuscle]);
+    if (isUsingApi) return apiExercises;
+    // Local filtering for "All" with no search
+    return localExercises;
+  }, [isUsingApi, apiExercises, localExercises]);
 
   return (
     <View style={s.container}>
@@ -116,14 +179,14 @@ export default function ExerciseList() {
                   placeholder="Search over 1000+ exercises..."
                   placeholderTextColor={D.sub}
                   value={query}
-                  onChangeText={setQuery}
+                  onChangeText={handleSearchChange}
                   returnKeyType="search"
                   autoCorrect={false}
                   selectionColor={D.primary}
                 />
                 {query.length > 0 && (
                   <TouchableOpacity
-                    onPress={() => setQuery("")}
+                    onPress={() => { setQuery(""); fetchExercises(selectedMuscle, ""); }}
                     style={s.clearBtn}
                     activeOpacity={0.7}
                   >
@@ -169,7 +232,12 @@ export default function ExerciseList() {
           </FadeTranslate>
 
           <View style={s.resultsContainer}>
-            {results.length === 0 ? (
+            {loading ? (
+              <View style={s.emptyState}>
+                <ActivityIndicator size="large" color={D.primary} />
+                <Text style={[s.emptyText, { marginTop: 16 }]}>Loading exercises...</Text>
+              </View>
+            ) : results.length === 0 ? (
               <FadeTranslate order={0.2}>
                 <View style={s.emptyState}>
                   <View style={s.emptyIconWrap}>
@@ -185,12 +253,23 @@ export default function ExerciseList() {
               <FadeTranslate order={0.2}>
                 <View style={s.resultsHeader}>
                   <Text style={s.sectionLabel}>Results</Text>
-                  <Text style={s.resultsCount}>{results.length}</Text>
+                  <Text style={s.resultsCount}>
+                    {isUsingApi && apiTotal > results.length
+                      ? `${results.length} of ${apiTotal}`
+                      : results.length}
+                  </Text>
                 </View>
 
                 <View style={s.resultsGrid}>
                   {results.map((exercise, index) => {
+                    const isApi = isUsingApi && 'targetMuscles' in exercise;
+                    const apiEx = exercise as ExerciseInfo;
+                    const localEx = exercise as RoutineExercise;
+
                     const imageUri = getImageUri(exercise.gifUrl);
+                    const category = isApi
+                      ? (apiEx.targetMuscles[0] ?? apiEx.bodyParts[0] ?? "")
+                      : localEx.category;
 
                     return (
                       <FadeTranslate
@@ -206,10 +285,10 @@ export default function ExerciseList() {
                               params: {
                                 exerciseId: exercise.exerciseId,
                                 name: exercise.name,
-                                sets: String(exercise.sets),
-                                reps: exercise.reps,
-                                restSeconds: String(exercise.restSeconds),
-                                category: exercise.category,
+                                sets: isApi ? "3" : String(localEx.sets),
+                                reps: isApi ? "12" : localEx.reps,
+                                restSeconds: isApi ? "60" : String(localEx.restSeconds),
+                                category,
                                 gifUrl: exercise.gifUrl ?? "",
                               },
                             })
@@ -235,7 +314,7 @@ export default function ExerciseList() {
                               {exercise.name}
                             </Text>
                             <View style={s.categoryPill}>
-                              <Text style={s.categoryText}>{exercise.category}</Text>
+                              <Text style={s.categoryText}>{category}</Text>
                             </View>
                           </View>
                         </TouchableOpacity>
