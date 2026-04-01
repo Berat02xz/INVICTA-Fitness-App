@@ -353,24 +353,17 @@ export default function Profile() {
                     </TouchableOpacity>
                 </View>
                 <View style={s.topBarRight}>
-                    {/* Level badge */}
+                    {/* Streak badge */}
                     <TouchableOpacity 
                       style={s.levelBadge}
                       activeOpacity={0.8}
                       onPress={() => router.push("/(screens)/Roadmap")}
                     >
                         <View style={s.levelIconWrap}>
-                            <Ionicons name="flash" size={12} color="#000" />
+                            <Text style={{ fontSize: 12 }}>🔥</Text>
                         </View>
-                        <Text style={s.levelText}>Lvl {userLevel}</Text>
+                        <Text style={s.levelText}>{streak} Day{streak !== 1 ? 's' : ''}</Text>
                     </TouchableOpacity>
-                    {/* Streak pill */}
-                    {streak > 0 && (
-                        <View style={s.streakPill}>
-                            <Text style={s.streakEmoji}>🔥</Text>
-                            <Text style={s.streakText}>{streak}</Text>
-                        </View>
-                    )}
                 </View>
             </View>
         </FadeTranslate>

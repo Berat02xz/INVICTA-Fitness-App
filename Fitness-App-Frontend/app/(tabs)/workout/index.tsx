@@ -60,6 +60,7 @@ export default function Workout() {
   const [userData, setUserData] = useState<any>({ name: "User" });
   const [greeting, setGreeting] = useState("Hello");
   const [streak, setStreak] = useState(0);
+  const [socialMessage, setSocialMessage] = useState({ title: "", sub: "", icon: "flame" as any });
   const [totalMeals, setTotalMeals] = useState(0);
   const [weekSuccessData, setWeekSuccessData] = useState<boolean[]>(Array(7).fill(false));
 
@@ -102,6 +103,15 @@ export default function Workout() {
   useEffect(() => {
     loadUserData();
     determineGreeting();
+
+    const socialMessages = [
+      { id: "1", title: "250+ people Working Out right now", sub: "Join the movement", icon: "flame" },
+      { id: "2", title: "Today's Top Routine: Push Day", sub: "Most popular choice", icon: "barbell" },
+      { id: "3", title: "89% finished their workout today", sub: "Don't fall behind", icon: "speedometer" },
+      { id: "4", title: "New Records Being Set", sub: "34 PRs hit in the last hour", icon: "trophy" },
+      { id: "5", title: "Global Challenge", sub: "10,000 km run combined today", icon: "earth" },
+    ];
+    setSocialMessage(socialMessages[Math.floor(Math.random() * socialMessages.length)]);
   }, []);
 
   useFocusEffect(
@@ -254,9 +264,9 @@ export default function Workout() {
                 onPress={() => router.push("/(screens)/Roadmap")}
               >
                 <View style={s.levelIconWrap}>
-                  <Ionicons name="flash" size={12} color="#000" />
+                  <Text style={{ fontSize: 12 }}>🔥</Text>
                 </View>
-                <Text style={s.levelText}>Lvl {userLevel}</Text>
+                <Text style={s.levelText}>{streak} Day{streak !== 1 ? 's' : ''}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -268,42 +278,13 @@ export default function Workout() {
             <View style={s.streakHeader}>
               <View style={s.streakLeft}>
                 <View style={s.fireIconWrap}>
-                  <Ionicons name="flame" size={20} color={D.primary} />
+                  <Ionicons name={socialMessage.icon || "flame"} size={20} color={D.primary} />
                 </View>
                 <View>
-                  <Text style={s.streakTitle}>{streak} Day Streak</Text>
-                  <Text style={s.streakSub}>{streak > 0 ? "You're on fire! Keep it up." : "Let's build that habit!"}</Text>
+                  <Text style={s.streakTitle}>{socialMessage.title || "Loading..."}</Text>
+                  <Text style={s.streakSub}>{socialMessage.sub || "..."}</Text>
                 </View>
               </View>
-            </View>
-
-            <View style={s.weekCard}>
-              {weekDays.map((day, i) => {
-                const success = weekSuccessData[i];
-                return (
-                  <View 
-                    key={i} 
-                    style={[
-                      s.weekDayCol, 
-                      day.isToday && s.weekDayColToday,
-                      success && s.weekDayColWin
-                    ]}
-                  >
-                    <Text style={[
-                      s.weekDayLtr, 
-                      day.isToday && s.weekDayLtrToday, 
-                      success && s.weekDayLtrWin
-                    ]}>
-                      {day.dayName.charAt(0)}
-                    </Text>
-                    <View style={[
-                        s.weekDayDot,
-                        success && s.weekDayDotWin,
-                        !success && day.isToday && s.weekDayDotToday,
-                    ]} />
-                  </View>
-                )
-              })}
             </View>
           </BlurView>
         </FadeTranslate>

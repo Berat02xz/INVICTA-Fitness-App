@@ -46,25 +46,30 @@ const AVATARS = [
   require("@/assets/avatars/avatar7.jpg"),
 ];
 
-const getFakeUsersForLevel = (level: number) => {
-  // Pseudo-random count based on level
-  const base = Math.abs(Math.sin(level * 43.21));
-  const count = Math.floor(base * 40); // 0 to 40 users
+const getFakeUsersForStreak = (streakNum: number) => {
+  // Exponential decay type logic: lower numbers for higher streaks
+  const baseFactor = Math.max(1, Math.floor(80000 / Math.pow(streakNum, 1.4)));
+  // Add some randomness
+  const count = Math.floor(baseFactor * (0.8 + 0.4 * Math.random()));
+  
   if (count === 0) return null;
   
-  const startIdx = (level * 7) % AVATARS.length;
+  const startIdx = (streakNum * 7) % AVATARS.length;
   const displayAvatars = [];
   displayAvatars.push(AVATARS[startIdx]);
   if (count > 1) displayAvatars.push(AVATARS[(startIdx + 1) % AVATARS.length]);
   if (count > 2) displayAvatars.push(AVATARS[(startIdx + 2) % AVATARS.length]);
   
-  return { avatars: displayAvatars, total: count };
+  // Custom shorthand for large numbers (e.g. 50000 -> 50k)
+  const formattedTotal = count >= 1000 ? (count / 1000).toFixed(1) + "k" : count;
+
+  return { avatars: displayAvatars, total: count, formattedTotal };
 };
 
 export default function Roadmap() {
   const insets = useSafeAreaInsets();
   const [userData, setUserData] = useState<User | null>(null);
-  const [userLevel, setUserLevel] = useState(1);
+  const [userStreak, setUserStreak] = useState(0);
   const [points, setPoints] = useState(0);
 
   useFocusEffect(
@@ -78,7 +83,7 @@ export default function Roadmap() {
           const userId = await getUserIdFromToken();
           if (!userId) return;
 
-          // Same level calc logic
+          // Streak calc logic
           const meals = await Meal.getTodayMeals(database, userId);
           const totalMeals = meals.length;
 
@@ -103,10 +108,8 @@ export default function Roadmap() {
           }
 
           if (active) {
-            const calculatedLevel = Math.max(1, Math.floor(totalMeals / 2) + s + 1);
-            setUserLevel(calculatedLevel);
-            // Simulated points progression based on level
-            setPoints((calculatedLevel - 1) * 100 + (totalMeals * 10) + (s * 30));
+            setUserStreak(s);
+            setPoints(s * 150 + totalMeals * 10);
           }
         } catch (e) {
           console.log(e);
@@ -118,10 +121,11 @@ export default function Roadmap() {
     }, [])
   );
 
-  // Generate node layout
-  const levelsArray = Array.from({ length: MAX_LEVEL }).map((_, i) => i + 1);
-  const nextLevel = Math.min(MAX_LEVEL, userLevel + 1);
-  const pointsToNext = Math.max(0, nextLevel * 100 - points);
+  // Generate milestone nodes
+  const STREAK_MILESTONES = [1, 2, 3, 5, 7, 10, 14, 21, 30, 45, 60, 90, 120, 180, 250, 365];
+  const nextMilestone = STREAK_MILESTONES.find(m => m > userStreak) || 365;
+  const progressPercent = (userStreak / nextMilestone) * 100;
+  const daysLeft = Math.max(0, nextMilestone - userStreak);
 
   return (
     <View style={s.container}>
@@ -152,17 +156,17 @@ export default function Roadmap() {
               style={StyleSheet.absoluteFillObject}
             />
             <View style={s.heroIconWrap}>
-              <Ionicons name="trophy" size={40} color={D.primary} />
+              <Ionicons name="flame" size={40} color={D.primary} />
             </View>
-            <Text style={s.heroTitle}>Level {userLevel}</Text>
+            <Text style={s.heroTitle}>{userStreak} Day Streak</Text>
             <Text style={s.heroSub}>
               Goal: {userData?.goal || "Stay fit"}{"\n"}
               Calorie Target: {userData?.caloricIntake || 2000} kcal/day
             </Text>
-            {userLevel < MAX_LEVEL && (
+            {userStreak < 365 && (
               <View style={s.progBarWrap}>
-                 <View style={[s.progBarFill, { width: `${(points % 100) || 10}%` }]} />
-                 <Text style={s.progBarText}>{pointsToNext} XP to Level {nextLevel}</Text>
+                 <View style={[s.progBarFill, { width: `${progressPercent}%` }]} />
+                 <Text style={s.progBarText}>{daysLeft} days to {nextMilestone} Day Streak</Text>
               </View>
             )}
           </View>
@@ -172,10 +176,10 @@ export default function Roadmap() {
         <View style={s.roadmapContainer}>
           <View style={s.centerLine} />
           
-          {levelsArray.map((level, i) => {
-            const isCompleted = level < userLevel;
-            const isCurrent = level === userLevel;
-            const isLocked = level > userLevel;
+          {STREAK_MILESTONES.map((milestone, i) => {
+            const isCompleted = milestone <= userStreak;
+            const isCurrent = milestone === nextMilestone;
+            const isLocked = milestone > nextMilestone;
             const isLeft = i % 2 === 0;
 
             let bgColor = D.cardAlt;
@@ -191,13 +195,13 @@ export default function Roadmap() {
             } else if (isCurrent) {
               bgColor = "#000";
               borderColor = D.primary;
-              icon = "star";
+              icon = "flame";
               iconColor = D.primary;
             }
 
             return (
               <FadeTranslate 
-                key={level} 
+                key={milestone} 
                 order={0.2}
                 delay={Math.min(i, 20) * 150}
               >
@@ -207,9 +211,9 @@ export default function Roadmap() {
                   {/* Text Side */}
                   <View style={[s.nodeSide, { alignItems: isLeft ? "flex-end" : "flex-start", paddingHorizontal: 16 }]}>
                   <Text style={[s.nodeLabel, isCompleted && s.nodeLabelCompleted, isCurrent && s.nodeLabelCurrent]}>
-                    Level {level}
+                    Day {milestone}
                   </Text>
-                  {isCurrent && <Text style={s.nodeSubLabel}>Current Stage</Text>}
+                  {isCurrent && <Text style={s.nodeSubLabel}>Next Goal</Text>}
                 </View>
 
                 {/* Center Node */}
@@ -229,7 +233,7 @@ export default function Roadmap() {
                 {/* Users Side */}
                 <View style={[s.nodeSide, { alignItems: isLeft ? "flex-start" : "flex-end", paddingHorizontal: 16 }]}>
                   {(() => {
-                    const fakeData = getFakeUsersForLevel(level);
+                    const fakeData = getFakeUsersForStreak(milestone);
                     if (!fakeData && !isCurrent) return null;
                     return (
                       <View style={[s.usersBadge, { flexDirection: isLeft ? "row" : "row-reverse" }]}>
@@ -244,7 +248,7 @@ export default function Roadmap() {
                         </View>
                         {fakeData && fakeData.total > fakeData.avatars.length && (
                              <View style={s.moreUsersPill}>
-                                <Text style={s.moreUsersText}>+{fakeData.total - fakeData.avatars.length}</Text>
+                                <Text style={s.moreUsersText}>+{fakeData.formattedTotal}</Text>
                              </View>
                         )}
                       </View>

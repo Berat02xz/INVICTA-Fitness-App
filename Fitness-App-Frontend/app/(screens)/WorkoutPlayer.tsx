@@ -24,16 +24,6 @@ import { theme } from "../../constants/theme";
 import { LikedExercise } from "../../models/LikedExercise";
 import database from "../../database/database";
 
-const MOTIVATIONAL_QUOTES = [
-  "Believe you can and you're halfway there.",
-  "It does not matter how slowly you go as long as you do not stop.",
-  "Hard work beats talent when talent doesn't work hard.",
-  "Don't stop when you're tired. Stop when you're done.",
-  "The only bad workout is the one that didn't happen.",
-  "What seems impossible today will one day become your warm-up.",
-  "Success starts with self-discipline.",
-];
-
 const SOCIAL_PROOF_MESSAGES = [
   "169 people are working out right now",
   "250+ users have quit after this screen",
@@ -150,7 +140,6 @@ export default function WorkoutPlayer() {
   const breathingScale1 = useRef(new Animated.Value(1)).current;
   const breathingScale2 = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const [currentQuote, setCurrentQuote] = useState(MOTIVATIONAL_QUOTES[0]);
   const [socialProofVisible, setSocialProofVisible] = useState(false);
   const [socialProofAvatars, setSocialProofAvatars] = useState<number[]>([]);
   const [socialProofMessage, setSocialProofMessage] = useState('');
@@ -234,20 +223,15 @@ export default function WorkoutPlayer() {
 
   useEffect(() => {
     if (phase === "rest" && !isPaused) {
-      setCurrentQuote(MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]);
-
-      // 30% chance social proof banner
-      const showSocial = Math.random() < 0.30;
-      setSocialProofVisible(showSocial);
-      if (showSocial) {
-        const indices = Array.from({ length: AVATAR_POOL.length }, (_, i) => i)
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3);
-        setSocialProofAvatars(indices);
-        setSocialProofMessage(
-          SOCIAL_PROOF_MESSAGES[Math.floor(Math.random() * SOCIAL_PROOF_MESSAGES.length)]
-        );
-      }
+      // Social proof banner
+      setSocialProofVisible(true);
+      const indices = Array.from({ length: AVATAR_POOL.length }, (_, i) => i)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      setSocialProofAvatars(indices);
+      setSocialProofMessage(
+        SOCIAL_PROOF_MESSAGES[Math.floor(Math.random() * SOCIAL_PROOF_MESSAGES.length)]
+      );
 
       Animated.loop(
         Animated.sequence([
@@ -619,7 +603,8 @@ export default function WorkoutPlayer() {
 
               return (
                 <FadeTranslate order={0.2} delay={100} style={styles.restContainer}>
-                  {socialProofVisible && (
+                  {/* TOP MESSAGE BANNER: ONLY SOCIAL PROOF */}
+                  <View style={styles.topMessageContainer}>
                     <View style={styles.socialProofRow}>
                       <View style={styles.socialAvatarStack}>
                         {socialProofAvatars.map((idx, i) => (
@@ -632,7 +617,8 @@ export default function WorkoutPlayer() {
                       </View>
                       <Text style={styles.socialProofText}>{socialProofMessage}</Text>
                     </View>
-                  )}
+                  </View>
+
                   <View style={styles.timerSection}>
                     <View style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center' }]}>
                       <Animated.View style={[styles.breathingCircle, { width: 300, height: 300, backgroundColor: D.primary, opacity: 0.1, transform: [{ scale: breathingScale2 }] }]} />
@@ -655,9 +641,6 @@ export default function WorkoutPlayer() {
                     </View>
                   </View>
 
-                  <View style={styles.glowQuoteWrapper}>
-                    <Text style={styles.glowQuoteText}>&quot;{currentQuote}&quot;</Text>  
-                  </View>
                   <View style={styles.upNextContainer}>
                     <Text style={styles.upNextCardTitle}>UP NEXT</Text>
                     <View style={styles.upNextCardRow}>
@@ -1168,37 +1151,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 12,
   },
-  socialProofRow: {
+  topMessageContainer: {
     position: 'absolute',
-    top: 50,
+    top: 20,
     left: 0,
     right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
     zIndex: 20,
+    paddingHorizontal: 24,
+  },
+  socialProofRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
-    paddingHorizontal: 24,
     paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 30,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   socialAvatarStack: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   socialAvatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     borderWidth: 2,
     borderColor: D.bg,
   },
   socialProofText: {
-    color: 'rgba(255,255,255,0.65)',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 13,
     fontFamily: theme.medium,
     flexShrink: 1,
     flexWrap: 'wrap',
-    textAlign: 'center',
   },
   glowQuoteText: {
     color: D.white,
