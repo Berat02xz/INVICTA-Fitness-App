@@ -46,6 +46,24 @@ export default function ExerciseList() {
   const [muscles, setMuscles] = useState<string[]>(["All"]);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Curated muscles known to return results on the ExerciseDB API
+  const KNOWN_MUSCLES = [
+    "biceps",
+    "triceps",
+    "pectorals",
+    "lats",
+    "deltoide",
+    "glutes",
+    "quads",
+    "hamstrings",
+    "calves",
+    "abs",
+    "forearms",
+    "traps",
+    "spine",
+    "serratus anterior",
+  ];
+
   // Local exercises from routines (default "All" view)
   const localExercises = useMemo(() => {
     const exerciseMap = new Map<string, RoutineExercise>();
@@ -59,19 +77,26 @@ export default function ExerciseList() {
     return Array.from(exerciseMap.values());
   }, []);
 
-  // Fetch muscle list from API on mount
+  // Populate muscle list on mount using curated known-good muscles, with API as enhancement
   useEffect(() => {
     (async () => {
       const apiMuscles = await ExerciseApi.getMuscles();
-      if (apiMuscles.length > 0) {
-        setMuscles(["All", ...apiMuscles.sort()]);
-      } else {
-        // Fallback to local categories
-        const categories = new Set(localExercises.map((e) => e.category));
-        setMuscles(["All", ...Array.from(categories).sort()]);
-      }
+      // Filter to only muscles that exist in our known-good list to avoid empty results
+      const filtered = apiMuscles.filter((m) =>
+        KNOWN_MUSCLES.some((k) => k.toLowerCase() === m.toLowerCase())
+      );
+      // Merge: start with known muscles (preserve order), add any extra from API not in our list
+      const merged = [
+        ...KNOWN_MUSCLES.filter((k) =>
+          filtered.some((f) => f.toLowerCase() === k.toLowerCase())
+        ),
+        ...filtered.filter(
+          (f) => !KNOWN_MUSCLES.some((k) => k.toLowerCase() === f.toLowerCase())
+        ),
+      ];
+      setMuscles(["All", ...(merged.length > 0 ? merged : KNOWN_MUSCLES)]);
     })();
-  }, [localExercises]);
+  }, []);
 
   // Fetch exercises from API when muscle filter or search changes
   const fetchExercises = useCallback(async (muscle: string, searchQuery: string) => {
