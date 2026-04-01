@@ -247,9 +247,11 @@ export default function Workout() {
               <Text style={s.greetingText}>{greeting}</Text>
             </View>
             <View style={s.headerRight}>
-              <View style={s.streakPill}>
-                <Ionicons name="flash" size={12} color="#000" />
-                <Text style={s.streakPillText}>Lvl {userLevel}</Text>
+              <View style={s.levelBadge}>
+                <View style={s.levelIconWrap}>
+                  <Ionicons name="flash" size={12} color="#000" />
+                </View>
+                <Text style={s.levelText}>Lvl {userLevel}</Text>
               </View>
             </View>
           </View>
@@ -485,17 +487,30 @@ const s = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
-  streakPill: {
+  levelBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
     backgroundColor: D.primaryDim,
     borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
   },
-  streakPillText: { fontSize: 12, fontFamily: theme.bold, color: D.primary },
+  levelIconWrap: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: D.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  levelText: {
+    fontSize: 13,
+    fontFamily: theme.bold,
+    color: D.primary,
+  },
 
   chipScroll: {
     paddingHorizontal: 20,

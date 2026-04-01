@@ -171,32 +171,44 @@ export default function WorkoutPlayer() {
   }, [phase, isPaused, exerciseTimer]);
 
   useEffect(() => {
-    if (totalExercises > 0) {
-      const currentDur = getExerciseDuration(currentExercise);
+    if (totalExercises > 0 && currentExercise) {
       if (phase === "complete") {
         Animated.timing(progressAnim, {
           toValue: 1,
           duration: 1000,
           useNativeDriver: false,
         }).start();
-      } else if (phase === "exercise") {
-        const baseProgress = currentIndex / totalExercises;
-        const segmentProgress = (1 - exerciseTimer / currentDur) / totalExercises;
-        Animated.timing(progressAnim, {
-          toValue: baseProgress + segmentProgress,
-          duration: 1000,
-          useNativeDriver: false,
-        }).start();
       } else {
-        const nextStop = currentIndex / totalExercises;
-        Animated.timing(progressAnim, {
-          toValue: nextStop,
-          duration: 500,
-          useNativeDriver: false,
-        }).start();
+        const currentDur = getExerciseDuration(currentExercise);
+        const baseProgress = currentIndex / totalExercises;
+        const totalSets = currentExercise.sets || 1;
+        const setFraction = 1 / totalSets;
+        
+        let targetProgress = baseProgress;
+
+        if (phase === "exercise") {
+          const completedSetsProgress = (currentSet - 1) * setFraction;
+          const activeSetProgress = (1 - exerciseTimer / currentDur) * setFraction;
+          targetProgress += (completedSetsProgress + activeSetProgress) / totalExercises;
+
+          Animated.timing(progressAnim, {
+            toValue: targetProgress,
+            duration: 1000,
+            useNativeDriver: false,
+          }).start();
+        } else if (phase === "rest") {
+          const completedSetsProgress = currentSet * setFraction;
+          targetProgress += completedSetsProgress / totalExercises;
+
+          Animated.timing(progressAnim, {
+            toValue: targetProgress,
+            duration: 500,
+            useNativeDriver: false,
+          }).start();
+        }
       }
     }
-  }, [currentIndex, totalExercises, phase, exerciseTimer]);
+  }, [currentIndex, currentSet, totalExercises, phase, exerciseTimer, currentExercise]);
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
