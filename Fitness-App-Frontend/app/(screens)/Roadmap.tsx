@@ -19,6 +19,7 @@ import { Meal } from "@/models/Meals";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import { Image } from "react-native";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
 
@@ -262,12 +263,21 @@ export default function Roadmap() {
         </View>
 
       </ScrollView>
+
+      {/* Confetti rendered last so it floats above everything */}
+      <View style={s.confettiOverlay} pointerEvents="none">
+        <ConfettiCannon count={100} origin={{ x: -10, y: 0 }} fadeOut colors={["#AAFB05", "#22C55E", "#006400", "#228B22", "#32CD32"]} />
+      </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: D.bg },
+  confettiOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 999,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",

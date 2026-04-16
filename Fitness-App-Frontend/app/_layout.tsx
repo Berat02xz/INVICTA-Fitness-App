@@ -7,6 +7,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { ActivityIndicator, View, StatusBar, Platform } from "react-native";
 import { theme } from "@/constants/theme";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider, DarkTheme } from "@react-navigation/native";
 import * as SystemUI from 'expo-system-ui';
 
@@ -60,10 +61,12 @@ export default function RootLayout() {
     <>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
-        <ThemeProvider value={navTheme}>
-          <Slot />
-          <Toast />
-        </ThemeProvider>
+        <BottomSheetModalProvider>
+          <ThemeProvider value={navTheme}>
+            <Slot />
+            <Toast />
+          </ThemeProvider>
+        </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </>
   );

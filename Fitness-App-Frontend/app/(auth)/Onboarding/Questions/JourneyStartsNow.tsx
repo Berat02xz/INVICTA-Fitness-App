@@ -13,8 +13,8 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
 } from "react-native";
-import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
 import ConfettiCannon from "react-native-confetti-cannon";
 
 export default function JourneyStartsNow() {
@@ -22,6 +22,7 @@ export default function JourneyStartsNow() {
 
   const animation = useRef(new Animated.Value(0)).current;
   const [animatedDateString, setAnimatedDateString] = useState("");
+  const confettiRef = useRef<any>(null);
 
   const startDate = new Date();
   const endDate = new Date();
@@ -69,7 +70,13 @@ export default function JourneyStartsNow() {
   return (
     <>
       <SolidBackground />
-      <ConfettiCannon count={20} origin={{ x: -10, y: 0 }} />
+      <ConfettiCannon
+        ref={confettiRef}
+        count={80}
+        origin={{ x: -10, y: 0 }}
+        fadeOut
+        colors={["#AAFB05", "#22C55E", "#006400", "#228B22", "#32CD32"]}
+      />
 
       <View style={styles.outerContainer}>
         <View style={styles.container}>

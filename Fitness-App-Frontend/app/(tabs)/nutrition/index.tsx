@@ -1,6 +1,6 @@
 ﻿import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ImageBackground, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ImageBackground, Dimensions, Platform, PermissionsAndroid } from "react-native";
 import { User } from "@/models/User";
 import { useProStatus } from "@/hooks/useProStatus";
 import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
@@ -177,6 +177,22 @@ export default function NutritionScreen() {
     let base = 0;
 
     (async () => {
+      // Request runtime permission on Android 10+
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.request(
+          "android.permission.ACTIVITY_RECOGNITION",
+          {
+            title: "Step Counter Permission",
+            message: "Invicta needs access to your step counter to track activity.",
+            buttonPositive: "Allow",
+          }
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          setPedometerAvailable(false);
+          return;
+        }
+      }
+
       const ok = await Pedometer.isAvailableAsync();
       setPedometerAvailable(ok);
       if (!ok) return;

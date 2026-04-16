@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { ROUTINES, RoutineExercise } from "../../constants/workoutRoutines";
 import { theme } from "../../constants/theme";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import { ExerciseApi, ExerciseInfo } from "../../api/ExerciseApi";
@@ -35,61 +36,131 @@ function getImageUri(gifUrl: string | null) {
   return gifUrl || null;
 }
 
-const capitalize = (str: string) =>
-  str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
-
 export default function ExerciseList() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("All");
+  const [apiExercises, setApiExercises] = useState<ExerciseInfo[]>([]);
+  const [apiTotal, setApiTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [muscles, setMuscles] = useState<string[]>(["All"]);
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Base pool: ALL exercises fetched via cursor pagination (~1500), cached in API
-  const [allPool, setAllPool] = useState<ExerciseInfo[]>([]);
+  // Curated muscles known to return results on the ExerciseDB API
+  const KNOWN_MUSCLES = [
+    "biceps",
+    "triceps",
+    "pectorals",
+    "lats",
+    "deltoide",
+    "glutes",
+    "quads",
+    "hamstrings",
+    "calves",
+    "abs",
+    "forearms",
+    "traps",
+    "spine",
+    "serratus anterior",
+  ];
 
-  // Fetch the full exercise database on mount (cached after first load)
-  useEffect(() => {
-    setLoading(true);
-    ExerciseApi.getAllExercises().then((exercises) => {
-      setAllPool(exercises);
-      setLoading(false);
-
-      const muscleSet = new Set<string>();
-      exercises.forEach((ex) => ex.targetMuscles.forEach((m) => muscleSet.add(m.toLowerCase())));
-      const sorted = Array.from(muscleSet).sort();
-      setMuscles(["All", ...sorted]);
+  // Local exercises from routines (default "All" view)
+  const localExercises = useMemo(() => {
+    const exerciseMap = new Map<string, RoutineExercise>();
+    ROUTINES.forEach((routine) => {
+      routine.exercises.forEach((exercise) => {
+        if (!exerciseMap.has(exercise.exerciseId)) {
+          exerciseMap.set(exercise.exerciseId, exercise);
+        }
+      });
     });
+    return Array.from(exerciseMap.values());
   }, []);
 
-  // All filtering is client-side from the full pool — instant switching
-  const results = useMemo(() => {
-    let pool = allPool;
-
-    if (selectedMuscle !== "All") {
-      const m = selectedMuscle.toLowerCase();
-      pool = pool.filter((ex) =>
-        ex.targetMuscles.some((t) => t.toLowerCase() === m)
+  // Populate muscle list on mount using curated known-good muscles, with API as enhancement
+  useEffect(() => {
+    (async () => {
+      const apiMuscles = await ExerciseApi.getMuscles();
+      // Filter to only muscles that exist in our known-good list to avoid empty results
+      const filtered = apiMuscles.filter((m) =>
+        KNOWN_MUSCLES.some((k) => k.toLowerCase() === m.toLowerCase())
       );
+      // Merge: start with known muscles (preserve order), add any extra from API not in our list
+      const merged = [
+        ...KNOWN_MUSCLES.filter((k) =>
+          filtered.some((f) => f.toLowerCase() === k.toLowerCase())
+        ),
+        ...filtered.filter(
+          (f) => !KNOWN_MUSCLES.some((k) => k.toLowerCase() === f.toLowerCase())
+        ),
+      ];
+      setMuscles(["All", ...(merged.length > 0 ? merged : KNOWN_MUSCLES)]);
+    })();
+  }, []);
+
+  // Fetch exercises from API when muscle filter or search changes
+  const fetchExercises = useCallback(async (muscle: string, searchQuery: string) => {
+    const trimmedQuery = searchQuery.trim();
+
+    // If "All" and no search, use local exercises
+    if (muscle === "All" && !trimmedQuery) {
+      setApiExercises([]);
+      setApiTotal(0);
+      return;
     }
 
-    if (query.trim()) {
-      const q = query.trim().toLowerCase();
-      pool = pool.filter(
-        (ex) =>
-          ex.name.toLowerCase().includes(q) ||
-          ex.targetMuscles.some((t) => t.toLowerCase().includes(q)) ||
-          ex.equipments.some((e) => e.toLowerCase().includes(q)) ||
-          ex.bodyParts.some((b) => b.toLowerCase().includes(q))
-      );
+    setLoading(true);
+    try {
+      if (trimmedQuery) {
+        // Text search (API searches across name, muscles, equipment, body parts)
+        const { exercises, total } = await ExerciseApi.searchExercises(trimmedQuery, 50);
+        // If a muscle is also selected, filter the search results by that muscle
+        if (muscle !== "All") {
+          const filtered = exercises.filter((e) =>
+            e.targetMuscles.some((m) => m.toLowerCase() === muscle.toLowerCase())
+          );
+          setApiExercises(filtered);
+          setApiTotal(filtered.length);
+        } else {
+          setApiExercises(exercises);
+          setApiTotal(total);
+        }
+      } else {
+        // Muscle filter only
+        const { exercises, total } = await ExerciseApi.getExercisesByMuscle(muscle, 50);
+        setApiExercises(exercises);
+        setApiTotal(total);
+      }
+    } catch {
+      setApiExercises([]);
+      setApiTotal(0);
+    } finally {
+      setLoading(false);
     }
+  }, []);
 
-    return pool;
-  }, [allPool, selectedMuscle, query]);
+  // Trigger fetch when muscle changes
+  useEffect(() => {
+    fetchExercises(selectedMuscle, query);
+  }, [selectedMuscle]);
 
+  // Debounced search
   const handleSearchChange = useCallback((text: string) => {
     setQuery(text);
-  }, []);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      fetchExercises(selectedMuscle, text);
+    }, 400);
+  }, [selectedMuscle, fetchExercises]);
+
+  // Determine which exercises to show
+  const isUsingApi = selectedMuscle !== "All" || query.trim().length > 0;
+
+  const results = useMemo(() => {
+    if (isUsingApi) return apiExercises;
+    // Local filtering for "All" with no search
+    return localExercises;
+  }, [isUsingApi, apiExercises, localExercises]);
 
   return (
     <View style={s.container}>
@@ -112,7 +183,7 @@ export default function ExerciseList() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <FadeTranslate order={0} direction="y" translateYFrom={-24}>
+          <FadeTranslate order={0}>
             <View style={s.headerRow}>
               <Text style={s.heroTitle}>Find Exercises</Text>
               <TouchableOpacity
@@ -140,7 +211,7 @@ export default function ExerciseList() {
                 />
                 {query.length > 0 && (
                   <TouchableOpacity
-                    onPress={() => setQuery("")}
+                    onPress={() => { setQuery(""); fetchExercises(selectedMuscle, ""); }}
                     style={s.clearBtn}
                     activeOpacity={0.7}
                   >
@@ -151,7 +222,7 @@ export default function ExerciseList() {
             </View>
           </FadeTranslate>
 
-          <FadeTranslate order={0} delay={200} direction="x" translateXFrom={60}>
+          <FadeTranslate order={0.1}>
             <View style={s.muscleSectionHeader}>
               <Text style={s.sectionLabel}>Muscles</Text>
               {selectedMuscle !== "All" && (
@@ -177,7 +248,7 @@ export default function ExerciseList() {
                     activeOpacity={0.7}
                   >
                     <Text style={[s.muscleText, active && s.muscleTextActive]}>
-                      {capitalize(muscle)}
+                      {muscle}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -204,28 +275,31 @@ export default function ExerciseList() {
                 </View>
               </FadeTranslate>
             ) : (
-              <>
-                <FadeTranslate order={0} delay={300} direction="y" translateYFrom={-16}>
-                  <View style={s.resultsHeader}>
-                    <Text style={s.sectionLabel}>Results</Text>
-                    <Text style={s.resultsCount}>{results.length}</Text>
-                  </View>
-                </FadeTranslate>
+              <FadeTranslate order={0.2}>
+                <View style={s.resultsHeader}>
+                  <Text style={s.sectionLabel}>Results</Text>
+                  <Text style={s.resultsCount}>
+                    {isUsingApi && apiTotal > results.length
+                      ? `${results.length} of ${apiTotal}`
+                      : results.length}
+                  </Text>
+                </View>
 
                 <View style={s.resultsGrid}>
                   {results.map((exercise, index) => {
+                    const isApi = isUsingApi && 'targetMuscles' in exercise;
+                    const apiEx = exercise as ExerciseInfo;
+                    const localEx = exercise as RoutineExercise;
+
                     const imageUri = getImageUri(exercise.gifUrl);
-                    const category = (exercise as ExerciseInfo).targetMuscles?.[0]
-                      ?? (exercise as ExerciseInfo).bodyParts?.[0]
-                      ?? "";
+                    const category = isApi
+                      ? (apiEx.targetMuscles[0] ?? apiEx.bodyParts[0] ?? "")
+                      : localEx.category;
 
                     return (
                       <FadeTranslate
                         key={`${exercise.exerciseId}-${index}`}
-                        direction="x"
-                        translateXFrom={50}
-                        delay={400}
-                        order={Math.min(index, 12) * 0.1}
+                        order={0.3 + Math.min(index, 10) * 0.05}
                       >
                         <TouchableOpacity
                           style={s.resultCard}
@@ -236,9 +310,9 @@ export default function ExerciseList() {
                               params: {
                                 exerciseId: exercise.exerciseId,
                                 name: exercise.name,
-                                sets: "3",
-                                reps: "12",
-                                restSeconds: "60",
+                                sets: isApi ? "3" : String(localEx.sets),
+                                reps: isApi ? "12" : localEx.reps,
+                                restSeconds: isApi ? "60" : String(localEx.restSeconds),
                                 category,
                                 gifUrl: exercise.gifUrl ?? "",
                               },
@@ -262,10 +336,10 @@ export default function ExerciseList() {
                           />
                           <View style={s.resultInfo}>
                             <Text style={s.resultName} numberOfLines={2}>
-                              {capitalize(exercise.name)}
+                              {exercise.name}
                             </Text>
                             <View style={s.categoryPill}>
-                              <Text style={s.categoryText}>{capitalize(category)}</Text>
+                              <Text style={s.categoryText}>{category}</Text>
                             </View>
                           </View>
                         </TouchableOpacity>
@@ -273,7 +347,7 @@ export default function ExerciseList() {
                     );
                   })}
                 </View>
-              </>
+              </FadeTranslate>
             )}
           </View>
         </ScrollView>

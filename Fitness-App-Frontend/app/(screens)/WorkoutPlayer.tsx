@@ -8,6 +8,7 @@ import {
   Vibration,
   Image,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -21,8 +22,10 @@ import GlassEffect from "../../components/ui/GlassEffect";
 import ButtonFit from "../../components/ui/ButtonFit";
 import { BlurView } from "expo-blur";
 import { theme } from "../../constants/theme";
+import WorkoutComplete from "../../components/ui/WorkoutComplete";
 import { LikedExercise } from "../../models/LikedExercise";
 import database from "../../database/database";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 const SOCIAL_PROOF_MESSAGES = [
   "169 people are working out right now",
@@ -61,6 +64,8 @@ type Phase = "exercise" | "rest" | "complete";
 
 export default function WorkoutPlayer() {
   const insets = useSafeAreaInsets();
+  const { height: SCREEN_H, width: SCREEN_W } = useWindowDimensions();
+  const artworkSize = Math.min(SCREEN_W - 40, 450); // Give it a fixed max width for tablets
   const router = useRouter();
   const params = useLocalSearchParams<{ routineId: string }>();
 
@@ -75,7 +80,7 @@ export default function WorkoutPlayer() {
   const getExerciseDuration = (ex: any) => ex?.durationSeconds || 300; // fallback to 5mins
 
   const [restTimer, setRestTimer] = useState(0);
-  const [exerciseTimer, setExerciseTimer] = useState(getExerciseDuration(currentExercise));
+  const [exerciseTimer, setExerciseTimer] = useState<number>(getExerciseDuration(currentExercise));
   const [isPaused, setIsPaused] = useState(false);
   const [totalElapsed, setTotalElapsed] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -130,7 +135,7 @@ export default function WorkoutPlayer() {
 
   const handleOpenSheet = (type: "upNext" | "instruction") => {
     setActiveSheet(type);
-    bottomSheetRef.current?.expand();
+    bottomSheetRef.current?.snapToIndex(0);
   };
 
   // Animations
@@ -140,6 +145,8 @@ export default function WorkoutPlayer() {
   const breathingScale1 = useRef(new Animated.Value(1)).current;
   const breathingScale2 = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
+  const exerciseIntroAnim = useRef(new Animated.Value(0)).current;
+  const prevIndexRef = useRef(currentIndex);
   const [socialProofVisible, setSocialProofVisible] = useState(false);
   const [socialProofAvatars, setSocialProofAvatars] = useState<number[]>([]);
   const [socialProofMessage, setSocialProofMessage] = useState('');
@@ -148,11 +155,32 @@ export default function WorkoutPlayer() {
   const [caloriesBurned, setCaloriesBurned] = useState(0);
   const fireScaleAnim = useRef(new Animated.Value(1)).current;
   const fireRotateAnim = useRef(new Animated.Value(0)).current;
+  const calPulseAnim = useRef(new Animated.Value(1)).current;
 
   const totalExercises = exercises.length;
   
   // Keep an up-to-date ref for handleNext to avoid stale closures inside intervals
-  const handleNextRef = useRef<() => void>();
+  const handleNextRef = useRef<(() => void) | undefined>(undefined);
+
+  const isFirstIntroRef = useRef(true);
+
+  useEffect(() => {
+    if (phase === "exercise") {
+      if (currentIndex !== prevIndexRef.current || isFirstIntroRef.current) {
+        prevIndexRef.current = currentIndex;
+        isFirstIntroRef.current = false;
+        exerciseIntroAnim.setValue(0);
+        Animated.sequence([
+          Animated.delay(1000),
+          Animated.timing(exerciseIntroAnim, {
+            toValue: 1,
+            duration: 3000,
+            useNativeDriver: false,
+          })
+        ]).start();
+      }
+    }
+  }, [currentIndex, phase]);
 
   useEffect(() => {
     if (phase === "exercise" && !isPaused) {
@@ -339,7 +367,16 @@ export default function WorkoutPlayer() {
       const expected = currentExercise?.expectedCalories || 10;
       const burnRatePerSecond = expected / duration;
 
-      setCaloriesBurned((c) => +(c + burnRatePerSecond).toFixed(2)); 
+      setCaloriesBurned((c) => {
+        const next = +(c + burnRatePerSecond).toFixed(2);
+        if (Math.floor(next) > Math.floor(c)) {
+          Animated.sequence([
+            Animated.timing(calPulseAnim, { toValue: 1.6, duration: 80, useNativeDriver: true }),
+            Animated.spring(calPulseAnim, { toValue: 1, useNativeDriver: true, bounciness: 16, speed: 12 } as any),
+          ]).start();
+        }
+        return next;
+      });
     }, 1000);
     
     return () => {
@@ -480,7 +517,7 @@ export default function WorkoutPlayer() {
     );
   }
   return (
-    <View style={{flex: 1, backgroundColor: '#000000'}}>
+    <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
         
         {/* HYPE OVERLAY */}
@@ -499,40 +536,24 @@ export default function WorkoutPlayer() {
           </Animated.View>
         )}
 
-        {/* TOP HEADER */}
-        <FadeTranslate order={0} direction="y" translateYFrom={-20} style={[styles.topToggleRow, { justifyContent: 'flex-start', paddingHorizontal: 24, gap: 16 }]}>
+        {/* TOP HEADER (Calories) */}
+        {phase === "exercise" && (
+        <FadeTranslate order={0} direction="y" translateYFrom={-20} style={[styles.topToggleRow, { justifyContent: 'space-between', paddingHorizontal: 24, gap: 16, alignItems: 'center' }]}>
            <Pressable onPress={() => router.back()} style={{ zIndex: 10 }}>
-              <Ionicons name="chevron-down" size={32} color="#fff" />
+              <Ionicons name="chevron-down" size={32} color="#000" />
            </Pressable>
            
-           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
-             {/* TIMER on left */}
-             <View style={[styles.toggleActive, { paddingHorizontal: 16, paddingVertical: 8, height: 'auto', borderRadius: 20 }]}>
-                 <Text style={[styles.toggleTextActive, { fontSize: 16, fontWeight: '700' }]}>{formatTime(exerciseTimer)}</Text>
-             </View>
-
-             {/* PROGRESS BAR beside timer */}
-             <View style={{ flex: 1, height: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 3, position: 'relative', overflow: 'hidden' }}>
-                 {exercises.map((_, i) => {
-                    if (i === 0) return null;
-                    return (
-                      <View key={i} style={{
-                         position: 'absolute',
-                         left: `${(i / totalExercises) * 100}%`,
-                         width: 2, height: '100%',
-                         backgroundColor: '#000000',
-                         zIndex: 2
-                      }} />
-                    )
-                 })}
-                 <Animated.View style={{ 
-                     position: 'absolute', top: 0, bottom: 0, left: 0,
-                     backgroundColor: D.primary,
-                     width: progressWidth 
-                 }} />
-             </View>
+           <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999 }}>
+               <Animated.View style={{ transform: [{ scale: fireScaleAnim }, { rotate: fireRotationInterpolate }], marginRight: 6 }}>
+                   <Text style={{ fontSize: 18 }}>🔥</Text>
+               </Animated.View>
+               <Animated.Text style={{ color: '#fff', fontSize: 20, fontFamily: theme.black, transform: [{ scale: calPulseAnim }], letterSpacing: 0 }}>
+                  {Math.floor(caloriesBurned)}
+               </Animated.Text>
+               <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: theme.bold, marginLeft: 4, paddingTop: 2 }}>KCAL</Text>
            </View>
         </FadeTranslate>
+        )}
 
         <Animated.View
           style={[
@@ -543,45 +564,14 @@ export default function WorkoutPlayer() {
             },
           ]}
         >
-          {phase === "complete" ? (
-            <FadeTranslate order={0.5} style={styles.completeScreen}>
-              <View style={styles.completeIconWrap}>
-                  <View style={[StyleSheet.absoluteFillObject, { backgroundColor: D.primary, opacity: 0.2, borderRadius: 100, transform: [{scale: 1.4}]}]} />
-                  <View style={[StyleSheet.absoluteFillObject, { backgroundColor: D.primary, opacity: 0.1, borderRadius: 100, transform: [{scale: 1.8}]}]} />
-                  <Ionicons name="trophy" size={60} color={D.bg} />
-              </View>
-              <Text style={styles.completeTitle}>Workout <Text style={{color: D.primary}}>Mastered!</Text></Text>
-              <Text style={styles.completeSub}>Great job wrapping up {routine?.name}.</Text>
-              <View style={styles.statsRow}>
-                 <View style={styles.statBox}>
-                     <View style={styles.statIconWrap}>
-                         <Ionicons name="flash" size={24} color={D.primary} />
-                     </View>
-                     <View>
-                       <Text style={styles.statVal}>{totalExercises}</Text>
-                       <Text style={styles.statLbl}>Exercises</Text>
-                     </View>
-                 </View>
-                 <View style={styles.statBox}>
-                     <View style={[styles.statIconWrap, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
-                         <Ionicons name="time" size={24} color="#fff" />
-                     </View>
-                     <View>
-                       <Text style={styles.statVal}>{formatTime(totalElapsed)}</Text>
-                       <Text style={styles.statLbl}>Duration</Text>
-                     </View>
-                 </View>
-              </View>
-
-              <View style={{ width: 400, maxWidth: '100%', alignSelf: 'center', marginTop: 20 }}>
-                <ButtonFit
-                  title="Finish Workout"
-                  backgroundColor={D.primary}
-                  onPress={() => router.back()}
-                />
-              </View>
-            </FadeTranslate>
-
+         {phase === "complete" ? (
+            <WorkoutComplete 
+                routineName={routine?.name || "Custom Workout"}
+                duration={formatTime(totalElapsed)}
+                calories={caloriesBurned}
+                exercises={totalExercises}
+                onFinish={() => router.back()}
+            />
           ) : phase === "rest" ? (
             (() => {
               let upNextExerName = currentExercise?.name;
@@ -602,183 +592,173 @@ export default function WorkoutPlayer() {
               }
 
               return (
-                <FadeTranslate order={0.2} delay={100} style={styles.restContainer}>
-                  {/* TOP MESSAGE BANNER: ONLY SOCIAL PROOF */}
-                  <View style={styles.topMessageContainer}>
-                    <View style={styles.socialProofRow}>
-                      <View style={styles.socialAvatarStack}>
+                <FadeTranslate order={0.2} delay={100} style={[StyleSheet.absoluteFillObject, { backgroundColor: D.primary, justifyContent: 'center', alignItems: 'center' }]}>
+                  {/* Top Right List Icon */}
+                  <Pressable onPress={() => handleOpenSheet('upNext')} style={{ position: 'absolute', top: insets.top + 16, right: 24, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                     <Ionicons name="list" size={24} color="#000" />
+                  </Pressable>
+
+{/* Rest Text */}
+                  {/* Social Proof Box */}
+                  {socialProofVisible && (
+                    <Animated.View style={{ position: 'absolute', top: insets.top + 130, flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 20, zIndex: 10 }}>
+                      <View style={{ flexDirection: 'row', marginRight: 12 }}>
                         {socialProofAvatars.map((idx, i) => (
-                          <Image
-                            key={idx}
-                            source={AVATAR_POOL[idx]}
-                            style={[styles.socialAvatar, i > 0 && { marginLeft: -10 }]}
-                          />
+                           <Image key={i} source={AVATAR_POOL[idx]} style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: '#000', marginLeft: i > 0 ? -10 : 0 }} />
                         ))}
                       </View>
-                      <Text style={styles.socialProofText}>{socialProofMessage}</Text>
-                    </View>
+                      <Text style={{ fontFamily: theme.medium, fontSize: 13, color: '#fff', maxWidth: 200 }} numberOfLines={2}>
+                        {socialProofMessage}
+                      </Text>
+                    </Animated.View>
+                  )}
+
+                  <Text style={{ fontFamily: theme.bold, fontSize: 36, color: '#000', marginBottom: 20 }}>Rest</Text>
+
+                  {/* Timer */}
+                  <Text style={{ fontFamily: theme.black, fontSize: 100, color: '#000', marginBottom: 30, letterSpacing: -2 }}>
+                     {formatTime(restTimer)}
+                  </Text>
+
+                  {/* Up Next Info */}
+                  <View style={{ alignItems: 'center', marginTop: 10 }}>
+                     <Text style={{ fontFamily: theme.medium, fontSize: 13, color: '#000', marginBottom: 6 }}>
+                        Exercise {currentIndex + 1}/{totalExercises}
+                     </Text>
+                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontFamily: theme.bold, fontSize: 20, color: '#000', textTransform: 'uppercase' }}>
+                           {upNextExerName}
+                        </Text>
+                        <Ionicons name="information-circle" size={20} color="#000" style={{ marginLeft: 8 }} />
+                     </View>
                   </View>
 
-                  <View style={styles.timerSection}>
-                    <View style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center' }]}>
-                      <Animated.View style={[styles.breathingCircle, { width: 300, height: 300, backgroundColor: D.primary, opacity: 0.1, transform: [{ scale: breathingScale2 }] }]} />
-                      <Animated.View style={[styles.breathingCircle, { width: 350, height: 350, backgroundColor: D.primary, opacity: 0.15, transform: [{ scale: breathingScale1 }] }]} />
-                    </View>
-                    
-                    <View style={styles.timerControlsRow}>
-                      <Pressable onPress={() => setRestTimer((r) => Math.max(0, r - 10))} style={styles.timeAdjustBtn}>
-                        <Ionicons name="remove" size={28} color={D.white} />
-                      </Pressable>
-
-                      <Animated.View style={[styles.timerValueCol, { transform: [{ scale: timerCircleAnim }] }]}>
-                        <Text style={styles.timerValAnimated}>{formatTime(restTimer)}</Text>
-                        <Text style={styles.timerLblAnimated}>Rest Remaining</Text>
-                      </Animated.View>
-
-                      <Pressable onPress={() => setRestTimer((r) => r + 10)} style={styles.timeAdjustBtn}>
-                        <Ionicons name="add" size={28} color={D.white} />
-                      </Pressable>
-                    </View>
-                  </View>
-
-                  <View style={styles.upNextContainer}>
-                    <Text style={styles.upNextCardTitle}>UP NEXT</Text>
-                    <View style={styles.upNextCardRow}>
-                      {upNextImage ? (
-                        <Image source={{ uri: upNextImage }} style={styles.upNextThumb} />
-                      ) : (
-                        <View style={[styles.upNextThumb, { backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }]}>
-                          <Ionicons name="barbell-outline" size={24} color="#1C1C1E" />
-                        </View>
-                      )}
-                      <View style={styles.upNextCardInfo}>
-                        <Text style={styles.upNextCardExer} numberOfLines={1}>{upNextExerName}</Text>
-                        <Text style={styles.upNextCardSets}>{upNextSetName}</Text>
-                      </View>
-                      <Pressable style={styles.skipRestFab} onPress={handleNext}>
-                        <Ionicons name="play" size={22} color={D.bg} />
-                      </Pressable>
-                    </View>
+                  {/* Bottom Buttons */}
+                  <View style={{ position: 'absolute', bottom: insets.bottom + 20, left: 24, right: 24, flexDirection: 'row', gap: 12 }}>
+                     <Pressable 
+                        onPress={() => setRestTimer((r) => r + 30)}
+                        style={{ flex: 1, backgroundColor: '#000', paddingVertical: 18, borderRadius: 30, alignItems: 'center' }}
+                     >
+                        <Text style={{ color: '#fff', fontFamily: theme.medium, fontSize: 18 }}>+30 sec</Text>
+                     </Pressable>
+                     <Pressable 
+                        onPress={handleNext}
+                        style={{ flex: 1, backgroundColor: 'transparent', paddingVertical: 18, borderRadius: 30, alignItems: 'center', borderWidth: 1, borderColor: '#000' }}
+                     >
+                        <Text style={{ color: '#000', fontFamily: theme.medium, fontSize: 16 }}>Start Exercise</Text>
+                     </Pressable>
                   </View>
                 </FadeTranslate>
               );
             })()
           ) : (
             currentExercise && (
-              <FadeTranslate order={0.2} delay={100} style={{ flex: 1 }}>
-              <ScrollView 
-                style={{ flex: 1 }} 
-                contentContainerStyle={{ flexGrow: 1 }}
-                showsVerticalScrollIndicator={false}
-              >
-                <View style={styles.ytContainer}>
-                    {/* ARTWORK */}
-                    <View style={styles.ytArtwork}>
-                        {currentExercise.gifUrl ? (
-                            <Image 
-                               source={{ uri: currentExercise.gifUrl }} 
-                               style={StyleSheet.absoluteFillObject}
-                               resizeMode="cover"
-                            />
-                        ) : (
-                            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "transparent", alignItems: "center", justifyContent: "center" }]}>
-                                <Ionicons name="barbell-outline" size={100} color="#000000" />
+              <View style={{ flex: 1 }}>
+                 {/* Top Image Section */}
+                 <Animated.View style={{ height: exerciseIntroAnim.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_H, SCREEN_H * 0.60] }), position: 'absolute', top: -insets.top, left: 0, right: 0, backgroundColor: '#FFF' }}>
+                    {currentExercise.gifUrl ? (
+                        <Image source={{ uri: currentExercise.gifUrl }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+                    ) : (
+                        <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                           <Ionicons name="barbell-outline" size={100} color="#ccc" />
+                        </View>
+                    )}
+                 </Animated.View>
+
+                 {/* Bottom Information Section */}
+                 <Animated.View style={{ flex: 1, marginTop: exerciseIntroAnim.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_H, SCREEN_H * 0.60 - insets.top] }) }}>
+                     <View style={{ flex: 1, backgroundColor: '#121212', borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 24, paddingHorizontal: 24 }}>
+                        
+                        {/* Title & Set/Exercise Status */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <View style={{ flex: 1, paddingRight: 16 }}>
+                                <Text style={{ color: D.primary, fontSize: 14, fontFamily: theme.bold, marginBottom: 8, letterSpacing: 1 }}>
+                                    SET {Math.min(currentSet, currentExercise.sets)}/{currentExercise.sets} • EXERCISE {currentIndex + 1}/{totalExercises}
+                                </Text>
+                                <Text style={{ color: '#fff', fontSize: 32, fontFamily: theme.black, textTransform: 'uppercase', lineHeight: 36 }} numberOfLines={2}>
+                                    {currentExercise.name}
+                                </Text>
                             </View>
-                        )}
-                    </View>
-
-                    <View style={styles.ytLowerHalf}>
-                        {/* REAL-TIME GAMIFIED CALORIES DISPLAY (MOVED BELOW IMAGE) */}
-                        <View style={styles.caloriesBannerContainer}>
-                            <Animated.View style={{ transform: [{ scale: fireScaleAnim }, { rotate: fireRotationInterpolate }] }}>
-                                <Ionicons name="flame" size={24} color="#ff4000" />
-                            </Animated.View>
-                            <Text style={styles.caloriesBannerText}>
-                                {Math.floor(caloriesBurned)} 
-                                <Text style={{fontSize: 16, color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium}}> cal burned</Text>
-                            </Text>
+                            <Pressable onPress={() => handleOpenSheet("upNext")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>
+                                <Ionicons name="list" size={20} color="#fff" />
+                            </Pressable>
                         </View>
 
-                        {/* TITLE ROW */}
-                        <View style={styles.ytTitleRow}>
-                            <View style={styles.ytTitleCenter}>
-                                <Text style={styles.ytTitle} numberOfLines={2}>{currentExercise.name}</Text>
-                                <Text style={styles.ytSubtitle} numberOfLines={1}>{currentExercise.category} • Set {currentSet} of {currentExercise.sets}</Text>
+                        {/* Timer and Progress Section */}
+                        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                                {/* Left Side Timer */}
+                                <Text style={{ color: '#fff', fontSize: 13, fontFamily: theme.bold, width: 44, textAlign: 'right' }}>
+                                   {formatTime(exerciseTimer)}
+                                </Text>
+
+                                {/* Center Progress Track */}
+                                <View style={{ flex: 1, height: 4, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 2, overflow: 'hidden' }}>
+                                    <Animated.View style={{ height: '100%', backgroundColor: D.primary, width: progressWidth, borderRadius: 2 }} />
+                                    {/* Playhead dot style visual */}
+                                    <Animated.View style={{
+                                        position: 'absolute', top: -2, bottom: -2, 
+                                        left: progressWidth, 
+                                        width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff',
+                                        marginLeft: -4
+                                    }} />
+                                </View>
+
+                                {/* Right Side Percentage */}
+                                <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: theme.bold, width: 44, textAlign: 'left' }}>
+                                   {Math.round(((currentIndex + 1) / totalExercises) * 100)}%
+                                </Text>
                             </View>
-                            <Pressable onPress={handleToggleLike} style={styles.heartButton}>
-                                <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color={isLiked ? "#ff4000" : "#fff"} />
-                            </Pressable>
                         </View>
 
-                        {/* CONTROLS */}
-                        <View style={styles.ytControlsRow}>
-                            <Pressable onPress={handlePrevious} disabled={currentIndex === 0 && currentSet === 1} style={styles.controlButton}>
-                                 <Ionicons name="play-skip-back" size={42} color={(currentIndex === 0 && currentSet === 1) ? "rgba(255,255,255,0.3)" : "#fff"} />
-                            </Pressable>
-                            
-                            <Pressable style={styles.ytPlayPause} onPress={() => setIsPaused(!isPaused)}>
-                                 <Ionicons name={isPaused ? "play" : "pause"} size={48} color="#000" />
+                        {/* Next / Prev Controls */}
+                        <View style={{ flexDirection: 'row', marginTop: 'auto', marginBottom: Math.max(insets.bottom + 16, 24), gap: 16 }}>
+                            <Pressable 
+                                onPress={handlePrevious} 
+                                disabled={currentIndex === 0 && currentSet === 1} 
+                                style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                <Ionicons name="play-skip-back" size={24} color={(currentIndex === 0 && currentSet === 1) ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.6)"} />
                             </Pressable>
 
-                            <Pressable onPress={handleNext} style={styles.controlButton}>
-                                 <Ionicons name="play-skip-forward" size={42} color="#fff" />
-                            </Pressable>
-                        </View>
+                            {/* Large Next Button */}
+                            <Pressable onPress={handleNext} style={{ flex: 1, height: 64, borderRadius: 32, backgroundColor: D.primary, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
+                                {(() => {
+                                   let nextExName = "Workout Complete";
+                                   let nextExTime = "0:00";
+                                   let nextExImg = null;
+                                   
+                                   if (currentSet < currentExercise.sets) {
+                                       nextExName = currentExercise.name + " (Set " + (currentSet + 1) + ")";
+                                       nextExTime = formatTime(getExerciseDuration(currentExercise));
+                                       nextExImg = currentExercise.gifUrl;
+                                   } else if (currentIndex < exercises.length - 1) {
+                                       const nextEx = exercises[currentIndex + 1];
+                                       nextExName = nextEx.name;
+                                       nextExTime = formatTime(getExerciseDuration(nextEx));
+                                       nextExImg = nextEx.gifUrl;
+                                   }
 
-                        {/* BOTTOM TABS / GUIDE LINK */}
-                        <View style={styles.ytBottomTabs}>
-                            <Pressable onPress={() => handleOpenSheet("upNext")} style={styles.ytBottomTabCenter}>
-                               <Ionicons name="list" size={24} color="rgba(255,255,255,0.6)" style={{ marginBottom: 4 }} />
-                               <Text style={styles.ytBottomTab}>Up Next</Text>
-                            </Pressable>
-                            <View style={styles.ytBottomTabCenter}>
-                               <Ionicons name="book" size={24} color="#fff" style={{ marginBottom: 4 }} />
-                               <Text style={[styles.ytBottomTab, { color: '#fff', fontFamily: theme.bold }]}>Guide</Text>
-                               <View style={styles.ytBottomTabIndicator} />
-                            </View>
-                            <Pressable style={styles.ytBottomTabCenter}>
-                               <Ionicons name="information-circle" size={24} color="rgba(255,255,255,0.6)" style={{ marginBottom: 4 }} />
-                               <Text style={styles.ytBottomTab}>Details</Text>
+                                   return (
+                                     <>
+                                        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                            {nextExImg && <Image source={{ uri: nextExImg }} style={{ width: '100%', height: '100%' }} />}
+                                        </View>
+                                        <View style={{ flex: 1, marginLeft: 12 }}>
+                                            <Text style={{ color: '#000', fontSize: 16, fontFamily: theme.bold }} numberOfLines={1}>{nextExName}</Text>
+                                            <Text style={{ color: 'rgba(0,0,0,0.6)', fontSize: 14, fontFamily: theme.medium }}>{nextExTime}</Text>
+                                        </View>
+                                        <View style={{ width: 40, alignItems: 'center', justifyContent: 'center' }}>
+                                            <Ionicons name="play-skip-forward" size={24} color="#000" />
+                                        </View>
+                                     </>
+                                   )
+                                })()}
                             </Pressable>
                         </View>
-                    </View>
-                </View>
-
-                {/* INLINE GUIDE BELOW THE PLAYER */}
-                <View style={styles.inlineGuideContainer}>
-                  <Text style={styles.sheetTitle}>Execution Guide</Text>
-                  {infoLoading ? (
-                    <View style={{ alignItems: 'center', marginTop: 30 }}>
-                      <Text style={styles.sheetDescText}>Loading...</Text>
-                    </View>
-                  ) : exerciseInfo?.instructions?.length ? (
-                    exerciseInfo.instructions.map((step, i) => {
-                      let cleaned = step.replace(/^step\s*[:.-]?\s*\d+\s*[:.-]?\s*/i, "").trim();
-                      if (cleaned.length > 0) cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
-                      return (
-                        <View key={i} style={styles.stepRow}>
-                          <View style={styles.stepLineContainer}>
-                            <View style={styles.stepNumberWrap}>
-                              <Text style={styles.stepNumber}>{i + 1}</Text>
-                            </View>
-                            {i !== (exerciseInfo.instructions.length - 1) && (
-                              <View style={styles.stepLine} />
-                            )}
-                          </View>
-                          <View style={styles.stepTextContainer}>
-                            <Text style={styles.stepText}>{cleaned}</Text>
-                          </View>
-                        </View>
-                      );
-                    })
-                  ) : (
-                    <Text style={styles.sheetDescText}>
-                      {currentExercise.description || "Do " + currentExercise.name + " for " + currentExercise.sets + " sets. Focus on proper form and controlled movements."}
-                    </Text>
-                  )}
-                </View>
-              </ScrollView>
-              </FadeTranslate>
+                     </View>
+                 </Animated.View>
+              </View>
             )
           )}
         </Animated.View>
@@ -786,37 +766,108 @@ export default function WorkoutPlayer() {
         <BottomSheet
           ref={bottomSheetRef}
           index={-1}
-          snapPoints={["50%", "90%"]}
+          snapPoints={["70%", "95%"]}
           enablePanDownToClose={true}
-          backgroundStyle={{ backgroundColor: D.cardAlt }}
-          handleIndicatorStyle={{ backgroundColor: 'rgba(255,255,255,0.4)' }}
+          backgroundStyle={{ backgroundColor: '#1C1C1E', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+          handleIndicatorStyle={{ display: 'none' }}
           onChange={(index) => {
             if (index === -1) setActiveSheet(null);
           }}
         >
+          {/* Header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, paddingBottom: 20 }}>
+              <View style={{ width: 32, height: 32 }} /> {/* Spacer to center title */}
+              <Text style={{ color: '#fff', fontSize: 22, fontFamily: theme.bold }}>List of exercises</Text>
+              <Pressable 
+                  onPress={() => bottomSheetRef.current?.close()} 
+                  style={{ width: 32, height: 32, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
+              >
+                  <Ionicons name='close' size={20} color='#fff' />
+              </Pressable>
+          </View>
+
           <BottomSheetScrollView 
-            contentContainerStyle={styles.sheetContent}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
             {activeSheet === "upNext" && (
               <View>
-                <Text style={styles.sheetTitle}>Up Next in Route</Text>
-                {exercises.slice(currentIndex + 1).map((ex, i) => (
-                  <View key={i} style={styles.sheetExerciseRow}>
-                    <View style={styles.sheetExerInfo}>
-                      <Text style={styles.sheetExerName}>{ex.name}</Text>
-                      <Text style={styles.sheetExerSets}>{ex.sets} Sets</Text>
+                {/* Dynamic Grouping */}
+                {Object.entries((exercises || []).reduce((acc, ex, i) => {
+                    const cat = ex.category || "WARM UP"; // Fallback to reference layout
+                    if (!acc[cat]) acc[cat] = [];
+                    acc[cat].push({...ex, origIndex: i});
+                    return acc;
+                }, {} as Record<string, any[]>)).map(([category, exs]) => (
+                  <View key={category} style={{ marginBottom: 12 }}>
+                    {/* Section Header */}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 16 }}>
+                      <Text style={{ color: '#fff', fontFamily: theme.bold, fontSize: 13, letterSpacing: 1 }}>{category.toUpperCase()}</Text>
+                      <Text style={{ color: D.primary, fontFamily: theme.medium, fontSize: 13 }}>{exs.length} exercises</Text>
                     </View>
+
+                    {/* Exercise List */}
+                    {exs.map((ex) => {
+                      const isActive = ex.origIndex === currentIndex;
+                      let durationStr = "0:30";
+                      if (ex.durationSeconds) {
+                        const mins = Math.floor(ex.durationSeconds / 60);
+                        const secs = ex.durationSeconds % 60;
+                        durationStr = mins + ":" + secs.toString().padStart(2, '0');
+                      } else if (ex.duration) {
+                        durationStr = ex.duration + "";
+                      } else if (ex.sets) {
+                        durationStr = ex.sets + " Sets";
+                      }
+
+                      return (
+                        <View key={ex.origIndex} style={{ flexDirection: 'row', alignItems: 'stretch', backgroundColor: isActive ? D.primary : '#252528', padding: 8, borderRadius: 20, marginBottom: 12, minHeight: 80 }}>
+                          {/* Thumbnail */}
+                          <View style={{ width: 70, height: 70, backgroundColor: '#111', borderRadius: 16, overflow: 'hidden', marginRight: 16 }}>
+                            {ex.gifUrl ? (
+                              <Image source={{uri: ex.gifUrl}} style={{ width: '100%', height: '100%' }} />
+                            ) : (
+                              <Ionicons name='barbell-outline' size={30} color='#333' style={{ alignSelf: 'center', marginTop: 20 }} />
+                            )}
+                          </View>
+                          
+                          {/* Info */}
+                          <View style={{ flex: 1, justifyContent: 'center' }}>
+                            <Text style={{ color: isActive ? '#000' : '#fff', fontFamily: theme.bold, fontSize: 16, marginBottom: 4 }} numberOfLines={1}>
+                              {ex.name}
+                            </Text>
+                            <Text style={{ color: isActive ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.5)', fontFamily: theme.medium, fontSize: 14 }}>
+                              {durationStr}
+                            </Text>
+                          </View>
+                          
+                          {/* Info Icon */}
+                          <View style={{ alignSelf: 'flex-start', padding: 4 }}>
+                            <Ionicons name='information-circle' size={20} color={isActive ? '#000' : 'rgba(255,255,255,0.3)'} />
+                          </View>
+                        </View>
+                      );
+                    })}
                   </View>
                 ))}
-                {exercises.slice(currentIndex + 1).length === 0 && (
-                  <Text style={styles.sheetEmptyText}>No more exercises in this routine.</Text>
-                )}
               </View>
             )}
           </BottomSheetScrollView>
         </BottomSheet>
       </View>
+
+      {/* Confetti fires when workout is complete — rendered last so it's on top */}
+      {phase === "complete" && (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <ConfettiCannon
+            count={120}
+            origin={{ x: -10, y: 0 }}
+            fadeOut
+            autoStart
+            colors={["#AAFB05", "#FFFFFF", "#FFD700", "#22C55E", "#3B82F6"]}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -862,7 +913,7 @@ const styles = StyleSheet.create({
     padding: 3,
   },
   toggleActive: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(0,0,0,0.15)',
     borderRadius: 20,
     paddingHorizontal: 24,
     paddingVertical: 8,
@@ -890,32 +941,45 @@ const styles = StyleSheet.create({
   ytContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingBottom: 40,
   },
   ytArtwork: {
-    width: 400,
-    maxWidth: '100%',
     alignSelf: 'center',
-    aspectRatio: 1,
     borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    marginBottom: 20,
+    marginBottom: 16,
     marginTop: 10,
   },
   ytLowerHalf: {
     flex: 1,
-    justifyContent: 'flex-end',
-    paddingBottom: 20,
+    justifyContent: 'space-evenly',
+    paddingBottom: 8,
   },
   ytTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 35,
-    width: 430,
+    width: 450,
     maxWidth: '100%',
     alignSelf: 'center',
+    paddingTop: 10,
+  },
+  calTopPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,64,0,0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,64,0,0.35)',
+  },
+  calTopPillText: {
+    color: '#fff',
+    fontSize: 13,
+    fontFamily: theme.bold,
+    letterSpacing: 0.3,
   },
   caloriesBannerContainer: {
     marginBottom: 20,
@@ -964,9 +1028,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 50,
-    width: 400,
+    paddingHorizontal: 10,
+    width: 450,
     maxWidth: '100%',
     alignSelf: 'center',
     gap: 40,
@@ -1024,7 +1087,7 @@ const styles = StyleSheet.create({
     backgroundColor: D.cardAlt,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    marginTop: -10, // Bring it exactly below the tabs or slightly overlay
+    marginTop: 20, // Push slightly below the fold
   },
   sheetTitle: {
     color: D.white,
@@ -1255,35 +1318,75 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   completeScreen: {
-    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 60,
+    flexGrow: 1,
   },
-  completeIconWrap: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: D.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 32,
+  completeEyebrow: {
+    color: D.primary,
+    fontFamily: theme.bold,
+    fontSize: 16,
+    letterSpacing: 4,
+    marginBottom: 16,
+    textAlign: "center",
   },
   completeTitle: {
     color: D.white,
-    fontFamily: theme.bold,
-    fontSize: 32,
+    fontFamily: theme.black,
+    fontSize: 52,
     textAlign: "center",
-    marginBottom: 12,
+    marginBottom: 16,
+    lineHeight: 60,
   },
   completeSub: {
     color: D.textRef,
     fontFamily: theme.medium,
-    fontSize: 16,
+    fontSize: 20,
     textAlign: "center",
-    marginBottom: 40,
-    lineHeight: 24,
+    lineHeight: 28,
   },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    width: "100%",
+    marginBottom: 40,
+  },
+  statCard: {
+    width: "47%",
+    backgroundColor: "#111111",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "flex-start",
+    borderWidth: 1,
+    borderColor: "#222",
+  },
+  statCardIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  statCardVal: {
+    color: D.white,
+    fontFamily: theme.bold,
+    fontSize: 26,
+    marginBottom: 4,
+  },
+  statCardLbl: {
+    color: D.textRef,
+    fontFamily: theme.medium,
+    fontSize: 13,
+  },
+  completeCTA: {
+    width: "100%",
+  },
+  // legacy — kept to avoid any remaining references
   statsRow: {
     flexDirection: "row",
     gap: 16,
@@ -1292,21 +1395,21 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: '#151515',
+    backgroundColor: "#151515",
     borderRadius: 24,
     padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: "#2A2A2E",
   },
   statIconWrap: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(170,251,5,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(170,251,5,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
   statVal: {

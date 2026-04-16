@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   TextInput,
+  Alert,
 } from "react-native";
 import { Pedometer } from "expo-sensors";
 import { useNavigation } from "@react-navigation/native";
@@ -67,6 +68,23 @@ export default function PedometerScreen() {
     let baseSteps = 0;
 
     (async () => {
+      // Request runtime permission on Android 10+
+      if (Platform.OS === "android") {
+        const { PermissionsAndroid } = require("react-native");
+        const granted = await PermissionsAndroid.request(
+          "android.permission.ACTIVITY_RECOGNITION",
+          {
+            title: "Step Counter Permission",
+            message: "Invicta needs access to your step counter to track activity.",
+            buttonPositive: "Allow",
+          }
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          setAvailable(false);
+          return;
+        }
+      }
+
       const isAvailable = await Pedometer.isAvailableAsync();
       setAvailable(isAvailable);
       if (!isAvailable) return;

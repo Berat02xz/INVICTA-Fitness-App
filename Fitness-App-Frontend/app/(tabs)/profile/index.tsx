@@ -1,6 +1,6 @@
 
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, Alert, Image, KeyboardAvoidingView, Platform, Dimensions } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Image, Platform, Dimensions } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -17,9 +17,10 @@ import Constants from "expo-constants";
 import * as Linking from "expo-linking";
 import { getCaloriePlans } from "@/utils/GetCaloriePlans";
 import { LogoutUser } from "@/api/UserDataEndpoint";
-import UnitSwitch from "@/components/ui/UnitSwitch"; // Importing UnitSwitch
+import UnitSwitch from "@/components/ui/UnitSwitch";
 import DevMenu from "@/components/Testing/DevMenu";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import BottomSheet, { BottomSheetModal, BottomSheetView, BottomSheetTextInput, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 const VERSION = "1.0.0";
 
@@ -41,16 +42,21 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const { isPro } = useProStatus();
   
+  // Bottom Sheet Modal refs
+  const weightSheetRef = useRef<BottomSheetModal>(null);
+  const heightSheetRef = useRef<BottomSheetModal>(null);
+  const ageSheetRef = useRef<BottomSheetModal>(null);
+  const fitnessSheetRef = useRef<BottomSheetModal>(null);
+  const equipmentSheetRef = useRef<BottomSheetModal>(null);
+  const calorieSheetRef = useRef<BottomSheetModal>(null);
+
   // Modals state
-  const [weightModalVisible, setWeightModalVisible] = useState(false);
   const [adjustedWeight, setAdjustedWeight] = useState(0);
   
-  const [heightModalVisible, setHeightModalVisible] = useState(false);
   const [adjustedHeightFeet, setAdjustedHeightFeet] = useState(0);
   const [adjustedHeightInches, setAdjustedHeightInches] = useState(0);
   const [adjustedHeightCm, setAdjustedHeightCm] = useState(0);
 
-  const [ageModalVisible, setAgeModalVisible] = useState(false);
   const [adjustedAge, setAdjustedAge] = useState(0);
 
   const [fitnessLevelModalVisible, setFitnessLevelModalVisible] = useState(false);
@@ -229,7 +235,7 @@ export default function Profile() {
                      u.bmi = newBMI; 
                  });
              });
-             setWeightModalVisible(false);
+             weightSheetRef.current?.dismiss();
              loadUserData(); // refresh UI
         }
     } catch(e) { Alert.alert("Error", "Could not update weight"); }
@@ -258,7 +264,7 @@ export default function Profile() {
                      u.bmi = newBMI;
                  });
              });
-             setHeightModalVisible(false);
+             heightSheetRef.current?.dismiss();
              loadUserData();
          }
      } catch(e) { Alert.alert("Error", "Could not update height"); }
@@ -272,7 +278,7 @@ export default function Profile() {
               await database.write(async () => {
                   await user.update(u => { u.age = adjustedAge; });
               });
-              setAgeModalVisible(false);
+              ageSheetRef.current?.dismiss();
               loadUserData();
           }
       } catch(e) { Alert.alert("Error", "Could not update age"); }
@@ -283,7 +289,7 @@ export default function Profile() {
             const user = await User.getUserDetails(database);
             if (user) {
                 await database.write(async () => { await user.update(u => { u.fitnessLevel = level; }); });
-                setFitnessLevelModalVisible(false);
+                fitnessSheetRef.current?.dismiss();
                 loadUserData();
             }
         } catch(e) { Alert.alert("Error", "Failed to update fitness level"); }
@@ -294,7 +300,7 @@ export default function Profile() {
             const user = await User.getUserDetails(database);
             if (user) {
                 await database.write(async () => { await user.update(u => { u.equipmentAccess = val; }); });
-                setEquipmentModalVisible(false);
+                equipmentSheetRef.current?.dismiss();
                 loadUserData();
             }
         } catch(e) { Alert.alert("Error", "Failed to update equipment"); }
@@ -310,7 +316,7 @@ export default function Profile() {
                       u.caloricIntake = plan.caloriesPerDay;
                   });
               });
-              setCalorieModalVisible(false);
+              calorieSheetRef.current?.dismiss();
               loadUserData();
           }
       } catch(e) { Alert.alert("Error", "Failed to update calorie plan"); }
@@ -392,7 +398,7 @@ export default function Profile() {
 
             {/* -- 3 Stats Row (Clickable) -- */}
             <View style={s.statsRow}>
-                <TouchableOpacity style={s.statItem} onPress={() => setWeightModalVisible(true)}>
+                <TouchableOpacity style={s.statItem} onPress={() => weightSheetRef.current?.present()}>
                     <Ionicons name="scale-outline" size={20} color={D.primary} style={{marginBottom:4}} />
                     <Text style={s.statVal}>{formatWeight()}</Text>
                     <Text style={s.statLabel}>Weight {userData?.unit === "metric" ? "(kg)" : "(lbs)"}</Text>
@@ -407,7 +413,7 @@ export default function Profile() {
                     } else {
                         setAdjustedHeightCm(parseFloat(userData.height));
                     }
-                    setHeightModalVisible(true);
+                    heightSheetRef.current?.present();
                 }}>
                     <Ionicons name="resize-outline" size={20} color={D.primary} style={{marginBottom:4}}/>
                     <Text style={s.statVal}>{formatHeight()}</Text>
@@ -416,7 +422,7 @@ export default function Profile() {
                 <View style={s.vertDiv} />
                 <TouchableOpacity style={s.statItem} onPress={() => {
                     setAdjustedAge(userData.age);
-                    setAgeModalVisible(true);
+                    ageSheetRef.current?.present();
                 }}>
                     <Ionicons name="calendar-outline" size={20} color={D.primary} style={{marginBottom:4}} />
                     <Text style={s.statVal}>{userData?.age} yrs</Text>
@@ -433,13 +439,13 @@ export default function Profile() {
                     icon="barbell" 
                     label="Fitness Level" 
                     value={userData?.fitnessLevel} 
-                    onPress={() => setFitnessLevelModalVisible(true)}
+                    onPress={() => fitnessSheetRef.current?.present()}
                  />
                  <GridItem 
                     icon="fitness" 
                     label="Equipment" 
                     value={userData?.equipmentAccess} 
-                    onPress={() => setEquipmentModalVisible(true)}
+                    onPress={() => equipmentSheetRef.current?.present()}
                 />
                  <GridItem 
                     icon="flame" 
@@ -447,7 +453,7 @@ export default function Profile() {
                     value={`${userData?.caloricIntake}`} 
                     onPress={() => {
                         refreshCaloriePlans(userData);
-                        setCalorieModalVisible(true);
+                        calorieSheetRef.current?.present();
                     }} 
                 />
                  <GridItem 
@@ -472,7 +478,7 @@ export default function Profile() {
                     activeOpacity={0.8}
                     onPress={() => router.push("/(auth)/SubscriptionCheck")}
                 >
-                    <Ionicons name="sparkles" size={20} color="#000" />
+                    <Ionicons name="sparkles" size={20} color={D.primary} />
                     <Text style={s.upgradeAccountText}>Upgrade to Pro</Text>
                 </TouchableOpacity>
             )}
@@ -484,10 +490,17 @@ export default function Profile() {
         </FadeTranslate>
       </ScrollView>
 
-       {/* -- Modals -- */}
+       {/* -- Bottom Sheet Modals -- */}
       
-      {/* Weight Modal */}
-      <SimpleModal visible={weightModalVisible} onClose={()=>setWeightModalVisible(false)} title={`Edit Weight`}>
+      {/* Weight Sheet */}
+      <BottomSheetModal
+        ref={weightSheetRef}
+        enableDynamicSizing
+        backgroundStyle={s.sheetBg}
+        handleIndicatorStyle={s.sheetHandle}
+      >
+        <BottomSheetView style={s.sheetContent}>
+           <Text style={s.modalTitle}>Edit Weight</Text>
            <View style={s.inputContainer}>
                <View style={{alignSelf: 'center', marginBottom: 10}}>
                     <UnitSwitch 
@@ -497,7 +510,7 @@ export default function Profile() {
                         imperialLabel="Lbs" 
                     />
                </View>
-               <TextInput 
+               <BottomSheetTextInput 
                   style={s.textInput} 
                   keyboardType="numeric" 
                   value={adjustedWeight.toString()} 
@@ -507,10 +520,18 @@ export default function Profile() {
                    <Text style={s.saveBtnText}>Save Weight</Text>
                </TouchableOpacity>
            </View>
-      </SimpleModal>
+        </BottomSheetView>
+      </BottomSheetModal>
 
-      {/* Height Modal */}
-      <SimpleModal visible={heightModalVisible} onClose={()=>setHeightModalVisible(false)} title="Edit Height">
+      {/* Height Sheet */}
+      <BottomSheetModal
+        ref={heightSheetRef}
+        enableDynamicSizing
+        backgroundStyle={s.sheetBg}
+        handleIndicatorStyle={s.sheetHandle}
+      >
+        <BottomSheetView style={s.sheetContent}>
+           <Text style={s.modalTitle}>Edit Height</Text>
            <View style={s.inputContainer}>
                 <View style={{alignSelf: 'center', marginBottom: 10}}>
                     <UnitSwitch 
@@ -524,7 +545,7 @@ export default function Profile() {
                    <View style={s.rowInputs}>
                        <View style={{flex:1}}>
                            <Text style={s.label}>Feet</Text>
-                           <TextInput 
+                           <BottomSheetTextInput 
                               style={s.textInput} 
                               keyboardType="numeric"
                               value={adjustedHeightFeet.toString()} 
@@ -533,7 +554,7 @@ export default function Profile() {
                        </View>
                        <View style={{flex:1}}>
                            <Text style={s.label}>Inches</Text>
-                           <TextInput 
+                           <BottomSheetTextInput 
                               style={s.textInput} 
                               keyboardType="numeric"
                               value={adjustedHeightInches.toString()} 
@@ -544,7 +565,7 @@ export default function Profile() {
                ) : (
                    <View>
                         <Text style={s.label}>Centimeters</Text>
-                        <TextInput 
+                        <BottomSheetTextInput 
                             style={s.textInput} 
                             keyboardType="numeric" 
                             value={adjustedHeightCm.toString()} 
@@ -557,12 +578,20 @@ export default function Profile() {
                    <Text style={s.saveBtnText}>Save Height</Text>
                </TouchableOpacity>
            </View>
-      </SimpleModal>
+        </BottomSheetView>
+      </BottomSheetModal>
 
-      {/* Age Modal */}
-      <SimpleModal visible={ageModalVisible} onClose={()=>setAgeModalVisible(false)} title="Edit Age">
+      {/* Age Sheet */}
+      <BottomSheetModal
+        ref={ageSheetRef}
+        enableDynamicSizing
+        backgroundStyle={s.sheetBg}
+        handleIndicatorStyle={s.sheetHandle}
+      >
+        <BottomSheetView style={s.sheetContent}>
+           <Text style={s.modalTitle}>Edit Age</Text>
            <View style={s.inputContainer}>
-               <TextInput 
+               <BottomSheetTextInput 
                   style={s.textInput} 
                   keyboardType="numeric" 
                   value={adjustedAge.toString()} 
@@ -572,70 +601,94 @@ export default function Profile() {
                    <Text style={s.saveBtnText}>Save Age</Text>
                </TouchableOpacity>
            </View>
-      </SimpleModal>
+        </BottomSheetView>
+      </BottomSheetModal>
 
-      {/* Fitness & Equipment Modals */}
-      <SimpleModal visible={fitnessLevelModalVisible} onClose={()=>setFitnessLevelModalVisible(false)} title="Fitness Level">
+      {/* Fitness Level Sheet */}
+      <BottomSheetModal
+        ref={fitnessSheetRef}
+        enableDynamicSizing
+        backgroundStyle={s.sheetBg}
+        handleIndicatorStyle={s.sheetHandle}
+      >
+        <BottomSheetView style={s.sheetContent}>
+           <Text style={s.modalTitle}>Fitness Level</Text>
            {fitnessLevels.map(l => (
                <TouchableOpacity key={l} style={s.modalOpt} onPress={()=>handleUpdateFitnessLevel(l)}>
                    <Text style={s.modalOptText}>{l}</Text>
                    {userData?.fitnessLevel === l && <Ionicons name="checkmark" size={16} color={D.primary} />}
                </TouchableOpacity>
            ))}
-      </SimpleModal>
+        </BottomSheetView>
+      </BottomSheetModal>
 
-      <SimpleModal visible={equipmentModalVisible} onClose={()=>setEquipmentModalVisible(false)} title="Equipment">
+      {/* Equipment Sheet */}
+      <BottomSheetModal
+        ref={equipmentSheetRef}
+        enableDynamicSizing
+        backgroundStyle={s.sheetBg}
+        handleIndicatorStyle={s.sheetHandle}
+      >
+        <BottomSheetView style={s.sheetContent}>
+           <Text style={s.modalTitle}>Equipment</Text>
            {equipmentOptions.map(l => (
                <TouchableOpacity key={l.value} style={s.modalOpt} onPress={()=>handleUpdateEquipment(l.value)}>
                    <Text style={s.modalOptText}>{l.label}</Text>
                    {userData?.equipmentAccess === l.value && <Ionicons name="checkmark" size={16} color={D.primary} />}
                </TouchableOpacity>
            ))}
-      </SimpleModal>
+        </BottomSheetView>
+      </BottomSheetModal>
 
-      {/* Calorie Plan Modal */}
-      <SimpleModal visible={calorieModalVisible} onClose={() => setCalorieModalVisible(false)} title="Select Goal">
-            <ScrollView style={{maxHeight: 400}}>
-                {caloriePlans.length > 0 ? (
-                    caloriePlans.map((plan, index) => (
-                        <TouchableOpacity 
-                            key={index} 
-                            style={[
-                                s.modalOpt, 
-                                userData?.goal === plan.type && {
-                                    borderColor: D.primary, 
-                                    borderWidth: 1, 
-                                    backgroundColor: "rgba(170,251,5,0.1)",
-                                    borderRadius: 12,
-                                    borderBottomWidth: 1,
-                                    paddingHorizontal: 12, // Add padding inside the border so text isn't flush with edge
-                                    marginVertical: 4, // Add margin so borders don't overlap with neighbors
-                                    borderBottomColor: D.primary,
-                                }
-                            ]} 
-                            onPress={() => handleUpdateCaloriePlan(plan)}
-                        >
-                            <View style={{flex:1}}>
-                                <Text style={s.modalOptText}>{plan.type || "Plan"}</Text>
-                                <Text style={s.modalSubText}>{plan.caloriesPerDay} kcal/day</Text>
-                            </View>
-                            
-                            {plan.rate ? (
-                                <View style={{backgroundColor: D.primary, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginLeft: 10}}>
-                                     <Text style={{color: "#000", fontFamily: theme.bold, fontSize: 12}}>{plan.rate}</Text>
-                                </View>
-                            ) : null}
-                            
-                            {userData?.goal === plan.type && <View style={{marginLeft: 10}}><Ionicons name="checkmark-circle" size={20} color={D.primary} /></View>}
-                        </TouchableOpacity>
-                    ))
-                ) : (
-                    <Text style={{color: D.sub, textAlign: "center", padding: 20}}>
-                        Ensure your height, weight, and age are set correctly to see plans.
-                    </Text>
-                )}
-            </ScrollView>
-      </SimpleModal>
+      {/* Calorie Plan Sheet */}
+      <BottomSheetModal
+        ref={calorieSheetRef}
+        enableDynamicSizing
+        backgroundStyle={s.sheetBg}
+        handleIndicatorStyle={s.sheetHandle}
+      >
+        <BottomSheetScrollView style={s.sheetScrollContent}>
+           <Text style={s.modalTitle}>Select Goal</Text>
+           {caloriePlans.length > 0 ? (
+               caloriePlans.map((plan, index) => (
+                   <TouchableOpacity 
+                       key={index} 
+                       style={[
+                           s.modalOpt, 
+                           userData?.goal === plan.type && {
+                               borderColor: D.primary, 
+                               borderWidth: 1, 
+                               backgroundColor: "rgba(170,251,5,0.1)",
+                               borderRadius: 12,
+                               borderBottomWidth: 1,
+                               paddingHorizontal: 12,
+                               marginVertical: 4,
+                               borderBottomColor: D.primary,
+                           }
+                       ]} 
+                       onPress={() => handleUpdateCaloriePlan(plan)}
+                   >
+                       <View style={{flex:1}}>
+                           <Text style={s.modalOptText}>{plan.type || "Plan"}</Text>
+                           <Text style={s.modalSubText}>{plan.caloriesPerDay} kcal/day</Text>
+                       </View>
+                       
+                       {plan.rate ? (
+                           <View style={{backgroundColor: D.primary, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginLeft: 10}}>
+                                <Text style={{color: "#000", fontFamily: theme.bold, fontSize: 12}}>{plan.rate}</Text>
+                           </View>
+                       ) : null}
+                       
+                       {userData?.goal === plan.type && <View style={{marginLeft: 10}}><Ionicons name="checkmark-circle" size={20} color={D.primary} /></View>}
+                   </TouchableOpacity>
+               ))
+           ) : (
+               <Text style={{color: D.sub, textAlign: "center", padding: 20}}>
+                   Ensure your height, weight, and age are set correctly to see plans.
+               </Text>
+           )}
+        </BottomSheetScrollView>
+      </BottomSheetModal>
 
     </View>
   );
@@ -652,24 +705,6 @@ const GridItem = ({icon, label, value, onPress}: any) => (
             <Text style={s.gridValue} numberOfLines={1}>{value}</Text>
         </View>
     </TouchableOpacity>
-);
-
-const SimpleModal = ({visible, onClose, title, children}:any) => (
-    <Modal visible={visible} transparent animationType="fade">
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{flex:1}}>
-            <TouchableOpacity style={s.modalOverlay} onPress={onClose} activeOpacity={1}>
-                <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-                    <View style={s.modalContent}>
-                        <View style={s.modalHeader}>
-                            <Text style={s.modalTitle}>{title}</Text>
-                            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color="#FFF"/></TouchableOpacity>
-                        </View>
-                        {children}
-                    </View>
-                </TouchableOpacity>
-            </TouchableOpacity>
-        </KeyboardAvoidingView>
-    </Modal>
 );
 
 const s = StyleSheet.create({
@@ -807,10 +842,11 @@ const s = StyleSheet.create({
     
     upgradeAccountBtn: {
         flexDirection: "row", alignItems: "center", gap: 10,
-        backgroundColor: D.primary, padding: 16, borderRadius: 16,
+        backgroundColor: "rgba(255,255,255,0.05)", padding: 16, borderRadius: 16,
         marginBottom: 12,
+        borderWidth: 1, borderColor: "rgba(255,255,255,0.1)"
     },
-    upgradeAccountText: { fontSize: 15, fontFamily: theme.bold, color: "#000" },
+    upgradeAccountText: { fontSize: 15, fontFamily: theme.bold, color: "#fff" },
 
     logoutRow: { 
         flexDirection: "row", alignItems: "center", gap: 10, 
@@ -818,11 +854,12 @@ const s = StyleSheet.create({
     },
     logoutText: { fontSize: 15, fontFamily: theme.bold, color: "#FF453A" },
 
-    // Modals
-    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
-    modalContent: { backgroundColor: "#1C1C1E", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, minHeight: 400 },
-    modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-    modalTitle: { fontSize: 18, fontFamily: theme.bold, color: "#FFF" },
+    // Bottom Sheet
+    sheetBg: { backgroundColor: "#1C1C1E", borderTopLeftRadius: 24, borderTopRightRadius: 24 },
+    sheetHandle: { backgroundColor: "#555", width: 40 },
+    sheetContent: { padding: 24, paddingBottom: 40 },
+    sheetScrollContent: { padding: 24, paddingBottom: 40, maxHeight: 500 },
+    modalTitle: { fontSize: 18, fontFamily: theme.bold, color: "#FFF", marginBottom: 20 },
     modalOpt: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#333", alignItems:"center" },
     modalOptText: { fontSize: 16, color: "#FFF", fontFamily: theme.medium },
     modalSubText: { fontSize: 12, color: D.sub, fontFamily: theme.regular, marginTop: 2 },
