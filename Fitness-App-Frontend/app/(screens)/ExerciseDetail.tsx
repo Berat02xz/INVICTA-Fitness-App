@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import { theme } from "@/constants/theme";
 import { ExerciseApi, type ExerciseInfo } from "@/api/ExerciseApi";
 import { LikedExercise } from "@/models/LikedExercise";
 import database from "@/database/database";
+import FadeTranslate from "@/components/ui/FadeTranslate";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -83,7 +85,7 @@ export default function ExerciseDetail() {
   const displayName = exerciseInfo?.name || params.name || "Exercise";
 
   const cleanStepText = (text: string) => {
-    let cleaned = text.replace(/^step\s*[:.-]?\s*\d+\s*[:.-]?\s*/i, "").trim();
+    let cleaned = text.replace(/^(?:Step\s*\d+\s*:\s*|\d+\.\s*)/i, "").trim();
     if (cleaned.length > 0) {
       cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
     }
@@ -92,34 +94,48 @@ export default function ExerciseDetail() {
 
   const capitalize = (str: string) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
+  const tags: string[] = [];
+  if (params.category || exerciseInfo?.bodyParts?.[0]) tags.push(capitalize(params.category || exerciseInfo?.bodyParts?.[0] || ""));
+  exerciseInfo?.targetMuscles?.forEach(m => tags.push(capitalize(m)));
+  exerciseInfo?.equipments?.forEach(eq => tags.push(capitalize(eq)));
+
+  // Ensure unique tags
+  const uniqueTags = Array.from(new Set(tags));
+
   return (
     <View style={s.container}>
-      {/* Absolute Back button */}
-      <TouchableOpacity
-        style={[s.backBtn, { top: insets.top + 8 }]}
-        onPress={() => router.back()}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="chevron-back" size={24} color={D.text} />
-      </TouchableOpacity>
-
-      {/* Like button */}
-      <TouchableOpacity
-        style={[s.likeBtn, { top: insets.top + 8 }]}
-        onPress={handleToggleLike}
-        activeOpacity={0.8}
-      >
-        <Ionicons name={isLiked ? "heart" : "heart-outline"} size={22} color={isLiked ? "#ff4000" : D.text} />
-      </TouchableOpacity>
-
       <ScrollView
         style={s.scroll}
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[s.scrollContent, { paddingBottom: 100 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        {/* Dynamic Header Image */}
-        <View style={[s.heroWrap, { paddingTop: insets.top }]}>
+        {/* Header Image Component (rounded bottom) */}
+        <View style={[s.headerWrap]}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EEEEEE"]} // Light background usually suits transparent gifs best
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={s.headerGradient}
+          />
+          
+          <TouchableOpacity
+            style={[s.backBtn, { top: insets.top + 8 }]}
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="chevron-back" size={24} color="#FFF" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[s.likeBtn, { top: insets.top + 8, right: 24 }]}
+            onPress={handleToggleLike}
+            activeOpacity={0.8}
+          >
+            <Ionicons name={isLiked ? "heart" : "heart-outline"} size={22} color={isLiked ? "#ff4000" : "#FFF"} />
+          </TouchableOpacity>
+
+          {/* Render GIF */}
           {imageUri ? (
             <Image
               source={{ uri: imageUri }}
@@ -128,81 +144,98 @@ export default function ExerciseDetail() {
             />
           ) : (
             <View style={s.heroFallback}>
-              <Ionicons name="barbell-outline" size={64} color={D.muted} />
+              <Ionicons name="barbell-outline" size={64} color="#333" />
             </View>
           )}
+
+          {/* Fade overlay for header title readability (as the background is light gradient + image) */}
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.8)", "#000000"]}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+
+          <View style={s.headerOverlayContent}>
+            <FadeTranslate order={0} direction="y" translateYFrom={15}>
+              <Text style={s.headerTitle}>{capitalize(displayName)}</Text>
+              <View style={s.tagsRowHeader}>
+                {uniqueTags.map((t) => (
+                  <View key={t} style={s.whiteTag}>
+                    <Text style={s.whiteTagText}>{t}</Text>
+                  </View>
+                ))}
+              </View>
+            </FadeTranslate>
+          </View>
         </View>
 
-        {/* Info Wrapper - Overlaps Image */}
+        {/* Content Wrapper */}
         <View style={s.contentWrapper}>
-          <View style={s.contentHandle} />
-
-          {/* Title */}
-          <Text style={s.title}>{capitalize(displayName)}</Text>
-
-          {/* Stats row if from Routine */}
-          {params.sets && (
-            <View style={s.statsRow}>
-              <View style={s.statCard}>
-                <Ionicons name="layers-outline" size={20} color={D.primary} style={{marginBottom: 6}} />
-                <Text style={s.statVal}>{params.sets}</Text>
-                <Text style={s.statLabel}>Sets</Text>
-              </View>
-              <View style={s.statCard}>
-                <Ionicons name="repeat-outline" size={20} color={D.primary} style={{marginBottom: 6}} />
-                <Text style={s.statVal}>{params.reps}</Text>
-                <Text style={s.statLabel}>Reps</Text>
-              </View>
-              <View style={s.statCard}>
-                <Ionicons name="timer-outline" size={20} color={D.primary} style={{marginBottom: 6}} />
-                <Text style={s.statVal}>{params.restSeconds}s</Text>
-                <Text style={s.statLabel}>Rest</Text>
-              </View>
-            </View>
-          )}
-
-          {/* Tags */}
-          <View style={s.tagsRow}>
-            {(params.category || exerciseInfo?.bodyParts[0]) && (
-              <View style={s.categoryBadge}>
-                <Text style={s.categoryBadgeText}>{capitalize(params.category || exerciseInfo?.bodyParts[0] || "")}</Text>
-              </View>
-            )}
-            {exerciseInfo?.targetMuscles.map((m) => (
-              <View key={m} style={s.muscleBadge}>
-                <Text style={s.muscleBadgeText}>{capitalize(m)}</Text>
-              </View>
-            ))}
-            {exerciseInfo?.equipments.map((eq) => (
-              <View key={eq} style={s.equipBadge}>
-                <Text style={s.equipBadgeText}>{capitalize(eq)}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Description */}
-          {loading ? (
-            <ActivityIndicator color={D.primary} style={{ marginTop: 40 }} />
-          ) : exerciseInfo?.instructions?.length ? (
-            <View style={s.descSection}>
-              <Text style={s.descTitle}>Execution Guide</Text>
-              {exerciseInfo.instructions.map((step, i) => (
-                <View key={i} style={s.stepRow}>
-                  <View style={s.stepLineContainer}>
-                    <View style={s.stepNumberWrap}>
-                      <Text style={s.stepNumber}>{i + 1}</Text>
+          <FadeTranslate order={0.1} delay={100} direction="y" translateYFrom={15}>
+            {params.sets && (
+              <>
+                <Text style={s.sectionSubtitle}>WORKOUT STATS</Text>
+                <View style={s.statsCard}>
+                  <View style={s.statCol}>
+                    <View style={s.statIconWrap}>
+                       <Ionicons name="layers" size={14} color="#AAFB05" />
                     </View>
-                    {i !== exerciseInfo.instructions.length - 1 && (
-                      <View style={s.stepLine} />
-                    )}
+                    <View>
+                      <Text style={s.statLabel}>Sets</Text>
+                      <Text style={s.statVal}>{params.sets}</Text>
+                    </View>
                   </View>
-                  <View style={s.stepTextContainer}>
-                    <Text style={s.descText}>{cleanStepText(step)}</Text>
+
+                  <View style={s.statDivider} />
+
+                  <View style={s.statCol}>
+                    <View style={s.statIconWrap}>
+                       <Ionicons name="repeat" size={14} color="#AAFB05" />
+                    </View>
+                    <View>
+                      <Text style={s.statLabel}>Reps</Text>
+                      <Text style={s.statVal}>{params.reps}</Text>
+                    </View>
+                  </View>
+
+                  <View style={s.statDivider} />
+
+                  <View style={s.statCol}>
+                    <View style={s.statIconWrap}>
+                       <Ionicons name="timer" size={14} color="#AAFB05" />
+                    </View>
+                    <View>
+                      <Text style={s.statLabel}>Rest</Text>
+                      <Text style={s.statVal}>{params.restSeconds}s</Text>
+                    </View>
                   </View>
                 </View>
-              ))}
-            </View>
-          ) : null}
+              </>
+            )}
+
+            {loading ? (
+              <ActivityIndicator color={D.primary} style={{ marginTop: 40 }} />
+            ) : exerciseInfo?.instructions?.length ? (
+              <View style={s.descSection}>
+                <Text style={s.sectionSubtitle}>EXECUTION GUIDE</Text>
+                <View style={s.instructionsCard}>
+                   {exerciseInfo.instructions.map((step, i) => {
+                      const cleanStep = cleanStepText(step);
+                      return (
+                         <View key={i} style={[s.stepRow, i === exerciseInfo.instructions!.length - 1 ? { marginBottom: 0 } : { marginBottom: 20 }]}>
+                           <View style={s.stepNumberWrap}>
+                             <Text style={s.stepNumber}>{i + 1}</Text>
+                           </View>
+                           <View style={s.stepTextContainer}>
+                             <Text style={s.descText}>{cleanStep}</Text>
+                           </View>
+                         </View>
+                      );
+                   })}
+                </View>
+              </View>
+            ) : null}
+          </FadeTranslate>
         </View>
       </ScrollView>
     </View>
@@ -210,207 +243,180 @@ export default function ExerciseDetail() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1, backgroundColor: "#000000" },
   backBtn: {
     position: "absolute",
-    left: 16,
+    left: 20,
     zIndex: 10,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.4)",
     alignItems: "center",
     justifyContent: "center",
   },
   likeBtn: {
     position: "absolute",
-    right: 16,
+    right: 20,
     zIndex: 10,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.4)",
     alignItems: "center",
     justifyContent: "center",
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 0 },
-
-  // Hero
-  heroWrap: {
+  scrollContent: { },
+  
+  headerWrap: {
     width: SCREEN_W,
-    height: SCREEN_W * 1.05,
-    backgroundColor: "#FFFFFF",
+    height: SCREEN_W * 1.15,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    overflow: "hidden",
     alignItems: "center",
-    justifyContent: "flex-end",
-    paddingBottom: 40,
+    justifyContent: "center",
+    position: "relative",
   },
-  heroImg: { width: "75%", height: "90%" },
+  headerGradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  heroImg: {
+    width: "80%",
+    height: "80%",
+    marginBottom: 60,
+  },
   heroFallback: {
     width: "100%",
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F0F0F0",
   },
-
-  // Content Wrapper
-  contentWrapper: {
-    backgroundColor: D.bg,
-    minHeight: 500,
-    marginTop: -30,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 60,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
-    elevation: 10,
+  headerOverlayContent: {
+    position: "absolute",
+    bottom: 24,
+    left: 24,
+    right: 24,
+    zIndex: 2,
   },
-  contentHandle: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: "#333",
-    alignSelf: "center",
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
+  headerTitle: {
     fontFamily: theme.black,
-    color: D.text,
-    marginBottom: 24,
-    lineHeight: 34,
+    fontSize: 32,
+    color: "#FFFFFF",
+    marginBottom: 10,
     letterSpacing: -0.5,
   },
-
-  // Stats
-  statsRow: {
+  tagsRowHeader: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
+    gap: 8,
+    flexWrap: "wrap",
   },
-  statCard: {
-    flex: 1,
-    backgroundColor: D.cardAlt,
-    borderRadius: 20,
-    paddingVertical: 16,
+  whiteTag: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginBottom: 4,
+  },
+  whiteTagText: {
+    color: "#000000",
+    fontFamily: theme.bold,
+    fontSize: 12,
+  },
+
+  contentWrapper: {
+    backgroundColor: "#000000",
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    minHeight: 500,
+  },
+  sectionSubtitle: {
+    fontFamily: theme.bold,
+    fontSize: 12,
+    color: "rgba(255,255,255,0.45)",
+    letterSpacing: 2,
+    marginBottom: 12,
+    textTransform: "uppercase",
+  },
+
+  statsCard: {
+    flexDirection: "row",
+    backgroundColor: "#161616",
+    borderRadius: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.05)",
+    justifyContent: "space-between",
+    marginBottom: 32,
   },
-  statVal: {
-    fontSize: 20,
-    fontFamily: theme.black,
-    color: D.text,
-    marginTop: 4,
+  statCol: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  statIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(170,251,5,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   statLabel: {
     fontSize: 12,
     fontFamily: theme.medium,
-    color: D.sub,
-    marginTop: 2,
+    color: "rgba(255,255,255,0.45)",
+    marginBottom: 3,
+  },
+  statVal: {
+    fontSize: 16,
+    fontFamily: theme.bold,
+    color: "#FFFFFF",
+  },
+  statDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    marginHorizontal: 8,
   },
 
-  // Tags
-  tagsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 32,
-  },
-  categoryBadge: {
-    backgroundColor: D.primaryDim,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(170,251,5,0.3)",
-  },
-  categoryBadgeText: {
-    fontSize: 13,
-    fontFamily: theme.bold,
-    color: D.primary,
-  },
-  muscleBadge: {
-    backgroundColor: "rgba(79,195,247,0.12)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(79,195,247,0.3)",
-  },
-  muscleBadgeText: {
-    fontSize: 13,
-    fontFamily: theme.bold,
-    color: "#4FC3F7",
-  },
-  equipBadge: {
-    backgroundColor: "rgba(255,183,77,0.12)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255,183,77,0.3)",
-  },
-  equipBadgeText: {
-    fontSize: 13,
-    fontFamily: theme.bold,
-    color: "#FFB74D",
-  },
-
-  // Description
   descSection: {
     marginTop: 8,
   },
-  descTitle: {
-    fontSize: 20,
-    fontFamily: theme.bold,
-    color: D.text,
+  instructionsCard: {
+    backgroundColor: "#161616",
+    borderRadius: 24,
+    padding: 20,
     marginBottom: 20,
-    letterSpacing: -0.3,
   },
   stepRow: {
     flexDirection: "row",
-  },
-  stepLineContainer: {
-    alignItems: "center",
-    marginRight: 16,
+    alignItems: "flex-start",
   },
   stepNumberWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: D.primaryDim,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(170,251,5,0.06)",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: 'rgba(170,251,5,0.4)',
-    zIndex: 2,
+    marginRight: 16,
+    marginTop: 2,
   },
   stepNumber: {
-    fontSize: 13,
-    fontFamily: theme.black,
-    color: D.primary,
-  },
-  stepLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: D.muted,
-    marginVertical: 4,
+    fontSize: 14,
+    fontFamily: theme.bold,
+    color: "#AAFB05",
   },
   stepTextContainer: {
     flex: 1,
-    paddingBottom: 32,
-    paddingTop: 4,
   },
   descText: {
     fontSize: 15,
     fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.85)",
+    color: "rgba(255,255,255,0.65)",
     lineHeight: 24,
   },
 });

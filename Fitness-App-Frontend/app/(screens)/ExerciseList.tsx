@@ -17,6 +17,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { theme } from "../../constants/theme";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import { ExerciseApi, ExerciseInfo } from "../../api/ExerciseApi";
+import { LikedExercise } from "@/models/LikedExercise";
+import database from "@/database/database";
+import { useFocusEffect } from "expo-router";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -38,39 +41,82 @@ function getImageUri(gifUrl: string | null) {
 const capitalize = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 
+/** Curated muscle filter pills — label shown in UI, matches are the API values to include */
+const MUSCLE_FILTERS: { label: string; matches: string[] }[] = [
+  { label: "All",       matches: [] },
+  { label: "Saved",     matches: [] },
+  { label: "Abs",       matches: ["abs", "abdominals", "lower abs", "core", "obliques"] },
+  { label: "Chest",     matches: ["chest", "pectorals", "upper chest"] },
+  { label: "Back",      matches: ["back", "lats", "latissimus dorsi", "upper back", "rhomboids", "traps", "trapezius"] },
+  { label: "Biceps",    matches: ["biceps", "brachialis"] },
+  { label: "Triceps",   matches: ["triceps"] },
+  { label: "Shoulders", matches: ["shoulders", "deltoids", "delts", "rear deltoids"] },
+  { label: "Legs",      matches: ["quadriceps", "quads", "hamstrings", "adductors", "abductors", "inner thighs", "hip flexors"] },
+  { label: "Glutes",    matches: ["glutes"] },
+  { label: "Calves",    matches: ["calves", "soleus", "shins"] },
+  { label: "Forearms",  matches: ["forearms", "wrist extensors", "wrist flexors", "grip muscles"] },
+  { label: "Cardio",    matches: ["cardiovascular system", "cardio"] },
+];
+
 export default function ExerciseList() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("All");
   const [loading, setLoading] = useState(false);
-  const [muscles, setMuscles] = useState<string[]>(["All"]);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [savedExerciseIds, setSavedExerciseIds] = useState<Set<string>>(new Set());
 
-  // Base pool: ALL exercises fetched via cursor pagination (~1500), cached in API
+  // Full exercise pool — fetched once and cached (~1500 exercises)
   const [allPool, setAllPool] = useState<ExerciseInfo[]>([]);
 
-  // Fetch the full exercise database on mount (cached after first load)
+  // Fetch full exercise pool in background (cursor-paginated, cached after first load)
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    ExerciseApi.getAllExercises().then((exercises) => {
-      setAllPool(exercises);
-      setLoading(false);
 
-      const muscleSet = new Set<string>();
-      exercises.forEach((ex) => ex.targetMuscles.forEach((m) => muscleSet.add(m.toLowerCase())));
-      const sorted = Array.from(muscleSet).sort();
-      setMuscles(["All", ...sorted]);
+    const unsubProgress = ExerciseApi.onProgress((msg) => {
+      if (!cancelled) setLoadingMessage(msg);
     });
+
+    const unsubExercises = ExerciseApi.onExercises((exercises) => {
+      if (!cancelled) setAllPool(exercises);
+    });
+
+    ExerciseApi.getAllExercises().then(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+      unsubProgress();
+      unsubExercises();
+    };
   }, []);
 
-  // All filtering is client-side from the full pool — instant switching
+  useFocusEffect(
+    useCallback(() => {
+      // Refresh saved exercises when navigating back here
+      LikedExercise.getAll(database).then((liked) => {
+         setSavedExerciseIds(new Set(liked.map((ex) => ex.exerciseId)));
+      });
+    }, [])
+  );
+
+  // Filter client-side from the full cached pool
   const results = useMemo(() => {
     let pool = allPool;
 
-    if (selectedMuscle !== "All") {
-      const m = selectedMuscle.toLowerCase();
-      pool = pool.filter((ex) =>
-        ex.targetMuscles.some((t) => t.toLowerCase() === m)
-      );
+    if (selectedMuscle === "Saved") {
+      pool = pool.filter((ex) => savedExerciseIds.has(ex.exerciseId));
+    } else if (selectedMuscle !== "All") {
+      const filter = MUSCLE_FILTERS.find((f) => f.label === selectedMuscle);
+      if (filter) {
+        pool = pool.filter((ex) =>
+          ex.targetMuscles.some((t) => filter.matches.includes(t.toLowerCase())) ||
+          ex.secondaryMuscles?.some((t) => filter.matches.includes(t.toLowerCase())) ||
+          ex.bodyParts.some((b) => filter.matches.includes(b.toLowerCase()))
+        );
+      }
     }
 
     if (query.trim()) {
@@ -84,8 +130,14 @@ export default function ExerciseList() {
       );
     }
 
-    return pool;
-  }, [allPool, selectedMuscle, query]);
+    // Deduplicate by exerciseId
+    const seen = new Set<string>();
+    return pool.filter((ex) => {
+      if (seen.has(ex.exerciseId)) return false;
+      seen.add(ex.exerciseId);
+      return true;
+    });
+  }, [allPool, selectedMuscle, query, savedExerciseIds]);
 
   const handleSearchChange = useCallback((text: string) => {
     setQuery(text);
@@ -113,24 +165,12 @@ export default function ExerciseList() {
           keyboardShouldPersistTaps="handled"
         >
           <FadeTranslate order={0} direction="y" translateYFrom={-24}>
-            <View style={s.headerRow}>
-              <Text style={s.heroTitle}>Find Exercises</Text>
-              <TouchableOpacity
-                style={s.savedPill}
-                activeOpacity={0.8}
-                onPress={() => router.push("/(screens)/SavedExercises")}
-              >
-                <Ionicons name="heart" size={16} color="#ff4000" />
-                <Text style={s.savedPillText}>Saved</Text>
-              </TouchableOpacity>
-            </View>
-
             <View style={s.searchRow}>
               <View style={s.searchBox}>
                 <Ionicons name="search" size={20} color={D.sub} />
                 <TextInput
                   style={s.searchInput}
-                  placeholder="Search over 1000+ exercises..."
+                  placeholder="Search your program..."
                   placeholderTextColor={D.sub}
                   value={query}
                   onChangeText={handleSearchChange}
@@ -151,45 +191,50 @@ export default function ExerciseList() {
             </View>
           </FadeTranslate>
 
-          <FadeTranslate order={0} delay={200} direction="x" translateXFrom={60}>
-            <View style={s.muscleSectionHeader}>
-              <Text style={s.sectionLabel}>Muscles</Text>
-              {selectedMuscle !== "All" && (
-                <TouchableOpacity onPress={() => setSelectedMuscle("All")} activeOpacity={0.7}>
-                  <Text style={s.clearFilterText}>Clear Filter</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
+          <FadeTranslate order={0} delay={100} direction="x" translateXFrom={60}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={s.muscleRow}
             >
-              {muscles.map((muscle) => {
-                const active = selectedMuscle === muscle;
+              {MUSCLE_FILTERS.map(({ label }) => {
+                const active = selectedMuscle === label;
+                let iconName: keyof typeof Ionicons.glyphMap | undefined = undefined;
+                let textColor = active ? "#000" : "#DEDEDE";
+
+                if (label === "Saved") {
+                   iconName = active ? "heart" : "heart-outline";
+                   textColor = active ? "#ff4000" : "#DEDEDE";
+                }
 
                 return (
-                  <TouchableOpacity
-                    key={muscle}
-                    style={[s.muscleChip, active && s.muscleChipActive]}
-                    onPress={() => setSelectedMuscle(active ? "All" : muscle)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[s.muscleText, active && s.muscleTextActive]}>
-                      {capitalize(muscle)}
-                    </Text>
-                  </TouchableOpacity>
+                  <React.Fragment key={label}>
+                    <TouchableOpacity
+                      style={[
+                        s.muscleChip, 
+                        active ? s.muscleChipActive : null, 
+                        label === "Saved" && active && { backgroundColor: "rgba(255, 64, 0, 0.15)" }
+                      ]}
+                      onPress={() => setSelectedMuscle(active ? "All" : label)}
+                      activeOpacity={0.7}
+                    >
+                      {iconName && <Ionicons name={iconName} size={16} color={textColor} />}
+                      <Text style={[s.muscleText, { color: textColor }]}>
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                    {label === "Saved" && <View style={s.chipDivider} />}
+                  </React.Fragment>
                 );
               })}
             </ScrollView>
           </FadeTranslate>
 
           <View style={s.resultsContainer}>
-            {loading ? (
+            {loading && results.length === 0 ? (
               <View style={s.emptyState}>
                 <ActivityIndicator size="large" color={D.primary} />
-                <Text style={[s.emptyText, { marginTop: 16 }]}>Loading exercises...</Text>
+                <Text style={[s.emptyText, { marginTop: 16 }]}>{loadingMessage || "Loading exercises..."}</Text>
               </View>
             ) : results.length === 0 ? (
               <FadeTranslate order={0.2}>
@@ -205,31 +250,31 @@ export default function ExerciseList() {
               </FadeTranslate>
             ) : (
               <>
-                <FadeTranslate order={0} delay={300} direction="y" translateYFrom={-16}>
+                <FadeTranslate order={0} delay={200} direction="y" translateYFrom={-16}>
                   <View style={s.resultsHeader}>
-                    <Text style={s.sectionLabel}>Results</Text>
-                    <Text style={s.resultsCount}>{results.length}</Text>
+                    <Text style={s.sectionLabel}>{results.length} Exercise{results.length !== 1 ? 's' : ''}</Text>
                   </View>
                 </FadeTranslate>
 
-                <View style={s.resultsGrid}>
-                  {results.map((exercise, index) => {
+                <View style={s.resultsList}>
+                  {results.slice(0, Math.min(results.length, 50)).map((exercise, index) => {
                     const imageUri = getImageUri(exercise.gifUrl);
                     const category = (exercise as ExerciseInfo).targetMuscles?.[0]
                       ?? (exercise as ExerciseInfo).bodyParts?.[0]
-                      ?? "";
+                      ?? "Strength"; // fallback category
+                    const equipment = exercise.equipments?.[0] ? capitalize(exercise.equipments[0]) : "Bodyweight";
 
                     return (
                       <FadeTranslate
                         key={`${exercise.exerciseId}-${index}`}
-                        direction="x"
-                        translateXFrom={50}
-                        delay={400}
-                        order={Math.min(index, 12) * 0.1}
+                        direction="y"
+                        translateYFrom={40}
+                        delay={100}
+                        order={Math.min(index, 10) * 0.05}
                       >
                         <TouchableOpacity
-                          style={s.resultCard}
-                          activeOpacity={0.9}
+                          style={s.exerciseListItem}
+                          activeOpacity={0.7}
                           onPress={() =>
                             router.push({
                               pathname: "/(screens)/ExerciseDetail",
@@ -245,33 +290,44 @@ export default function ExerciseList() {
                             })
                           }
                         >
-                          <View style={s.resultImageWrap}>
+                          {/* Thumbnail */}
+                          <View style={s.listItemImageWrap}>
                             {imageUri ? (
                               <Image
                                 source={{ uri: imageUri }}
-                                style={s.resultImage}
-                                resizeMode="contain"
+                                style={s.listItemImage}
+                                resizeMode="cover"
                               />
                             ) : (
-                              <Ionicons name="barbell" size={40} color="rgba(0,0,0,0.2)" />
+                              <Ionicons name="barbell-outline" size={30} color="gray" style={{ alignSelf: 'center', marginTop: 30 }} />
                             )}
                           </View>
-                          <LinearGradient
-                            colors={["transparent", "rgba(0,0,0,0.6)", "rgba(0,0,0,0.95)"]}
-                            style={s.resultGradient}
-                          />
-                          <View style={s.resultInfo}>
-                            <Text style={s.resultName} numberOfLines={2}>
+                          
+                          {/* Info Column */}
+                          <View style={s.listItemInfo}>
+                            <Text style={s.listItemName} numberOfLines={2}>
                               {capitalize(exercise.name)}
                             </Text>
-                            <View style={s.categoryPill}>
-                              <Text style={s.categoryText}>{capitalize(category)}</Text>
+
+                            <View style={s.listItemPillsRow}>
+                               <View style={s.infoPill}>
+                                 <Text style={s.infoPillText}>{capitalize(category)} Focus</Text>
+                               </View>
+                               <View style={s.infoPill}>
+                                 <Ionicons name="barbell" size={11} color="rgba(255,255,255,0.4)" style={{marginRight: 4}} />
+                                 <Text style={s.infoPillText}>{equipment}</Text>
+                               </View>
                             </View>
                           </View>
                         </TouchableOpacity>
                       </FadeTranslate>
                     );
                   })}
+                  {results.length > 50 && (
+                     <Text style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontFamily: theme.medium, marginTop: 20 }}>
+                        Showing first 50 results. Use search to refine.
+                     </Text>
+                  )}
                 </View>
               </>
             )}
@@ -308,7 +364,7 @@ const s = StyleSheet.create({
     letterSpacing: 0.5,
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 120 },
+  scrollContent: { paddingBottom: 120, paddingTop: 16 },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -322,33 +378,15 @@ const s = StyleSheet.create({
     fontFamily: theme.black,
     color: D.text,
   },
-  savedPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,64,0,0.1)",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255,64,0,0.2)",
-  },
-  savedPillText: {
-    color: "#ff4000",
-    fontFamily: theme.bold,
-    fontSize: 14,
-  },
-  searchRow: { paddingHorizontal: 20, marginBottom: 30 },
+  searchRow: { paddingHorizontal: 20, marginBottom: 20 },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#161616",
-    borderRadius: 20,
+    backgroundColor: "#2C2C2E",
+    borderRadius: 24,
     paddingHorizontal: 16,
-    height: 56,
+    height: 52,
     gap: 12,
-    borderWidth: 1,
-    borderColor: D.border,
   },
   searchInput: {
     flex: 1,
@@ -366,9 +404,10 @@ const s = StyleSheet.create({
     marginBottom: 12,
   },
   sectionLabel: {
-    fontSize: 18,
+    fontSize: 15,
     fontFamily: theme.bold,
-    color: D.text,
+    color: "#FFFFFF",
+    letterSpacing: 0.8,
   },
   clearFilterText: {
     fontSize: 14,
@@ -380,23 +419,18 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#2C2C2E",
     borderRadius: 24,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: "#2A2A2A",
+    paddingVertical: 10,
   },
   muscleChipActive: {
-    backgroundColor: D.primaryDim,
-    borderColor: D.primary,
+    backgroundColor: D.primary,
   },
   muscleText: {
     fontSize: 14,
     fontFamily: theme.semibold,
-    color: D.text,
   },
-  muscleTextActive: { color: D.primary },
   resultsContainer: {
     marginTop: 24,
     paddingHorizontal: 20,
@@ -417,64 +451,73 @@ const s = StyleSheet.create({
     borderRadius: 10,
     overflow: "hidden",
   },
-  resultsGrid: {
+  resultsList: {
+    flexDirection: "column",
+    gap: 16,
+  },
+  exerciseListItem: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    rowGap: 16,
+    alignItems: "stretch",
+    backgroundColor: "#1C1C1E",
+    padding: 12,
+    borderRadius: 20,
+    minHeight: 110,
   },
-  resultCard: {
-    width: (SCREEN_W - 56) / 2,
-    height: 220,
-    borderRadius: 24,
+  listItemImageWrap: {
+    width: 90,
+    height: 90,
+    backgroundColor: "#111",
+    borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: D.card,
-    borderWidth: 1,
-    borderColor: D.border,
   },
-  resultImageWrap: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  resultImage: {
+  listItemImage: {
     width: "100%",
     height: "100%",
   },
-  resultGradient: {
-    position: "absolute",
-    top: "20%",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  resultInfo: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 14,
-    paddingTop: 30,
-  },
-  resultName: {
-    fontSize: 14,
-    fontFamily: theme.bold,
-    color: D.text,
-    marginBottom: 8,
-    lineHeight: 18,
-  },
-  categoryPill: {
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 8,
+  listItemInfo: {
+    flex: 1,
+    marginLeft: 16,
+    justifyContent: "center",
     paddingVertical: 4,
+  },
+  listItemName: {
+    color: "#fff",
+    fontFamily: theme.bold,
+    fontSize: 20,
+    flex: 1,
+    lineHeight: 26,
+    marginBottom: 8,
+  },
+  heartBtn: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    padding: 8,
     borderRadius: 12,
   },
-  categoryText: {
-    fontSize: 10,
-    fontFamily: theme.bold,
-    color: "#FFF",
+  chipDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignSelf: "center",
+    marginHorizontal: 4,
+  },
+  listItemPillsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  infoPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2C2C2E",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  infoPillText: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 11,
+    fontFamily: theme.semibold,
   },
   emptyState: {
     alignItems: "center",

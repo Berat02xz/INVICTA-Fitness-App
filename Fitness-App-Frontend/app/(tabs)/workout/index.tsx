@@ -25,6 +25,9 @@ import { ExerciseApi, type ExerciseInfo } from "@/api/ExerciseApi";
 const { width: SCREEN_W } = Dimensions.get("window");
 const ROUTINE_EQUIPMENT_PILLS = ["Barbell", "Dumbbell", "Gym mat", "Pull-up bar", "Bench"];
 
+const titleCase = (str: string) =>
+  str.replace(/\b\w/g, (c) => c.toUpperCase());
+
 export default function Workout() {
   const insets = useSafeAreaInsets();
   
@@ -33,6 +36,7 @@ export default function Workout() {
   
   const [exercisePool, setExercisePool] = useState<ExerciseInfo[]>([]);
   const [exercisesLoading, setExercisesLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const apiExercises = useMemo(() => {
     return exercisePool.slice(0, 15);
@@ -41,14 +45,24 @@ export default function Workout() {
   useEffect(() => {
     let cancelled = false;
     setExercisesLoading(true);
-    ExerciseApi.getAllExercises().then((exercises) => {
-      if (!cancelled) {
-        setExercisePool(exercises);
-        setExercisesLoading(false);
-      }
+
+    const unsubProgress = ExerciseApi.onProgress((msg) => {
+      if (!cancelled) setLoadingMessage(msg);
+    });
+
+    const unsubExercises = ExerciseApi.onExercises((exercises) => {
+      if (!cancelled) setExercisePool(exercises);
+    });
+
+    ExerciseApi.getAllExercises().then(() => {
+      if (!cancelled) setExercisesLoading(false);
     });
     setBaseRoutines([...ROUTINES].sort(() => Math.random() - 0.5));
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      unsubProgress();
+      unsubExercises();
+    };
   }, []);
 
   const handleRoutinePress = (routine: WorkoutRoutine) => {
@@ -260,11 +274,17 @@ export default function Workout() {
             </TouchableOpacity>
           </View>
 
-          {exercisesLoading ? (
-            <ActivityIndicator style={{marginTop: 40}} color="#AAFB05" />
+          {exercisesLoading && apiExercises.length === 0 ? (
+            <View style={{ alignItems: "center", marginTop: 40, gap: 12 }}>
+              <ActivityIndicator color="#AAFB05" />
+              {loadingMessage ? (
+                <Text style={{ color: "#888", fontSize: 14 }}>{loadingMessage}</Text>
+              ) : null}
+            </View>
           ) : apiExercises.length === 0 ? (
             <Text style={s.emptyText}>No exercises found.</Text>
           ) : (
+            <>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -286,13 +306,14 @@ export default function Workout() {
                            <Ionicons name="barbell" size={40} color="#333" />
                          )}
                       </View>
-                      <Text style={s.albumTitle} numberOfLines={1}>{ex.name}</Text>
+                      <Text style={s.albumTitle} numberOfLines={1}>{titleCase(ex.name)}</Text>
                       <Text style={s.albumSub} numberOfLines={1}>{ex.equipments[0] ?? bodyPart}</Text>
                    </TouchableOpacity>
                    </FadeTranslate>
                  );
                })}
             </ScrollView>
+            </>
           )}
         </FadeTranslate>
 

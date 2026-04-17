@@ -140,7 +140,7 @@ export default function WorkoutPlayer() {
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const scaleTransitionAnim = useRef(new Animated.Value(1)).current;
   const timerCircleAnim = useRef(new Animated.Value(1)).current;
   const breathingScale1 = useRef(new Animated.Value(1)).current;
   const breathingScale2 = useRef(new Animated.Value(1)).current;
@@ -399,29 +399,30 @@ export default function WorkoutPlayer() {
           duration: 250,
           useNativeDriver: true,
         }),
-        Animated.timing(slideAnim, {
-          toValue: -20,
+        Animated.timing(scaleTransitionAnim, {
+          toValue: 1.1, // Punch out (grow slightly)
           duration: 250,
           useNativeDriver: true,
         }),
       ]).start(() => {
         cb();
-        slideAnim.setValue(20);
+        scaleTransitionAnim.setValue(0.5); // Start small for punch in
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 300,
             useNativeDriver: true,
           }),
-          Animated.timing(slideAnim, {
-            toValue: 0,
-            duration: 300,
+          Animated.spring(scaleTransitionAnim, {
+            toValue: 1,
+            friction: 6,
+            tension: 50,
             useNativeDriver: true,
           }),
         ]).start();
       });
     },
-    [fadeAnim, slideAnim]
+    [fadeAnim, scaleTransitionAnim]
   );
 
   const handleNext = () => {
@@ -560,7 +561,7 @@ export default function WorkoutPlayer() {
             styles.contentHost,
             {
               opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
+              transform: [{ scale: scaleTransitionAnim }],
             },
           ]}
         >
@@ -679,9 +680,17 @@ export default function WorkoutPlayer() {
                                     {currentExercise.name}
                                 </Text>
                             </View>
-                            <Pressable onPress={() => handleOpenSheet("upNext")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>
-                                <Ionicons name="list" size={20} color="#fff" />
-                            </Pressable>
+                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                                <Pressable onPress={handleToggleLike} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Ionicons name={isLiked ? "heart" : "heart-outline"} size={22} color={isLiked ? "#ff4757" : "#fff"} />
+                                </Pressable>
+                                <Pressable onPress={() => handleOpenSheet("instruction")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Ionicons name="information-circle" size={24} color="#fff" />
+                                </Pressable>
+                                <Pressable onPress={() => handleOpenSheet("upNext")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Ionicons name="list" size={24} color="#fff" />
+                                </Pressable>
+                            </View>
                         </View>
 
                         {/* Timer and Progress Section */}
@@ -777,7 +786,9 @@ export default function WorkoutPlayer() {
           {/* Header */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, paddingBottom: 20 }}>
               <View style={{ width: 32, height: 32 }} /> {/* Spacer to center title */}
-              <Text style={{ color: '#fff', fontSize: 22, fontFamily: theme.bold }}>List of exercises</Text>
+              <Text style={{ color: '#fff', fontSize: 22, fontFamily: theme.bold }}>
+                 {activeSheet === "instruction" ? "Instructions" : "List of exercises"}
+              </Text>
               <Pressable 
                   onPress={() => bottomSheetRef.current?.close()} 
                   style={{ width: 32, height: 32, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
@@ -790,6 +801,68 @@ export default function WorkoutPlayer() {
             contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
+            {activeSheet === "instruction" && (
+               <View>
+                  {infoLoading ? (
+                     <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium, fontSize: 16, textAlign: 'center', marginTop: 40 }}>Loading...</Text>
+                  ) : !exerciseInfo ? (
+                     <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium, fontSize: 16, textAlign: 'center', marginTop: 40 }}>No details available.</Text>
+                  ) : (
+                     <View>
+                        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+                           {exerciseInfo.category && (
+                              <View style={{ flex: 1, backgroundColor: '#252528', padding: 16, borderRadius: 20, alignItems: 'flex-start' }}>
+                                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(170, 251, 5, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                                    <Ionicons name="body-outline" size={20} color={D.primary} />
+                                 </View>
+                                 <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: theme.medium, marginBottom: 4 }}>Target Muscle</Text>
+                                 <Text style={{ color: '#fff', fontSize: 16, fontFamily: theme.bold, textTransform: 'capitalize' }} numberOfLines={1}>
+                                    {exerciseInfo.target || exerciseInfo.bodyPart || exerciseInfo.category}
+                                 </Text>
+                              </View>
+                           )}
+                           {exerciseInfo.equipment && (
+                              <View style={{ flex: 1, backgroundColor: '#252528', padding: 16, borderRadius: 20, alignItems: 'flex-start' }}>
+                                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(170, 251, 5, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                                    <Ionicons name="barbell-outline" size={20} color={D.primary} />
+                                 </View>
+                                 <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: theme.medium, marginBottom: 4 }}>Equipment</Text>
+                                 <Text style={{ color: '#fff', fontSize: 16, fontFamily: theme.bold, textTransform: 'capitalize' }} numberOfLines={1}>
+                                    {exerciseInfo.equipment.replace(/_/g, ' ')}
+                                 </Text>
+                              </View>
+                           )}
+                        </View>
+                        
+                        <Text style={{ color: '#fff', fontSize: 20, fontFamily: theme.bold, marginBottom: 16 }}>How to perform</Text>
+                        
+                        {exerciseInfo.instructions && exerciseInfo.instructions.length > 0 ? (
+                           <View style={{ backgroundColor: '#252528', borderRadius: 24, padding: 20, marginBottom: 20 }}>
+                              {exerciseInfo.instructions.map((step, index) => {
+                                 // Remove "Step 1:", "1.", etc from the beginning of the string
+                                 const cleanStep = step.replace(/^(?:Step\s*\d+\s*:\s*|\d+\.\s*)/i, '').trim();
+                                 return (
+                                    <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: index === exerciseInfo.instructions!.length - 1 ? 0 : 20 }}>
+                                       <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(170, 251, 5, 0.15)', alignItems: 'center', justifyContent: 'center', marginRight: 16, marginTop: 2 }}>
+                                          <Text style={{ color: D.primary, fontFamily: theme.bold, fontSize: 14 }}>{index + 1}</Text>
+                                       </View>
+                                       <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, fontFamily: theme.medium, flex: 1, lineHeight: 24 }}>
+                                          {cleanStep}
+                                       </Text>
+                                    </View>
+                                 );
+                              })}
+                           </View>
+                        ) : (
+                           <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, fontFamily: theme.medium }}>
+                              Instructions not available for this exercise.
+                           </Text>
+                        )}
+                     </View>
+                  )}
+               </View>
+            )}
+
             {activeSheet === "upNext" && (
               <View>
                 {/* Dynamic Grouping */}

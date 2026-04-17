@@ -51,6 +51,7 @@ export default function Reviews() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const [showButton, setShowButton] = useState(false);
+  const [percentageText, setPercentageText] = useState("0%");
   const textInputRef = useRef<TextInput>(null);
 
   // Circle config
@@ -64,10 +65,10 @@ export default function Reviews() {
     // Listener for text update
     const listenerId = progressAnim.addListener(({ value }) => {
       const percentage = Math.round(value * 100);
-      if (textInputRef.current) {
-        textInputRef.current.setNativeProps({
-          text: `${percentage}%`,
-        });
+      if (Platform.OS === "web") {
+        setPercentageText(`${percentage}%`);
+      } else if (textInputRef.current?.setNativeProps) {
+        textInputRef.current.setNativeProps({ text: `${percentage}%` });
       }
     });
 
@@ -157,12 +158,16 @@ export default function Reviews() {
                 </Svg>
               </View>
               {/* Use TextInput for high performance updates without re-renders */}
-              <AnimatedText
-                ref={textInputRef}
-                style={styles.percentageText}
-                editable={false}
-                defaultValue="0%"
-              />
+              {Platform.OS === "web" ? (
+                <Text style={styles.percentageText}>{percentageText}</Text>
+              ) : (
+                <AnimatedText
+                  ref={textInputRef}
+                  style={styles.percentageText}
+                  editable={false}
+                  defaultValue="0%"
+                />
+              )}
             </View>
           </FadeTranslate>
 

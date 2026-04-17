@@ -1,18 +1,16 @@
 import ButtonFit from "@/components/ui/ButtonFit";
 import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
-import UndertextCard from "@/components/ui/UndertextCard";
-import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
-import React, { useState, useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import { DrumPicker } from "@/components/ui/Onboarding/DrumPicker";
 
-const DEFAULT_WEIGHT_METRIC = 70;
-const DEFAULT_WEIGHT_IMPERIAL = 154;
-const ITEM_WIDTH = 65;
+const DEFAULT_WEIGHT_METRIC = 73; // Based on the reference image!
+const DEFAULT_WEIGHT_IMPERIAL = 160;
+const ITEM_WIDTH = 14; // Thinner for the strict ruler look!
 
 // Metric: 30–200 kg, Imperial: 66–440 lbs
 const METRIC_ITEMS = Array.from({ length: 171 }, (_, i) => i + 30);
@@ -31,13 +29,13 @@ const WeightQuestion = () => {
     const saved = answers?.weight ? Number(answers.weight) : null;
     const minVal = unit === "metric" ? 30 : 66;
     if (saved && saved >= minVal) return Math.min(saved - minVal, items.length - 1);
-    return defaultVal - (unit === "metric" ? 30 : 66);
+    return defaultVal - minVal;
   });
 
   const currentWeight = items[selectedIndex] ?? defaultVal;
 
   const handleUnitChange = (newUnit: "metric" | "imperial") => {
-    // Convert current weight to new unit
+    if (newUnit === unit) return;
     const currentVal = items[selectedIndex] ?? defaultVal;
     let converted: number;
     if (newUnit === "imperial") {
@@ -60,23 +58,22 @@ const WeightQuestion = () => {
     goForward();
   };
 
-  const renderItem = (item: number, index: number) => (
-    <View
-      style={[
-        styles.pickerItem,
-        index === selectedIndex && styles.pickerItemActive,
-      ]}
-    >
-      <Text
-        style={[
-          styles.pickerText,
-          index === selectedIndex && styles.pickerTextActive,
-        ]}
-      >
-        {item}
-      </Text>
-    </View>
-  );
+  const renderItem = (item: number, index: number) => {
+    // Every 10 units is tall, every 5 units is medium, rests are short
+    // Wait, let's look at the image: there are exactly 9 short ticks between 2 tall ticks. So every 10th is a tall tick!
+    const isTall = item % 10 === 0;
+    const isMedium = item % 5 === 0 && !isTall;
+
+    let height = 24;
+    if (isTall) height = 48;
+    else if (isMedium) height = 32;
+
+    return (
+      <View style={styles.rulerTickContainer}>
+        <View style={[styles.rulerTick, { height, opacity: isTall ? 1 : (isMedium ? 0.7 : 0.4) }]} />
+      </View>
+    );
+  };
 
   return (
     <>
@@ -84,55 +81,60 @@ const WeightQuestion = () => {
       <View style={styles.container}>
         <View style={styles.content}>
           <FadeTranslate order={1}>
-            <QuestionOnboarding question="What is your weight?" />
+             <Text style={styles.questionTitle}>
+               What is your{"\n"}current weight?
+             </Text>
           </FadeTranslate>
-          <FadeTranslate order={2}>
-            <View style={styles.unitSwitchWrapper}>
-              <UnitSwitch
-                unit={unit}
-                onSelect={handleUnitChange}
-                metricLabel="KG"
-                imperialLabel="LB"
-              />
+
+          <FadeTranslate order={2} style={{ marginTop: 40, width: '100%', alignItems: 'center' }}>
+            <View style={styles.valuePill}>
+                <Text style={styles.valueDisplay}>{currentWeight},0</Text>
+                <Text style={styles.unitLabel}>{unit === "metric" ? "kg." : "lb."}</Text>
             </View>
           </FadeTranslate>
 
-          <FadeTranslate order={3}>
-            <Text style={styles.valueDisplay}>{currentWeight}</Text>
-            <Text style={styles.unitLabel}>{unit === "metric" ? "kg" : "lbs"}</Text>
-          </FadeTranslate>
-
-          <FadeTranslate order={4}>
+          <FadeTranslate order={3} style={{ width: '100%', marginTop: 60 }}>
             <View style={styles.pickerContainer}>
+              {/* Dynamic fixed center indicator matching the green line in the reference */}
               <View style={styles.centerIndicator} />
+              
               <DrumPicker
                 key={unit}
                 data={items}
                 renderItem={renderItem}
                 itemWidth={ITEM_WIDTH}
                 defaultIndex={selectedIndex}
-                height={70}
+                height={120}
                 onChange={(index: number) => setSelectedIndex(index)}
-              />
-            </View>
-          </FadeTranslate>
-
-          <FadeTranslate order={5}>
-            <View style={styles.undertextCard}>
-              <UndertextCard
-                emoji="⚖️"
-                title="Weight"
-                text="Your weight is essential for tailoring your fitness plan."
               />
             </View>
           </FadeTranslate>
         </View>
 
         <View style={styles.bottom}>
+          {/* Custom Unit toggle just like the image */}
+          <FadeTranslate order={4} style={styles.customUnitToggle}>
+            <TouchableOpacity 
+               style={[styles.unitToggleBtn, unit === "metric" && styles.unitToggleBtnActive]}
+               onPress={() => handleUnitChange("metric")}
+               activeOpacity={0.8}
+            >
+               <Text style={[styles.unitToggleText, unit === "metric" && styles.unitToggleTextActive]}>kg.</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+               style={[styles.unitToggleBtn, unit === "imperial" && styles.unitToggleBtnActive]}
+               onPress={() => handleUnitChange("imperial")}
+               activeOpacity={0.8}
+            >
+               <Text style={[styles.unitToggleText, unit === "imperial" && styles.unitToggleTextActive]}>lb.</Text>
+            </TouchableOpacity>
+          </FadeTranslate>
+
           <ButtonFit
             title="Continue"
             backgroundColor={theme.primary}
             onPress={handleSubmit}
+            style={{ marginTop: 40 }}
           />
         </View>
       </View>
@@ -144,77 +146,97 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
   },
   content: {
     flex: 1,
-    marginTop: 15,
+    marginTop: 80,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
-  unitSwitchWrapper: {
-    marginTop: 20,
-    alignItems: "center",
+  questionTitle: {
+    fontSize: 28,
+    fontFamily: theme.bold,
+    color: "#FFF",
+    textAlign: "center",
+    lineHeight: 36,
+  },
+  valuePill: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    backgroundColor: '#222222',
+    paddingVertical: 12,
+    paddingHorizontal: 36,
+    borderRadius: 40, // fully rounded pill
   },
   valueDisplay: {
-    fontSize: 48,
-    fontFamily: theme.bold,
-    color: theme.primary,
-    textAlign: "center",
-    marginTop: 24,
+    fontSize: 56,
+    fontFamily: theme.bold, // Try to match the bold digital look
+    color: "#FFF", // White as in reference!
+    letterSpacing: -1,
   },
   unitLabel: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.5)",
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 20,
+    color: "#888",
+    marginLeft: 8,
+    marginBottom: 8, // align nicely with the baseline of big number
   },
   pickerContainer: {
-    height: 70,
+    height: 120, // Increased height for taller lines
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
   centerIndicator: {
     position: "absolute",
-    width: ITEM_WIDTH,
-    height: 60,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: theme.primary,
-    backgroundColor: "rgba(170,251,5,0.08)",
+    width: 3,
+    height: 80, // Taller than the tallest white line
+    backgroundColor: theme.primary, // #AAFB05
     zIndex: 1,
     pointerEvents: "none",
   },
-  pickerItem: {
+  rulerTickContainer: {
     width: ITEM_WIDTH,
-    height: 60,
+    height: 120,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 16,
   },
-  pickerItemActive: {},
-  pickerText: {
-    fontSize: 20,
-    fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.3)",
+  rulerTick: {
+    width: 2,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 1,
   },
-  pickerTextActive: {
-    color: "#FFFFFF",
+  
+  // Custom Toggle pill at bottom
+  customUnitToggle: {
+    flexDirection: 'row',
+    backgroundColor: '#1E1E1E',
+    padding: 4,
+    borderRadius: 40,
+    alignSelf: 'center',
+  },
+  unitToggleBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+  },
+  unitToggleBtnActive: {
+    backgroundColor: '#FFF',
+  },
+  unitToggleText: {
+    fontSize: 16,
     fontFamily: theme.bold,
-    fontSize: 24,
+    color: '#888',
   },
-  undertextCard: {
-    marginTop: 20,
+  unitToggleTextActive: {
+    color: '#000',
   },
+  
   bottom: {
     alignItems: "center",
     marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
+    paddingHorizontal: 20,
   },
 });
 

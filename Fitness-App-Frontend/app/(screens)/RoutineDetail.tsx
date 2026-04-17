@@ -70,105 +70,130 @@ export default function RoutineDetail() {
 
   return (
     <View style={s.container}>
-      {/* Absolute Back btn */}
-      <TouchableOpacity
-        style={[s.backBtn, { top: insets.top + 8 }]}
-        onPress={() => router.back()}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="chevron-back" size={24} color={D.text} />
-      </TouchableOpacity>
-
-      {/* Fixed Background Header */}
-      <View style={[s.heroWrap, { position: "absolute", top: 0, left: 0, right: 0 }]}>
-        <LinearGradient
-          colors={routine.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.heroGradient}
-        />
-        <Text style={s.heroEmoji}>{routine.emoji}</Text>
-      </View>
-
       <ScrollView
         style={s.scroll}
         contentContainerStyle={[s.scrollContent, { paddingBottom: 100 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        {/* Transparent Spacer to push the bottom sheet down */}
-        <View style={{ height: SCREEN_W * 0.85 }} />
+        {/* Header Image Component (rounded bottom) */}
+        <View style={[s.headerWrap]}>
+          <LinearGradient
+            colors={routine.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0.8 }}
+            style={s.headerGradient}
+          />
+          {/* Back btn absolute in header */}
+          <TouchableOpacity
+            style={[s.backBtn, { top: insets.top + 8 }]}
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="chevron-back" size={24} color="#FFF" />
+          </TouchableOpacity>
+          
+          <Text style={s.heroEmoji}>{routine.emoji}</Text>
+
+          <View style={s.headerOverlayContent}>
+            <FadeTranslate order={0} direction="y" translateYFrom={15}>
+              <Text style={s.headerTitle}>{routine.name}</Text>
+              <View style={s.tagsRowHeader}>
+                {routine.targetMuscles.map((m) => (
+                  <View key={m} style={s.whiteTag}>
+                    <Text style={s.whiteTagText}>{m}</Text>
+                  </View>
+                ))}
+                {routine.equipment.slice(0,1).map((eq) => (
+                  <View key={eq} style={s.whiteTag}>
+                    <Text style={s.whiteTagText}>{eq}</Text>
+                  </View>
+                ))}
+              </View>
+            </FadeTranslate>
+          </View>
+        </View>
 
         {/* Content Wrapper */}
         <View style={s.contentWrapper}>
-          <View style={s.contentHandle} />
+          <FadeTranslate order={0.1} delay={100} direction="y" translateYFrom={15}>
+            <Text style={s.sectionSubtitle}>ABOUT</Text>
+            <Text style={s.description}>{routine.description}</Text>
 
-          <FadeTranslate order={0}>
-          {/* Top minimal stats */}
-          <View style={s.topStatsRow}>
-            <View style={s.topStatItem}>
-              <Ionicons name="time-outline" size={16} color={D.sub} />
-              <Text style={s.topStatText}>{routine.duration}</Text>
-            </View>
-            <View style={s.topStatDot} />
-            <View style={s.topStatItem}>
-              <Ionicons name="barbell-outline" size={16} color={D.sub} />
-              <Text style={s.topStatText}>{routine.exercises.length} Exercises</Text>
-            </View>
-            <View style={s.topStatDot} />
-            <View style={s.topStatItem}>
-              <Ionicons name="flame-outline" size={16} color={D.sub} />
-              <Text style={s.topStatText}>{routine.difficulty}</Text>
-            </View>
-          </View>
-
-          <Text style={s.title}>{routine.name}</Text>
-          <Text style={s.description}>{routine.description}</Text>
-
-          {/* Tags */}
-          <View style={s.tagsRow}>
-            {routine.targetMuscles.map((m) => (
-              <View key={m} style={s.muscleBadge}>
-                <Text style={s.muscleBadgeText}>{m}</Text>
+            {/* Stats Box (unified dark card) */}
+            <View style={s.statsCard}>
+              <View style={s.statCol}>
+                <View style={s.statIconWrap}>
+                   <Ionicons name="stats-chart" size={14} color="#AAFB05" />
+                </View>
+                <View>
+                  <Text style={s.statLabel}>Difficulty</Text>
+                  <Text style={s.statVal}>{routine.difficulty}</Text>
+                </View>
               </View>
-            ))}
-            {routine.equipment.map((eq) => (
-              <View key={eq} style={s.equipBadge}>
-                <Text style={s.equipBadgeText}>{eq}</Text>
+
+              <View style={s.statDivider} />
+
+              <View style={s.statCol}>
+                <View style={s.statIconWrap}>
+                   <Ionicons name="star" size={14} color="#AAFB05" />
+                </View>
+                <View>
+                  <Text style={s.statLabel}>Duration</Text>
+                  <Text style={s.statVal}>{routine.duration}</Text>
+                </View>
               </View>
-            ))}
-          </View>
+
+              <View style={s.statDivider} />
+
+              <View style={s.statCol}>
+                <View style={s.statIconWrap}>
+                   <Ionicons name="person-circle" size={16} color="#AAFB05" />
+                </View>
+                <View>
+                  <Text style={s.statLabel}>Exercises</Text>
+                  <Text style={s.statVal}>{routine.exercises.length}</Text>
+                </View>
+              </View>
+            </View>
           </FadeTranslate>
 
-          {/* Exercises List */}
+          {/* Exercises List — WorkoutPlayer style */}
           <View style={s.exercisesSection}>
-            <FadeTranslate order={0.1}>
-            <Text style={s.sectionTitle}>Exercises</Text>
-            </FadeTranslate>
-            {routine.exercises.map((ex, i) => (
-              <FadeTranslate key={i} delay={150 + (i * 100)} order={0.2} direction="y" translateYFrom={20}>
-              <TouchableOpacity
-                style={s.exerciseItem}
-                activeOpacity={0.7}
-                onPress={() => handleExercisePress(ex)}
-              >
-                <View style={s.exerciseImageWrap}>
-                  {ex.gifUrl ? (
-                    <Image source={{ uri: ex.gifUrl }} style={s.exerciseImage} resizeMode="contain" />
-                  ) : (
-                    <Ionicons name="image-outline" size={24} color={D.muted} />
-                  )}
-                </View>
-                <View style={s.exerciseInfo}>
-                  <Text style={s.exerciseName} numberOfLines={2}>{ex.name}</Text>
-                  <Text style={s.exerciseDetails}>
-                    {ex.sets} Sets • {ex.reps} Reps
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={D.muted} />
-              </TouchableOpacity>
-              </FadeTranslate>
-            ))}
+            {routine.exercises.map((ex, i) => {
+              const setsLabel = ex.sets ? `${ex.sets} sets` : null;
+              const repsLabel = ex.reps ? `${ex.reps} reps` : null;
+              const metaLabel = [setsLabel, repsLabel].filter(Boolean).join(" · ");
+              return (
+                <FadeTranslate key={i} delay={150 + (i * 80)} order={0.2} direction="y" translateYFrom={20}>
+                  <TouchableOpacity
+                    style={s.exerciseCard}
+                    activeOpacity={0.75}
+                    onPress={() => handleExercisePress(ex)}
+                  >
+                    {/* Thumbnail */}
+                    <View style={s.exerciseThumb}>
+                      {ex.gifUrl ? (
+                        <Image source={{ uri: ex.gifUrl }} style={s.exerciseThumbImg} />
+                      ) : (
+                        <Ionicons name="barbell-outline" size={28} color="#333" />
+                      )}
+                    </View>
+                    {/* Info */}
+                    <View style={s.exerciseInfo}>
+                      <Text style={s.exerciseName} numberOfLines={1}>{ex.name}</Text>
+                      {metaLabel ? (
+                        <Text style={s.exerciseMeta}>{metaLabel}</Text>
+                      ) : null}
+                    </View>
+                    {/* Chevron */}
+                    <View style={s.exerciseChevron}>
+                      <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.3)" />
+                    </View>
+                  </TouchableOpacity>
+                </FadeTranslate>
+              );
+            })}
           </View>
         </View>
       </ScrollView>
@@ -192,174 +217,175 @@ export default function RoutineDetail() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: D.bg },
+  container: { flex: 1, backgroundColor: "#000000" },
   backBtn: {
     position: "absolute",
-    left: 16,
+    left: 20,
     zIndex: 10,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.15)",
     alignItems: "center",
     justifyContent: "center",
   },
   scroll: { flex: 1 },
   scrollContent: { },
   
-  heroWrap: {
+  headerWrap: {
     width: SCREEN_W,
-    height: SCREEN_W * 0.85,
+    height: SCREEN_W * 1.15,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
   },
-  heroGradient: {
+  headerGradient: {
     ...StyleSheet.absoluteFillObject,
   },
   heroEmoji: {
-    fontSize: 90,
-    marginBottom: 40, 
+    fontSize: 100,
+    marginBottom: 60, 
+  },
+  headerOverlayContent: {
+    position: "absolute",
+    bottom: 24,
+    left: 24,
+    right: 24,
+    zIndex: 2,
+  },
+  headerTitle: {
+    fontFamily: theme.black,
+    fontSize: 32,
+    color: "#FFFFFF",
+    marginBottom: 10,
+    letterSpacing: -0.5,
+  },
+  tagsRowHeader: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  whiteTag: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  whiteTagText: {
+    color: "#000000",
+    fontFamily: theme.bold,
+    fontSize: 12,
   },
 
   contentWrapper: {
-    backgroundColor: D.bg,
-    minHeight: 600,
-    marginTop: -40,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: "#000000",
     paddingHorizontal: 24,
-    paddingTop: 12,
+    paddingTop: 32,
+    minHeight: 500,
   },
-  contentHandle: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: "#333",
-    alignSelf: "center",
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 32,
-    fontFamily: theme.black,
-    color: D.text,
+  sectionSubtitle: {
+    fontFamily: theme.bold,
+    fontSize: 12,
+    color: "rgba(255,255,255,0.45)",
+    letterSpacing: 2,
     marginBottom: 12,
-    lineHeight: 38,
-    letterSpacing: -0.5,
+    textTransform: "uppercase",
   },
   description: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: theme.medium,
-    color: D.sub,
+    color: "rgba(255,255,255,0.65)",
+    lineHeight: 26,
     marginBottom: 24,
-    lineHeight: 22,
   },
 
-  // Top Stats
-  topStatsRow: {
+  statsCard: {
     flexDirection: "row",
+    backgroundColor: "#161616",
+    borderRadius: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginBottom: 16,
-  },
-  topStatItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  topStatText: {
-    fontSize: 14,
-    fontFamily: theme.medium,
-    color: D.sub,
-  },
-  topStatDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: D.muted,
-    marginHorizontal: 10,
-  },
-
-  // Tags
-  tagsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
+    justifyContent: "space-between",
     marginBottom: 32,
   },
-  muscleBadge: {
-    backgroundColor: "rgba(79,195,247,0.12)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "rgba(79,195,247,0.3)",
-  },
-  muscleBadgeText: {
-    fontSize: 13,
-    fontFamily: theme.bold,
-    color: "#4FC3F7",
-  },
-  equipBadge: {
-    backgroundColor: "rgba(255,183,77,0.12)",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "rgba(255,183,77,0.3)",
-  },
-  equipBadgeText: {
-    fontSize: 13,
-    fontFamily: theme.bold,
-    color: "#FFB74D",
-  },
-
-  // Exercises
-  exercisesSection: {
-    marginTop: 8,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontFamily: theme.bold,
-    color: D.text,
-    marginBottom: 16,
-    letterSpacing: -0.3,
-  },
-  exerciseItem: {
+  statCol: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: D.cardAlt,
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 12,
+    gap: 10,
   },
-  exerciseImageWrap: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
+  statIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(170,251,5,0.06)",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
   },
-  exerciseImage: {
-    width: "80%",
-    height: "80%",
+  statLabel: {
+    fontSize: 12,
+    fontFamily: theme.medium,
+    color: "rgba(255,255,255,0.45)",
+    marginBottom: 3,
+  },
+  statVal: {
+    fontSize: 16,
+    fontFamily: theme.bold,
+    color: "#FFFFFF",
+  },
+  statDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    marginHorizontal: 8,
+  },
+
+  exercisesSection: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  exerciseCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#252528",
+    padding: 8,
+    borderRadius: 20,
+    minHeight: 80,
+  },
+  exerciseThumb: {
+    width: 70,
+    height: 70,
+    backgroundColor: "#111",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginRight: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  exerciseThumbImg: {
+    width: "100%" as any,
+    height: "100%" as any,
   },
   exerciseInfo: {
     flex: 1,
     justifyContent: "center",
   },
   exerciseName: {
-    fontSize: 16,
+    color: "#FFFFFF",
     fontFamily: theme.bold,
-    color: D.text,
+    fontSize: 16,
     marginBottom: 4,
-    textTransform: "capitalize",
-    paddingRight: 10,
   },
-  exerciseDetails: {
-    fontSize: 13,
+  exerciseMeta: {
+    color: "rgba(255,255,255,0.5)",
     fontFamily: theme.medium,
-    color: D.sub,
+    fontSize: 14,
+  },
+  exerciseChevron: {
+    paddingHorizontal: 6,
   },
 
   // Footer Button

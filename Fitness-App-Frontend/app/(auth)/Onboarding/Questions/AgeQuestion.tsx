@@ -1,9 +1,7 @@
 import ButtonFit from "@/components/ui/ButtonFit";
-import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
-import UndertextCard from "@/components/ui/UndertextCard";
 import { theme } from "@/constants/theme";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
@@ -11,7 +9,7 @@ import { DrumPicker } from "@/components/ui/Onboarding/DrumPicker";
 
 const DEFAULT_AGE = "25";
 const AGE_ITEMS = Array.from({ length: 83 }, (_, i) => i + 14); // 14–96
-const ITEM_WIDTH = 70;
+const ITEM_WIDTH = 14; // Matched with weight question
 
 const AgeQuestion = () => {
   const { goForward, saveSelection, answers } = useOnboarding();
@@ -28,23 +26,21 @@ const AgeQuestion = () => {
     goForward();
   };
 
-  const renderItem = (item: number, index: number) => (
-    <View
-      style={[
-        styles.pickerItem,
-        index === selectedIndex && styles.pickerItemActive,
-      ]}
-    >
-      <Text
-        style={[
-          styles.pickerText,
-          index === selectedIndex && styles.pickerTextActive,
-        ]}
-      >
-        {item}
-      </Text>
-    </View>
-  );
+  const renderItem = (item: number, index: number) => {
+    // Every 5th item is a tall tick for Age just to look cool and match styling
+    const isTall = item % 5 === 0;
+    const isMedium = !isTall && item % 2 === 0;
+
+    let height = 24;
+    if (isTall) height = 48;
+    else if (isMedium) height = 32;
+
+    return (
+      <View style={styles.rulerTickContainer}>
+        <View style={[styles.rulerTick, { height, opacity: isTall ? 1 : 0.4 }]} />
+      </View>
+    );
+  };
 
   return (
     <>
@@ -52,35 +48,29 @@ const AgeQuestion = () => {
       <View style={styles.container}>
         <View style={styles.content}>
           <FadeTranslate order={1}>
-            <QuestionOnboarding question="What is your age?" />
+             <Text style={styles.questionTitle}>
+               What is your{"\n"}current age?
+             </Text>
           </FadeTranslate>
 
-          <FadeTranslate order={2}>
-            <Text style={styles.valueDisplay}>{currentAge}</Text>
-            <Text style={styles.unitLabel}>years old</Text>
+          <FadeTranslate order={2} style={{ marginTop: 40, width: '100%', alignItems: 'center' }}>
+            <View style={styles.valuePill}>
+                <Text style={styles.valueDisplay}>{currentAge}</Text>
+                <Text style={styles.unitLabel}>yrs.</Text>
+            </View>
           </FadeTranslate>
 
-          <FadeTranslate order={3}>
+          <FadeTranslate order={3} style={{ width: '100%', marginTop: 60 }}>
             <View style={styles.pickerContainer}>
               <View style={styles.centerIndicator} />
+              
               <DrumPicker
                 data={AGE_ITEMS}
                 renderItem={renderItem}
                 itemWidth={ITEM_WIDTH}
                 defaultIndex={selectedIndex}
-                height={70}
+                height={120}
                 onChange={(index: number) => setSelectedIndex(index)}
-              />
-            </View>
-          </FadeTranslate>
-
-          <FadeTranslate order={4}>
-            <View style={styles.undertextCard}>
-              <UndertextCard
-                emoji="☝️"
-                title="Your age is important"
-                titleColor={theme.textColor}
-                text="Helps us make adjustments to your personal plan."
               />
             </View>
           </FadeTranslate>
@@ -102,74 +92,71 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
   },
   content: {
     flex: 1,
+    marginTop: 80,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
+  },
+  questionTitle: {
+    fontSize: 28,
+    fontFamily: theme.bold,
+    color: "#FFF",
+    textAlign: "center",
+    lineHeight: 36,
+  },
+  valuePill: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    backgroundColor: '#222222',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 40, // fully rounded pill
   },
   valueDisplay: {
-    fontSize: 48,
-    fontFamily: theme.bold,
-    color: theme.primary,
-    textAlign: "center",
-    marginTop: 30,
+    fontSize: 56,
+    fontFamily: theme.bold, // Try to match the bold digital look
+    color: "#FFF", 
+    letterSpacing: -1,
   },
   unitLabel: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.5)",
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 20,
+    color: "#888",
+    marginLeft: 8,
+    marginBottom: 8, // align nicely with the baseline of big number
   },
   pickerContainer: {
-    height: 70,
+    height: 120, // Increased height for taller lines
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
   centerIndicator: {
     position: "absolute",
-    width: ITEM_WIDTH,
-    height: 60,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: theme.primary,
-    backgroundColor: "rgba(170,251,5,0.08)",
+    width: 3,
+    height: 80, // Taller than the tallest white line
+    backgroundColor: theme.primary, // #AAFB05
     zIndex: 1,
     pointerEvents: "none",
   },
-  pickerItem: {
+  rulerTickContainer: {
     width: ITEM_WIDTH,
-    height: 60,
+    height: 120,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 16,
   },
-  pickerItemActive: {
-    // Handled by centerIndicator overlay
-  },
-  pickerText: {
-    fontSize: 22,
-    fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.3)",
-  },
-  pickerTextActive: {
-    color: "#FFFFFF",
-    fontFamily: theme.bold,
-    fontSize: 26,
-  },
-  undertextCard: {
-    marginTop: 20,
+  rulerTick: {
+    width: 2,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 1,
   },
   bottom: {
     alignItems: "center",
     marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
+    paddingHorizontal: 20,
   },
 });
 

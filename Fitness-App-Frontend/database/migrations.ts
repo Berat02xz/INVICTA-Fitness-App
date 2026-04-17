@@ -61,5 +61,24 @@ export const migrations = schemaMigrations({
         }),
       ],
     },
+    {
+      toVersion: 14,
+      steps: [
+        createTable({
+          name: 'cached_exercises',
+          columns: [
+            { name: 'exercise_id', type: 'string', isIndexed: true },
+            { name: 'name', type: 'string' },
+            { name: 'gif_url', type: 'string' },
+            { name: 'target_muscles', type: 'string' },
+            { name: 'body_parts', type: 'string' },
+            { name: 'equipments', type: 'string' },
+            { name: 'secondary_muscles', type: 'string' },
+            { name: 'instructions', type: 'string' },
+            { name: 'cached_at', type: 'number' },
+          ],
+        }),
+      ],
+    },
   ],
 });

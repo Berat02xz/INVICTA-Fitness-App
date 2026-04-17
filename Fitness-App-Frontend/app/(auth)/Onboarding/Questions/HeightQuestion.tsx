@@ -1,18 +1,15 @@
 import ButtonFit from "@/components/ui/ButtonFit";
-import QuestionOnboarding from "@/components/ui/Onboarding/QuestionOnboarding";
 import SolidBackground from "@/components/ui/SolidBackground";
-import UndertextCard from "@/components/ui/UndertextCard";
-import UnitSwitch from "@/components/ui/UnitSwitch";
 import { theme } from "@/constants/theme";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import { DrumPicker } from "@/components/ui/Onboarding/DrumPicker";
 
 const DEFAULT_HEIGHT_METRIC = 170; // cm
 const DEFAULT_HEIGHT_IMPERIAL_INCHES = 67; // 5'7"
-const ITEM_WIDTH = 75;
+const ITEM_WIDTH = 14;
 
 // Metric: 100–250 cm
 const METRIC_ITEMS = Array.from({ length: 151 }, (_, i) => i + 100);
@@ -59,6 +56,7 @@ const HeightQuestion = () => {
   const currentValue = items[selectedIndex] ?? defaultVal;
 
   const handleUnitChange = (newUnit: "metric" | "imperial") => {
+    if (newUnit === unit) return;
     const current = items[selectedIndex] ?? defaultVal;
     let converted: number;
     if (newUnit === "imperial") {
@@ -88,22 +86,23 @@ const HeightQuestion = () => {
   };
 
   const renderItem = (item: number, index: number) => {
-    const label = unit === "imperial" ? formatImperial(item) : `${item}`;
+    const isTall = item % 10 === 0;
+    const isMedium = item % 5 === 0 && !isTall;
+
+    let height = 24;
+    if (isTall) height = 48;
+    else if (isMedium) height = 32;
+    
+    // For Imperial inches (e.g. 5'0 is 60 inches which is mod 12 === 0)
+    if (unit === "imperial") {
+       const isFootTall = item % 12 === 0;
+       const isHalfFootMedium = item % 6 === 0 && !isFootTall;
+       height = isFootTall ? 48 : (isHalfFootMedium ? 32 : 24);
+    }
+
     return (
-      <View
-        style={[
-          styles.pickerItem,
-          index === selectedIndex && styles.pickerItemActive,
-        ]}
-      >
-        <Text
-          style={[
-            styles.pickerText,
-            index === selectedIndex && styles.pickerTextActive,
-          ]}
-        >
-          {label}
-        </Text>
+      <View style={styles.rulerTickContainer}>
+        <View style={[styles.rulerTick, { height, opacity: height === 48 ? 1 : (height === 32 ? 0.7 : 0.4) }]} />
       </View>
     );
   };
@@ -114,29 +113,21 @@ const HeightQuestion = () => {
       <View style={styles.container}>
         <View style={styles.content}>
           <FadeTranslate order={1}>
-            <QuestionOnboarding question="What is your height?" />
+             <Text style={styles.questionTitle}>
+               What is your{"\n"}current height?
+             </Text>
           </FadeTranslate>
-          <FadeTranslate order={2}>
-            <View style={styles.unitSwitchWrapper}>
-              <UnitSwitch
-                unit={unit}
-                onSelect={handleUnitChange}
-                metricLabel="CM"
-                imperialLabel="FT"
-              />
+
+          <FadeTranslate order={2} style={{ marginTop: 40, width: '100%', alignItems: 'center' }}>
+            <View style={styles.valuePill}>
+                <Text style={styles.valueDisplay}>
+                  {unit === "imperial" ? formatImperial(currentValue) : `${currentValue},0`}
+                </Text>
+                <Text style={styles.unitLabel}>{unit === "metric" ? "cm." : ""}</Text>
             </View>
           </FadeTranslate>
 
-          <FadeTranslate order={3}>
-            <Text style={styles.valueDisplay}>
-              {unit === "imperial" ? formatImperial(currentValue) : currentValue}
-            </Text>
-            <Text style={styles.unitLabel}>
-              {unit === "metric" ? "cm" : "feet & inches"}
-            </Text>
-          </FadeTranslate>
-
-          <FadeTranslate order={4}>
+          <FadeTranslate order={3} style={{ width: '100%', marginTop: 60 }}>
             <View style={styles.pickerContainer}>
               <View style={styles.centerIndicator} />
               <DrumPicker
@@ -145,29 +136,37 @@ const HeightQuestion = () => {
                 renderItem={renderItem}
                 itemWidth={ITEM_WIDTH}
                 defaultIndex={selectedIndex}
-                height={70}
+                height={120}
                 onChange={(index: number) => setSelectedIndex(index)}
-              />
-            </View>
-          </FadeTranslate>
-
-          <FadeTranslate order={5}>
-            <View style={styles.undertextCard}>
-              <UndertextCard
-                emoji="📏"
-                title="Height"
-                text="Calculating your body mass index requires your height."
               />
             </View>
           </FadeTranslate>
         </View>
 
         <View style={styles.bottom}>
-          <FadeTranslate order={6}>
+          <FadeTranslate order={4} style={styles.customUnitToggle}>
+            <TouchableOpacity 
+               style={[styles.unitToggleBtn, unit === "metric" && styles.unitToggleBtnActive]}
+               onPress={() => handleUnitChange("metric")}
+               activeOpacity={0.8}
+            >
+               <Text style={[styles.unitToggleText, unit === "metric" && styles.unitToggleTextActive]}>cm.</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+               style={[styles.unitToggleBtn, unit === "imperial" && styles.unitToggleBtnActive]}
+               onPress={() => handleUnitChange("imperial")}
+               activeOpacity={0.8}
+            >
+               <Text style={[styles.unitToggleText, unit === "imperial" && styles.unitToggleTextActive]}>ft.</Text>
+            </TouchableOpacity>
+          </FadeTranslate>
+
+          <FadeTranslate order={5}>
             <ButtonFit
               title="Continue"
               backgroundColor={theme.primary}
               onPress={handleSubmit}
+              style={{ marginTop: 40 }}
             />
           </FadeTranslate>
         </View>
@@ -180,77 +179,94 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
   },
   content: {
     flex: 1,
-    marginTop: 15,
+    marginTop: 80,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
-  unitSwitchWrapper: {
-    marginTop: 20,
-    alignItems: "center",
+  questionTitle: {
+    fontSize: 28,
+    fontFamily: theme.bold,
+    color: "#FFF",
+    textAlign: "center",
+    lineHeight: 36,
+  },
+  valuePill: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    backgroundColor: '#222222',
+    paddingVertical: 12,
+    paddingHorizontal: 36,
+    borderRadius: 40,
   },
   valueDisplay: {
-    fontSize: 48,
+    fontSize: 56,
     fontFamily: theme.bold,
-    color: theme.primary,
-    textAlign: "center",
-    marginTop: 24,
+    color: "#FFF",
+    letterSpacing: -1,
   },
   unitLabel: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.5)",
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 20,
+    color: "#888",
+    marginLeft: 8,
+    marginBottom: 8,
   },
   pickerContainer: {
-    height: 70,
+    height: 120,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
   centerIndicator: {
     position: "absolute",
-    width: ITEM_WIDTH,
-    height: 60,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: theme.primary,
-    backgroundColor: "rgba(170,251,5,0.08)",
+    width: 3,
+    height: 80,
+    backgroundColor: theme.primary,
     zIndex: 1,
     pointerEvents: "none",
   },
-  pickerItem: {
+  rulerTickContainer: {
     width: ITEM_WIDTH,
-    height: 60,
+    height: 120,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 16,
   },
-  pickerItemActive: {},
-  pickerText: {
-    fontSize: 20,
-    fontFamily: theme.medium,
-    color: "rgba(255,255,255,0.3)",
+  rulerTick: {
+    width: 2,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 1,
   },
-  pickerTextActive: {
-    color: "#FFFFFF",
+  customUnitToggle: {
+    flexDirection: 'row',
+    backgroundColor: '#1E1E1E',
+    padding: 4,
+    borderRadius: 40,
+    alignSelf: 'center',
+  },
+  unitToggleBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+  },
+  unitToggleBtnActive: {
+    backgroundColor: '#FFF',
+  },
+  unitToggleText: {
+    fontSize: 16,
     fontFamily: theme.bold,
-    fontSize: 24,
+    color: '#888',
   },
-  undertextCard: {
-    marginTop: 20,
+  unitToggleTextActive: {
+    color: '#000',
   },
   bottom: {
     alignItems: "center",
     marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
+    paddingHorizontal: 20,
   },
 });
 
