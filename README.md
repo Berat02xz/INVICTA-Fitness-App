@@ -2,6 +2,9 @@
 
 AI-powered fitness app (WIP) delivering personalized workouts, nutrition insights, and progress tracking to help you reach your goals faster.
 
+![Gif](https://github.com/Berat02xz/INVICTA-Fitness-App/blob/master/InvictaGif.gif)
+
+
 ## Features ✨
 
 - **AI Coach Chat:** Customized workouts, recipes & dynamic tips.  
