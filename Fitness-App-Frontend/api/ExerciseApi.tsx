@@ -21,6 +21,10 @@ export interface ExerciseInfo {
   equipments: string[];
   secondaryMuscles: string[];
   instructions: string[];
+  category?: string;
+  target?: string;
+  bodyPart?: string;
+  equipment?: string;
 }
 
 interface PaginatedResponse {

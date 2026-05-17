@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import { DrumPicker } from "@/components/ui/Onboarding/DrumPicker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_AGE = "25";
 const AGE_ITEMS = Array.from({ length: 83 }, (_, i) => i + 14); // 14–96
@@ -13,6 +14,7 @@ const ITEM_WIDTH = 14; // Matched with weight question
 
 const AgeQuestion = () => {
   const { goForward, saveSelection, answers } = useOnboarding();
+  const insets = useSafeAreaInsets();
   const [selectedIndex, setSelectedIndex] = useState<number>(() => {
     const saved = answers?.age ? Number(answers.age) : null;
     if (saved && saved >= 14 && saved <= 96) return saved - 14;
@@ -76,7 +78,7 @@ const AgeQuestion = () => {
           </FadeTranslate>
         </View>
 
-        <View style={styles.bottom}>
+        <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
           <ButtonFit
             title="Continue"
             backgroundColor={theme.primary}
@@ -155,7 +157,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
     paddingHorizontal: 20,
   },
 });

@@ -1,4 +1,4 @@
-import { View, LayoutChangeEvent, StyleSheet } from "react-native";
+import { View, LayoutChangeEvent, StyleSheet, Platform } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TabBarButton from "./TabBarButton";
@@ -97,10 +97,10 @@ export function TabBar({
   return (
     <Animated.View style={[styles.tabBarWrapper, tabBarSlideStyle]} onLayout={onTabbarLayout}>
       <BlurView
-        experimentalBlurMethod="dimezisBlurView"
+        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
         blurReductionFactor={1}
-        intensity={50}
-        tint="dark"
+        intensity={Platform.OS === 'ios' ? 100 : 50}
+        tint={Platform.OS === 'ios' ? "systemChromeMaterialDark" : "dark"}
         style={styles.tabBar}
       >
         {/* Glass effect border */}

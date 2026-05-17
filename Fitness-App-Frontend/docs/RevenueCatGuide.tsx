@@ -144,6 +144,10 @@ export const ManualCheckExample = async () => {
 export const GetCustomerInfoExample = async () => {
   try {
     const customerInfo = await RevenueCatService.getCustomerInfo();
+    if (!customerInfo) {
+      console.log('Customer info is not available on this platform');
+      return;
+    }
     
     console.log('Original App User ID:', customerInfo.originalAppUserId);
     console.log('Active Subscriptions:', customerInfo.activeSubscriptions);

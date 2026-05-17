@@ -204,12 +204,12 @@ export default function DevMenu() {
               <Text style={styles.sectionTitle}>Danger Zone</Text>
               <TouchableOpacity style={styles.deleteButton} onPress={() => deleteMeals(false)}>
                 <Ionicons name="trash-outline" size={20} color="#FFF" />
-                <Text style={styles.deleteButtonText}>Delete Today's Meals</Text>
+                <Text style={styles.deleteButtonText}>Delete Today&apos;s Meals</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.deleteButton, { marginTop: 10 }]} onPress={() => deleteMeals(true)}>
                 <Ionicons name="trash-outline" size={20} color="#FFF" />
-                <Text style={styles.deleteButtonText}>Delete Yesterday's Meals</Text>
+                <Text style={styles.deleteButtonText}>Delete Yesterday&apos;s Meals</Text>
               </TouchableOpacity>
 
             </ScrollView>

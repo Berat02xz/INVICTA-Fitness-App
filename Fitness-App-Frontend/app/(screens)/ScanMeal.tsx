@@ -1,4 +1,4 @@
-﻿import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -60,7 +60,7 @@ export default function ScanScreen() {
   const [capturedPhoto, setCapturedPhoto] = useState<CameraCapturedPicture | null>(null);
   const [isProcessing, setIsProcessing] = useState(false); // Processing AI
   const [flash, setFlash] = useState(false);
-  
+
   // Animation Values
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -79,12 +79,12 @@ export default function ScanScreen() {
 
   const fetchTodayCount = async () => {
     try {
-        const userId = await getUserIdFromToken();
-        if (userId) {
-            const meals = await Meal.getTodayMeals(database, userId);
-            setTodayCount(meals.length);
-        }
-    } catch {}
+      const userId = await getUserIdFromToken();
+      if (userId) {
+        const meals = await Meal.getTodayMeals(database, userId);
+        setTodayCount(meals.length);
+      }
+    } catch { }
   };
 
   // Start/Stop Scanning Animation
@@ -132,7 +132,7 @@ export default function ScanScreen() {
         name: `meal_${Date.now()}.jpg`,
         type: "image/jpeg",
       };
-      
+
       const userId = await getUserIdFromToken();
       if (!userId) throw new Error("User not found");
 
@@ -193,21 +193,21 @@ export default function ScanScreen() {
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false, 
+      allowsEditing: false,
       quality: 0.8,
     });
 
     if (!result.canceled && result.assets[0].uri) {
-        // Cast to any or conform to CameraCapturedPicture type to satisfy state
-        const pickedAsset = result.assets[0];
-        setCapturedPhoto({
-          uri: pickedAsset.uri,
-          width: pickedAsset.width,
-          height: pickedAsset.height,
-          // Add other props if strictly needed by CameraCapturedPicture, usually these suffice
-        } as CameraCapturedPicture); 
-        
-        await processImage(pickedAsset.uri);
+      // Cast to any or conform to CameraCapturedPicture type to satisfy state
+      const pickedAsset = result.assets[0];
+      setCapturedPhoto({
+        uri: pickedAsset.uri,
+        width: pickedAsset.width,
+        height: pickedAsset.height,
+        // Add other props if strictly needed by CameraCapturedPicture, usually these suffice
+      } as CameraCapturedPicture);
+
+      await processImage(pickedAsset.uri);
     }
   };
 
@@ -229,7 +229,7 @@ export default function ScanScreen() {
           <Text style={styles.permissionButtonText}>Grant Permission</Text>
         </Pressable>
         <Pressable onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
-           <Text style={{ color: "white", fontSize: 16 }}>Go Back</Text>
+          <Text style={{ color: "white", fontSize: 16 }}>Go Back</Text>
         </Pressable>
       </View>
     );
@@ -242,22 +242,22 @@ export default function ScanScreen() {
       {/* Camera Layer */}
       {isFocused && (
         <View style={StyleSheet.absoluteFill}>
-            {!capturedPhoto ? (
-                <CameraView
-                    ref={cameraRef}
-                    style={StyleSheet.absoluteFill}
-                    facing="back"
-                    flash={flash ? "on" : "off"}
-                />
-            ) : (
-                <Image source={{ uri: capturedPhoto.uri }} style={StyleSheet.absoluteFill} />
-            )}
+          {!capturedPhoto ? (
+            <CameraView
+              ref={cameraRef}
+              style={StyleSheet.absoluteFill}
+              facing="back"
+              flash={flash ? "on" : "off"}
+            />
+          ) : (
+            <Image source={{ uri: capturedPhoto.uri }} style={StyleSheet.absoluteFill} />
+          )}
         </View>
       )}
 
       {/* Dark Overlay with Transparent Hole (Visual trick for scanner focus) */}
       {/* We can use simple borders or a full overlay. Let's do a simple clean UI. */}
-      
+
       {/* Top Bar */}
       <View style={[styles.topBar, { top: insets.top + 10 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.iconButton}>
@@ -265,75 +265,75 @@ export default function ScanScreen() {
             <Ionicons name="close" size={24} color="white" />
           </BlurView>
         </Pressable>
-        
+
         {/* Status Pill Removed */}
 
         <View style={styles.countPill}>
-            <BlurView intensity={30} tint="dark" style={styles.blurPillCount}>
-                <MaterialCommunityIcons name="silverware-fork-knife" size={14} color={theme.primary} />
-                <Text style={styles.countText}>{todayCount} Today</Text>
-            </BlurView>
+          <BlurView intensity={30} tint="dark" style={styles.blurPillCount}>
+            <MaterialCommunityIcons name="silverware-fork-knife" size={14} color={theme.primary} />
+            <Text style={styles.countText}>{todayCount} Today</Text>
+          </BlurView>
         </View>
       </View>
 
       {/* Scanner Frame */}
       <View style={styles.centerFrameContainer} pointerEvents="none">
-         <View style={styles.frame}>
-            {/* Corners */}
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
+        <View style={styles.frame}>
+          {/* Corners */}
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
 
-            {/* Scanning Line */}
-            {!capturedPhoto && (
-                <Animated.View 
-                    style={[
-                        styles.scanLine,
-                        {
-                            transform: [{
-                                translateY: scanLineAnim.interpolate({
-                                    inputRange: [0, 1],
-                                    outputRange: [0, FRAME_SIZE], // Move from top to bottom of frame
-                                })
-                            }]
-                        }
-                    ]} 
-                />
-            )}
-         </View>
-         
-         {!isProcessing && !capturedPhoto && (
-             <Text style={styles.hintText}>Place food within the frame</Text>
-         )}
+          {/* Scanning Line */}
+          {!capturedPhoto && (
+            <Animated.View
+              style={[
+                styles.scanLine,
+                {
+                  transform: [{
+                    translateY: scanLineAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, FRAME_SIZE], // Move from top to bottom of frame
+                    })
+                  }]
+                }
+              ]}
+            />
+          )}
+        </View>
+
+        {!isProcessing && !capturedPhoto && (
+          <Text style={styles.hintText}>Place food within the frame</Text>
+        )}
       </View>
 
       {/* Bottom Controls */}
       <View style={[styles.bottomBar, { bottom: insets.bottom + 30 }]}>
         {/* Gallery Pick */}
         <Pressable onPress={pickImage} style={styles.sideButton}>
-            <MaterialCommunityIcons name="image-outline" size={28} color="white" />
+          <MaterialCommunityIcons name="image-outline" size={28} color="white" />
         </Pressable>
 
         {/* Shutter Button */}
         <Pressable onPress={takePhoto} disabled={isProcessing} style={styles.shutterOuter}>
-            <View style={[styles.shutterInner, isProcessing && { backgroundColor: theme.primary }]} />
+          <View style={[styles.shutterInner, isProcessing && { backgroundColor: theme.primary }]} />
         </Pressable>
 
         {/* Flash Toggle */}
         <Pressable onPress={() => setFlash(!flash)} style={styles.sideButton}>
-            <Ionicons name={flash ? "flash" : "flash-off"} size={28} color={flash ? theme.primary : "white"} />
+          <Ionicons name={flash ? "flash" : "flash-off"} size={28} color={flash ? theme.primary : "white"} />
         </Pressable>
       </View>
 
       {/* Processing Overlay */}
       {isProcessing && (
-          <Animated.View style={[styles.loadingOverlay, { opacity: overlayOpacity }]}>
-              <BlurView intensity={40} tint="dark" style={styles.loadingBlur}>
-                  <ActivityIndicator size="large" color={theme.primary} />
-                  <Text style={styles.loadingText}>Analyzing Food...</Text>
-              </BlurView>
-          </Animated.View>
+        <Animated.View style={[styles.loadingOverlay, { opacity: overlayOpacity }]}>
+          <BlurView intensity={40} tint="dark" style={styles.loadingBlur}>
+            <ActivityIndicator size="large" color={theme.primary} />
+            <Text style={styles.loadingText}>Analyzing Food...</Text>
+          </BlurView>
+        </Animated.View>
       )}
 
       {/* Result Modal */}
@@ -435,10 +435,10 @@ const styles = StyleSheet.create({
 
   // Center Frame
   centerFrameContainer: {
-     ...StyleSheet.absoluteFillObject,
-     justifyContent: "center",
-     alignItems: "center",
-     zIndex: 5,
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 5,
   },
   frame: {
     width: FRAME_SIZE,
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 12 },
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 12 },
   bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 12 },
-  
+
   scanLine: {
     position: "absolute",
     top: 0,

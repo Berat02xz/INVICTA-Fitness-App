@@ -20,7 +20,7 @@ export const OnboardingScreens = [
   "Reviews",
   "AccessToEquipment",
   "OnboardingComplete",
-];
+] as const;
 
 type OnboardingAnswers = {
   [question: string]: string | number;

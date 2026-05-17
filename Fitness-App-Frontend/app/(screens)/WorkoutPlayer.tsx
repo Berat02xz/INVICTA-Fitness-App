@@ -112,7 +112,7 @@ export default function WorkoutPlayer() {
       setExerciseInfo(null);
       ExerciseApi.getExerciseById(currentExercise.exerciseId)
         .then((info) => setExerciseInfo(info))
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setInfoLoading(false));
     }
   }, [currentIndex]);
@@ -150,7 +150,7 @@ export default function WorkoutPlayer() {
   const [socialProofVisible, setSocialProofVisible] = useState(false);
   const [socialProofAvatars, setSocialProofAvatars] = useState<number[]>([]);
   const [socialProofMessage, setSocialProofMessage] = useState('');
-  
+
   // Gamification: Burning Calories
   const [caloriesBurned, setCaloriesBurned] = useState(0);
   const fireScaleAnim = useRef(new Animated.Value(1)).current;
@@ -158,7 +158,7 @@ export default function WorkoutPlayer() {
   const calPulseAnim = useRef(new Animated.Value(1)).current;
 
   const totalExercises = exercises.length;
-  
+
   // Keep an up-to-date ref for handleNext to avoid stale closures inside intervals
   const handleNextRef = useRef<(() => void) | undefined>(undefined);
 
@@ -192,7 +192,7 @@ export default function WorkoutPlayer() {
             clearInterval(interval);
             // Trigger automatic transition
             setTimeout(() => {
-                if (handleNextRef.current) handleNextRef.current();
+              if (handleNextRef.current) handleNextRef.current();
             }, 0);
             return 0;
           }
@@ -217,7 +217,7 @@ export default function WorkoutPlayer() {
         const baseProgress = currentIndex / totalExercises;
         const totalSets = currentExercise.sets || 1;
         const setFraction = 1 / totalSets;
-        
+
         let targetProgress = baseProgress;
 
         if (phase === "exercise") {
@@ -362,7 +362,7 @@ export default function WorkoutPlayer() {
 
     const interval = setInterval(() => {
       setTotalElapsed((t) => t + 1);
-      
+
       const duration = getExerciseDuration(currentExercise);
       const expected = currentExercise?.expectedCalories || 10;
       const burnRatePerSecond = expected / duration;
@@ -378,7 +378,7 @@ export default function WorkoutPlayer() {
         return next;
       });
     }, 1000);
-    
+
     return () => {
       clearInterval(interval);
       fireScaleAnim.stopAnimation();
@@ -433,7 +433,7 @@ export default function WorkoutPlayer() {
     }
 
     if (!currentExercise) return;
-    
+
     // Check if this is the last set of the last exercise
     if (currentIndex >= exercises.length - 1 && currentSet >= currentExercise.sets) {
       setPhase("complete");
@@ -451,7 +451,7 @@ export default function WorkoutPlayer() {
       }
     });
   };
-  
+
   handleNextRef.current = handleNext;
 
   const handleRestComplete = () => {
@@ -483,7 +483,7 @@ export default function WorkoutPlayer() {
       });
       return;
     }
-    
+
     if (currentSet > 1) {
       setExerciseTimer(getExerciseDuration(currentExercise));
       animateTransition(() => setCurrentSet((s) => s - 1));
@@ -518,12 +518,12 @@ export default function WorkoutPlayer() {
     );
   }
   return (
-    <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        
+
         {/* HYPE OVERLAY */}
         {showHypeOverlay && (
-          <Animated.View style={[StyleSheet.absoluteFill, { zIndex: 9999, opacity: hypeOpacity }]}>
+          <Animated.View style={[StyleSheet.absoluteFill, { top: -insets.top, bottom: -insets.bottom, zIndex: 9999, opacity: hypeOpacity }]}>
             <BlurView intensity={120} experimentalBlurMethod="dimezisBlurView" tint="dark" style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
               <FadeTranslate order={0} translateYFrom={20}>
                 <Text style={{ fontFamily: theme.black, fontSize: 44, fontWeight: "900", color: "#fff", textAlign: "center" }}>
@@ -539,21 +539,21 @@ export default function WorkoutPlayer() {
 
         {/* TOP HEADER (Calories) */}
         {phase === "exercise" && (
-        <FadeTranslate order={0} direction="y" translateYFrom={-20} style={[styles.topToggleRow, { justifyContent: 'space-between', paddingHorizontal: 24, gap: 16, alignItems: 'center' }]}>
-           <Pressable onPress={() => router.back()} style={{ zIndex: 10 }}>
+          <FadeTranslate order={0} direction="y" translateYFrom={-20} style={[styles.topToggleRow, { justifyContent: 'space-between', paddingHorizontal: 24, gap: 16, alignItems: 'center', zIndex: 100 }]}>
+            <Pressable onPress={() => router.back()} style={{ zIndex: 10 }}>
               <Ionicons name="chevron-down" size={32} color="#000" />
-           </Pressable>
-           
-           <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999 }}>
-               <Animated.View style={{ transform: [{ scale: fireScaleAnim }, { rotate: fireRotationInterpolate }], marginRight: 6 }}>
-                   <Text style={{ fontSize: 18 }}>🔥</Text>
-               </Animated.View>
-               <Animated.Text style={{ color: '#fff', fontSize: 20, fontFamily: theme.black, transform: [{ scale: calPulseAnim }], letterSpacing: 0 }}>
-                  {Math.floor(caloriesBurned)}
-               </Animated.Text>
-               <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: theme.bold, marginLeft: 4, paddingTop: 2 }}>KCAL</Text>
-           </View>
-        </FadeTranslate>
+            </Pressable>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999 }}>
+              <Animated.View style={{ transform: [{ scale: fireScaleAnim }, { rotate: fireRotationInterpolate }], marginRight: 6 }}>
+                <Text style={{ fontSize: 18 }}>🔥</Text>
+              </Animated.View>
+              <Animated.Text style={{ color: '#fff', fontSize: 20, fontFamily: theme.black, transform: [{ scale: calPulseAnim }], letterSpacing: 0 }}>
+                {Math.floor(caloriesBurned)}
+              </Animated.Text>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: theme.bold, marginLeft: 4, paddingTop: 2 }}>KCAL</Text>
+            </View>
+          </FadeTranslate>
         )}
 
         <Animated.View
@@ -565,13 +565,13 @@ export default function WorkoutPlayer() {
             },
           ]}
         >
-         {phase === "complete" ? (
-            <WorkoutComplete 
-                routineName={routine?.name || "Custom Workout"}
-                duration={formatTime(totalElapsed)}
-                calories={caloriesBurned}
-                exercises={totalExercises}
-                onFinish={() => router.back()}
+          {phase === "complete" ? (
+            <WorkoutComplete
+              routineName={routine?.name || "Custom Workout"}
+              duration={formatTime(totalElapsed)}
+              calories={caloriesBurned}
+              exercises={totalExercises}
+              onFinish={() => router.back()}
             />
           ) : phase === "rest" ? (
             (() => {
@@ -595,17 +595,17 @@ export default function WorkoutPlayer() {
               return (
                 <FadeTranslate order={0.2} delay={100} style={[StyleSheet.absoluteFillObject, { backgroundColor: D.primary, justifyContent: 'center', alignItems: 'center' }]}>
                   {/* Top Right List Icon */}
-                  <Pressable onPress={() => handleOpenSheet('upNext')} style={{ position: 'absolute', top: insets.top + 16, right: 24, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
-                     <Ionicons name="list" size={24} color="#000" />
+                  <Pressable onPress={() => handleOpenSheet('upNext')} style={{ position: 'absolute', top: 16, right: 24, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+                    <Ionicons name="list" size={24} color="#000" />
                   </Pressable>
 
-{/* Rest Text */}
+                  {/* Rest Text */}
                   {/* Social Proof Box */}
                   {socialProofVisible && (
-                    <Animated.View style={{ position: 'absolute', top: insets.top + 130, flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 20, zIndex: 10 }}>
+                    <Animated.View style={{ position: 'absolute', top: 80, flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 20, zIndex: 10 }}>
                       <View style={{ flexDirection: 'row', marginRight: 12 }}>
                         {socialProofAvatars.map((idx, i) => (
-                           <Image key={i} source={AVATAR_POOL[idx]} style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: '#000', marginLeft: i > 0 ? -10 : 0 }} />
+                          <Image key={i} source={AVATAR_POOL[idx]} style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: '#000', marginLeft: i > 0 ? -10 : 0 }} />
                         ))}
                       </View>
                       <Text style={{ fontFamily: theme.medium, fontSize: 13, color: '#fff', maxWidth: 200 }} numberOfLines={2}>
@@ -618,36 +618,36 @@ export default function WorkoutPlayer() {
 
                   {/* Timer */}
                   <Text style={{ fontFamily: theme.black, fontSize: 100, color: '#000', marginBottom: 30, letterSpacing: -2 }}>
-                     {formatTime(restTimer)}
+                    {formatTime(restTimer)}
                   </Text>
 
                   {/* Up Next Info */}
                   <View style={{ alignItems: 'center', marginTop: 10 }}>
-                     <Text style={{ fontFamily: theme.medium, fontSize: 13, color: '#000', marginBottom: 6 }}>
-                        Exercise {currentIndex + 1}/{totalExercises}
-                     </Text>
-                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontFamily: theme.bold, fontSize: 20, color: '#000', textTransform: 'uppercase' }}>
-                           {upNextExerName}
-                        </Text>
-                        <Ionicons name="information-circle" size={20} color="#000" style={{ marginLeft: 8 }} />
-                     </View>
+                    <Text style={{ fontFamily: theme.medium, fontSize: 13, color: '#000', marginBottom: 6 }}>
+                      Exercise {currentIndex + 1}/{totalExercises}
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={{ fontFamily: theme.bold, fontSize: 20, color: '#000', textTransform: 'uppercase' }}>
+                        {upNextExerName}
+                      </Text>
+                      <Ionicons name="information-circle" size={20} color="#000" style={{ marginLeft: 8 }} />
+                    </View>
                   </View>
 
                   {/* Bottom Buttons */}
                   <View style={{ position: 'absolute', bottom: insets.bottom + 20, left: 24, right: 24, flexDirection: 'row', gap: 12 }}>
-                     <Pressable 
-                        onPress={() => setRestTimer((r) => r + 30)}
-                        style={{ flex: 1, backgroundColor: '#000', paddingVertical: 18, borderRadius: 30, alignItems: 'center' }}
-                     >
-                        <Text style={{ color: '#fff', fontFamily: theme.medium, fontSize: 18 }}>+30 sec</Text>
-                     </Pressable>
-                     <Pressable 
-                        onPress={handleNext}
-                        style={{ flex: 1, backgroundColor: 'transparent', paddingVertical: 18, borderRadius: 30, alignItems: 'center', borderWidth: 1, borderColor: '#000' }}
-                     >
-                        <Text style={{ color: '#000', fontFamily: theme.medium, fontSize: 16 }}>Start Exercise</Text>
-                     </Pressable>
+                    <Pressable
+                      onPress={() => setRestTimer((r) => r + 30)}
+                      style={{ flex: 1, backgroundColor: '#000', paddingVertical: 18, borderRadius: 30, alignItems: 'center' }}
+                    >
+                      <Text style={{ color: '#fff', fontFamily: theme.medium, fontSize: 18 }}>+30 sec</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={handleNext}
+                      style={{ flex: 1, backgroundColor: 'transparent', paddingVertical: 18, borderRadius: 30, alignItems: 'center', borderWidth: 1, borderColor: '#000' }}
+                    >
+                      <Text style={{ color: '#000', fontFamily: theme.medium, fontSize: 16 }}>Start Exercise</Text>
+                    </Pressable>
                   </View>
                 </FadeTranslate>
               );
@@ -655,118 +655,118 @@ export default function WorkoutPlayer() {
           ) : (
             currentExercise && (
               <View style={{ flex: 1 }}>
-                 {/* Top Image Section */}
-                 <Animated.View style={{ height: exerciseIntroAnim.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_H, SCREEN_H * 0.60] }), position: 'absolute', top: -insets.top, left: 0, right: 0, backgroundColor: '#FFF' }}>
-                    {currentExercise.gifUrl ? (
-                        <Image source={{ uri: currentExercise.gifUrl }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
-                    ) : (
-                        <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                           <Ionicons name="barbell-outline" size={100} color="#ccc" />
-                        </View>
-                    )}
-                 </Animated.View>
+                {/* Top Image Section */}
+                <Animated.View style={{ height: exerciseIntroAnim.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_H, SCREEN_H * 0.60] }), position: 'absolute', top: -insets.top, left: 0, right: 0, backgroundColor: '#FFF' }}>
+                  {currentExercise.gifUrl ? (
+                    <Image source={{ uri: currentExercise.gifUrl }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+                  ) : (
+                    <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                      <Ionicons name="barbell-outline" size={100} color="#ccc" />
+                    </View>
+                  )}
+                </Animated.View>
 
-                 {/* Bottom Information Section */}
-                 <Animated.View style={{ flex: 1, marginTop: exerciseIntroAnim.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_H, SCREEN_H * 0.60 - insets.top] }) }}>
-                     <View style={{ flex: 1, backgroundColor: '#121212', borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 24, paddingHorizontal: 24 }}>
-                        
-                        {/* Title & Set/Exercise Status */}
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <View style={{ flex: 1, paddingRight: 16 }}>
-                                <Text style={{ color: D.primary, fontSize: 14, fontFamily: theme.bold, marginBottom: 8, letterSpacing: 1 }}>
-                                    SET {Math.min(currentSet, currentExercise.sets)}/{currentExercise.sets} • EXERCISE {currentIndex + 1}/{totalExercises}
-                                </Text>
-                                <Text style={{ color: '#fff', fontSize: 32, fontFamily: theme.black, textTransform: 'uppercase', lineHeight: 36 }} numberOfLines={2}>
-                                    {currentExercise.name}
-                                </Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                                <Pressable onPress={handleToggleLike} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Ionicons name={isLiked ? "heart" : "heart-outline"} size={22} color={isLiked ? "#ff4757" : "#fff"} />
-                                </Pressable>
-                                <Pressable onPress={() => handleOpenSheet("instruction")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Ionicons name="information-circle" size={24} color="#fff" />
-                                </Pressable>
-                                <Pressable onPress={() => handleOpenSheet("upNext")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Ionicons name="list" size={24} color="#fff" />
-                                </Pressable>
-                            </View>
-                        </View>
+                {/* Bottom Information Section */}
+                <Animated.View style={{ flex: 1, marginTop: exerciseIntroAnim.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_H, SCREEN_H * 0.60 - insets.top] }) }}>
+                  <View style={{ flex: 1, backgroundColor: '#121212', borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 24, paddingHorizontal: 24 }}>
 
-                        {/* Timer and Progress Section */}
-                        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-                                {/* Left Side Timer */}
-                                <Text style={{ color: '#fff', fontSize: 13, fontFamily: theme.bold, width: 44, textAlign: 'right' }}>
-                                   {formatTime(exerciseTimer)}
-                                </Text>
+                    {/* Title & Set/Exercise Status */}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <View style={{ flex: 1, paddingRight: 16 }}>
+                        <Text style={{ color: D.primary, fontSize: 14, fontFamily: theme.bold, marginBottom: 8, letterSpacing: 1 }}>
+                          SET {Math.min(currentSet, currentExercise.sets)}/{currentExercise.sets} • EXERCISE {currentIndex + 1}/{totalExercises}
+                        </Text>
+                        <Text style={{ color: '#fff', fontSize: 32, fontFamily: theme.black, textTransform: 'uppercase', lineHeight: 36 }} numberOfLines={2}>
+                          {currentExercise.name}
+                        </Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                        <Pressable onPress={handleToggleLike} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+                          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={22} color={isLiked ? "#ff4757" : "#fff"} />
+                        </Pressable>
+                        <Pressable onPress={() => handleOpenSheet("instruction")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+                          <Ionicons name="information-circle" size={24} color="#fff" />
+                        </Pressable>
+                        <Pressable onPress={() => handleOpenSheet("upNext")} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+                          <Ionicons name="list" size={24} color="#fff" />
+                        </Pressable>
+                      </View>
+                    </View>
 
-                                {/* Center Progress Track */}
-                                <View style={{ flex: 1, height: 4, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 2, overflow: 'hidden' }}>
-                                    <Animated.View style={{ height: '100%', backgroundColor: D.primary, width: progressWidth, borderRadius: 2 }} />
-                                    {/* Playhead dot style visual */}
-                                    <Animated.View style={{
-                                        position: 'absolute', top: -2, bottom: -2, 
-                                        left: progressWidth, 
-                                        width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff',
-                                        marginLeft: -4
-                                    }} />
-                                </View>
+                    {/* Timer and Progress Section */}
+                    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                        {/* Left Side Timer */}
+                        <Text style={{ color: '#fff', fontSize: 13, fontFamily: theme.bold, width: 44, textAlign: 'right' }}>
+                          {formatTime(exerciseTimer)}
+                        </Text>
 
-                                {/* Right Side Percentage */}
-                                <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: theme.bold, width: 44, textAlign: 'left' }}>
-                                   {Math.round(((currentIndex + 1) / totalExercises) * 100)}%
-                                </Text>
-                            </View>
+                        {/* Center Progress Track */}
+                        <View style={{ flex: 1, height: 4, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 2, overflow: 'hidden' }}>
+                          <Animated.View style={{ height: '100%', backgroundColor: D.primary, width: progressWidth, borderRadius: 2 }} />
+                          {/* Playhead dot style visual */}
+                          <Animated.View style={{
+                            position: 'absolute', top: -2, bottom: -2,
+                            left: progressWidth,
+                            width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff',
+                            marginLeft: -4
+                          }} />
                         </View>
 
-                        {/* Next / Prev Controls */}
-                        <View style={{ flexDirection: 'row', marginTop: 'auto', marginBottom: Math.max(insets.bottom + 16, 24), gap: 16 }}>
-                            <Pressable 
-                                onPress={handlePrevious} 
-                                disabled={currentIndex === 0 && currentSet === 1} 
-                                style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}
-                            >
-                                <Ionicons name="play-skip-back" size={24} color={(currentIndex === 0 && currentSet === 1) ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.6)"} />
-                            </Pressable>
+                        {/* Right Side Percentage */}
+                        <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: theme.bold, width: 44, textAlign: 'left' }}>
+                          {Math.round(((currentIndex + 1) / totalExercises) * 100)}%
+                        </Text>
+                      </View>
+                    </View>
 
-                            {/* Large Next Button */}
-                            <Pressable onPress={handleNext} style={{ flex: 1, height: 64, borderRadius: 32, backgroundColor: D.primary, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
-                                {(() => {
-                                   let nextExName = "Workout Complete";
-                                   let nextExTime = "0:00";
-                                   let nextExImg = null;
-                                   
-                                   if (currentSet < currentExercise.sets) {
-                                       nextExName = currentExercise.name + " (Set " + (currentSet + 1) + ")";
-                                       nextExTime = formatTime(getExerciseDuration(currentExercise));
-                                       nextExImg = currentExercise.gifUrl;
-                                   } else if (currentIndex < exercises.length - 1) {
-                                       const nextEx = exercises[currentIndex + 1];
-                                       nextExName = nextEx.name;
-                                       nextExTime = formatTime(getExerciseDuration(nextEx));
-                                       nextExImg = nextEx.gifUrl;
-                                   }
+                    {/* Next / Prev Controls */}
+                    <View style={{ flexDirection: 'row', marginTop: 'auto', marginBottom: Math.max(insets.bottom + 16, 24), gap: 16 }}>
+                      <Pressable
+                        onPress={handlePrevious}
+                        disabled={currentIndex === 0 && currentSet === 1}
+                        style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Ionicons name="play-skip-back" size={24} color={(currentIndex === 0 && currentSet === 1) ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.6)"} />
+                      </Pressable>
 
-                                   return (
-                                     <>
-                                        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-                                            {nextExImg && <Image source={{ uri: nextExImg }} style={{ width: '100%', height: '100%' }} />}
-                                        </View>
-                                        <View style={{ flex: 1, marginLeft: 12 }}>
-                                            <Text style={{ color: '#000', fontSize: 16, fontFamily: theme.bold }} numberOfLines={1}>{nextExName}</Text>
-                                            <Text style={{ color: 'rgba(0,0,0,0.6)', fontSize: 14, fontFamily: theme.medium }}>{nextExTime}</Text>
-                                        </View>
-                                        <View style={{ width: 40, alignItems: 'center', justifyContent: 'center' }}>
-                                            <Ionicons name="play-skip-forward" size={24} color="#000" />
-                                        </View>
-                                     </>
-                                   )
-                                })()}
-                            </Pressable>
-                        </View>
-                     </View>
-                 </Animated.View>
+                      {/* Large Next Button */}
+                      <Pressable onPress={handleNext} style={{ flex: 1, height: 64, borderRadius: 32, backgroundColor: D.primary, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
+                        {(() => {
+                          let nextExName = "Workout Complete";
+                          let nextExTime = "0:00";
+                          let nextExImg = null;
+
+                          if (currentSet < currentExercise.sets) {
+                            nextExName = currentExercise.name + " (Set " + (currentSet + 1) + ")";
+                            nextExTime = formatTime(getExerciseDuration(currentExercise));
+                            nextExImg = currentExercise.gifUrl;
+                          } else if (currentIndex < exercises.length - 1) {
+                            const nextEx = exercises[currentIndex + 1];
+                            nextExName = nextEx.name;
+                            nextExTime = formatTime(getExerciseDuration(nextEx));
+                            nextExImg = nextEx.gifUrl;
+                          }
+
+                          return (
+                            <>
+                              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                {nextExImg && <Image source={{ uri: nextExImg }} style={{ width: '100%', height: '100%' }} />}
+                              </View>
+                              <View style={{ flex: 1, marginLeft: 12 }}>
+                                <Text style={{ color: '#000', fontSize: 16, fontFamily: theme.bold }} numberOfLines={1}>{nextExName}</Text>
+                                <Text style={{ color: 'rgba(0,0,0,0.6)', fontSize: 14, fontFamily: theme.medium }}>{nextExTime}</Text>
+                              </View>
+                              <View style={{ width: 40, alignItems: 'center', justifyContent: 'center' }}>
+                                <Ionicons name="play-skip-forward" size={24} color="#000" />
+                              </View>
+                            </>
+                          )
+                        })()}
+                      </Pressable>
+                    </View>
+                  </View>
+                </Animated.View>
               </View>
             )
           )}
@@ -785,92 +785,92 @@ export default function WorkoutPlayer() {
         >
           {/* Header */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, paddingBottom: 20 }}>
-              <View style={{ width: 32, height: 32 }} /> {/* Spacer to center title */}
-              <Text style={{ color: '#fff', fontSize: 22, fontFamily: theme.bold }}>
-                 {activeSheet === "instruction" ? "Instructions" : "List of exercises"}
-              </Text>
-              <Pressable 
-                  onPress={() => bottomSheetRef.current?.close()} 
-                  style={{ width: 32, height: 32, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
-              >
-                  <Ionicons name='close' size={20} color='#fff' />
-              </Pressable>
+            <View style={{ width: 32, height: 32 }} /> {/* Spacer to center title */}
+            <Text style={{ color: '#fff', fontSize: 22, fontFamily: theme.bold }}>
+              {activeSheet === "instruction" ? "Instructions" : "List of exercises"}
+            </Text>
+            <Pressable
+              onPress={() => bottomSheetRef.current?.close()}
+              style={{ width: 32, height: 32, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Ionicons name='close' size={20} color='#fff' />
+            </Pressable>
           </View>
 
-          <BottomSheetScrollView 
+          <BottomSheetScrollView
             contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
             {activeSheet === "instruction" && (
-               <View>
-                  {infoLoading ? (
-                     <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium, fontSize: 16, textAlign: 'center', marginTop: 40 }}>Loading...</Text>
-                  ) : !exerciseInfo ? (
-                     <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium, fontSize: 16, textAlign: 'center', marginTop: 40 }}>No details available.</Text>
-                  ) : (
-                     <View>
-                        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
-                           {exerciseInfo.category && (
-                              <View style={{ flex: 1, backgroundColor: '#252528', padding: 16, borderRadius: 20, alignItems: 'flex-start' }}>
-                                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(170, 251, 5, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                                    <Ionicons name="body-outline" size={20} color={D.primary} />
-                                 </View>
-                                 <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: theme.medium, marginBottom: 4 }}>Target Muscle</Text>
-                                 <Text style={{ color: '#fff', fontSize: 16, fontFamily: theme.bold, textTransform: 'capitalize' }} numberOfLines={1}>
-                                    {exerciseInfo.target || exerciseInfo.bodyPart || exerciseInfo.category}
-                                 </Text>
-                              </View>
-                           )}
-                           {exerciseInfo.equipment && (
-                              <View style={{ flex: 1, backgroundColor: '#252528', padding: 16, borderRadius: 20, alignItems: 'flex-start' }}>
-                                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(170, 251, 5, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                                    <Ionicons name="barbell-outline" size={20} color={D.primary} />
-                                 </View>
-                                 <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: theme.medium, marginBottom: 4 }}>Equipment</Text>
-                                 <Text style={{ color: '#fff', fontSize: 16, fontFamily: theme.bold, textTransform: 'capitalize' }} numberOfLines={1}>
-                                    {exerciseInfo.equipment.replace(/_/g, ' ')}
-                                 </Text>
-                              </View>
-                           )}
+              <View>
+                {infoLoading ? (
+                  <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium, fontSize: 16, textAlign: 'center', marginTop: 40 }}>Loading...</Text>
+                ) : !exerciseInfo ? (
+                  <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: theme.medium, fontSize: 16, textAlign: 'center', marginTop: 40 }}>No details available.</Text>
+                ) : (
+                  <View>
+                    <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+                      {exerciseInfo.category && (
+                        <View style={{ flex: 1, backgroundColor: '#252528', padding: 16, borderRadius: 20, alignItems: 'flex-start' }}>
+                          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(170, 251, 5, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                            <Ionicons name="body-outline" size={20} color={D.primary} />
+                          </View>
+                          <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: theme.medium, marginBottom: 4 }}>Target Muscle</Text>
+                          <Text style={{ color: '#fff', fontSize: 16, fontFamily: theme.bold, textTransform: 'capitalize' }} numberOfLines={1}>
+                            {exerciseInfo.target || exerciseInfo.bodyPart || exerciseInfo.category}
+                          </Text>
                         </View>
-                        
-                        <Text style={{ color: '#fff', fontSize: 20, fontFamily: theme.bold, marginBottom: 16 }}>How to perform</Text>
-                        
-                        {exerciseInfo.instructions && exerciseInfo.instructions.length > 0 ? (
-                           <View style={{ backgroundColor: '#252528', borderRadius: 24, padding: 20, marginBottom: 20 }}>
-                              {exerciseInfo.instructions.map((step, index) => {
-                                 // Remove "Step 1:", "1.", etc from the beginning of the string
-                                 const cleanStep = step.replace(/^(?:Step\s*\d+\s*:\s*|\d+\.\s*)/i, '').trim();
-                                 return (
-                                    <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: index === exerciseInfo.instructions!.length - 1 ? 0 : 20 }}>
-                                       <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(170, 251, 5, 0.15)', alignItems: 'center', justifyContent: 'center', marginRight: 16, marginTop: 2 }}>
-                                          <Text style={{ color: D.primary, fontFamily: theme.bold, fontSize: 14 }}>{index + 1}</Text>
-                                       </View>
-                                       <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, fontFamily: theme.medium, flex: 1, lineHeight: 24 }}>
-                                          {cleanStep}
-                                       </Text>
-                                    </View>
-                                 );
-                              })}
-                           </View>
-                        ) : (
-                           <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, fontFamily: theme.medium }}>
-                              Instructions not available for this exercise.
-                           </Text>
-                        )}
-                     </View>
-                  )}
-               </View>
+                      )}
+                      {exerciseInfo.equipment && (
+                        <View style={{ flex: 1, backgroundColor: '#252528', padding: 16, borderRadius: 20, alignItems: 'flex-start' }}>
+                          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(170, 251, 5, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                            <Ionicons name="barbell-outline" size={20} color={D.primary} />
+                          </View>
+                          <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: theme.medium, marginBottom: 4 }}>Equipment</Text>
+                          <Text style={{ color: '#fff', fontSize: 16, fontFamily: theme.bold, textTransform: 'capitalize' }} numberOfLines={1}>
+                            {exerciseInfo.equipment.replace(/_/g, ' ')}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <Text style={{ color: '#fff', fontSize: 20, fontFamily: theme.bold, marginBottom: 16 }}>How to perform</Text>
+
+                    {exerciseInfo.instructions && exerciseInfo.instructions.length > 0 ? (
+                      <View style={{ backgroundColor: '#252528', borderRadius: 24, padding: 20, marginBottom: 20 }}>
+                        {exerciseInfo.instructions.map((step, index) => {
+                          // Remove "Step 1:", "1.", etc from the beginning of the string
+                          const cleanStep = step.replace(/^(?:Step\s*\d+\s*:\s*|\d+\.\s*)/i, '').trim();
+                          return (
+                            <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: index === exerciseInfo.instructions!.length - 1 ? 0 : 20 }}>
+                              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(170, 251, 5, 0.15)', alignItems: 'center', justifyContent: 'center', marginRight: 16, marginTop: 2 }}>
+                                <Text style={{ color: D.primary, fontFamily: theme.bold, fontSize: 14 }}>{index + 1}</Text>
+                              </View>
+                              <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, fontFamily: theme.medium, flex: 1, lineHeight: 24 }}>
+                                {cleanStep}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    ) : (
+                      <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, fontFamily: theme.medium }}>
+                        Instructions not available for this exercise.
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
             )}
 
             {activeSheet === "upNext" && (
               <View>
                 {/* Dynamic Grouping */}
                 {Object.entries((exercises || []).reduce((acc, ex, i) => {
-                    const cat = ex.category || "WARM UP"; // Fallback to reference layout
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push({...ex, origIndex: i});
-                    return acc;
+                  const cat = ex.category || "WARM UP"; // Fallback to reference layout
+                  if (!acc[cat]) acc[cat] = [];
+                  acc[cat].push({ ...ex, origIndex: i });
+                  return acc;
                 }, {} as Record<string, any[]>)).map(([category, exs]) => (
                   <View key={category} style={{ marginBottom: 12 }}>
                     {/* Section Header */}
@@ -898,12 +898,12 @@ export default function WorkoutPlayer() {
                           {/* Thumbnail */}
                           <View style={{ width: 70, height: 70, backgroundColor: '#111', borderRadius: 16, overflow: 'hidden', marginRight: 16 }}>
                             {ex.gifUrl ? (
-                              <Image source={{uri: ex.gifUrl}} style={{ width: '100%', height: '100%' }} />
+                              <Image source={{ uri: ex.gifUrl }} style={{ width: '100%', height: '100%' }} />
                             ) : (
                               <Ionicons name='barbell-outline' size={30} color='#333' style={{ alignSelf: 'center', marginTop: 20 }} />
                             )}
                           </View>
-                          
+
                           {/* Info */}
                           <View style={{ flex: 1, justifyContent: 'center' }}>
                             <Text style={{ color: isActive ? '#000' : '#fff', fontFamily: theme.bold, fontSize: 16, marginBottom: 4 }} numberOfLines={1}>
@@ -913,7 +913,7 @@ export default function WorkoutPlayer() {
                               {durationStr}
                             </Text>
                           </View>
-                          
+
                           {/* Info Icon */}
                           <View style={{ alignSelf: 'flex-start', padding: 4 }}>
                             <Ionicons name='information-circle' size={20} color={isActive ? '#000' : 'rgba(255,255,255,0.3)'} />
@@ -1009,7 +1009,7 @@ const styles = StyleSheet.create({
   contentHost: {
     flex: 1,
   },
-  
+
   // YT Music Player Styles
   ytContainer: {
     flex: 1,
@@ -1151,7 +1151,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: theme.medium,
   },
-  
+
   // INLINE GUIDE STYLES
   inlineGuideContainer: {
     paddingHorizontal: 24,

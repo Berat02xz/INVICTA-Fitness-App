@@ -60,7 +60,7 @@ const progress = useSharedValue(0);
       style={styles.tabBarItem}
     >
       <Animated.View style={animatedIconStyle}>
-        {icon[routeName]?.({
+        {icon[routeName as keyof typeof icon]?.({
           color: isFocused ? color : theme.textColorSecondary,
           focused: isFocused,
         })}

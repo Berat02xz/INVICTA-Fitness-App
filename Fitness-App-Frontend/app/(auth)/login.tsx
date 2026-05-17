@@ -15,8 +15,8 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
-  Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import BlurredBackground from "@/components/ui/BlurredBackground";
 import FadeTranslate from "@/components/ui/FadeTranslate";
@@ -38,7 +38,6 @@ const C = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? 48 : 32,
     alignItems: 'center',
   },
   contentWrapper: {
@@ -47,8 +46,8 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     justifyContent: 'space-between',
     paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: Platform.OS === 'ios' ? 48 : 32,
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   centerSection: {
     paddingBottom: 32,
@@ -269,7 +268,7 @@ export const LoginScreen = () => {
 
   return (
     <BlurredBackground intensity={100} circleBlur={50} animationSpeed={1.5}>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
         <View style={styles.contentWrapper}>
         {/* Header + Form centered */}
         <View style={styles.centerSection}>
@@ -364,7 +363,7 @@ export const LoginScreen = () => {
           <FadeTranslate order={7}>
             <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")} activeOpacity={0.7}>
               <Text style={styles.signupText}>
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Text style={styles.signupTextHighlight}>Get started</Text>
               </Text>
             </TouchableOpacity>
@@ -372,7 +371,7 @@ export const LoginScreen = () => {
         </View>
 
         </View> {/* end contentWrapper */}
-      </View>
+      </SafeAreaView>
     </BlurredBackground>
   );
 };

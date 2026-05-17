@@ -364,7 +364,14 @@ export default function NutritionScreen() {
       />
 
       {isSuccessfulDay && <ConfettiCannon count={12} origin={{ x: -10, y: 0 }} />}
-      <ScrollView style={s.scroll} contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 10 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={[
+          s.scrollContent,
+          { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 100 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         
         {/* Top Header matching Workout Page */}
         <FadeTranslate order={0}>
@@ -718,7 +725,6 @@ const s = StyleSheet.create({
   scroll:        { flex: 1 },
   scrollContent: { 
     paddingHorizontal: 20, 
-    paddingBottom: 100,
     width: "100%",
     maxWidth: 768,
     alignSelf: "center",

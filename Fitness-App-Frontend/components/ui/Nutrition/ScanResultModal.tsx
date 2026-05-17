@@ -11,6 +11,13 @@ const { width } = Dimensions.get("window");
 type MealResult = {
   type: "Meal";
   ShortMealName: string;
+  CaloriesAmount: number;
+  Protein: number;
+  Carbs: number;
+  Fat: number;
+  MealQuality?: string;
+  HealthScoreOutOf10: number;
+  OneEmoji?: string;
 };
 
 type MenuResult = {
@@ -53,7 +60,7 @@ const ScanResultModal: React.FC<ScanResultModalProps> = ({
 
   const renderMealResult = (meal: MealResult) => {
     const qualityTags = meal.MealQuality
-      ? meal.MealQuality.split(/[^a-zA-Z0-9\s]+/).map(t => t.trim()).filter(Boolean)
+      ? meal.MealQuality.split(/[^a-zA-Z0-9\s]+/).map((t: string) => t.trim()).filter(Boolean)
       : [];
 
     // Calculate percentages for visual bars (assuming arbitrary daily goals for visualization: P:150, C:200, F:70)
@@ -119,7 +126,7 @@ const ScanResultModal: React.FC<ScanResultModalProps> = ({
             {/* Tags / Quality */}
             <FadeTranslate order={3} translateYFrom={20}>
                 <View style={styles.tagsContainer}>
-                    {qualityTags.map((tag, i) => (
+                    {qualityTags.map((tag: string, i: number) => (
                         <View key={i} style={styles.tagPill}>
                             <Text style={styles.tagText}>{tag}</Text>
                         </View>

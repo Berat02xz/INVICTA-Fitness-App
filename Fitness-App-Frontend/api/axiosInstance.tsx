@@ -75,14 +75,12 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    config.headers = {
-      ...(config.headers ?? {}),
-      'ngrok-skip-browser-warning': 'true',
-    };
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.warn("⚠️ No token set in axios interceptor!");
+    if (config.headers) {
+      if (token) {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      } else {
+        console.warn("⚠️ No token set in axios interceptor!");
+      }
     }
     return config;
   },

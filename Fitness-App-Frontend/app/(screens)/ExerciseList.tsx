@@ -160,7 +160,10 @@ export default function ExerciseList() {
 
         <ScrollView
           style={s.scroll}
-          contentContainerStyle={s.scrollContent}
+          contentContainerStyle={[
+            s.scrollContent,
+            { paddingBottom: insets.bottom + 120 },
+          ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
@@ -364,7 +367,7 @@ const s = StyleSheet.create({
     letterSpacing: 0.5,
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 120, paddingTop: 16 },
+  scrollContent: { paddingTop: 16 },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",

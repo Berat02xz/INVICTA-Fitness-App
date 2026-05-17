@@ -7,10 +7,12 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 const FitnessGoalScreen = () => {
   const { goForward, saveSelection } = useOnboarding();
+  const insets = useSafeAreaInsets();
 
   type FitnessGoal = string;
   const [selectedGoal, setSelectedGoal] = useState<FitnessGoal | null>(null);
@@ -67,7 +69,7 @@ const FitnessGoalScreen = () => {
           />
         </View>
         {selectedGoal && (
-          <View style={styles.bottom}>
+          <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
             <ButtonFit
               title="Continue"
               backgroundColor={theme.primary}
@@ -87,7 +89,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
     flex: 1,
     justifyContent: "flex-end",
   },

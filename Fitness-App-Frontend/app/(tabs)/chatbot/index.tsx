@@ -34,6 +34,7 @@ import { AIEndpoint } from "@/api/AIEndpoint";
 import { SavedMessage } from "@/models/SavedMessage";
 import { ExerciseApi } from "@/api/ExerciseApi";
 import { Linking } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Message {
   id: string;
@@ -87,6 +88,7 @@ const THINKING_MESSAGES = [
 let _cachedMessages: Message[] = [];
 
 export default function Chatbot() {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation() as any;
   const [messages, setMessages] = useState<Message[]>(_cachedMessages);
   const [inputText, setInputText] = useState("");
@@ -792,13 +794,13 @@ export default function Chatbot() {
           keyboardVerticalOffset={0}
         >
           {/* Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
             <TouchableOpacity 
               style={styles.headerButton}
               onPress={() => navigation.navigate("nutrition")}
               activeOpacity={0.7}
             >
-              <BlurView intensity={40} tint="dark" experimentalBlurMethod={Platform.OS === 'ios' ? 'dimezisBlurView' : undefined} blurReductionFactor={1} style={styles.glassButtonBlur}>
+              <BlurView intensity={40} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined} blurReductionFactor={Platform.OS === 'android' ? 1 : undefined} style={styles.glassButtonBlur}>
                 <MaterialCommunityIcons name="arrow-left" size={24} color="#8E8E93" />
               </BlurView>
             </TouchableOpacity>
@@ -839,7 +841,7 @@ export default function Chatbot() {
                 onPress={toggleSavedMessages}
                 activeOpacity={0.7}
               >
-                <BlurView intensity={40} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'none' : 'dimezisBlurView'} blurReductionFactor={1} style={styles.glassButtonBlur}>
+                <BlurView intensity={40} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'none' : undefined} blurReductionFactor={Platform.OS === 'android' ? 1 : undefined} style={styles.glassButtonBlur}>
                   <MaterialCommunityIcons 
                     name="bookmark-outline" 
                     size={24} 
@@ -856,7 +858,13 @@ export default function Chatbot() {
             data={messages}
             renderItem={renderMessage}
             keyExtractor={item => item.id}
-            contentContainerStyle={styles.messagesList}
+            contentContainerStyle={[
+              styles.messagesList,
+              {
+                paddingTop: insets.top + 84,
+                paddingBottom: insets.bottom + 96,
+              },
+            ]}
             onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
@@ -909,7 +917,7 @@ export default function Chatbot() {
           />
 
           {/* Input */}
-          <View style={styles.inputContainerWrapper}>
+          <View style={[styles.inputContainerWrapper, { paddingBottom: insets.bottom + 12 }]}>
             <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
               <TouchableOpacity
                 style={styles.cameraButton}
@@ -1083,7 +1091,6 @@ const styles = StyleSheet.create({
 
   // ── Header ─────────────────────────────────────────────────────────────────
   header: {
-    paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: "row",
@@ -1200,8 +1207,8 @@ const styles = StyleSheet.create({
   messagesList: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingTop: 120,
-    paddingBottom: 100,
+    paddingTop: 84,
+    paddingBottom: 96,
     flexGrow: 1,
     maxWidth: 768,
     width: '100%',
@@ -1249,12 +1256,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.regular,
     color: C.text,
     lineHeight: 22,
-  },
-  tableText: {
-    fontSize: 13,
-    fontFamily: theme.regular,
-    color: C.text,
-    lineHeight: 16,
   },
   aiMessageContent: {
     flexDirection: 'column',
@@ -1426,7 +1427,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent', 
     zIndex: 100,
     paddingHorizontal: 20, // Increased horizontal padding
-    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
+    paddingBottom: 12,
     paddingTop: 10,
   },
   inputContainer: {
@@ -1437,9 +1438,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  inputContainerKeyboardOpen: {
-    paddingBottom: Platform.OS === 'ios' ? 10 : 0, 
-  },
+  inputContainerKeyboardOpen: {},
   inputWrapper: {
     flex: 1,
     flexDirection: 'row',
@@ -1458,8 +1457,8 @@ const styles = StyleSheet.create({
     fontSize: 15, // Slightly smaller font
     fontFamily: theme.regular,
     color: "#FFF",
-    paddingTop: Platform.OS === 'ios' ? 12 : 8,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 8, 
+    paddingTop: 8,
+    paddingBottom: 8,
     paddingRight: 8,
     maxHeight: 35, 
     textAlignVertical: 'center',

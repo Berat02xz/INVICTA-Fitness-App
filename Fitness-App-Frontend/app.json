@@ -9,7 +9,12 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.berat02xz.invictus",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,9 +41,43 @@
           "backgroundColor": "#19250D"
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Invicta to use the camera to scan meals.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Invicta to choose meal photos from your library.",
+          "cameraPermission": "Allow Invicta to use the camera to scan meals.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Invicta to choose meal photos from your library.",
+          "savePhotosPermission": false
+        }
+      ],
       "expo-sqlite",
-      "expo-secure-store",
-      "expo-sensors"
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Allow Invicta to use motion data to count steps."
+        }
+      ],
+      "./plugins/with-watermelondb-simdjson"
     ],
     "experiments": {
       "typedRoutes": true

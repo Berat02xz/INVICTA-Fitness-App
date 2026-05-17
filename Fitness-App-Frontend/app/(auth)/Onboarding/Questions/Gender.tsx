@@ -64,12 +64,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     alignItems: "center",
   },
-  bottom: {
-    alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
 });
 
 export default Gender;

@@ -95,12 +95,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     width: 330,
   },
-  bottom: {
-    alignItems: "center",
-    marginBottom: 50,
-    flex: 1,
-    justifyContent: "flex-end",
-  },
   container: {
     flex: 1,
     paddingTop: 30,

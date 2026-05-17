@@ -6,6 +6,7 @@ import Purchases, {
   PurchasesStoreTransaction,
 } from 'react-native-purchases';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { REVENUECAT_CONFIG, ENTITLEMENTS } from '@/constants/revenueCat';
 import database from '@/database/database';
 import { User } from '@/models/User';
@@ -18,6 +19,7 @@ import { User } from '@/models/User';
 class RevenueCatService {
   private static instance: RevenueCatService;
   private isConfigured = false;
+  private isSupported = Platform.OS !== 'web' && Constants.appOwnership !== 'expo';
 
   private constructor() {}
 
@@ -33,6 +35,11 @@ class RevenueCatService {
    * Call this once when the app starts
    */
   async initialize(): Promise<void> {
+    if (!this.isSupported) {
+      console.log('RevenueCat is skipped in Expo Go/web');
+      return;
+    }
+
     if (this.isConfigured) {
       console.log('📱 RevenueCat already configured');
       return;
@@ -67,6 +74,10 @@ class RevenueCatService {
     name?: string;
     email?: string;
   }): Promise<CustomerInfo> {
+    if (!this.isSupported) {
+      return null as unknown as CustomerInfo;
+    }
+
     try {
       console.log('👤 Identifying user with RevenueCat:', userId);
       
@@ -118,7 +129,7 @@ class RevenueCatService {
     try {
       // Check RevenueCat subscription
       let hasRevenueCatPro = false;
-      if (Platform.OS !== 'web') {
+      if (this.isSupported) {
         try {
           const customerInfo = await Purchases.getCustomerInfo();
           hasRevenueCatPro = customerInfo.entitlements.active[ENTITLEMENTS.PRO] !== undefined;
@@ -155,6 +166,11 @@ class RevenueCatService {
    * Get current customer info
    */
   async getCustomerInfo(): Promise<CustomerInfo | null> {
+    if (!this.isSupported) {
+      console.log('RevenueCat not available in Expo Go/web');
+      return null;
+    }
+
     if (Platform.OS === 'web') {
       console.log('🌐 RevenueCat not available on web');
       return null;
@@ -172,6 +188,10 @@ class RevenueCatService {
    * Get available offerings (subscription packages)
    */
   async getOfferings(): Promise<PurchasesOffering | null> {
+    if (!this.isSupported) {
+      return null;
+    }
+
     try {
       console.log('📦 Fetching offerings...');
       const offerings = await Purchases.getOfferings();
@@ -202,6 +222,10 @@ class RevenueCatService {
     customerInfo: CustomerInfo;
     transaction?: PurchasesStoreTransaction;
   }> {
+    if (!this.isSupported) {
+      throw new Error('RevenueCat purchases require a development or production build.');
+    }
+
     try {
       console.log('💳 Purchasing package:', pkg.identifier);
       
@@ -225,6 +249,10 @@ class RevenueCatService {
    * Restore purchases
    */
   async restorePurchases(): Promise<CustomerInfo> {
+    if (!this.isSupported) {
+      throw new Error('RevenueCat purchases require a development or production build.');
+    }
+
     try {
       console.log('🔄 Restoring purchases...');
       const customerInfo = await Purchases.restorePurchases();
@@ -241,6 +269,10 @@ class RevenueCatService {
    * Log out user (for when user logs out of your app)
    */
   async logout(): Promise<CustomerInfo> {
+    if (!this.isSupported) {
+      return null as unknown as CustomerInfo;
+    }
+
     try {
       console.log('👋 Logging out from RevenueCat...');
       const customerInfo = await Purchases.logOut();
@@ -256,6 +288,10 @@ class RevenueCatService {
    * Set user attributes for tracking and targeting
    */
   async setUserAttributes(attributes: { [key: string]: string | null }): Promise<void> {
+    if (!this.isSupported) {
+      return;
+    }
+
     try {
       await Purchases.setAttributes(attributes);
       console.log('✅ User attributes set:', Object.keys(attributes));
@@ -299,6 +335,10 @@ class RevenueCatService {
    * Get app user ID
    */
   async getAppUserId(): Promise<string> {
+    if (!this.isSupported) {
+      return '';
+    }
+
     try {
       const appUserId = await Purchases.getAppUserID();
       return appUserId;
@@ -312,6 +352,10 @@ class RevenueCatService {
    * Check if user is anonymous
    */
   async isAnonymous(): Promise<boolean> {
+    if (!this.isSupported) {
+      return true;
+    }
+
     try {
       const isAnonymous = await Purchases.isAnonymous();
       return isAnonymous;

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "../../../constants/theme";
 import { useOnboarding } from "./NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
@@ -32,7 +32,7 @@ const TopBar = () => {
   });
 
   return (
-    <View style={styles.wrapper}>
+    <SafeAreaView style={styles.wrapper} edges={["top"]}>
       <FadeTranslate order={1}>
       <View style={styles.topRow}>
         <TouchableOpacity onPress={goBack} style={styles.iconButton}>
@@ -46,14 +46,14 @@ const TopBar = () => {
         </View>
       </View>
       </FadeTranslate>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingTop: Platform.OS === "web" ? 20 : 60,
-    paddingHorizontal: Platform.OS === "web" ? 25 : 15,
+    paddingTop: 12,
+    paddingHorizontal: 15,
   },
   topRow: {
     flexDirection: "row",

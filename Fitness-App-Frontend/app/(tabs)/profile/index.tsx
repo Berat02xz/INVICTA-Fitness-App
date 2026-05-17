@@ -347,7 +347,13 @@ export default function Profile() {
         style={s.topBgGradient}
       />
 
-      <ScrollView contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 10 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[
+          s.scrollContent,
+          { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 100 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         
         {/* -- Top Bar -- */}
         <FadeTranslate order={0}>
@@ -499,7 +505,7 @@ export default function Profile() {
         backgroundStyle={s.sheetBg}
         handleIndicatorStyle={s.sheetHandle}
       >
-        <BottomSheetView style={s.sheetContent}>
+        <BottomSheetView style={[s.sheetContent, { paddingBottom: insets.bottom + 24 }]}>
            <Text style={s.modalTitle}>Edit Weight</Text>
            <View style={s.inputContainer}>
                <View style={{alignSelf: 'center', marginBottom: 10}}>
@@ -530,7 +536,7 @@ export default function Profile() {
         backgroundStyle={s.sheetBg}
         handleIndicatorStyle={s.sheetHandle}
       >
-        <BottomSheetView style={s.sheetContent}>
+        <BottomSheetView style={[s.sheetContent, { paddingBottom: insets.bottom + 24 }]}>
            <Text style={s.modalTitle}>Edit Height</Text>
            <View style={s.inputContainer}>
                 <View style={{alignSelf: 'center', marginBottom: 10}}>
@@ -588,7 +594,7 @@ export default function Profile() {
         backgroundStyle={s.sheetBg}
         handleIndicatorStyle={s.sheetHandle}
       >
-        <BottomSheetView style={s.sheetContent}>
+        <BottomSheetView style={[s.sheetContent, { paddingBottom: insets.bottom + 24 }]}>
            <Text style={s.modalTitle}>Edit Age</Text>
            <View style={s.inputContainer}>
                <BottomSheetTextInput 
@@ -611,7 +617,7 @@ export default function Profile() {
         backgroundStyle={s.sheetBg}
         handleIndicatorStyle={s.sheetHandle}
       >
-        <BottomSheetView style={s.sheetContent}>
+        <BottomSheetView style={[s.sheetContent, { paddingBottom: insets.bottom + 24 }]}>
            <Text style={s.modalTitle}>Fitness Level</Text>
            {fitnessLevels.map(l => (
                <TouchableOpacity key={l} style={s.modalOpt} onPress={()=>handleUpdateFitnessLevel(l)}>
@@ -629,7 +635,7 @@ export default function Profile() {
         backgroundStyle={s.sheetBg}
         handleIndicatorStyle={s.sheetHandle}
       >
-        <BottomSheetView style={s.sheetContent}>
+        <BottomSheetView style={[s.sheetContent, { paddingBottom: insets.bottom + 24 }]}>
            <Text style={s.modalTitle}>Equipment</Text>
            {equipmentOptions.map(l => (
                <TouchableOpacity key={l.value} style={s.modalOpt} onPress={()=>handleUpdateEquipment(l.value)}>
@@ -647,7 +653,7 @@ export default function Profile() {
         backgroundStyle={s.sheetBg}
         handleIndicatorStyle={s.sheetHandle}
       >
-        <BottomSheetScrollView style={s.sheetScrollContent}>
+        <BottomSheetScrollView style={[s.sheetScrollContent, { paddingBottom: insets.bottom + 24 }]}>
            <Text style={s.modalTitle}>Select Goal</Text>
            {caloriePlans.length > 0 ? (
                caloriePlans.map((plan, index) => (
@@ -728,7 +734,6 @@ const s = StyleSheet.create({
     },
     scrollContent: { 
         paddingHorizontal: 20, 
-        paddingBottom: 100,
         maxWidth: 768,
         width: "100%",
         alignSelf: "center",
@@ -857,8 +862,8 @@ const s = StyleSheet.create({
     // Bottom Sheet
     sheetBg: { backgroundColor: "#1C1C1E", borderTopLeftRadius: 24, borderTopRightRadius: 24 },
     sheetHandle: { backgroundColor: "#555", width: 40 },
-    sheetContent: { padding: 24, paddingBottom: 40 },
-    sheetScrollContent: { padding: 24, paddingBottom: 40, maxHeight: 500 },
+    sheetContent: { padding: 24 },
+    sheetScrollContent: { padding: 24, maxHeight: 500 },
     modalTitle: { fontSize: 18, fontFamily: theme.bold, color: "#FFF", marginBottom: 20 },
     modalOpt: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#333", alignItems:"center" },
     modalOptText: { fontSize: 16, color: "#FFF", fontFamily: theme.medium },

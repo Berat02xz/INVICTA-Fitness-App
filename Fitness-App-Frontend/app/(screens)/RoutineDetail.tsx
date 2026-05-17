@@ -72,7 +72,7 @@ export default function RoutineDetail() {
     <View style={s.container}>
       <ScrollView
         style={s.scroll}
-        contentContainerStyle={[s.scrollContent, { paddingBottom: 100 }]}
+        contentContainerStyle={[s.scrollContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >

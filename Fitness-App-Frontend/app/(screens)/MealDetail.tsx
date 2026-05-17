@@ -121,7 +121,10 @@ export default function MealDetail() {
 
       <ScrollView
         style={s.scroll}
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[
+          s.scrollContent,
+          { paddingBottom: insets.bottom + 116 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={s.heroWrap}>
@@ -207,7 +210,6 @@ export default function MealDetail() {
           </View>
         )}
 
-        <View style={{ height: 120 }} />
       </ScrollView>
 
       <View style={[s.bottomBar, { paddingBottom: insets.bottom + 12 }]}>
@@ -276,7 +278,7 @@ const s = StyleSheet.create({
   },
 
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
+  scrollContent: {},
 
   heroWrap: {
     width: SCREEN_W,

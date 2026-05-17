@@ -111,7 +111,10 @@ export default function Workout() {
 
       <ScrollView
         style={s.scroll}
-        contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 16 }]}
+        contentContainerStyle={[
+          s.scrollContent,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 110 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <FadeTranslate order={0} direction="y" translateYFrom={-24} delay={0}>
@@ -355,7 +358,7 @@ const s = StyleSheet.create({
     height: Dimensions.get("window").height,
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 110 },
+  scrollContent: {},
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",

@@ -4,8 +4,8 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "@/constants/theme";
 import { router } from "expo-router";
 import Animated, {
@@ -49,7 +49,7 @@ export default function WelcomeScreen() {
   return (
     <BlurredBackground>
       {/* Content */}
-      <View style={styles.contentContainer}>
+      <SafeAreaView style={styles.contentContainer} edges={["top", "bottom"]}>
         {/* Title Section */}
         <View style={styles.titleSection}>
           <FadeTranslate order={1}>
@@ -79,7 +79,7 @@ export default function WelcomeScreen() {
         </FadeTranslate>
         </View>              
         </FadeTranslate>
-      </View>
+      </SafeAreaView>
     </BlurredBackground>
   );
 }
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     maxWidth: 480,
-    paddingVertical: 80,
+    paddingVertical: 40,
     paddingHorizontal: 40,
   },
   titleSection: {
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     alignItems: 'center',
-    paddingBottom: Platform.OS === "ios" ? 50 : 30,
+    paddingBottom: 24,
   },
   beginButton: {
     backgroundColor: theme.primary,

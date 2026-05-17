@@ -7,6 +7,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import { DrumPicker } from "@/components/ui/Onboarding/DrumPicker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_WEIGHT_METRIC = 73; // Based on the reference image!
 const DEFAULT_WEIGHT_IMPERIAL = 160;
@@ -18,6 +19,7 @@ const IMPERIAL_ITEMS = Array.from({ length: 375 }, (_, i) => i + 66);
 
 const WeightQuestion = () => {
   const { goForward, answers, saveSelection } = useOnboarding();
+  const insets = useSafeAreaInsets();
   const [unit, setUnit] = useState<"metric" | "imperial">(
     (answers.unit as "metric" | "imperial") || "metric"
   );
@@ -111,7 +113,7 @@ const WeightQuestion = () => {
           </FadeTranslate>
         </View>
 
-        <View style={styles.bottom}>
+        <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
           {/* Custom Unit toggle just like the image */}
           <FadeTranslate order={4} style={styles.customUnitToggle}>
             <TouchableOpacity 
@@ -235,7 +237,6 @@ const styles = StyleSheet.create({
   
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
     paddingHorizontal: 20,
   },
 });

@@ -7,6 +7,7 @@ import { theme } from "@/constants/theme";
 import { useOnboarding } from "@/app/(auth)/Onboarding/NavigationService";
 import FadeTranslate from "@/components/ui/FadeTranslate";
 import Svg, { Circle, G } from "react-native-svg";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
@@ -47,6 +48,7 @@ const reviews = [
 
 export default function Reviews() {
   const { goForward } = useOnboarding();
+  const insets = useSafeAreaInsets();
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -181,7 +183,7 @@ export default function Reviews() {
           </FadeTranslate>
         </View>
 
-        <View style={styles.bottom}>
+        <View style={[styles.bottom, { paddingBottom: insets.bottom + 24 }]}>
           {showButton && (
             <FadeTranslate order={0} duration={500} animated={true}>
               <ButtonFit
@@ -258,7 +260,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
     justifyContent: "center",
     alignItems: "center",
   },

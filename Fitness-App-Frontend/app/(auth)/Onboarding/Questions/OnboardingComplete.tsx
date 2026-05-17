@@ -19,9 +19,11 @@ import { useOnboarding } from "../NavigationService";
 import database from "@/database/database";
 import { User } from "@/models/User";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const OnboardingComplete = () => {
   const { goForward } = useOnboarding();
+  const insets = useSafeAreaInsets();
 
   const [Name, setName] = useState<string>("");
   const [Email, setEmail] = useState<string>("");
@@ -189,7 +191,7 @@ const OnboardingComplete = () => {
           </View>
         </View>
 
-        <View style={styles.bottom}>
+        <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
           <FadeTranslate order={5} duration={1000}>
           <ButtonFit
             title="Register"
@@ -222,7 +224,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 40,
     paddingHorizontal: 24,
     width: "100%",
   },

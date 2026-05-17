@@ -146,7 +146,10 @@ export default function SearchFoodScreen() {
 
         <ScrollView
           style={s.scroll}
-          contentContainerStyle={s.scrollContent}
+          contentContainerStyle={[
+            s.scrollContent,
+            { paddingBottom: insets.bottom + 120 },
+          ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
@@ -326,7 +329,7 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 120 },
+  scrollContent: {},
 
   // Hero
   heroTitle: {

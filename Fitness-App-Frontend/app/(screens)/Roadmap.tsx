@@ -147,7 +147,7 @@ export default function Roadmap() {
       </FadeTranslate>
 
       <ScrollView
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[s.scrollContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         <FadeTranslate order={0.1}>
@@ -318,7 +318,6 @@ const s = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingBottom: 100,
   },
 
   heroCard: {

@@ -1,7 +1,8 @@
 import { theme } from '@/constants/theme';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useRef, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Animated, Image, ImageSourcePropType } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Animated, Image, ImageSourcePropType, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
 
 interface ButtonFitProps {
     title: string;
@@ -19,11 +20,11 @@ interface ButtonFitProps {
     moreInfoImageSource?: ImageSourcePropType;
 }
 
-const ButtonFit: React.FC<ButtonFitProps> = ({ 
-    title, 
-    backgroundColor, 
-    onPress, 
-    style, 
+const ButtonFit: React.FC<ButtonFitProps> = ({
+    title,
+    backgroundColor,
+    onPress,
+    style,
     isLoading = false,
     loadingText = "Loading...",
     hasMoreInfo = false,
@@ -63,15 +64,15 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
                 <View style={[styles.infoCardWrapper, { backgroundColor: moreInfoColor }]}>
                     <View style={styles.infoContent}>
                         {moreInfoImageSource ? (
-                            <Image 
-                                source={moreInfoImageSource} 
+                            <Image
+                                source={moreInfoImageSource}
                                 style={styles.infoImage}
                             />
                         ) : (
-                            <MaterialCommunityIcons 
-                                name={moreInfoIcon as any} 
-                                size={32} 
-                                color="#FFFFFF" 
+                            <MaterialCommunityIcons
+                                name={moreInfoIcon as any}
+                                size={32}
+                                color="#FFFFFF"
                                 style={styles.infoIcon}
                             />
                         )}
@@ -80,11 +81,22 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
                             <Text style={styles.infoUndertext}>{moreInfoText}</Text>
                         </View>
                     </View>
-                    <TouchableOpacity 
-                        style={[styles.button, styles.infoButton, { backgroundColor: backgroundColor }]}
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            styles.infoButton,
+                            Platform.OS === 'ios' ? { backgroundColor: 'transparent', overflow: 'hidden' } : { backgroundColor: backgroundColor }
+                        ]}
                         onPress={onPress}
                         disabled={isLoading}
+                        activeOpacity={0.8}
                     >
+                        {Platform.OS === 'ios' && (
+                            <>
+                                <BlurView intensity={100} tint="systemChromeMaterialDark" style={StyleSheet.absoluteFillObject} />
+                                <View style={[StyleSheet.absoluteFillObject, { backgroundColor: backgroundColor, opacity: 0.5 }]} />
+                            </>
+                        )}
                         {isLoading ? (
                             <View style={styles.loadingContainer}>
                                 <Animated.View style={[
@@ -105,14 +117,21 @@ const ButtonFit: React.FC<ButtonFitProps> = ({
                 <TouchableOpacity
                     style={[
                         styles.button,
-                        styles.standaloneButton, 
-                        { backgroundColor: backgroundColor }, 
+                        styles.standaloneButton,
+                        Platform.OS === 'ios' ? { backgroundColor: 'transparent', overflow: 'hidden' } : { backgroundColor: backgroundColor },
                         isLoading && styles.buttonDisabled,
                         style
                     ]}
                     onPress={onPress}
                     disabled={isLoading}
+                    activeOpacity={0.8}
                 >
+                    {Platform.OS === 'ios' && (
+                        <>
+                            <BlurView intensity={100} tint="systemChromeMaterialDark" style={StyleSheet.absoluteFillObject} />
+                            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: backgroundColor, opacity: 0.5 }]} />
+                        </>
+                    )}
                     {isLoading ? (
                         <View style={styles.loadingContainer}>
                             <Animated.View style={[

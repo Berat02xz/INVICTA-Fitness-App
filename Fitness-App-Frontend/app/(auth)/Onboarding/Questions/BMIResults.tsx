@@ -9,6 +9,7 @@ import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
 import calculateBMI from "@/utils/CalculateBMI";
 import FadeTranslate from "@/components/ui/FadeTranslate";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const BMIBar = require("@/assets/icons/onboarding/BMIBar.png");
 const BMIIndicator = require("@/assets/icons/onboarding/BMIIndicator.png");
@@ -23,6 +24,7 @@ const F_ObeseImage = require("@/assets/icons/onboarding/F_overweight.png");
 
 function BMIResults() {
   const onboardingContext = useOnboarding();
+  const insets = useSafeAreaInsets();
   const { answers, saveSelection } = onboardingContext;
 
   const weight = answers.weight?.toString() || "85";
@@ -232,7 +234,7 @@ function BMIResults() {
         </View>
 
         {/* Continue Button */}
-        <View style={styles.bottom}>
+        <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
           <FadeTranslate order={6} duration={1000}>
             <ButtonFit
               title="Continue"
@@ -344,7 +346,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
     paddingHorizontal: 24,
   },
 });

@@ -9,6 +9,6 @@ export const adapter = new LokiJSAdapter({
   useWebWorker: false,
   useIncrementalIndexedDB: true,
   onSetUpError: _error => {
-    adapter.unsafeResetDatabase();
+    adapter.unsafeResetDatabase(() => {});
   },
 })

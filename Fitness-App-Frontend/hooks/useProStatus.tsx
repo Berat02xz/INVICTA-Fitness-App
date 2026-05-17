@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import RevenueCatService from '@/api/RevenueCatService';
-import { CustomerInfo } from 'react-native-purchases';
+import type { CustomerInfo } from 'react-native-purchases';
 
 /**
  * Hook to check if user has PRO subscription

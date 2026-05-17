@@ -7,11 +7,13 @@ import { theme } from "@/constants/theme";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useOnboarding } from "../NavigationService";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 ("use client");
 
 const LastTimeHappyBodyImage = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { goForward } = useOnboarding();
+  const insets = useSafeAreaInsets();
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
@@ -84,7 +86,7 @@ const LastTimeHappyBodyImage = () => {
 
       {selectedOption && infoMessage && (
         <FadeTranslate order={1} duration={1000}>
-          <View style={styles.bottom}>
+          <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
             <ButtonFit
               title="Continue"
               backgroundColor={theme.primary}
@@ -120,7 +122,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
     paddingHorizontal: 25,
   },
 });

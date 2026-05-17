@@ -15,10 +15,12 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ConfettiCannon from "react-native-confetti-cannon";
 
 export default function JourneyStartsNow() {
   const { goForward, saveSelection, answers } = useOnboarding();
+  const insets = useSafeAreaInsets();
 
   const animation = useRef(new Animated.Value(0)).current;
   const [animatedDateString, setAnimatedDateString] = useState("");
@@ -131,7 +133,7 @@ export default function JourneyStartsNow() {
             </View>
           </View>
           <FadeTranslate order={15} duration={500}>
-            <View style={styles.bottom}>
+            <View style={[styles.bottom, { marginBottom: insets.bottom + 24 }]}>
               <ButtonFit
                 title="Continue"
                 backgroundColor={theme.primary}
@@ -175,7 +177,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     alignItems: "center",
-    marginBottom: 50,
     width: "100%",
   },
   sloganBold: {

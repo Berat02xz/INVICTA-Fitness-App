@@ -9,6 +9,7 @@ import { theme } from "@/constants/theme";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider, DarkTheme } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SystemUI from 'expo-system-ui';
 
 export default function RootLayout() {
@@ -61,12 +62,14 @@ export default function RootLayout() {
     <>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
-        <BottomSheetModalProvider>
-          <ThemeProvider value={navTheme}>
-            <Slot />
-            <Toast />
-          </ThemeProvider>
-        </BottomSheetModalProvider>
+        <SafeAreaProvider>
+          <BottomSheetModalProvider>
+            <ThemeProvider value={navTheme}>
+              <Slot />
+              <Toast />
+            </ThemeProvider>
+          </BottomSheetModalProvider>
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     </>
   );
