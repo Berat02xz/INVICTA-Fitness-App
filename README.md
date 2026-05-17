@@ -16,6 +16,7 @@ AI-powered fitness app (WIP) delivering personalized workouts, nutrition insight
 ## Roadmap 🚀
 
 # Current Development
+- Change branding to Day One - D1 (full rebrand)
 - Working on achieving faster response from our backend for chatbot and scan meal
 - Tighter UI overall
 - Badges for profile screen with overall gamified look
