@@ -9,6 +9,13 @@ import { Platform } from 'react-native';
 
 let token: string | null = null;
 
+const normalizeToken = (value: string | null | undefined) => {
+  if (!value || value === 'null' || value === 'undefined') {
+    return null;
+  }
+  return value;
+};
+
 const Storage = {
   async getItem(key: string) {
     if (Platform.OS === 'web') {
@@ -32,33 +39,39 @@ const Storage = {
   }
 };
 
+export async function loadStoredToken(): Promise<string | null> {
+  token = normalizeToken(await Storage.getItem('token'));
+  return token;
+}
+
 // Load token from storage at app start
 export async function CheckToken() {
-  token = await Storage.getItem('token');
-  if (!token || token === 'null') {
+  const storedToken = await loadStoredToken();
+  if (!storedToken) {
     console.log("Token is null or undefined, redirecting to Welcome");
-    router.replace("/(auth)/WelcomeScreen");
+    router.replace("/WelcomeScreen");
   } else {
     // Check if we are already in tabs to avoid loop/pushing context on top
     // However, replace is generally safe to reset the current stack item
-    router.replace('/(tabs)/workout');
+    router.replace('/workout');
   }
 }
 
 export async function GetToken(): Promise<string | null> {
-  if (!token || token === 'null') {
+  const currentToken = normalizeToken(token) ?? await loadStoredToken();
+  if (!currentToken) {
     console.log("Token is null or undefined, redirecting to Welcome");
-    router.replace("/(auth)/WelcomeScreen");
+    router.replace("/WelcomeScreen");
     return null;
   }
-  return token;
+  return currentToken;
 }
 
 // Set token manually after login/register
 export async function setToken(newToken: string | null) {
-  token = newToken;
-  if (newToken) {
-    await Storage.setItem('token', newToken);
+  token = normalizeToken(newToken);
+  if (token) {
+    await Storage.setItem('token', token);
   }
 }
 

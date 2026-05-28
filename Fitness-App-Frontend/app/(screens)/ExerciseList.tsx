@@ -280,7 +280,7 @@ export default function ExerciseList() {
                           activeOpacity={0.7}
                           onPress={() =>
                             router.push({
-                              pathname: "/(screens)/ExerciseDetail",
+                              pathname: "/ExerciseDetail",
                               params: {
                                 exerciseId: exercise.exerciseId,
                                 name: exercise.name,

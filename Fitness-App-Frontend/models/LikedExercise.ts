@@ -5,11 +5,11 @@ import { Database, Q } from '@nozbe/watermelondb';
 export class LikedExercise extends Model {
   static table = 'liked_exercises';
 
-  @field('exercise_id') exerciseId!: string;
-  @field('name') name!: string;
-  @field('gif_url') gifUrl!: string;
-  @field('category') category!: string;
-  @field('liked_at') likedAt!: number;
+  @field('exercise_id') exerciseId: string;
+  @field('name') name: string;
+  @field('gif_url') gifUrl: string;
+  @field('category') category: string;
+  @field('liked_at') likedAt: number;
 
   static async isLiked(database: Database, exerciseId: string): Promise<boolean> {
     try {

@@ -8,16 +8,16 @@ import { User } from "./User";
 export class Meal extends Model {
   static table = "meals";
 
-  @field("user_id") userId!: string;
-  @field("meal_name") mealName!: string;
-  @field("calories") calories!: number;
-  @field("protein") protein!: number;
-  @field("carbohydrates") carbohydrates!: number;
-  @field("fats") fats!: number;
-  @field("label") label!: string;
-  @field("created_at") createdAt!: number;
-  @field("health_score") healthScore!: number;
-  @field("one_emoji") oneEmoji!:string;
+  @field("user_id") userId: string;
+  @field("meal_name") mealName: string;
+  @field("calories") calories: number;
+  @field("protein") protein: number;
+  @field("carbohydrates") carbohydrates: number;
+  @field("fats") fats: number;
+  @field("label") label: string;
+  @field("created_at") createdAt: number;
+  @field("health_score") healthScore: number;
+  @field("one_emoji") oneEmoji:string;
  
 
 static async createMeal(database: Database, mealData: { userId: string; mealName: string; calories: number; protein: number; carbohydrates: number; fats: number; label: string; createdAt: number; healthScore: number; oneEmoji:string; }): Promise<Meal> {

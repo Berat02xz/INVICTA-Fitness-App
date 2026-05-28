@@ -12,6 +12,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ICON_COLOR_SELECTED = '#000000';       // black on lime circle
 const ICON_COLOR_UNSELECTED = 'rgba(255,255,255,0.35)'; // ghosted white
@@ -53,6 +54,7 @@ export function TabBar({
   navigation,
   vertical,
 }: BottomTabBarProps & { vertical?: boolean }) {
+  const insets = useSafeAreaInsets();
   const [dimensions, setDimensions] = useState({ width: 400, height: 75 });
   const buttonCount = state.routes.length;
   const buttonWidth = dimensions.width / buttonCount;
@@ -95,7 +97,14 @@ export function TabBar({
   }));
 
   return (
-    <Animated.View style={[styles.tabBarWrapper, tabBarSlideStyle]} onLayout={onTabbarLayout}>
+    <Animated.View
+      style={[
+        styles.tabBarWrapper,
+        { bottom: Math.max(insets.bottom, 12) + 12 },
+        tabBarSlideStyle,
+      ]}
+      onLayout={onTabbarLayout}
+    >
       <BlurView
         experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
         blurReductionFactor={1}

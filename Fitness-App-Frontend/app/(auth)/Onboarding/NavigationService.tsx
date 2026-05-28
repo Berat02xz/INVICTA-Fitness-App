@@ -56,7 +56,7 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     if (index < OnboardingScreens.length - 1) {
       const next = index + 1;
       setIndex(next);
-      router.push(`/(auth)/Onboarding/Questions/${OnboardingScreens[next]}`);
+      router.push(`/Onboarding/Questions/${OnboardingScreens[next]}`);
     }
   };
 
@@ -64,7 +64,7 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     if (index > 0) {
       const prev = index - 1;
       setIndex(prev);
-      router.push(`/(auth)/Onboarding/Questions/${OnboardingScreens[prev]}`);
+      router.push(`/Onboarding/Questions/${OnboardingScreens[prev]}`);
     } else {
       router.push("/");
     }

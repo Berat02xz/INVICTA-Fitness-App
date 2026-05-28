@@ -1,13 +1,23 @@
 import Constants from 'expo-constants'
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
+import { NativeModules } from 'react-native'
 import { schema } from './schema'
 import { migrations } from './migrations'
 
 const isExpoGo = Constants.appOwnership === 'expo'
+const hasWatermelonNativeBridge = Boolean(
+  NativeModules.WMDatabaseBridge || NativeModules.WMDatabaseJSIBridge
+)
 
 const createAdapter = () => {
-  if (isExpoGo) {
+  if (isExpoGo || !hasWatermelonNativeBridge) {
+    if (!isExpoGo) {
+      console.warn(
+        '[database] WatermelonDB native bridge is unavailable; using LokiJS fallback. Rebuild the dev client to use native SQLite.'
+      )
+    }
+
     return new LokiJSAdapter({
       schema,
       migrations,

@@ -168,6 +168,7 @@ export const FetchUserInformationAndStore = async (userId: string) => {
       } else {
         console.log("🔄 Updating existing user in local database...");
         await existing.update((u) => Object.assign(u, {
+          userId: userData.userId || userId,
           name: userData.name,
           email: userData.email,
           age: userData.age,
@@ -349,13 +350,13 @@ export const LogoutUser = async () => {
     
     // Navigate to welcome screen with replace to prevent back navigation
     console.log('🔄 Navigating to welcome screen...');
-    router.replace("/(auth)/WelcomeScreen");
+    router.replace("/WelcomeScreen");
     console.log('✅ Logout complete');
   } catch (error) {
     console.error('❌ Logout error:', error);
     // Force navigation even if something failed
     await removeToken();
-    router.replace("/(auth)/WelcomeScreen");
+    router.replace("/WelcomeScreen");
   }
 };
 

@@ -95,7 +95,7 @@ export default function SearchFoodScreen() {
 
   const handleRecipePress = (recipe: MealDBMeal) => {
     router.push({
-      pathname: "/(screens)/MealDetail",
+      pathname: "/MealDetail",
       params: { mealId: String(recipe.idMeal) },
     });
   };
@@ -108,7 +108,7 @@ export default function SearchFoodScreen() {
       const recipe = await MealDBApi.random();
       if (recipe) {
         router.push({
-          pathname: "/(screens)/MealDetail",
+          pathname: "/MealDetail",
           params: { mealId: String(recipe.idMeal) },
         });
         setSearched(false);

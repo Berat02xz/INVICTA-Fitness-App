@@ -67,7 +67,7 @@ export default function Workout() {
 
   const handleRoutinePress = (routine: WorkoutRoutine) => {
     router.push({
-      pathname: "/(screens)/RoutineDetail",
+      pathname: "/RoutineDetail",
       params: { routineId: routine.id },
     });
   };
@@ -127,7 +127,7 @@ export default function Workout() {
               <TouchableOpacity 
                 style={s.coinBadge} 
                 activeOpacity={0.8}
-                onPress={() => router.push("/(screens)/Roadmap")}
+                onPress={() => router.push("/Roadmap")}
               >
                 <View style={s.coinIconWrap}>
                    <Text style={{ fontSize: 10 }}>💰</Text>
@@ -138,7 +138,7 @@ export default function Workout() {
           </View>
 
           <View style={s.searchBarWrap}>
-            <TouchableOpacity activeOpacity={0.8} style={s.searchBar} onPress={() => router.push("/(screens)/ExerciseList")}>
+            <TouchableOpacity activeOpacity={0.8} style={s.searchBar} onPress={() => router.push("/ExerciseList")}>
               <Ionicons name="search" size={18} color="#888" />
               <Text style={s.searchText}>Search workout</Text>
             </TouchableOpacity>
@@ -272,7 +272,7 @@ export default function Workout() {
         <FadeTranslate order={0} delay={600} direction="y" translateYFrom={-16}>
           <View style={s.sectionHeaderRowInline}>
             <Text style={s.sectionTitleInline}>Featured Workouts</Text>
-            <TouchableOpacity onPress={() => router.push("/(screens)/ExerciseList")}>
+            <TouchableOpacity onPress={() => router.push("/ExerciseList")}>
                <Text style={s.seeAllText}>View more</Text>
             </TouchableOpacity>
           </View>
@@ -300,7 +300,7 @@ export default function Workout() {
                    <TouchableOpacity
                      style={s.albumCard}
                      activeOpacity={0.8}
-                     onPress={() => router.push({ pathname: "/(screens)/ExerciseDetail", params: { exerciseId: ex.exerciseId } })}
+                     onPress={() => router.push({ pathname: "/ExerciseDetail", params: { exerciseId: ex.exerciseId } })}
                    >
                      <View style={s.albumArtWrap}>
                        {ex.gifUrl ? (

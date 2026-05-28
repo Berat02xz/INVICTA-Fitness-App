@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { router, useNavigation } from 'expo-router';
-import { CommonActions } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
 import Paywall from '@/components/ui/RevenueCat/Paywall';
 import { useProStatus } from '@/hooks/useProStatus';
@@ -17,23 +16,10 @@ export default function SubscriptionCheck() {
   const [hasChecked, setHasChecked] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const { isPro, loading, refresh } = useProStatus();
-  const navigation = useNavigation();
 
   // Function to navigate and reset history
   const navigateToApp = () => {
-    if (navigation.canGoBack()) {
-      // If we can go back, it means we have history stack (like login/welcome)
-      // We want to reset it so user can't go back to auth screens
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: '(tabs)' }],
-        })
-      );
-    } else {
-      // If no history (e.g. initial load), simple replace works
-      router.replace('/(tabs)/workout');
-    }
+    router.replace('/workout');
   };
 
   useEffect(() => {

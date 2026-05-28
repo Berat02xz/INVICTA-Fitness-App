@@ -108,6 +108,8 @@ export default function Chatbot() {
   const videoPlayer = useVideoPlayer(selectedVideo, (player) => {
     player.loop = true;
     player.muted = true;
+    player.volume = 0;
+    player.audioMixingMode = 'mixWithOthers';
     if (Platform.OS === 'web') {
        player.play();
     }
@@ -149,6 +151,8 @@ export default function Chatbot() {
       if (videoPlayer) {
           videoPlayer.loop = true;
           videoPlayer.muted = true;
+          videoPlayer.volume = 0;
+          videoPlayer.audioMixingMode = 'mixWithOthers';
           // Small delay to ensure video is ready on web
            if(Platform.OS === 'web'){
                setTimeout(() => {
@@ -436,7 +440,7 @@ export default function Chatbot() {
               if (exercises.length > 0) {
                 const ex = exercises[0];
                 router.push({
-                  pathname: "/(screens)/ExerciseDetail",
+                  pathname: "/ExerciseDetail",
                   params: {
                     exerciseId: ex.exerciseId,
                     name: ex.name,
@@ -907,7 +911,6 @@ export default function Chatbot() {
                     style={styles.loadingVideo}
                     nativeControls={false}
                     contentFit="contain"
-                    allowsFullscreen={false}
                     allowsPictureInPicture={false}
                   />
                   <Animated.Text style={[styles.resultsText, { opacity: thinkingOpacity }]}>Thinking</Animated.Text>
@@ -921,7 +924,7 @@ export default function Chatbot() {
             <View style={[styles.inputContainer, keyboardVisible && styles.inputContainerKeyboardOpen]}>
               <TouchableOpacity
                 style={styles.cameraButton}
-                onPress={() => router.push("/(screens)/ScanMeal")}
+                onPress={() => router.push("/ScanMeal")}
                 activeOpacity={0.7}
               >
                   <MaterialCommunityIcons 

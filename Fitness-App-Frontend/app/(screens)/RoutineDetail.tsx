@@ -48,14 +48,14 @@ export default function RoutineDetail() {
 
   const handleStartRoutine = () => {
     router.replace({
-      pathname: "/(screens)/WorkoutPlayer",
+      pathname: "/WorkoutPlayer",
       params: { routineId: routine.id },
     });
   };
 
   const handleExercisePress = (ex: any) => {
     router.push({
-      pathname: "/(screens)/ExerciseDetail",
+      pathname: "/ExerciseDetail",
       params: {
         exerciseId: ex.exerciseId,
         name: ex.name,

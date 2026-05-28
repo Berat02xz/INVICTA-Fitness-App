@@ -1,18 +1,19 @@
-import { CheckToken } from "@/api/AxiosInstance";
+import { routeForSession } from "@/api/AuthSession";
 import RevenueCatService from "@/api/RevenueCatService";
 import { useFonts } from "expo-font";
-import { Slot } from "expo-router";
-import { useEffect } from "react";
+import { Stack } from "expo-router";
+import { useEffect, useState } from "react";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { ActivityIndicator, View, StatusBar, Platform } from "react-native";
 import { theme } from "@/constants/theme";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider, DarkTheme } from "@react-navigation/native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context";
 import * as SystemUI from 'expo-system-ui';
 
 export default function RootLayout() {
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [fontsLoaded] = useFonts({
     Regular: require("../assets/fonts/Albert_Sans/static/AlbertSans-Regular.ttf"),
     Bold: require("../assets/fonts/Albert_Sans/static/AlbertSans-Bold.ttf"),
@@ -36,8 +37,12 @@ export default function RootLayout() {
 
     if (fontsLoaded) {
       (async () => {
-        await RevenueCatService.initialize();
-        await CheckToken();
+        try {
+          await RevenueCatService.initialize();
+          await routeForSession();
+        } finally {
+          setSessionChecked(true);
+        }
       })();
     }
   }, [fontsLoaded]);
@@ -45,7 +50,7 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.backgroundColor }}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
@@ -62,10 +67,34 @@ export default function RootLayout() {
     <>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
-        <SafeAreaProvider>
+        <SafeAreaProvider
+          initialMetrics={initialWindowMetrics}
+          style={{ flex: 1, backgroundColor: theme.backgroundColor }}
+        >
           <BottomSheetModalProvider>
             <ThemeProvider value={navTheme}>
-              <Slot />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: theme.backgroundColor },
+                }}
+              />
+              {!sessionChecked && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: theme.backgroundColor,
+                  }}
+                >
+                  <ActivityIndicator size="large" color={theme.primary} />
+                </View>
+              )}
               <Toast />
             </ThemeProvider>
           </BottomSheetModalProvider>

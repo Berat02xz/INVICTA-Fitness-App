@@ -1,4 +1,4 @@
-import { setToken } from "@/api/AxiosInstance";
+import { removeToken, setToken } from "@/api/AxiosInstance";
 import { Login, FetchUserInformationAndStore, FetchUserMealsAndStore, GetUserDetails } from "@/api/UserDataEndpoint";
 import { getUserIdFromToken } from "@/api/TokenDecoder";
 import RevenueCatService from "@/api/RevenueCatService";
@@ -208,11 +208,14 @@ export const LoginScreen = () => {
         });
         return;
       } else {
-        setToken(response.token);
+        await setToken(response.token);
         
         // Fetch and store user data in local database
         try {
           const userId = await getUserIdFromToken();
+          if (!userId) {
+            throw new Error("Login token was invalid.");
+          }
           if (userId) {
             console.log("🔐 Fetching user data for userId:", userId);
             await FetchUserInformationAndStore(userId);
@@ -245,10 +248,12 @@ export const LoginScreen = () => {
           }
         } catch (userDataError) {
           console.error("⚠️ Failed to fetch user data, but login succeeded:", userDataError);
-          // Don't block login if user data fetch fails
+          // Do not enter the app with a token but no local profile data.
+          await removeToken();
+          throw userDataError;
         }
         
-        router.replace("/(auth)/SubscriptionCheck");
+        router.replace("/SubscriptionCheck");
       }
     } catch (error: any) {
       console.error("Submission error:", error);
@@ -361,7 +366,7 @@ export const LoginScreen = () => {
           </FadeTranslate>
 
           <FadeTranslate order={7}>
-            <TouchableOpacity onPress={() => router.push("/(auth)/WelcomeScreen")} activeOpacity={0.7}>
+            <TouchableOpacity onPress={() => router.push("/WelcomeScreen")} activeOpacity={0.7}>
               <Text style={styles.signupText}>
                 Don&apos;t have an account?{" "}
                 <Text style={styles.signupTextHighlight}>Get started</Text>

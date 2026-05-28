@@ -379,7 +379,7 @@ export default function NutritionScreen() {
             <View style={s.topBarLeft}>
               <TouchableOpacity
                 style={s.avatarWrap}
-                onPress={() => router.push("/(tabs)/profile")}
+                onPress={() => router.push("/profile")}
                 activeOpacity={0.8}
               >
                 <Text style={s.avatarText}>
@@ -394,7 +394,7 @@ export default function NutritionScreen() {
               <TouchableOpacity
                 style={s.levelBadge}
                 activeOpacity={0.8}
-                onPress={() => router.push("/(screens)/Roadmap")}
+                onPress={() => router.push("/Roadmap")}
               >
                 <View style={s.levelIconWrap}>
                   <Text style={{ fontSize: 12 }}>🔥</Text>
@@ -518,7 +518,7 @@ export default function NutritionScreen() {
               <View style={s.emptyHeroActions}>
                 <TouchableOpacity 
                   style={s.emptyHeroPrimaryBtn} 
-                  onPress={() => router.push("../(screens)/ScanMeal")}
+                  onPress={() => router.push("/ScanMeal")}
                   activeOpacity={0.8}
                 >
                   <Ionicons name="scan" size={20} color={D.bg} />
@@ -527,7 +527,7 @@ export default function NutritionScreen() {
 
                 <TouchableOpacity 
                   style={s.emptyHeroSecondaryBtn} 
-                  onPress={() => router.push("../(screens)/SearchFood")}
+                  onPress={() => router.push("/SearchFood")}
                   activeOpacity={0.8}
                 >
                   <Ionicons name="search" size={20} color={D.primary} />
@@ -587,7 +587,7 @@ export default function NutritionScreen() {
             <TouchableOpacity
               style={s.pedometerCard}
               activeOpacity={0.8}
-              onPress={() => router.push("../(screens)/Pedometer")}
+              onPress={() => router.push("/Pedometer")}
             >
               <ImageBackground
                 source={require("@/assets/icons/backgrounds/image 74.png")}
@@ -625,7 +625,7 @@ export default function NutritionScreen() {
         {todayMeals.length > 0 && (
           <FadeTranslate order={1}>
               <View style={s.actionsRow}>
-                  <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/ScanMeal")}>
+                  <TouchableOpacity style={s.actionCard} onPress={() => router.push("/ScanMeal")}>
                       <View style={[s.actionIconBox, { backgroundColor: D.primary }]}>
                           <Ionicons name="scan" size={24} color="#000" />
                       </View>
@@ -635,7 +635,7 @@ export default function NutritionScreen() {
                       </View>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={s.actionCard} onPress={() => router.push("../(screens)/SearchFood")}>
+                  <TouchableOpacity style={s.actionCard} onPress={() => router.push("/SearchFood")}>
                       <View style={[s.actionIconBox, { backgroundColor: "#333" }]}>
                            <Ionicons name="search" size={24} color="#FFF" />
                       </View>

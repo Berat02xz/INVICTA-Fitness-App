@@ -517,9 +517,13 @@ export default function WorkoutPlayer() {
       </View>
     );
   }
+
+  const screenBackgroundColor =
+    phase === "rest" ? D.primary : phase === "complete" ? D.bg : "#FFFFFF";
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.screen, { backgroundColor: screenBackgroundColor }]}>
+      <View style={[styles.container, { paddingTop: insets.top, backgroundColor: screenBackgroundColor }]}>
 
         {/* HYPE OVERLAY */}
         {showHypeOverlay && (
@@ -967,6 +971,9 @@ const styles = StyleSheet.create({
   backBtnText: {
     color: D.white,
     fontFamily: theme.semibold,
+  },
+  screen: {
+    flex: 1,
   },
   container: {
     flex: 1,

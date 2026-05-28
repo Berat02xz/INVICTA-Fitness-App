@@ -67,13 +67,13 @@ export default function WelcomeScreen() {
         <View style={styles.bottomSection}>
           <TouchableOpacity
             style={styles.beginButton}
-            onPress={() => router.push("../../../(auth)/Onboarding/Questions/FitnessGoal")}
+            onPress={() => router.push("/Onboarding/Questions/FitnessGoal")}
           >
               <Text style={styles.beginButtonText}>Begin</Text>
           </TouchableOpacity>
 
         <FadeTranslate order={4}>
-          <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+          <TouchableOpacity onPress={() => router.push("/login")}>
             <Text style={styles.loginText}>You already have an account?</Text>
           </TouchableOpacity>
         </FadeTranslate>

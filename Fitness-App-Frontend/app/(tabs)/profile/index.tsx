@@ -17,6 +17,7 @@ import Constants from "expo-constants";
 import * as Linking from "expo-linking";
 import { getCaloriePlans } from "@/utils/GetCaloriePlans";
 import { LogoutUser } from "@/api/UserDataEndpoint";
+import { removeToken } from "@/api/AxiosInstance";
 import UnitSwitch from "@/components/ui/UnitSwitch";
 import DevMenu from "@/components/Testing/DevMenu";
 import FadeTranslate from "@/components/ui/FadeTranslate";
@@ -91,7 +92,10 @@ export default function Profile() {
       (async () => {
         try {
           const userId = await getUserIdFromToken();
-          if (!userId) return;
+          if (!userId) {
+            router.replace("/WelcomeScreen");
+            return;
+          }
           const meals = await Meal.getTodayMeals(database, userId);
           if (active) setTotalMeals(meals.length);
 
@@ -153,6 +157,9 @@ export default function Profile() {
 
         // Calculate calorie plans
         refreshCaloriePlans(user);
+      } else {
+        await removeToken();
+        router.replace("/WelcomeScreen");
       }
     } catch (error) {
       console.error("Error loading user data:", error);
@@ -369,7 +376,7 @@ export default function Profile() {
                     <TouchableOpacity 
                       style={s.levelBadge}
                       activeOpacity={0.8}
-                      onPress={() => router.push("/(screens)/Roadmap")}
+                      onPress={() => router.push("/Roadmap")}
                     >
                         <View style={s.levelIconWrap}>
                             <Text style={{ fontSize: 12 }}>🔥</Text>
@@ -482,7 +489,7 @@ export default function Profile() {
                 <TouchableOpacity 
                     style={s.upgradeAccountBtn} 
                     activeOpacity={0.8}
-                    onPress={() => router.push("/(auth)/SubscriptionCheck")}
+                    onPress={() => router.push("/SubscriptionCheck")}
                 >
                     <Ionicons name="sparkles" size={20} color={D.primary} />
                     <Text style={s.upgradeAccountText}>Upgrade to Pro</Text>

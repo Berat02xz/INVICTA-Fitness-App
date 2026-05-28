@@ -6,10 +6,10 @@ import { Q } from '@nozbe/watermelondb';
 export class SavedMessage extends Model {
   static table = 'saved_messages';
 
-  @field('user_id') userId!: string;
-  @field('message_text') messageText!: string;
-  @field('message_type') messageType!: string; // 'user' or 'ai'
-  @field('saved_at') savedAt!: number;
+  @field('user_id') userId: string;
+  @field('message_text') messageText: string;
+  @field('message_type') messageType: string; // 'user' or 'ai'
+  @field('saved_at') savedAt: number;
 
   // Static methods for database operations
   static async saveMessage(

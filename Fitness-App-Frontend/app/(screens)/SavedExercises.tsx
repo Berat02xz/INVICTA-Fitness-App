@@ -40,7 +40,7 @@ export default function SavedExercises() {
 
   const handlePress = (ex: LikedExercise) => {
     router.push({
-      pathname: "/(screens)/ExerciseDetail",
+      pathname: "/ExerciseDetail",
       params: {
         exerciseId: ex.exerciseId,
         name: ex.name,

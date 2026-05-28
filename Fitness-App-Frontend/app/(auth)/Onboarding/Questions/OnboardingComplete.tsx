@@ -108,7 +108,7 @@ const OnboardingComplete = () => {
 
       // Success → move forward
       goForward();
-      router.push("/(auth)/SubscriptionCheck");
+      router.push("/SubscriptionCheck");
     } catch (error) {
       console.error("Submission error:", error);
       if (userId) {

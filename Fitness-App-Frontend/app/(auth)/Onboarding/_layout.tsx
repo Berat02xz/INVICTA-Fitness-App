@@ -4,6 +4,7 @@ import OnboardingProvider, { useOnboarding } from './NavigationService';
 import OnboardingTopBar from './OnboardingTopBar';
 import { theme } from '@/constants/theme';
 import { useEffect, useRef } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -31,7 +32,9 @@ function OnboardingContent() {
         />
       </Animated.View>
       <OnboardingTopBar />
-      <Slot />
+      <SafeAreaView style={styles.screenSlot} edges={['bottom']}>
+        <Slot />
+      </SafeAreaView>
     </>
   );
 }
@@ -50,6 +53,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.backgroundColor,
+  },
+  screenSlot: {
+    flex: 1,
   },
   backgroundImageContainer: {
     position: 'absolute',

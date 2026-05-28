@@ -6,15 +6,15 @@ import type { ExerciseInfo } from '@/api/ExerciseApi';
 export class CachedExercise extends Model {
   static table = 'cached_exercises';
 
-  @field('exercise_id') exerciseId!: string;
-  @field('name') name!: string;
-  @field('gif_url') gifUrl!: string;
-  @field('target_muscles') targetMusclesRaw!: string;
-  @field('body_parts') bodyPartsRaw!: string;
-  @field('equipments') equipmentsRaw!: string;
-  @field('secondary_muscles') secondaryMusclesRaw!: string;
-  @field('instructions') instructionsRaw!: string;
-  @field('cached_at') cachedAt!: number;
+  @field('exercise_id') exerciseId: string;
+  @field('name') name: string;
+  @field('gif_url') gifUrl: string;
+  @field('target_muscles') targetMusclesRaw: string;
+  @field('body_parts') bodyPartsRaw: string;
+  @field('equipments') equipmentsRaw: string;
+  @field('secondary_muscles') secondaryMusclesRaw: string;
+  @field('instructions') instructionsRaw: string;
+  @field('cached_at') cachedAt: number;
 
   /** Convert DB row → ExerciseInfo */
   toExerciseInfo(): ExerciseInfo {

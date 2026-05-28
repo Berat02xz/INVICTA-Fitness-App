@@ -7,7 +7,6 @@
     "icon": "./assets/images/InvictaLogo.png",
     "scheme": "fitfe",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.berat02xz.invictus",
@@ -22,7 +21,6 @@
         "monochromeImage": "./assets/images/android/res/mipmap-xxxhdpi/ic_launcher_monochrome.png",
         "backgroundColor": "#19250D"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.berat02xz.invictus"
     },
     "web": {
